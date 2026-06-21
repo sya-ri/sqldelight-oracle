@@ -649,6 +649,34 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle named window clauses exactly") {
+            val sql =
+                """
+                CREATE TABLE employee_salaries (
+                  id NUMBER PRIMARY KEY,
+                  department_id NUMBER,
+                  salary NUMBER,
+                  hired_at DATE
+                );
+
+                SELECT department_id,
+                  salary,
+                  SUM(salary) OVER department_salary_window AS running_salary,
+                  ROW_NUMBER() OVER recent_department_window AS recent_rank
+                FROM employee_salaries
+                WINDOW
+                  department_window AS (PARTITION BY department_id),
+                  department_salary_window AS (department_window ORDER BY 1 ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW),
+                  recent_department_window AS (PARTITION BY department_id ORDER BY 1 DESC);
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle Machine Learning SQL functions exactly") {
             val sql =
                 """

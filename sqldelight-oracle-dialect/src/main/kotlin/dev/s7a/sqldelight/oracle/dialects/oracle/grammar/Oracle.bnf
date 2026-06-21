@@ -276,7 +276,11 @@ private oracle_function_argument ::= '*' | 'DISTINCT' <<expr '-1'>> | 'ALL' <<ex
 
 private oracle_keep_clause ::= 'KEEP' LP 'DENSE_RANK' ( 'FIRST' | 'LAST' ) 'ORDER' 'BY' <<orderingTermExt <<ordering_term_real>>>> ( COMMA <<orderingTermExt <<ordering_term_real>>>> ) * RP
 
-private oracle_over_clause ::= 'OVER' LP [ oracle_query_partition_clause ] [ oracle_analytic_order_by_clause ] [ oracle_windowing_clause ] RP
+private oracle_over_clause ::= 'OVER' ( oracle_window_name | oracle_window_specification )
+
+private oracle_window_specification ::= LP [ oracle_window_name ] [ oracle_query_partition_clause ] [ oracle_analytic_order_by_clause ] [ oracle_windowing_clause ] RP
+
+private oracle_window_name ::= oracle_object_name_part
 
 private oracle_query_partition_clause ::= 'PARTITION' 'BY' <<expr '-1'>> ( COMMA <<expr '-1'>> ) *
 
@@ -697,6 +701,11 @@ private oracle_select_query ::= 'SELECT' [ 'DISTINCT' | 'UNIQUE' | 'ALL' ]
   [ 'FROM' <<joinClauseExt <<join_clause_real>>>> ]
   [ 'WHERE' <<expr '-1'>> ]
   [ oracle_group_by_having_clause ]
+  [ oracle_window_clause ]
+
+private oracle_window_clause ::= 'WINDOW' oracle_window_definition ( COMMA oracle_window_definition ) *
+
+private oracle_window_definition ::= oracle_window_name 'AS' oracle_window_specification
 
 private oracle_values_query ::= 'VALUES' {values_expression} ( COMMA {values_expression} ) *
 

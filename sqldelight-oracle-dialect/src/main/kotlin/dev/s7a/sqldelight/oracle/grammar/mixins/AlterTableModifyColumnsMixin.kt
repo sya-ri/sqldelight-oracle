@@ -1,0 +1,58 @@
+package dev.s7a.sqldelight.oracle.grammar.mixins
+
+import com.alecstrong.sql.psi.core.SqlAnnotationHolder
+import com.alecstrong.sql.psi.core.psi.AlterTableApplier
+import com.alecstrong.sql.psi.core.psi.LazyQuery
+import com.alecstrong.sql.psi.core.psi.NamedElement
+import com.alecstrong.sql.psi.core.psi.QueryElement
+import com.alecstrong.sql.psi.core.psi.SqlColumnDef
+import com.alecstrong.sql.psi.core.psi.SqlColumnName
+import com.alecstrong.sql.psi.core.psi.SqlCompositeElementImpl
+import com.alecstrong.sql.psi.core.psi.alterStmt
+import com.intellij.lang.ASTNode
+import dev.s7a.sqldelight.oracle.grammar.psi.OracleAlterTableModifyColumns
+
+internal abstract class AlterTableModifyColumnsMixin(
+    node: ASTNode,
+) : SqlCompositeElementImpl(node),
+    OracleAlterTableModifyColumns,
+    AlterTableApplier {
+    private val columnDefinitions: List<SqlColumnDef>
+        get() = children.filterIsInstance<SqlColumnDef>()
+
+    override fun applyTo(lazyQuery: LazyQuery): LazyQuery =
+        LazyQuery(
+            tableName = lazyQuery.tableName,
+            query = {
+                val columns =
+                    lazyQuery.query.columns.map { queryColumn ->
+                        val columnName = queryColumn.element as NamedElement
+                        val replacement = columnDefinitions.singleOrNull { columnName.textMatches(it.columnName) }
+                        if (replacement != null) {
+                            QueryElement.QueryColumn(replacement.columnName)
+                        } else {
+                            queryColumn
+                        }
+                    }
+                lazyQuery.query.copy(columns = columns)
+            },
+        )
+
+    override fun annotate(annotationHolder: SqlAnnotationHolder) {
+        super.annotate(annotationHolder)
+
+        val availableColumns =
+            tablesAvailable(this)
+                .filter { it.tableName.textMatches(alterStmt.tableName) }
+                .flatMap { it.query.columns }
+
+        columnDefinitions.forEach { columnDef ->
+            if (availableColumns.none { (it.element as? SqlColumnName)?.textMatches(columnDef.columnName) == true }) {
+                annotationHolder.createErrorAnnotation(
+                    element = columnDef.columnName,
+                    message = "No column found to modify with name ${columnDef.columnName.text}",
+                )
+            }
+        }
+    }
+}

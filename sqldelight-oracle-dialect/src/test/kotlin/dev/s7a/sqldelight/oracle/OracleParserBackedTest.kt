@@ -134,9 +134,18 @@ class OracleParserBackedTest :
                 );
 
                 ALTER TABLE alter_targets ADD created_at TIMESTAMP;
+                ALTER TABLE alter_targets ADD (
+                  updated_at TIMESTAMP,
+                  archived_at TIMESTAMP INVISIBLE
+                );
                 ALTER TABLE alter_targets ADD CONSTRAINT alter_targets_status_check CHECK (status IS NOT NULL) ENABLE;
+                ALTER TABLE alter_targets MODIFY (
+                  created_at TIMESTAMP NOT NULL,
+                  updated_at TIMESTAMP NOT NULL
+                );
                 ALTER TABLE alter_targets MODIFY status VARCHAR2(32) NOT NULL;
                 ALTER TABLE alter_targets RENAME COLUMN status TO account_status;
+                ALTER TABLE alter_targets DROP COLUMN archived_at CASCADE CONSTRAINTS;
                 ALTER TABLE alter_targets DROP COLUMN created_at CASCADE CONSTRAINTS;
                 ALTER TABLE alter_targets DROP CONSTRAINT alter_targets_status_check;
                 """.trimIndent()

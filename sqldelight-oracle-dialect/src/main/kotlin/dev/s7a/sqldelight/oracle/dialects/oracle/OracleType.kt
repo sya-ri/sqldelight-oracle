@@ -223,6 +223,7 @@ public enum class OracleType(
                 "LOCALTIMESTAMP" to TIMESTAMP,
                 "SYSTIMESTAMP" to TIMESTAMP_TIME_ZONE,
                 "TO_CHAR" to TEXT,
+                "LISTAGG" to TEXT,
                 "RAWTOHEX" to TEXT,
                 "JSON_QUERY" to TEXT,
                 "JSON_SERIALIZE" to TEXT,

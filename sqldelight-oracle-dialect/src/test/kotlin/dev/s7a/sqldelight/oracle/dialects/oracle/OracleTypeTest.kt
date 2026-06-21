@@ -99,6 +99,7 @@ class OracleTypeTest :
                     "LOCALTIMESTAMP" to OracleType.TIMESTAMP,
                     "SYSTIMESTAMP" to OracleType.TIMESTAMP_TIME_ZONE,
                     "TO_CHAR" to OracleType.TEXT,
+                    "LISTAGG" to OracleType.TEXT,
                     "RAWTOHEX" to OracleType.TEXT,
                     "JSON_QUERY" to OracleType.TEXT,
                     "JSON_SERIALIZE" to OracleType.TEXT,

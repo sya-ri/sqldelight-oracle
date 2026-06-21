@@ -1036,6 +1036,34 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle LISTAGG ordered aggregate exactly") {
+            val sql =
+                """
+                CREATE TABLE employees (
+                  id NUMBER PRIMARY KEY,
+                  department_id NUMBER,
+                  last_name VARCHAR2(100),
+                  hire_date DATE
+                );
+
+                SELECT department_id,
+                  LISTAGG(last_name, '; ') WITHIN GROUP (ORDER BY hire_date, last_name) AS employee_names,
+                  LISTAGG(DISTINCT last_name, ', ' ON OVERFLOW TRUNCATE '...' WITH COUNT) WITHIN GROUP (ORDER BY last_name) AS distinct_employee_names
+                FROM employees
+                GROUP BY department_id;
+
+                SELECT department_id,
+                  LISTAGG(last_name, ', ') WITHIN GROUP (ORDER BY hire_date) OVER (PARTITION BY department_id) AS analytic_employee_names
+                FROM employees;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle named window clauses exactly") {
             val sql =
                 """

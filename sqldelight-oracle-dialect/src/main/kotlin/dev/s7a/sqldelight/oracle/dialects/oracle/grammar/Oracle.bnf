@@ -229,11 +229,13 @@ type_name ::= oracle_type_name | core_type_name {
   override = true
 }
 
-extension_expr ::= oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr {
+extension_expr ::= oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_cursor_expr {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionExprImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionExpr"
   override = true
 }
+
+private oracle_cursor_expr ::= 'CURSOR' LP <<compoundSelectStmtExt <<compound_select_stmt_real>>>> RP
 
 private oracle_operator_expr ::= oracle_hierarchical_operator_expr | oracle_shard_chunk_id_operator
 

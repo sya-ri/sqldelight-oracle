@@ -1,0 +1,42 @@
+public final class dev/s7a/sqldelight/oracle/check/dialect/ConnectByClause : dev/s7a/sqldelight/check/api/SqlDialectSourcePatternRole {
+	public static final field INSTANCE Ldev/s7a/sqldelight/oracle/check/dialect/ConnectByClause;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/s7a/sqldelight/oracle/check/dialect/CreateSequenceStatementStart : dev/s7a/sqldelight/check/api/SqlDialectSourcePatternRole {
+	public static final field INSTANCE Ldev/s7a/sqldelight/oracle/check/dialect/CreateSequenceStatementStart;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/s7a/sqldelight/oracle/check/dialect/EmptyStringLiteral : dev/s7a/sqldelight/check/api/SqlDialectSourcePatternRole {
+	public static final field INSTANCE Ldev/s7a/sqldelight/oracle/check/dialect/EmptyStringLiteral;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/s7a/sqldelight/oracle/check/dialect/OracleDialectKt {
+	public static final fun getOracleDialect ()Ldev/s7a/sqldelight/check/api/SqlDialect;
+	public static final fun getOracleDialectId ()Ldev/s7a/sqldelight/check/api/DialectId;
+}
+
+public final class dev/s7a/sqldelight/oracle/check/dialect/OracleDialectProvider : dev/s7a/sqldelight/check/api/SqlDialectProvider {
+	public fun <init> ()V
+	public fun resolve (Ldev/s7a/sqldelight/check/api/SqlDialectCoordinate;)Ldev/s7a/sqldelight/check/api/SqlDialect;
+}
+
+public final class dev/s7a/sqldelight/oracle/check/dialect/OracleDialectSourcePatternsKt {
+	public static final fun getOracleDialectSourcePatterns ()Ldev/s7a/sqldelight/check/api/SqlDialectSourcePatterns;
+}
+
+public final class dev/s7a/sqldelight/oracle/check/dialect/StartWithClause : dev/s7a/sqldelight/check/api/SqlDialectSourcePatternRole {
+	public static final field INSTANCE Ldev/s7a/sqldelight/oracle/check/dialect/StartWithClause;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+

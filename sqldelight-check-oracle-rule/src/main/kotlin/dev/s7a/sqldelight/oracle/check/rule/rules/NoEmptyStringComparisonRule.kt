@@ -1,5 +1,6 @@
 package dev.s7a.sqldelight.oracle.check.rule.rules
 
+import dev.s7a.sqldelight.check.api.DialectId
 import dev.s7a.sqldelight.check.api.RuleDiagnostic
 import dev.s7a.sqldelight.check.api.RuleId
 import dev.s7a.sqldelight.check.api.Severity
@@ -16,7 +17,7 @@ import dev.s7a.sqldelight.oracle.check.dialect.OracleDialectId
 public class NoEmptyStringComparisonRule : Rule {
     override val id: RuleId = RuleId("no-empty-string-comparison")
     override val defaultSeverity: Severity = Severity.Warning
-    override val targetDialect = OracleDialectId
+    override val targetDialect: DialectId = OracleDialectId
 
     override fun run(
         context: RuleContext,

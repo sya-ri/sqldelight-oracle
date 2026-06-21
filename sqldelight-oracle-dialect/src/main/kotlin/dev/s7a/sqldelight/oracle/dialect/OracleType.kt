@@ -80,11 +80,11 @@ public enum class OracleType(
                     LONG_NUMBER
                 }
 
-                "SMALLINT" -> {
+                "SMALLINT", "BINARY_INTEGER", "PLS_INTEGER" -> {
                     INTEGER_NUMBER
                 }
 
-                "FLOAT" -> {
+                "FLOAT", "REAL" -> {
                     BINARY_DOUBLE
                 }
 
@@ -211,6 +211,10 @@ public enum class OracleType(
                 "OBJECT",
                 "REF",
                 "ANYDATA",
+                "URITYPE",
+                "NESTED TABLE",
+                "VARRAY",
+                "VARYING ARRAY",
             )
 
         private val binaryBaseNames: Set<String> =
@@ -301,6 +305,14 @@ private fun String.baseOracleTypeName(): String =
     when {
         startsWith("LONG RAW") -> "LONG RAW"
         startsWith("DOUBLE PRECISION") -> "BINARY_DOUBLE"
+        startsWith("CHARACTER VARYING") -> "VARCHAR"
+        startsWith("CHARACTER") -> "CHAR"
+        startsWith("NATIONAL CHARACTER VARYING") -> "NVARCHAR2"
+        startsWith("NATIONAL CHARACTER") -> "NCHAR"
+        startsWith("NATIONAL CHAR VARYING") -> "NVARCHAR2"
+        startsWith("NATIONAL CHAR") -> "NCHAR"
+        startsWith("NESTED TABLE") -> "NESTED TABLE"
+        startsWith("VARYING ARRAY") -> "VARYING ARRAY"
         startsWith("TIMESTAMP") -> "TIMESTAMP"
         startsWith("INTERVAL") -> "INTERVAL"
         else -> substringBefore("(").substringBefore(" ").trim()

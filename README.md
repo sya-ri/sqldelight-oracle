@@ -2,7 +2,7 @@
 
 Oracle Database support for SQLDelight and sqldelight-check.
 
-Published artifact plan:
+Artifacts:
 
 - `dev.s7a.sqldelight.oracle:sqldelight-oracle-dialect`
 - `dev.s7a.sqldelight.oracle:sqldelight-check-oracle-dialect`
@@ -12,9 +12,9 @@ The first planned release version is `0.1.0`.
 
 ## Modules
 
-- `sqldelight-oracle-dialect`: SQLDelight dialect artifact.
-- `sqldelight-check-oracle-dialect`: sqldelight-check dialect metadata for Oracle source scanning.
-- `sqldelight-check-oracle-rule`: Oracle-specific sqldelight-check rules.
+- [`sqldelight-oracle-dialect`](sqldelight-oracle-dialect/README.md): SQLDelight dialect artifact.
+- [`sqldelight-check-oracle-dialect`](sqldelight-check-oracle-dialect/README.md): sqldelight-check dialect metadata for Oracle source scanning.
+- [`sqldelight-check-oracle-rule`](sqldelight-check-oracle-rule/README.md): Oracle-specific sqldelight-check rules.
 
 ## Install
 

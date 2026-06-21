@@ -18,7 +18,7 @@
   ]
 }
 
-overrides ::= type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt
+overrides ::= type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | extension_stmt
 
 type_name ::= oracle_type_name | core_type_name {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTypeNameImpl"
@@ -251,3 +251,38 @@ create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ] [ 'E
   override = true
   pin = 6
 }
+
+extension_stmt ::= create_sequence_stmt {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionStmtImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionStmt"
+  override = true
+}
+
+create_sequence_stmt ::= 'CREATE' 'SEQUENCE' [ 'IF' 'NOT' 'EXISTS' ] oracle_sequence_identifier oracle_sequence_clause * {
+  pin = 2
+}
+
+private oracle_sequence_identifier ::= <<identifierExt <<identifier_real>>>> | string
+
+private oracle_sequence_clause ::= (
+  'INCREMENT' 'BY' {signed_number} |
+  'START' 'WITH' {signed_number} |
+  'MAXVALUE' {signed_number} |
+  'NOMAXVALUE' |
+  'MINVALUE' {signed_number} |
+  'NOMINVALUE' |
+  'CYCLE' |
+  'NOCYCLE' |
+  'CACHE' {signed_number} |
+  'NOCACHE' |
+  'ORDER' |
+  'NOORDER' |
+  'KEEP' |
+  'NOKEEP' |
+  'SCALE' [ 'EXTEND' | 'NOEXTEND' ] |
+  'NOSCALE' |
+  'SHARD' [ 'EXTEND' | 'NOEXTEND' ] |
+  'NOSHARD' |
+  'SESSION' |
+  'GLOBAL'
+)

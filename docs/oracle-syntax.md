@@ -50,7 +50,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [ ] [`CONTAINERS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) and [`SHARDS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) query clauses
 - [ ] [`select_list`, aliases, and wildcard expansion](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html): `DISTINCT`, `UNIQUE`, `ALL`, object attributes, and column alias forms
 - [ ] [`GROUP BY`, `HAVING`, and aggregation extensions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html): `ROLLUP`, `CUBE`, `GROUPING SETS`, composite columns, and grouping expressions
-- [ ] [`ORDER BY` and `order_by_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html): positional ordering, aliases, `NULLS FIRST/LAST`, and `SIBLINGS`
+- [x] [`ORDER BY` and `order_by_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/order_by_clause.html): positional ordering, aliases, `NULLS FIRST/LAST`, and `SIBLINGS`
 - [ ] [`for_update_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html): `FOR UPDATE`, `OF`, `NOWAIT`, `WAIT`, and `SKIP LOCKED`
 - [ ] [`GRAPHQL` table function](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graphql-table-function.html)
 

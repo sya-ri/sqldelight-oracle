@@ -20,7 +20,7 @@
   ]
 }
 
-overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | with_clause | table_alias | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt
+overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | compound_select_stmt | with_clause | table_alias | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt
 
 stmt ::= explain_plan_stmt | oracle_core_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlStmtImpl"
@@ -358,6 +358,21 @@ compound_operator ::= (
 ) {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCompoundOperatorImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlCompoundOperator"
+  override = true
+}
+
+compound_select_stmt ::= [ {with_clause} ] {select_stmt}
+  ( {compound_operator} {select_stmt} ) *
+  [ 'ORDER' [ 'SIBLINGS' ] 'BY' {ordering_term} ( COMMA {ordering_term} ) * ]
+  [ {limit_stmt} ] {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCompoundSelectStmtImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlCompoundSelectStmt"
+  override = true
+}
+
+ordering_term ::= <<expr '-1'>> [ 'COLLATE' {collation_name} ] [ 'ASC' | 'DESC' ] [ 'NULLS' ( 'FIRST' | 'LAST' ) ] {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlOrderingTermImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlOrderingTerm"
   override = true
 }
 

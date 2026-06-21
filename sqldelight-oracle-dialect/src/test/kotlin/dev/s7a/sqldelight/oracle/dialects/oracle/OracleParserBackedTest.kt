@@ -311,6 +311,34 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle order by clauses through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE ordering_units (
+                  id NUMBER PRIMARY KEY,
+                  parent_id NUMBER,
+                  unit_name VARCHAR2(128),
+                  sort_score NUMBER
+                );
+
+                selectNullOrdering:
+                SELECT id AS sort_id, unit_name, sort_score
+                FROM ordering_units
+                ORDER BY sort_score DESC NULLS LAST, sort_id ASC NULLS FIRST, 1 DESC;
+
+                selectSiblingOrdering:
+                SELECT id, parent_id, unit_name
+                FROM ordering_units
+                ORDER SIBLINGS BY unit_name ASC NULLS LAST, id DESC NULLS FIRST;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle alter table statements through SQLDelight environment exactly") {
             val sql =
                 """

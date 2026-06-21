@@ -3148,7 +3148,8 @@ private oracle_where_clause ::= 'WHERE' <<expr '-1'>>
 private oracle_error_logging_clause ::= 'LOG' 'ERRORS' [ 'INTO' oracle_schema_object_name ] [ LP <<expr '-1'>> RP ]
   [ 'REJECT' 'LIMIT' ( {signed_number} | 'UNLIMITED' ) ]
 
-call_stmt ::= 'CALL' oracle_call_routine_name [ oracle_dblink_clause ] LP [ oracle_call_argument ( COMMA oracle_call_argument ) * ] RP {
+call_stmt ::= 'CALL' oracle_call_routine_name [ oracle_dblink_clause ] LP [ oracle_call_argument ( COMMA oracle_call_argument ) * ] RP
+  [ oracle_call_into_clause ] {
   pin = 1
 }
 
@@ -3157,6 +3158,8 @@ private oracle_call_routine_name ::= oracle_schema_object_name [ DOT ( <<identif
 private oracle_call_argument ::= [ oracle_call_argument_name EQ GT ] <<expr '-1'>>
 
 private oracle_call_argument_name ::= oracle_schema_object_name
+
+private oracle_call_into_clause ::= 'INTO' ':' oracle_object_name_part
 
 lock_table_stmt ::= 'LOCK' 'TABLE' oracle_lock_table_reference ( COMMA oracle_lock_table_reference ) * 'IN' oracle_lock_mode 'MODE'
   [ 'NOWAIT' | 'WAIT' {signed_number} ] {

@@ -1120,6 +1120,10 @@ class OracleParserBackedTest :
 
                 CALL hr.remote_api.refresh_cache@reporting_link(tenant_id => 42);
 
+                CALL hr.employee_api.current_salary(employee_id => 100) INTO :salary_out;
+
+                CALL hr.remote_api.current_status@reporting_link(tenant_id => 42) INTO :status_out;
+
                 CALL refresh_cache();
                 """.trimIndent()
 

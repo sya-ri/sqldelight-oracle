@@ -72,6 +72,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [`DELETE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DELETE.html)
 - [x] [`CALL`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CALL.html) parser support for positional-argument [`routine_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/routine_clause.html)
 - [x] [`CALL`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CALL.html) parser support for named and mixed argument notation with `=>`
+- [x] [`CALL`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/call.html) parser support for `INTO :host_variable`
 - [x] [`CALL`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/call.html), [`LOCK TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/LOCK-TABLE.html), and [`EXPLAIN PLAN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/EXPLAIN-PLAN.html) parser support for database link references with `@dblink_name`
 - [x] [`LOCK TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/LOCK-TABLE.html) parser support for multiple table references, [`partition_extension_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/partition_extension_clause.html), lock modes, `NOWAIT`, and `WAIT`
 - [x] [`EXPLAIN PLAN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/EXPLAIN-PLAN.html) parser support for `SET STATEMENT_ID`, `INTO`, and `FOR` `SELECT` / `INSERT` / `UPDATE` / `DELETE` / `MERGE` / `CREATE TABLE` / `CREATE INDEX` / `ALTER INDEX ... REBUILD` statements
@@ -86,7 +87,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [ ] [DML table expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html): subquery, collection, remote object, and `ONLY` target forms
 - [ ] [DML optimizer hints](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comments.html): statement-level and query-block hints in `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `MERGE`
 - [x] [DML error logging clause](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html): `LOG ERRORS INTO`, `REJECT LIMIT`, and reusable DML clause parsing for `INSERT` and `MERGE`
-- [ ] [`CALL`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/call.html) full support for `object_access_expression` and `INTO :host_variable`
+- [ ] [`CALL`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/call.html) full support for `object_access_expression`
 
 ## DDL
 

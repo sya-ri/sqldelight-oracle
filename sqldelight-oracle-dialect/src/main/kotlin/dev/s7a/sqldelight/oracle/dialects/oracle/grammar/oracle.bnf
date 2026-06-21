@@ -253,7 +253,7 @@ create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ] [ 'E
   pin = 6
 }
 
-extension_stmt ::= create_sequence_stmt | drop_sequence_stmt {
+extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionStmt"
   override = true
@@ -267,11 +267,16 @@ drop_sequence_stmt ::= 'DROP' 'SEQUENCE' [ 'IF' 'EXISTS' ] oracle_schema_object_
   pin = 2
 }
 
+alter_sequence_stmt ::= 'ALTER' 'SEQUENCE' [ 'IF' 'EXISTS' ] oracle_schema_object_name oracle_sequence_clause * {
+  pin = 2
+}
+
 private oracle_schema_object_name ::= ( <<identifierExt <<identifier_real>>>> | string ) [ DOT ( <<identifierExt <<identifier_real>>>> | string ) ]
 
 private oracle_sequence_clause ::= (
   'INCREMENT' 'BY' {signed_number} |
   'START' 'WITH' {signed_number} |
+  'RESTART' |
   'MAXVALUE' {signed_number} |
   'NOMAXVALUE' |
   'MINVALUE' {signed_number} |

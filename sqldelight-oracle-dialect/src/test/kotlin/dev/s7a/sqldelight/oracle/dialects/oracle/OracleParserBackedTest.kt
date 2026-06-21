@@ -280,6 +280,42 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle alter sequence statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                ALTER SEQUENCE IF EXISTS account_id_seq
+                  RESTART
+                  START WITH 42
+                  INCREMENT BY 2
+                  MAXVALUE 10000
+                  MINVALUE 1
+                  CACHE 10
+                  NOCYCLE
+                  NOORDER
+                  NOKEEP
+                  SCALE NOEXTEND
+                  SHARD EXTEND
+                  GLOBAL;
+
+                ALTER SEQUENCE hr.employee_seq
+                  NOMAXVALUE
+                  NOMINVALUE
+                  NOCACHE
+                  CYCLE
+                  ORDER
+                  KEEP
+                  NOSCALE
+                  NOSHARD
+                  SESSION;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

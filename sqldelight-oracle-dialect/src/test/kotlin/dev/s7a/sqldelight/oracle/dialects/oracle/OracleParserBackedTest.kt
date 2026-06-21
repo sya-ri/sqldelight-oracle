@@ -453,6 +453,54 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle join operators through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE join_departments (
+                  id NUMBER PRIMARY KEY,
+                  department_name VARCHAR2(128)
+                );
+
+                CREATE TABLE join_employees (
+                  id NUMBER PRIMARY KEY,
+                  department_id NUMBER,
+                  employee_name VARCHAR2(128)
+                );
+
+                selectRightOuterJoin:
+                SELECT employee_name, department_name
+                FROM join_employees e RIGHT OUTER JOIN join_departments d
+                  ON e.department_id = d.id;
+
+                selectFullOuterJoin:
+                SELECT employee_name, department_name
+                FROM join_employees e FULL OUTER JOIN join_departments d
+                  ON e.department_id = d.id;
+
+                selectCrossApply:
+                SELECT department_name, employee_name
+                FROM join_departments d CROSS APPLY (
+                  SELECT employee_name
+                  FROM join_employees e
+                  WHERE e.department_id IS NOT NULL
+                ) employee_matches;
+
+                selectOuterApply:
+                SELECT department_name, employee_name
+                FROM join_departments d OUTER APPLY (
+                  SELECT employee_name
+                  FROM join_employees e
+                  WHERE e.department_id IS NOT NULL
+                ) employee_matches;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle alter table statements through SQLDelight environment exactly") {
             val sql =
                 """

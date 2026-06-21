@@ -40,6 +40,10 @@ private oracle_core_stmt ::= (
   set_constraints_stmt |
   set_role_stmt |
   set_use_data_grants_only_stmt |
+  create_role_stmt |
+  alter_role_stmt |
+  drop_role_stmt |
+  drop_user_stmt |
   associate_statistics_stmt |
   disassociate_statistics_stmt |
   rename_stmt |
@@ -337,7 +341,7 @@ create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ] [ 'E
   pin = 6
 }
 
-extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | drop_synonym_stmt | drop_type_body_stmt | drop_type_stmt | drop_function_stmt | drop_procedure_stmt | drop_package_stmt | drop_library_stmt | drop_java_stmt | drop_analytic_view_stmt | drop_attribute_dimension_stmt | drop_hierarchy_stmt | drop_dimension_stmt | drop_cluster_stmt | drop_database_link_stmt | drop_directory_stmt | drop_indextype_stmt | drop_operator_stmt | drop_outline_stmt | drop_property_graph_stmt | drop_iceberg_table_stmt | drop_context_stmt | drop_mle_env_stmt | drop_mle_module_stmt | drop_assertion_stmt | drop_directive_stmt | drop_edition_stmt | drop_flashback_archive_stmt | drop_inmemory_join_group_stmt | drop_lockdown_profile_stmt | drop_pmem_filestore_stmt | drop_profile_stmt | drop_rollback_segment_stmt | drop_database_stmt | drop_pluggable_database_stmt | drop_tablespace_set_stmt | drop_tablespace_stmt | drop_diskgroup_stmt | drop_restore_point_stmt | set_transaction_stmt | set_constraints_stmt | set_role_stmt | set_use_data_grants_only_stmt | associate_statistics_stmt | disassociate_statistics_stmt | rename_stmt | comment_on_stmt | purge_stmt | flashback_table_stmt | flashback_database_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
+extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | drop_synonym_stmt | drop_type_body_stmt | drop_type_stmt | drop_function_stmt | drop_procedure_stmt | drop_package_stmt | drop_library_stmt | drop_java_stmt | drop_analytic_view_stmt | drop_attribute_dimension_stmt | drop_hierarchy_stmt | drop_dimension_stmt | drop_cluster_stmt | drop_database_link_stmt | drop_directory_stmt | drop_indextype_stmt | drop_operator_stmt | drop_outline_stmt | drop_property_graph_stmt | drop_iceberg_table_stmt | drop_context_stmt | drop_mle_env_stmt | drop_mle_module_stmt | drop_assertion_stmt | drop_directive_stmt | drop_edition_stmt | drop_flashback_archive_stmt | drop_inmemory_join_group_stmt | drop_lockdown_profile_stmt | drop_pmem_filestore_stmt | drop_profile_stmt | drop_rollback_segment_stmt | drop_database_stmt | drop_pluggable_database_stmt | drop_tablespace_set_stmt | drop_tablespace_stmt | drop_diskgroup_stmt | drop_restore_point_stmt | set_transaction_stmt | set_constraints_stmt | set_role_stmt | set_use_data_grants_only_stmt | create_role_stmt | alter_role_stmt | drop_role_stmt | drop_user_stmt | associate_statistics_stmt | disassociate_statistics_stmt | rename_stmt | comment_on_stmt | purge_stmt | flashback_table_stmt | flashback_database_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionStmt"
   override = true
@@ -591,6 +595,36 @@ private oracle_role_password ::= oracle_object_name_part
 set_use_data_grants_only_stmt ::= 'SET' 'USE' 'DATA' 'GRANTS' 'ONLY' 'ON' oracle_schema_object_name [ 'ENABLED' | 'DISABLED' ] {
   pin = 5
 }
+
+create_role_stmt ::= 'CREATE' 'ROLE' [ 'IF' 'NOT' 'EXISTS' ] oracle_object_name_part
+  [ oracle_role_identification ] [ oracle_container_clause ] {
+  pin = 2
+}
+
+alter_role_stmt ::= 'ALTER' 'ROLE' [ 'IF' 'EXISTS' ] oracle_object_name_part
+  oracle_role_identification [ oracle_container_clause ] {
+  pin = 2
+}
+
+drop_role_stmt ::= 'DROP' 'ROLE' [ 'IF' 'EXISTS' ] oracle_object_name_part {
+  pin = 2
+}
+
+drop_user_stmt ::= 'DROP' 'USER' [ 'IF' 'EXISTS' ] oracle_object_name_part [ 'CASCADE' ] {
+  pin = 2
+}
+
+private oracle_role_identification ::= (
+  'NOT' 'IDENTIFIED' |
+  'IDENTIFIED' (
+    'BY' oracle_role_password |
+    'USING' oracle_schema_object_name |
+    'EXTERNALLY' |
+    'GLOBALLY' 'AS' {string_literal}
+  )
+)
+
+private oracle_container_clause ::= 'CONTAINER' EQ ( 'CURRENT' | 'ALL' )
 
 analyze_stmt ::= 'ANALYZE' oracle_analyze_target oracle_analyze_action {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlAnalyzeStmtImpl"

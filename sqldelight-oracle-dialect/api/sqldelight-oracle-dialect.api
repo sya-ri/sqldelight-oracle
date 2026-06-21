@@ -52,6 +52,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/OracleTypeResolver 
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : com/intellij/lang/LightPsiParser, com/intellij/lang/PsiParser {
 	public fun <init> ()V
+	public static fun alter_role_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_sequence_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_table_add_column_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_table_add_columns_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -70,6 +71,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun comment_on_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun commit_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_index_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun create_role_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_sequence_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_table_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_view_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -108,6 +110,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun drop_profile_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_property_graph_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_restore_point_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun drop_role_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_rollback_segment_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_sequence_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_synonym_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -116,6 +119,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun drop_trigger_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_type_body_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_type_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun drop_user_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun explain_plan_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun extension_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun flashback_database_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -144,6 +148,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 
 public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParserUtil : com/intellij/lang/parser/GeneratedParserUtilBase {
 	public static final field INSTANCE Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParserUtil;
+	public static final fun alterRoleStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterSequenceStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterTableAddColumnExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterTableAddColumnsExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -162,6 +167,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun commentOnStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun commitStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createIndexStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun createRoleStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createSequenceStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createTableStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createViewStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -200,6 +206,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun dropProfileStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropPropertyGraphStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropRestorePointStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun dropRoleStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropRollbackSegmentStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropSequenceStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropSynonymStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -208,10 +215,12 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun dropTriggerStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropTypeBodyStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropTypeStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun dropUserStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun explainPlanStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun extensionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun flashbackDatabaseStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun flashbackTableStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public final fun getAlter_role_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_sequence_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_table_add_column ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_table_add_columns ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -231,6 +240,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getCommit_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreateElement ()Lkotlin/jvm/functions/Function1;
 	public final fun getCreate_index_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getCreate_role_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_sequence_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_table_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_view_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -269,6 +279,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getDrop_profile_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_property_graph_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_restore_point_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getDrop_role_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_rollback_segment_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_sequence_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_synonym_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -277,6 +288,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getDrop_trigger_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_type_body_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_type_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getDrop_user_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getExplain_plan_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getExtension_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getFlashback_database_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -308,6 +320,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun reset ()V
 	public static final fun rollbackStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun savepointStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public final fun setAlter_role_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_sequence_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_table_add_column (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_table_add_columns (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -328,6 +341,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun setConstraintsStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public final fun setCreateElement (Lkotlin/jvm/functions/Function1;)V
 	public final fun setCreate_index_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setCreate_role_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_sequence_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_table_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_view_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -366,6 +380,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setDrop_profile_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_property_graph_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_restore_point_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setDrop_role_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_rollback_segment_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_sequence_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_synonym_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -374,6 +389,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setDrop_trigger_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_type_body_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_type_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setDrop_user_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setExplain_plan_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setExtension_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setFlashback_database_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -403,6 +419,9 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun truncateClusterStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun truncateTableStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun typeNameExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterRoleStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSequenceStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -466,6 +485,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIndexStmt : com/alecstrong/sql/psi/core/psi/SqlCreateIndexStmt, com/intellij/psi/StubBasedPsiElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRoleStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSequenceStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -582,6 +604,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropRestorePointStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropRoleStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropRollbackSegmentStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
@@ -606,6 +631,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTypeStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropUserStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExplainPlanStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 	public abstract fun getCreateIndexStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIndexStmt;
 	public abstract fun getCreateTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTableStmt;
@@ -613,10 +641,12 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionStmt : com/alecstrong/sql/psi/core/psi/SqlExtensionStmt {
+	public abstract fun getAlterRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterRoleStmt;
 	public abstract fun getAlterSequenceStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSequenceStmt;
 	public abstract fun getAssociateStatisticsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAssociateStatisticsStmt;
 	public abstract fun getCallStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCallStmt;
 	public abstract fun getCommentOnStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCommentOnStmt;
+	public abstract fun getCreateRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRoleStmt;
 	public abstract fun getCreateSequenceStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSequenceStmt;
 	public abstract fun getDisassociateStatisticsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDisassociateStatisticsStmt;
 	public abstract fun getDropAnalyticViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAnalyticViewStmt;
@@ -653,6 +683,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getDropProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropProfileStmt;
 	public abstract fun getDropPropertyGraphStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropPropertyGraphStmt;
 	public abstract fun getDropRestorePointStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropRestorePointStmt;
+	public abstract fun getDropRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropRoleStmt;
 	public abstract fun getDropRollbackSegmentStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropRollbackSegmentStmt;
 	public abstract fun getDropSequenceStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropSequenceStmt;
 	public abstract fun getDropSynonymStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropSynonymStmt;
@@ -660,6 +691,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getDropTablespaceStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTablespaceStmt;
 	public abstract fun getDropTypeBodyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTypeBodyStmt;
 	public abstract fun getDropTypeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTypeStmt;
+	public abstract fun getDropUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropUserStmt;
 	public abstract fun getExplainPlanStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExplainPlanStmt;
 	public abstract fun getFlashbackDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleFlashbackDatabaseStmt;
 	public abstract fun getFlashbackTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleFlashbackTableStmt;
@@ -733,8 +765,10 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleStmt : com/alecstrong/sql/psi/core/psi/SqlStmt {
+	public abstract fun getAlterRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterRoleStmt;
 	public abstract fun getAssociateStatisticsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAssociateStatisticsStmt;
 	public abstract fun getCommentOnStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCommentOnStmt;
+	public abstract fun getCreateRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRoleStmt;
 	public abstract fun getDisassociateStatisticsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDisassociateStatisticsStmt;
 	public abstract fun getDropAnalyticViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAnalyticViewStmt;
 	public abstract fun getDropAssertionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAssertionStmt;
@@ -768,11 +802,13 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getDropProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropProfileStmt;
 	public abstract fun getDropPropertyGraphStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropPropertyGraphStmt;
 	public abstract fun getDropRestorePointStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropRestorePointStmt;
+	public abstract fun getDropRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropRoleStmt;
 	public abstract fun getDropRollbackSegmentStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropRollbackSegmentStmt;
 	public abstract fun getDropTablespaceSetStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTablespaceSetStmt;
 	public abstract fun getDropTablespaceStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTablespaceStmt;
 	public abstract fun getDropTypeBodyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTypeBodyStmt;
 	public abstract fun getDropTypeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTypeStmt;
+	public abstract fun getDropUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropUserStmt;
 	public abstract fun getExplainPlanStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExplainPlanStmt;
 	public abstract fun getFlashbackDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleFlashbackDatabaseStmt;
 	public abstract fun getFlashbackTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleFlashbackTableStmt;
@@ -798,6 +834,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTypes {
+	public static final field ALTER_ROLE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_SEQUENCE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_TABLE_ADD_COLUMN Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_TABLE_ADD_COLUMNS Lcom/intellij/psi/tree/IElementType;
@@ -818,6 +855,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field COMMENT_ON_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field COMMIT_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_INDEX_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field CREATE_ROLE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_SEQUENCE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_TABLE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_VIEW_STMT Lcom/intellij/psi/tree/IElementType;
@@ -858,6 +896,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field DROP_PROFILE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_PROPERTY_GRAPH_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_RESTORE_POINT_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field DROP_ROLE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_ROLLBACK_SEGMENT_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_SEQUENCE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_SYNONYM_STMT Lcom/intellij/psi/tree/IElementType;
@@ -866,6 +905,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field DROP_TRIGGER_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_TYPE_BODY_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_TYPE_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field DROP_USER_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field EQ Lcom/intellij/psi/tree/IElementType;
 	public static final field EXPLAIN_PLAN_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field EXTENSION_STMT Lcom/intellij/psi/tree/IElementType;
@@ -902,6 +942,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTypes$F
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor : com/intellij/psi/PsiElementVisitor {
 	public fun <init> ()V
+	public fun visitAlterRoleStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterRoleStmt;)V
 	public fun visitAlterSequenceStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSequenceStmt;)V
 	public fun visitAlterTableAddColumn (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTableAddColumn;)V
 	public fun visitAlterTableAddColumns (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTableAddColumns;)V
@@ -920,6 +961,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitCommentOnStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCommentOnStmt;)V
 	public fun visitCommitStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCommitStmt;)V
 	public fun visitCreateIndexStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIndexStmt;)V
+	public fun visitCreateRoleStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRoleStmt;)V
 	public fun visitCreateSequenceStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSequenceStmt;)V
 	public fun visitCreateTableStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTableStmt;)V
 	public fun visitCreateViewStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateViewStmt;)V
@@ -958,6 +1000,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitDropProfileStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropProfileStmt;)V
 	public fun visitDropPropertyGraphStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropPropertyGraphStmt;)V
 	public fun visitDropRestorePointStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropRestorePointStmt;)V
+	public fun visitDropRoleStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropRoleStmt;)V
 	public fun visitDropRollbackSegmentStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropRollbackSegmentStmt;)V
 	public fun visitDropSequenceStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropSequenceStmt;)V
 	public fun visitDropSynonymStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropSynonymStmt;)V
@@ -966,6 +1009,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitDropTriggerStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTriggerStmt;)V
 	public fun visitDropTypeBodyStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTypeBodyStmt;)V
 	public fun visitDropTypeStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTypeStmt;)V
+	public fun visitDropUserStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropUserStmt;)V
 	public fun visitExplainPlanStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExplainPlanStmt;)V
 	public fun visitExtensionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionStmt;)V
 	public fun visitFlashbackDatabaseStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleFlashbackDatabaseStmt;)V
@@ -1004,6 +1048,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitTruncateClusterStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTruncateClusterStmt;)V
 	public fun visitTruncateTableStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTruncateTableStmt;)V
 	public fun visitTypeName (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTypeName;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterRoleStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterRoleStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterSequenceStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSequenceStmt {
@@ -1120,6 +1170,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCo
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateIndexStmtImpl : com/alecstrong/sql/psi/core/psi/impl/SqlCreateIndexStmtImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIndexStmt {
 	public fun <init> (Lcom/alecstrong/sql/psi/core/psi/SchemaContributorStub;Lcom/intellij/psi/stubs/IStubElementType;)V
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateRoleStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRoleStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
@@ -1355,6 +1411,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDr
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDropRoleStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropRoleStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDropRollbackSegmentStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropRollbackSegmentStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
@@ -1403,6 +1465,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDr
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDropUserStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropUserStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleExplainPlanStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExplainPlanStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
@@ -1416,10 +1484,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+	public fun getAlterRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterRoleStmt;
 	public fun getAlterSequenceStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSequenceStmt;
 	public fun getAssociateStatisticsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAssociateStatisticsStmt;
 	public fun getCallStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCallStmt;
 	public fun getCommentOnStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCommentOnStmt;
+	public fun getCreateRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRoleStmt;
 	public fun getCreateSequenceStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSequenceStmt;
 	public fun getDisassociateStatisticsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDisassociateStatisticsStmt;
 	public fun getDropAnalyticViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAnalyticViewStmt;
@@ -1456,6 +1526,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getDropProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropProfileStmt;
 	public fun getDropPropertyGraphStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropPropertyGraphStmt;
 	public fun getDropRestorePointStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropRestorePointStmt;
+	public fun getDropRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropRoleStmt;
 	public fun getDropRollbackSegmentStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropRollbackSegmentStmt;
 	public fun getDropSequenceStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropSequenceStmt;
 	public fun getDropSynonymStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropSynonymStmt;
@@ -1463,6 +1534,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getDropTablespaceStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTablespaceStmt;
 	public fun getDropTypeBodyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTypeBodyStmt;
 	public fun getDropTypeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTypeStmt;
+	public fun getDropUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropUserStmt;
 	public fun getExplainPlanStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExplainPlanStmt;
 	public fun getFlashbackDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleFlashbackDatabaseStmt;
 	public fun getFlashbackTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleFlashbackTableStmt;
@@ -1581,8 +1653,10 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSt
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+	public fun getAlterRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterRoleStmt;
 	public fun getAssociateStatisticsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAssociateStatisticsStmt;
 	public fun getCommentOnStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCommentOnStmt;
+	public fun getCreateRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRoleStmt;
 	public fun getDisassociateStatisticsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDisassociateStatisticsStmt;
 	public fun getDropAnalyticViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAnalyticViewStmt;
 	public fun getDropAssertionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAssertionStmt;
@@ -1616,11 +1690,13 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSt
 	public fun getDropProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropProfileStmt;
 	public fun getDropPropertyGraphStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropPropertyGraphStmt;
 	public fun getDropRestorePointStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropRestorePointStmt;
+	public fun getDropRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropRoleStmt;
 	public fun getDropRollbackSegmentStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropRollbackSegmentStmt;
 	public fun getDropTablespaceSetStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTablespaceSetStmt;
 	public fun getDropTablespaceStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTablespaceStmt;
 	public fun getDropTypeBodyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTypeBodyStmt;
 	public fun getDropTypeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTypeStmt;
+	public fun getDropUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropUserStmt;
 	public fun getExplainPlanStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExplainPlanStmt;
 	public fun getFlashbackDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleFlashbackDatabaseStmt;
 	public fun getFlashbackTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleFlashbackTableStmt;

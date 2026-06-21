@@ -857,6 +857,41 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle role and user security statements exactly") {
+            val sql =
+                """
+                CREATE ROLE IF NOT EXISTS app_reader NOT IDENTIFIED;
+
+                CREATE ROLE app_writer IDENTIFIED BY writer_password CONTAINER = CURRENT;
+
+                CREATE ROLE app_external IDENTIFIED EXTERNALLY CONTAINER = ALL;
+
+                CREATE ROLE app_global IDENTIFIED GLOBALLY AS 'IAM_GROUP_NAME = analytics';
+
+                CREATE ROLE app_package IDENTIFIED USING security.role_auth;
+
+                ALTER ROLE IF EXISTS app_reader IDENTIFIED BY reader_password;
+
+                ALTER ROLE app_writer NOT IDENTIFIED CONTAINER = ALL;
+
+                ALTER ROLE app_external IDENTIFIED GLOBALLY AS 'AZURE_ROLE = app-role';
+
+                DROP ROLE IF EXISTS app_reader;
+
+                DROP ROLE app_writer;
+
+                DROP USER IF EXISTS old_app_user CASCADE;
+
+                DROP USER staging_user;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle analyze statements exactly") {
             val sql =
                 """

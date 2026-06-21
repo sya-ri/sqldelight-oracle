@@ -857,6 +857,57 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle alter session and alter system statements exactly") {
+            val sql =
+                """
+                ALTER SESSION ADVISE COMMIT;
+
+                ALTER SESSION CLOSE DATABASE LINK local;
+
+                ALTER SESSION ENABLE PARALLEL DML;
+
+                ALTER SESSION FORCE PARALLEL QUERY PARALLEL 8;
+
+                ALTER SESSION ENABLE RESUMABLE TIMEOUT 3600 NAME 'bulk load';
+
+                ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY MM DD HH24:MI:SS';
+
+                ALTER SESSION SET CONTAINER = pdb1 SERVICE = app_service;
+
+                ALTER SESSION SET ROW ARCHIVAL VISIBILITY = ALL;
+
+                ALTER SYSTEM ARCHIVE LOG CHANGE 9356083;
+
+                ALTER SYSTEM CHECKPOINT;
+
+                ALTER SYSTEM FLUSH SHARED_POOL;
+
+                ALTER SYSTEM SWITCH LOGFILE;
+
+                ALTER SYSTEM ENABLE RESTRICTED SESSION;
+
+                ALTER SYSTEM DISABLE DISTRIBUTED RECOVERY;
+
+                ALTER SYSTEM KILL SESSION '39, 23' IMMEDIATE;
+
+                ALTER SYSTEM DISCONNECT SESSION '13, 8' POST_TRANSACTION;
+
+                ALTER SYSTEM SET QUERY_REWRITE_ENABLED = TRUE;
+
+                ALTER SYSTEM SET DISPATCHERS = '(INDEX=0)(PROTOCOL=TCP)(DISPATCHERS=5)', '(INDEX=1)(PROTOCOL=ipc)(DISPATCHERS=10)';
+
+                ALTER SYSTEM SET RESOURCE_LIMIT = TRUE SCOPE = BOTH SID = '*';
+
+                ALTER SYSTEM RESET resource_limit SCOPE = SPFILE SID = '*';
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle role and user security statements exactly") {
             val sql =
                 """

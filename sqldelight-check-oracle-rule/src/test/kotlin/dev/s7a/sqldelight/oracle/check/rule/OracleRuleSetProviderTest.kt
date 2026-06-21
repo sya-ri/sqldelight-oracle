@@ -1,6 +1,7 @@
 package dev.s7a.sqldelight.oracle.check.rule
 
 import dev.s7a.sqldelight.check.rule.api.RuleSetProvider
+import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingSequenceClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoEmptyStringComparisonRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NullableNotInPredicateRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.PreferIdentityColumnRule
@@ -20,6 +21,7 @@ class OracleRuleSetProviderTest :
                 listOf(
                     NullableNotInPredicateRule::class,
                     NoEmptyStringComparisonRule::class,
+                    NoConflictingSequenceClausesRule::class,
                     PreferIdentityColumnRule::class,
                     RequireNumberPrecisionRule::class,
                     UnsafeDdlMigrationRule::class,

@@ -3,6 +3,7 @@ package dev.s7a.sqldelight.oracle.check.rule
 import dev.s7a.sqldelight.check.api.RuleSetId
 import dev.s7a.sqldelight.check.rule.api.RuleProvider
 import dev.s7a.sqldelight.check.rule.api.RuleSetProvider
+import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingSequenceClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoEmptyStringComparisonRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NullableNotInPredicateRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.PreferIdentityColumnRule
@@ -19,6 +20,7 @@ public class OracleRuleSetProvider : RuleSetProvider {
         setOf(
             RuleProvider(::NullableNotInPredicateRule),
             RuleProvider(::NoEmptyStringComparisonRule),
+            RuleProvider(::NoConflictingSequenceClausesRule),
             RuleProvider(::PreferIdentityColumnRule),
             RuleProvider(::RequireNumberPrecisionRule),
             RuleProvider(::UnsafeDdlMigrationRule),

@@ -2,7 +2,7 @@
 
 `sqldelight-check-oracle-rule` is the Oracle Database-specific rule set for sqldelight-check.
 
-These rules are gated by `OracleDialectId` and focus on Oracle null semantics, generated keys, numeric type declarations, and migration DDL that can surprise live Oracle databases.
+These rules are gated by `OracleDialectId` and focus on Oracle null semantics, generated keys, numeric type declarations, sequence semantics, and migration DDL that can surprise live Oracle databases.
 
 ## Rule Set ID
 
@@ -33,6 +33,7 @@ Built-in rules use `Severity.Warning` for visible Oracle-specific findings that 
 | --- | --- | --- | --- | --- |
 | [`oracle:nullable-not-in-predicate`](#oraclenullable-not-in-predicate) | 🟢 | ⚠️ |  | Flag `NOT IN (subquery)` predicates that do not explicitly filter nullable values. |
 | [`oracle:no-empty-string-comparison`](#oracleno-empty-string-comparison) | 🟢 | ⚠️ |  | Avoid comparing to `''`, because Oracle treats zero-length strings as `NULL`. |
+| [`oracle:no-conflicting-sequence-clauses`](#oracleno-conflicting-sequence-clauses) | 🟢 | ⚠️ |  | Avoid mutually exclusive `CREATE SEQUENCE` and `ALTER SEQUENCE` clauses. |
 | [`oracle:prefer-identity-column`](#oracleprefer-identity-column) | 🟢 | ⚠️ |  | Prefer Oracle identity columns over sequence-trigger generated keys. |
 | [`oracle:require-number-precision`](#oraclerequire-number-precision) | 🟢 | ⚠️ |  | Require explicit precision and scale for `NUMBER` declarations. |
 | [`oracle:unsafe-ddl-migration`](#oracleunsafe-ddl-migration) | 🟢 | ⚠️ |  | Flag migration DDL that can rewrite, lock, or destructively change large tables. |
@@ -67,6 +68,23 @@ Prefer null predicates:
 SELECT *
 FROM customer
 WHERE name IS NULL;
+```
+
+## `oracle:no-conflicting-sequence-clauses`
+
+Reports mutually exclusive Oracle sequence clauses in one `CREATE SEQUENCE` or `ALTER SEQUENCE` statement.
+The rule checks repeated or opposing clause groups such as `SHARING`, `MAXVALUE` / `NOMAXVALUE`, `MINVALUE` / `NOMINVALUE`, `CACHE` / `NOCACHE`, `ORDER` / `NOORDER`, `SCALE` / `NOSCALE`, `SHARD` / `NOSHARD`, and `SESSION` / `GLOBAL`.
+
+Prefer one choice per semantic group:
+
+```sql
+CREATE SEQUENCE invoice_seq
+    SHARING = METADATA
+    START WITH 1
+    CACHE 20
+    NOORDER
+    SCALE EXTEND
+    GLOBAL;
 ```
 
 ## `oracle:prefer-identity-column`

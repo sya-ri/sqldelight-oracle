@@ -251,6 +251,7 @@ class OracleParserBackedTest :
             val sql =
                 """
                 CREATE SEQUENCE IF NOT EXISTS account_id_seq
+                  SHARING = METADATA
                   START WITH 1
                   INCREMENT BY 1
                   MINVALUE 1
@@ -277,6 +278,7 @@ class OracleParserBackedTest :
                   SESSION;
 
                 CREATE SEQUENCE hr.employee_seq
+                  SHARING = NONE
                   START WITH 500
                   NOCACHE;
                 """.trimIndent()

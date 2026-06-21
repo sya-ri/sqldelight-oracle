@@ -375,6 +375,25 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle call statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                CALL remove_dept(162);
+
+                CALL emp_mgmt.remove_dept(162);
+
+                CALL hr.employee_api.adjust_salary(100, 2500, CURRENT_TIMESTAMP);
+
+                CALL refresh_cache();
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

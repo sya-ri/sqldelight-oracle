@@ -254,7 +254,7 @@ create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ] [ 'E
   pin = 6
 }
 
-extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | merge_stmt {
+extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | merge_stmt | call_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionStmt"
   override = true
@@ -331,3 +331,11 @@ private oracle_where_clause ::= 'WHERE' <<expr '-1'>>
 
 private oracle_error_logging_clause ::= 'LOG' 'ERRORS' [ 'INTO' oracle_schema_object_name ] [ LP <<expr '-1'>> RP ]
   [ 'REJECT' 'LIMIT' ( {signed_number} | 'UNLIMITED' ) ]
+
+call_stmt ::= 'CALL' oracle_call_routine_name LP [ oracle_call_argument ( COMMA oracle_call_argument ) * ] RP {
+  pin = 1
+}
+
+private oracle_call_routine_name ::= oracle_schema_object_name [ DOT ( <<identifierExt <<identifier_real>>>> | string ) ]
+
+private oracle_call_argument ::= <<expr '-1'>>

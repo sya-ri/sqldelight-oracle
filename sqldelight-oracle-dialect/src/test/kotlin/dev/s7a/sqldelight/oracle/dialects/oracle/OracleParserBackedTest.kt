@@ -1025,6 +1025,37 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle create Iceberg table statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE ICEBERG TABLE lake.sales_orders
+                  (order_id NUMBER, order_status STRING, order_created_at TIMESTAMP)
+                  WITHIN CATALOG lake_catalog
+                  STORAGE LOCATION 's3://warehouse/sales_orders';
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create Iceberg table without columns statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE ICEBERG TABLE sales_orders_archive
+                  WITHIN CATALOG archive_catalog
+                  STORAGE LOCATION 's3://warehouse/sales_orders_archive';
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle graph, Iceberg, context, and MLE drop statements through SQLDelight environment exactly") {
             val sql =
                 """

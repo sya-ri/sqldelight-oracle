@@ -894,6 +894,25 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle graph and JSON duality view alter statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                ALTER PROPERTY GRAPH g COMPILE;
+
+                ALTER PROPERTY GRAPH IF EXISTS hr.customer_graph COMPILE;
+
+                ALTER JSON DUALITY VIEW orders_dv ENABLE LOGICAL REPLICATION;
+
+                ALTER JSON RELATIONAL DUALITY VIEW IF EXISTS hr.orders_dv DISABLE LOGICAL REPLICATION;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle MLE alter statements through SQLDelight environment exactly") {
             val sql =
                 """

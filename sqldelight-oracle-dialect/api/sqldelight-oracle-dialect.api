@@ -236,6 +236,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun truncate_cluster_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun truncate_table_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun type_name_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun with_clause_real (Lcom/intellij/lang/PsiBuilder;I)Z
 }
 
 public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParserUtil : com/intellij/lang/parser/GeneratedParserUtilBase {
@@ -581,6 +582,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getTruncate_cluster_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getTruncate_table_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getType_name ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getWith_clause ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public static final fun grantStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun limitStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun lockTableStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -781,12 +783,14 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setTruncate_table_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setType_name (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public static final fun setUseDataGrantsOnlyStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public final fun setWith_clause (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public static final fun stmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun tableAliasExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun tableConstraintExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun truncateClusterStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun truncateTableStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun typeNameExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun withClauseExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAdministerKeyManagementStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -1472,6 +1476,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getTableAlias ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTableAlias;
 	public abstract fun getTableConstraint ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTableConstraint;
 	public abstract fun getTypeName ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTypeName;
+	public abstract fun getWithClause ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleWithClause;
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OraclePurgeStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -1852,6 +1857,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field TRUNCATE_CLUSTER_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field TRUNCATE_TABLE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field TYPE_NAME Lcom/intellij/psi/tree/IElementType;
+	public static final field WITH_CLAUSE Lcom/intellij/psi/tree/IElementType;
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTypes$Factory {
@@ -2055,6 +2061,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitSqlTableAlias (Lcom/alecstrong/sql/psi/core/psi/SqlTableAlias;)V
 	public fun visitSqlTableConstraint (Lcom/alecstrong/sql/psi/core/psi/SqlTableConstraint;)V
 	public fun visitSqlTypeName (Lcom/alecstrong/sql/psi/core/psi/SqlTypeName;)V
+	public fun visitSqlWithClause (Lcom/alecstrong/sql/psi/core/psi/SqlWithClause;)V
 	public fun visitStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleStmt;)V
 	public fun visitTableAlias (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTableAlias;)V
 	public fun visitTableConstraint (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTableConstraint;)V
@@ -2062,6 +2069,10 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitTruncateClusterStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTruncateClusterStmt;)V
 	public fun visitTruncateTableStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTruncateTableStmt;)V
 	public fun visitTypeName (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTypeName;)V
+	public fun visitWithClause (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleWithClause;)V
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleWithClause : com/alecstrong/sql/psi/core/psi/SqlWithClause {
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAdministerKeyManagementStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAdministerKeyManagementStmt {
@@ -3249,6 +3260,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOv
 	public fun getTableAlias ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTableAlias;
 	public fun getTableConstraint ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTableConstraint;
 	public fun getTypeName ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTypeName;
+	public fun getWithClause ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleWithClause;
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OraclePurgeStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OraclePurgeStmt {
@@ -3480,5 +3492,11 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleTy
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 	public fun getOracleTypeName ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleTypeName;
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleWithClauseImpl : dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleWithClause {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 

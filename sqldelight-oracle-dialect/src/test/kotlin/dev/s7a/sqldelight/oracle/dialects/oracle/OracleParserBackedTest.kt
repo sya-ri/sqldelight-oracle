@@ -247,6 +247,70 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle subquery factoring clauses through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE org_units (
+                  id NUMBER PRIMARY KEY,
+                  parent_id NUMBER,
+                  unit_name VARCHAR2(128)
+                );
+
+                selectFactored:
+                WITH root_units (id, parent_id) AS (
+                  SELECT id, parent_id
+                  FROM org_units
+                  WHERE parent_id IS NULL
+                )
+                SELECT id
+                FROM root_units
+                ORDER BY id;
+
+                selectMultipleFactored:
+                WITH active_units AS (
+                  SELECT id, parent_id
+                  FROM org_units
+                  WHERE unit_name IS NOT NULL
+                ),
+                leaf_units AS (
+                  SELECT id, parent_id
+                  FROM active_units
+                  WHERE parent_id IS NOT NULL
+                )
+                SELECT id
+                FROM leaf_units;
+
+                selectNestedFactored:
+                WITH outer_units AS (
+                  WITH inner_units AS (
+                    SELECT id, parent_id
+                    FROM org_units
+                  )
+                  SELECT id, parent_id
+                  FROM inner_units
+                )
+                SELECT id
+                FROM outer_units;
+
+                selectSearchCycleFactored:
+                WITH unit_tree (id, parent_id) AS (
+                  SELECT id, parent_id
+                  FROM org_units
+                  WHERE parent_id IS NULL
+                )
+                SEARCH DEPTH FIRST BY id SET traversal_order
+                CYCLE id SET is_cycle TO 'Y' DEFAULT 'N'
+                SELECT id, parent_id
+                FROM unit_tree;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle alter table statements through SQLDelight environment exactly") {
             val sql =
                 """

@@ -20,7 +20,7 @@
   ]
 }
 
-overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | table_alias | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt
+overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | with_clause | table_alias | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt
 
 stmt ::= explain_plan_stmt | oracle_core_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlStmtImpl"
@@ -371,6 +371,25 @@ table_alias ::= !'MINUS' ( <<identifierExt <<identifier_real>>>> | string ) {
   ]
   override = true
 }
+
+with_clause ::= 'WITH' oracle_subquery_factoring_clause ( COMMA oracle_subquery_factoring_clause ) * {
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleWithClauseMixin"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlWithClause"
+  override = true
+}
+
+private oracle_subquery_factoring_clause ::= {cte_table_name} 'AS' LP {with_clause_auxiliary_stmt} RP
+  [ oracle_search_clause ] [ oracle_cycle_clause ]
+
+private oracle_search_clause ::= 'SEARCH' ( 'DEPTH' | 'BREADTH' ) 'FIRST' 'BY'
+  oracle_search_ordering ( COMMA oracle_search_ordering ) * 'SET' oracle_object_name_part
+
+private oracle_search_ordering ::= oracle_object_name_part [ 'ASC' | 'DESC' ] [ 'NULLS' ( 'FIRST' | 'LAST' ) ]
+
+private oracle_cycle_clause ::= 'CYCLE' oracle_object_name_part ( COMMA oracle_object_name_part ) *
+  'SET' oracle_object_name_part 'TO' oracle_cycle_value 'DEFAULT' oracle_cycle_value
+
+private oracle_cycle_value ::= oracle_object_name_part | {string_literal} | string | DIGIT | {signed_number}
 
 table_constraint ::= [ 'CONSTRAINT' {identifier} ] (
   ( 'PRIMARY' 'KEY' | 'UNIQUE' ) [ {index_name} ] LP {indexed_column} ( COMMA {indexed_column} ) * RP oracle_constraint_state * |

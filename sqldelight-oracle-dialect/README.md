@@ -29,7 +29,7 @@ The dialect maps Oracle scalar type names to SQLDelight Kotlin types, including:
 - `DATE`, `TIMESTAMP`, and timestamp with time zone names
 - text, binary, JSON, XML, spatial, collection, URI, and vector type names
 
-Function return type mapping covers deterministic Oracle functions such as `SYSDATE`, `SYSTIMESTAMP`, `TO_CHAR`, `TO_NUMBER`, JSON/XML constructors, analytic rank functions, numeric math functions, and argument-dependent functions such as `COALESCE`, `NVL`, `NVL2`, `GREATEST`, `LEAST`, `MAX`, `MIN`, and `SUM`.
+Function return type mapping covers deterministic Oracle functions such as `SYSDATE`, `SYSTIMESTAMP`, `TO_CHAR`, `TO_NUMBER`, JSON/XML constructors, UUID helpers, vector constructors and distance functions, domain predicates, analytic rank functions, numeric math functions, and argument-dependent functions such as `COALESCE`, `NVL`, `NVL2`, `GREATEST`, `LEAST`, `MAX`, `MIN`, and `SUM`.
 
 Coverage is tracked in [../docs/oracle-syntax.md](../docs/oracle-syntax.md).
 

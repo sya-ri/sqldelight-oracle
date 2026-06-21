@@ -126,25 +126,7 @@ public enum class OracleType(
             }
         }
 
-        public fun fromFunctionName(functionName: String): OracleType? =
-            when (functionName.trim().uppercase()) {
-                "CURRENT_DATE", "SYSDATE" -> DATE
-                "CURRENT_TIMESTAMP", "LOCALTIMESTAMP" -> TIMESTAMP
-                "SYSTIMESTAMP" -> TIMESTAMP_TIME_ZONE
-                "TO_CHAR", "RAWTOHEX", "JSON_QUERY", "JSON_SERIALIZE", "XMLSERIALIZE" -> TEXT
-                "TO_DATE" -> DATE
-                "TO_TIMESTAMP" -> TIMESTAMP
-                "TO_TIMESTAMP_TZ" -> TIMESTAMP_TIME_ZONE
-                "TO_NUMBER" -> DECIMAL_NUMBER
-                "HEXTORAW" -> BINARY
-                "JSON_OBJECT", "JSON_ARRAY", "JSON_OBJECTAGG", "JSON_ARRAYAGG" -> TEXT
-                "XMLTYPE", "XMLELEMENT", "XMLFOREST", "XMLAGG" -> TEXT
-                "LENGTH", "INSTR", "ROW_NUMBER", "RANK", "DENSE_RANK", "NTILE" -> LONG_NUMBER
-                "COUNT" -> LONG_NUMBER
-                "AVG", "MEDIAN", "STDDEV", "VARIANCE" -> DECIMAL_NUMBER
-                "SIN", "COS", "TAN", "ASIN", "ACOS", "ATAN", "ATAN2", "EXP", "LN", "LOG", "SQRT" -> BINARY_DOUBLE
-                else -> null
-            }
+        public fun fromFunctionName(functionName: String): OracleType? = functionReturnTypes[functionName.trim().uppercase()]
 
         internal fun fromComparableFunctionTypes(
             functionName: String,
@@ -230,6 +212,78 @@ public enum class OracleType(
                 "BFILE",
                 "RAW",
                 "LONG RAW",
+            )
+
+        private val functionReturnTypes: Map<String, OracleType> =
+            mapOf(
+                "CURRENT_DATE" to DATE,
+                "SYSDATE" to DATE,
+                "CURRENT_TIMESTAMP" to TIMESTAMP,
+                "LOCALTIMESTAMP" to TIMESTAMP,
+                "SYSTIMESTAMP" to TIMESTAMP_TIME_ZONE,
+                "TO_CHAR" to TEXT,
+                "RAWTOHEX" to TEXT,
+                "JSON_QUERY" to TEXT,
+                "JSON_SERIALIZE" to TEXT,
+                "JSON_VALUE" to TEXT,
+                "XMLSERIALIZE" to TEXT,
+                "TO_DATE" to DATE,
+                "TO_TIMESTAMP" to TIMESTAMP,
+                "TO_TIMESTAMP_TZ" to TIMESTAMP_TIME_ZONE,
+                "TO_NUMBER" to DECIMAL_NUMBER,
+                "HEXTORAW" to BINARY,
+                "UUID" to BINARY,
+                "UUID_TO_RAW" to BINARY,
+                "JSON_OBJECT" to TEXT,
+                "JSON_ARRAY" to TEXT,
+                "JSON_OBJECTAGG" to TEXT,
+                "JSON_ARRAYAGG" to TEXT,
+                "JSON_SCALAR" to TEXT,
+                "JSON_TRANSFORM" to TEXT,
+                "XMLTYPE" to TEXT,
+                "XMLELEMENT" to TEXT,
+                "XMLFOREST" to TEXT,
+                "XMLAGG" to TEXT,
+                "XMLQUERY" to TEXT,
+                "VECTOR" to TEXT,
+                "TO_VECTOR" to TEXT,
+                "VECTOR_EMBEDDING" to TEXT,
+                "VECTOR_SERIALIZE" to TEXT,
+                "LENGTH" to LONG_NUMBER,
+                "INSTR" to LONG_NUMBER,
+                "ROW_NUMBER" to LONG_NUMBER,
+                "RANK" to LONG_NUMBER,
+                "DENSE_RANK" to LONG_NUMBER,
+                "NTILE" to LONG_NUMBER,
+                "COUNT" to LONG_NUMBER,
+                "AVG" to DECIMAL_NUMBER,
+                "MEDIAN" to DECIMAL_NUMBER,
+                "STDDEV" to DECIMAL_NUMBER,
+                "VARIANCE" to DECIMAL_NUMBER,
+                "VECTOR_DISTANCE" to BINARY_DOUBLE,
+                "L1_DISTANCE" to BINARY_DOUBLE,
+                "L2_DISTANCE" to BINARY_DOUBLE,
+                "COSINE_DISTANCE" to BINARY_DOUBLE,
+                "INNER_PRODUCT" to BINARY_DOUBLE,
+                "HAMMING_DISTANCE" to BINARY_DOUBLE,
+                "JACCARD_DISTANCE" to BINARY_DOUBLE,
+                "SIN" to BINARY_DOUBLE,
+                "COS" to BINARY_DOUBLE,
+                "TAN" to BINARY_DOUBLE,
+                "ASIN" to BINARY_DOUBLE,
+                "ACOS" to BINARY_DOUBLE,
+                "ATAN" to BINARY_DOUBLE,
+                "ATAN2" to BINARY_DOUBLE,
+                "EXP" to BINARY_DOUBLE,
+                "LN" to BINARY_DOUBLE,
+                "LOG" to BINARY_DOUBLE,
+                "SQRT" to BINARY_DOUBLE,
+                "IS_UUID" to BOOLEAN_TYPE,
+                "DOMAIN_CHECK" to BOOLEAN_TYPE,
+                "DOMAIN_CHECK_TYPE" to BOOLEAN_TYPE,
+                "REGEXP_LIKE" to BOOLEAN_TYPE,
+                "RAW_TO_UUID" to TEXT,
+                "DOMAIN_NAME" to TEXT,
             )
 
         private fun String.numberType(): OracleType {

@@ -597,6 +597,7 @@ column_constraint ::= [ 'CONSTRAINT' {identifier} ] (
   'COLLATE' {collation_name} |
   {foreign_key_clause} oracle_constraint_state * |
   oracle_identity_clause |
+  oracle_annotations_clause |
   oracle_visibility
 ) {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlColumnConstraintImpl"
@@ -938,8 +939,8 @@ table_constraint ::= [ 'CONSTRAINT' {identifier} ] (
 }
 
 create_table_stmt ::= 'CREATE' [ oracle_table_scope ] 'TABLE' [ 'IF' 'NOT' 'EXISTS' ] [ {database_name} DOT ] {table_name} (
-  LP {column_def} ( COMMA {column_def} ) * ( COMMA {table_constraint} ) * RP [ oracle_on_commit_clause ] |
-  'AS' {compound_select_stmt}
+  LP {column_def} ( COMMA {column_def} ) * ( COMMA {table_constraint} ) * RP [ oracle_annotations_clause ] [ oracle_on_commit_clause ] |
+  [ oracle_annotations_clause ] 'AS' {compound_select_stmt}
 ) {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCreateTableStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlCreateTableStmt"
@@ -966,6 +967,8 @@ alter_table_rules ::= (
   alter_table_add_columns |
   alter_table_add_constraint |
   alter_table_add_column |
+  alter_table_annotations |
+  alter_table_modify_column_annotations |
   alter_table_modify_columns |
   alter_table_modify_column |
   alter_table_drop_constraint |
@@ -1001,6 +1004,10 @@ alter_table_modify_column ::= 'MODIFY' [ 'COLUMN' ] {column_def} {
   pin = 1
 }
 
+private alter_table_annotations ::= oracle_annotations_clause
+
+private alter_table_modify_column_annotations ::= 'MODIFY' [ 'COLUMN' ] {column_name} oracle_annotations_clause
+
 alter_table_drop_constraint ::= 'DROP' 'CONSTRAINT' {identifier} {
   pin = 2
 }
@@ -1016,7 +1023,7 @@ alter_table_rename_column ::= 'RENAME' [ 'COLUMN' ] {column_name} 'TO' {column_a
 }
 
 create_index_stmt ::= 'CREATE' [ 'JSON' ] [ oracle_index_kind ] 'INDEX' [ 'IF' 'NOT' 'EXISTS' ] [ {database_name} DOT ] {index_name}
-  [ oracle_index_ilm_clause ] 'ON' ( oracle_cluster_index_clause | oracle_table_index_clause ) oracle_index_post_attribute * {
+  [ oracle_index_ilm_clause ] 'ON' ( oracle_cluster_index_clause | oracle_table_index_clause ) [ oracle_annotations_clause ] oracle_index_post_attribute * {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCreateIndexStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlCreateIndexStmt"
   elementTypeClass = "com.alecstrong.sql.psi.core.psi.mixins.CreateIndexElementType"
@@ -1294,7 +1301,19 @@ private oracle_view_object_identifier_token ::= (
   DOT
 )
 
-private oracle_annotations_clause ::= 'ANNOTATIONS' oracle_parenthesized_clause
+private oracle_annotations_clause ::= 'ANNOTATIONS' LP oracle_annotation ( COMMA oracle_annotation ) * RP
+
+private oracle_annotation ::= [ oracle_annotation_operation ] oracle_annotation_name [ oracle_annotation_value ]
+
+private oracle_annotation_operation ::= (
+  'ADD' [ 'IF' 'NOT' 'EXISTS' ] |
+  'DROP' [ 'IF' 'EXISTS' ] |
+  'REPLACE'
+)
+
+private oracle_annotation_name ::= oracle_object_name_part | string | {string_literal}
+
+private oracle_annotation_value ::= oracle_object_name_part | string | {string_literal} | DIGIT | {signed_number}
 
 private oracle_subquery_restriction_clause ::= 'WITH'
   ( [ 'CASCADED' | 'LOCAL' ] 'CHECK' 'OPTION' [ 'CONSTRAINT' oracle_object_name_part ] |

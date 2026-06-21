@@ -735,6 +735,37 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle annotations clauses exactly") {
+            val sql =
+                """
+                CREATE TABLE employee (
+                  id NUMBER(5) ANNOTATIONS(Identity, Display 'Employee ID', "Group" 'Emp_Info'),
+                  employee_name VARCHAR2(50) ANNOTATIONS(Display 'Employee Name', "Group" 'Emp_Info'),
+                  salary NUMBER ANNOTATIONS(Display 'Employee Salary', UI_Hidden)
+                ) ANNOTATIONS(Display 'Employee Table', ADD IF NOT EXISTS Searchable);
+
+                CREATE INDEX employee_name_idx
+                ON employee (employee_name)
+                ANNOTATIONS(ADD Display 'Employee Name Index');
+
+                ALTER TABLE employee
+                ANNOTATIONS(DROP IF EXISTS Searchable, REPLACE Display 'Employee Directory');
+
+                ALTER TABLE employee
+                MODIFY employee_name ANNOTATIONS(
+                  DROP "Group",
+                  DROP IF EXISTS Missing_Annotation,
+                  REPLACE Display 'Employee name'
+                );
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle table constraints through SQLDelight environment exactly") {
             val sql =
                 """
@@ -4220,7 +4251,7 @@ class OracleParserBackedTest :
                     fileNames = listOf("Test.sq"),
                     errors =
                         listOf(
-                            "Test.sq: (1, 19): '(', '.', ';' or AS expected, got '('",
+                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS or AS expected, got '('",
                         ),
                 )
         }

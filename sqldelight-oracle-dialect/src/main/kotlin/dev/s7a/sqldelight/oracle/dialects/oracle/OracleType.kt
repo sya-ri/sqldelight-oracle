@@ -133,8 +133,9 @@ public enum class OracleType(
             argumentTypes: List<OracleType>,
         ): OracleType? =
             when (functionName.trim().uppercase()) {
-                "COALESCE", "GREATEST", "LEAST", "NVL" -> argumentTypes.highestComparableType()
+                "COALESCE", "DECODE", "GREATEST", "LEAST", "NVL" -> argumentTypes.highestComparableType()
                 "NVL2" -> argumentTypes.drop(1).highestComparableType()
+                "NANVL" -> argumentTypes.highestType(INTEGER_NUMBER, LONG_NUMBER, DECIMAL_NUMBER, BINARY_FLOAT, BINARY_DOUBLE)
                 "MAX" -> argumentTypes.highestMaxType()
                 "MIN" -> argumentTypes.highestMinType()
                 else -> null

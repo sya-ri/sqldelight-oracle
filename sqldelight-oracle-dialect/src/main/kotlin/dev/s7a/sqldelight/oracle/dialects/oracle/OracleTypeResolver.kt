@@ -65,6 +65,23 @@ public class OracleTypeResolver(
                 }
             }
 
+            "decode" -> {
+                functionExpr.exprList.drop(1).takeIf { exprList -> exprList.size >= 2 }?.let { exprList ->
+                    val resultExpressions =
+                        exprList
+                            .withIndex()
+                            .filter { (index) -> index % 2 == 1 || (index == exprList.lastIndex && exprList.size % 2 == 1) }
+                            .map { (_, expression) -> expression }
+                    parentResolver.encapsulatingTypePreferringKotlin(resultExpressions, *COMPARABLE_TYPE_ORDER)
+                }
+            }
+
+            "nanvl" -> {
+                functionExpr.exprList.takeIf { exprList -> exprList.size == 2 }?.let { exprList ->
+                    parentResolver.encapsulatingTypePreferringKotlin(exprList, *NUMERIC_TYPE_ORDER)
+                }
+            }
+
             "max" -> {
                 functionExpr.exprList.takeIf { exprList -> exprList.isNotEmpty() }?.let { exprList ->
                     parentResolver.encapsulatingTypePreferringKotlin(exprList, *MAX_TYPE_ORDER).asNullable()
@@ -133,6 +150,17 @@ public class OracleTypeResolver(
             )
 
         private val MAX_TYPE_ORDER = COMPARABLE_TYPE_ORDER
+
+        private val NUMERIC_TYPE_ORDER: Array<DialectType> =
+            arrayOf(
+                INTEGER,
+                INTEGER_NUMBER,
+                LONG_NUMBER,
+                DECIMAL_NUMBER,
+                REAL,
+                BINARY_FLOAT,
+                BINARY_DOUBLE,
+            )
 
         private val MIN_TYPE_ORDER: Array<DialectType> =
             arrayOf(

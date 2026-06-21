@@ -877,6 +877,44 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses representative Oracle single-row functions exactly") {
+            val sql =
+                """
+                CREATE TABLE function_samples (
+                  id NUMBER PRIMARY KEY,
+                  amount NUMBER,
+                  fallback_amount NUMBER,
+                  first_name VARCHAR2(100),
+                  last_name VARCHAR2(100),
+                  raw_value RAW(16),
+                  created_at TIMESTAMP
+                );
+
+                SELECT TO_CHAR(created_at, 'YYYY-MM-DD'),
+                  TO_NUMBER('123.45'),
+                  TO_DATE('2026-01-01', 'YYYY-MM-DD'),
+                  TO_TIMESTAMP('2026-01-01 10:30:00', 'YYYY-MM-DD HH24:MI:SS'),
+                  RAWTOHEX(raw_value),
+                  HEXTORAW('00112233445566778899AABBCCDDEEFF'),
+                  LENGTH(first_name),
+                  INSTR(last_name, 'a'),
+                  NVL(amount, fallback_amount),
+                  NVL2(first_name, amount, fallback_amount),
+                  COALESCE(amount, fallback_amount, 0),
+                  DECODE(first_name, 'A', amount, fallback_amount),
+                  GREATEST(amount, fallback_amount),
+                  LEAST(amount, fallback_amount),
+                  NANVL(amount, fallback_amount)
+                FROM function_samples;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle text and national literals exactly") {
             val sql =
                 """

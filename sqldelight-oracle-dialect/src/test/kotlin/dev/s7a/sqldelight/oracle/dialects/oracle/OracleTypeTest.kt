@@ -202,6 +202,8 @@ class OracleTypeTest :
                     Triple("COALESCE", listOf(OracleType.INTEGER_NUMBER, OracleType.LONG_NUMBER), OracleType.LONG_NUMBER),
                     Triple("NVL", listOf(OracleType.TEXT, OracleType.DECIMAL_NUMBER), OracleType.TEXT),
                     Triple("NVL2", listOf(OracleType.BOOLEAN_TYPE, OracleType.DATE, OracleType.TIMESTAMP), OracleType.TIMESTAMP),
+                    Triple("DECODE", listOf(OracleType.TEXT, OracleType.LONG_NUMBER), OracleType.TEXT),
+                    Triple("NANVL", listOf(OracleType.BINARY_FLOAT, OracleType.BINARY_DOUBLE), OracleType.BINARY_DOUBLE),
                     Triple("GREATEST", listOf(OracleType.BINARY_FLOAT, OracleType.BINARY_DOUBLE), OracleType.BINARY_DOUBLE),
                     Triple("LEAST", listOf(OracleType.DATE, OracleType.TIMESTAMP_TIME_ZONE), OracleType.TIMESTAMP_TIME_ZONE),
                     Triple("MAX", listOf(OracleType.TEXT, OracleType.BINARY), OracleType.BINARY),

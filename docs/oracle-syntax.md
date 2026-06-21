@@ -223,7 +223,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [Collection types and nested tables](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html)
 - [x] Data use case domains: [`CREATE DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/create-domain.html), [`ALTER DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/alter-domain.html), [`DROP DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/drop-domain.html)
 - [x] [Boolean data type](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html)
-- [ ] [Extended data types](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html)
+- [x] [Extended data types](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html): `VARCHAR2(32767)`, `NVARCHAR2(32767)`, and `RAW(32767)`
 - [x] [ANSI, DB2, and SQL/DS data type aliases](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html)
 - [x] [Any types and XML URI types](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html): `ANYTYPE`, `ANYDATA`, `ANYDATASET`, `URIType`, `DBURIType`, `XDBURIType`, `HTTPURIType`
 - [x] [Spatial and GeoRaster type names](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html): `SDO_TOPO_GEOMETRY`, `SDO_GEORASTER`

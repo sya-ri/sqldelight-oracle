@@ -1120,6 +1120,112 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle create profile statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE PROFILE new_profile
+                  LIMIT PASSWORD_REUSE_MAX 10
+                        PASSWORD_REUSE_TIME 30;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create mandatory profile statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE MANDATORY PROFILE c##cdb_profile
+                  LIMIT PASSWORD_VERIFY_FUNCTION my_mandatory_function
+                        PASSWORD_GRACE_TIME DEFAULT
+                  CONTAINER = ALL;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create profile resource statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE PROFILE app_user LIMIT
+                  SESSIONS_PER_USER UNLIMITED
+                  CPU_PER_SESSION UNLIMITED
+                  CPU_PER_CALL 3000
+                  CONNECT_TIME 45
+                  LOGICAL_READS_PER_SESSION DEFAULT
+                  LOGICAL_READS_PER_CALL 1000
+                  PRIVATE_SGA 15K
+                  COMPOSITE_LIMIT 5000000
+                  PASSWORD_ROLLOVER_TIME 1;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create schema statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE SCHEMA AUTHORIZATION oe
+                  CREATE TABLE new_product (
+                    color VARCHAR2(10) PRIMARY KEY,
+                    quantity NUMBER
+                  )
+                  CREATE VIEW new_product_view AS
+                    SELECT 1 AS color, 10 AS quantity
+                  GRANT CREATE SESSION TO hr;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create flashback archive statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE FLASHBACK ARCHIVE DEFAULT test_archive1
+                  TABLESPACE example
+                  QUOTA 1 M
+                  RETENTION 1 DAY;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create flashback archive optimized statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE FLASHBACK ARCHIVE test_archive2
+                  TABLESPACE example
+                  QUOTA UNLIMITED
+                  RETENTION 1 MONTH
+                  OPTIMIZE DATA;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle create context statement through SQLDelight environment exactly") {
             val sql =
                 """

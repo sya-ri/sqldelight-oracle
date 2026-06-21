@@ -13,6 +13,7 @@
     "static com.alecstrong.sql.psi.core.psi.SqlTypes.DIGIT"
     "static com.alecstrong.sql.psi.core.psi.SqlTypes.DOT"
     "static com.alecstrong.sql.psi.core.psi.SqlTypes.EQ"
+    "static com.alecstrong.sql.psi.core.psi.SqlTypes.GT"
     "static com.alecstrong.sql.psi.core.psi.SqlTypes.LP"
     "static com.alecstrong.sql.psi.core.psi.SqlTypes.RP"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.compoundSelectStmtExt"
@@ -3141,7 +3142,9 @@ call_stmt ::= 'CALL' oracle_call_routine_name LP [ oracle_call_argument ( COMMA 
 
 private oracle_call_routine_name ::= oracle_schema_object_name [ DOT ( <<identifierExt <<identifier_real>>>> | string ) ]
 
-private oracle_call_argument ::= <<expr '-1'>>
+private oracle_call_argument ::= [ oracle_call_argument_name EQ GT ] <<expr '-1'>>
+
+private oracle_call_argument_name ::= oracle_schema_object_name
 
 lock_table_stmt ::= 'LOCK' 'TABLE' oracle_lock_table_reference ( COMMA oracle_lock_table_reference ) * 'IN' oracle_lock_mode 'MODE'
   [ 'NOWAIT' | 'WAIT' {signed_number} ] {

@@ -1908,6 +1908,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field FLASHBACK_TABLE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field GRANT_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field GROUP_BY Lcom/intellij/psi/tree/IElementType;
+	public static final field GT Lcom/intellij/psi/tree/IElementType;
 	public static final field IDENTIFIER_REAL Lcom/intellij/psi/tree/IElementType;
 	public static final field INSERT_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field JOIN_OPERATOR Lcom/intellij/psi/tree/IElementType;

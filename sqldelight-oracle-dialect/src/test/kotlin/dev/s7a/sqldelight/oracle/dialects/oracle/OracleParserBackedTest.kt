@@ -1103,6 +1103,10 @@ class OracleParserBackedTest :
 
                 CALL hr.employee_api.adjust_salary(100, 2500, CURRENT_TIMESTAMP);
 
+                CALL hr.employee_api.adjust_salary(employee_id => 100, delta => 2500, effective_at => CURRENT_TIMESTAMP);
+
+                CALL hr.employee_api.adjust_salary(100, delta => 2500, effective_at => CURRENT_TIMESTAMP);
+
                 CALL refresh_cache();
                 """.trimIndent()
 

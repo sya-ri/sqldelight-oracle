@@ -1010,6 +1010,30 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle character set and collation functions exactly") {
+            val sql =
+                """
+                CREATE TABLE localized_names (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(64) COLLATE BINARY_CI
+                );
+
+                SELECT NLS_CHARSET_DECL_LEN(10, NLS_CHARSET_ID('AL32UTF8')) AS declared_length,
+                  NLS_CHARSET_ID('AL32UTF8') AS charset_id,
+                  NLS_CHARSET_NAME(873) AS charset_name,
+                  COLLATION(name) AS derived_collation,
+                  NLS_COLLATION_ID('BINARY_CI') AS collation_id,
+                  NLS_COLLATION_NAME(147455) AS collation_name
+                FROM localized_names;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle text and national literals exactly") {
             val sql =
                 """

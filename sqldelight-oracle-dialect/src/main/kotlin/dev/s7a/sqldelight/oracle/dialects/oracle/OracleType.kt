@@ -150,9 +150,9 @@ public enum class OracleType(
                 }
 
                 "ROUND", "TRUNC" -> {
-                    when {
-                        argumentTypes.size == 1 -> argumentTypes.single().takeIf { type -> type in numericTypes }
-                        argumentTypes.size == 2 && argumentTypes.all { type -> type in numericTypes } -> DECIMAL_NUMBER
+                    when (argumentTypes.size) {
+                        1 -> argumentTypes.single().takeIf { type -> type in numericTypes }
+                        2 -> DECIMAL_NUMBER.takeIf { argumentTypes.all { type -> type in numericTypes } }
                         else -> null
                     }
                 }
@@ -285,6 +285,9 @@ public enum class OracleType(
                 "NLS_INITCAP" to TEXT,
                 "NLS_LOWER" to TEXT,
                 "NLS_UPPER" to TEXT,
+                "NLS_CHARSET_NAME" to TEXT,
+                "COLLATION" to TEXT,
+                "NLS_COLLATION_NAME" to TEXT,
                 "REGEXP_REPLACE" to TEXT,
                 "REGEXP_SUBSTR" to TEXT,
                 "RPAD" to TEXT,
@@ -307,6 +310,9 @@ public enum class OracleType(
                 "TO_TIMESTAMP_TZ" to TIMESTAMP_TIME_ZONE,
                 "TO_NUMBER" to DECIMAL_NUMBER,
                 "MONTHS_BETWEEN" to DECIMAL_NUMBER,
+                "NLS_CHARSET_DECL_LEN" to DECIMAL_NUMBER,
+                "NLS_CHARSET_ID" to DECIMAL_NUMBER,
+                "NLS_COLLATION_ID" to DECIMAL_NUMBER,
                 "HEXTORAW" to BINARY,
                 "NLSSORT" to BINARY,
                 "UUID" to BINARY,

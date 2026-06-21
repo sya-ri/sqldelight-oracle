@@ -72,20 +72,25 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun drop_analytic_view_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_attribute_dimension_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_cluster_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun drop_context_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_database_link_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_dimension_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_directory_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_function_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_hierarchy_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun drop_iceberg_table_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_indextype_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_java_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_library_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_materialized_view_log_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_materialized_zonemap_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun drop_mle_env_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun drop_mle_module_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_operator_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_outline_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_package_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_procedure_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun drop_property_graph_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_sequence_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_synonym_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_trigger_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -129,20 +134,25 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun dropAnalyticViewStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropAttributeDimensionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropClusterStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun dropContextStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropDatabaseLinkStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropDimensionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropDirectoryStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropFunctionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropHierarchyStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun dropIcebergTableStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropIndextypeStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropJavaStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropLibraryStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropMaterializedViewLogStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropMaterializedZonemapStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun dropMleEnvStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun dropMleModuleStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropOperatorStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropOutlineStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropPackageStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropProcedureStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun dropPropertyGraphStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropSequenceStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropSynonymStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropTriggerStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -171,20 +181,25 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getDrop_analytic_view_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_attribute_dimension_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_cluster_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getDrop_context_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_database_link_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_dimension_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_directory_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_function_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_hierarchy_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getDrop_iceberg_table_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_indextype_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_java_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_library_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_materialized_view_log_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_materialized_zonemap_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getDrop_mle_env_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getDrop_mle_module_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_operator_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_outline_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_package_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_procedure_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getDrop_property_graph_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_sequence_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_synonym_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_trigger_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -228,20 +243,25 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setDrop_analytic_view_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_attribute_dimension_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_cluster_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setDrop_context_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_database_link_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_dimension_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_directory_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_function_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_hierarchy_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setDrop_iceberg_table_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_indextype_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_java_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_library_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_materialized_view_log_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_materialized_zonemap_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setDrop_mle_env_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setDrop_mle_module_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_operator_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_outline_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_package_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_procedure_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setDrop_property_graph_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_sequence_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_synonym_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_trigger_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -334,6 +354,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropClusterStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropContextStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDatabaseLinkStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
@@ -347,6 +370,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropHierarchyStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropIcebergTableStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropIndextypeStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -364,6 +390,12 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMaterializedZonemapStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMleEnvStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMleModuleStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropOperatorStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
@@ -374,6 +406,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropProcedureStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropPropertyGraphStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropSequenceStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -404,20 +439,25 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getDropAnalyticViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAnalyticViewStmt;
 	public abstract fun getDropAttributeDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAttributeDimensionStmt;
 	public abstract fun getDropClusterStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropClusterStmt;
+	public abstract fun getDropContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropContextStmt;
 	public abstract fun getDropDatabaseLinkStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDatabaseLinkStmt;
 	public abstract fun getDropDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDimensionStmt;
 	public abstract fun getDropDirectoryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDirectoryStmt;
 	public abstract fun getDropFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropFunctionStmt;
 	public abstract fun getDropHierarchyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropHierarchyStmt;
+	public abstract fun getDropIcebergTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropIcebergTableStmt;
 	public abstract fun getDropIndextypeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropIndextypeStmt;
 	public abstract fun getDropJavaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropJavaStmt;
 	public abstract fun getDropLibraryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropLibraryStmt;
 	public abstract fun getDropMaterializedViewLogStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMaterializedViewLogStmt;
 	public abstract fun getDropMaterializedZonemapStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMaterializedZonemapStmt;
+	public abstract fun getDropMleEnvStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMleEnvStmt;
+	public abstract fun getDropMleModuleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMleModuleStmt;
 	public abstract fun getDropOperatorStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropOperatorStmt;
 	public abstract fun getDropOutlineStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropOutlineStmt;
 	public abstract fun getDropPackageStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropPackageStmt;
 	public abstract fun getDropProcedureStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropProcedureStmt;
+	public abstract fun getDropPropertyGraphStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropPropertyGraphStmt;
 	public abstract fun getDropSequenceStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropSequenceStmt;
 	public abstract fun getDropSynonymStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropSynonymStmt;
 	public abstract fun getDropTypeBodyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTypeBodyStmt;
@@ -456,18 +496,23 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getDropAnalyticViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAnalyticViewStmt;
 	public abstract fun getDropAttributeDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAttributeDimensionStmt;
 	public abstract fun getDropClusterStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropClusterStmt;
+	public abstract fun getDropContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropContextStmt;
 	public abstract fun getDropDatabaseLinkStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDatabaseLinkStmt;
 	public abstract fun getDropDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDimensionStmt;
 	public abstract fun getDropDirectoryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDirectoryStmt;
 	public abstract fun getDropFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropFunctionStmt;
 	public abstract fun getDropHierarchyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropHierarchyStmt;
+	public abstract fun getDropIcebergTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropIcebergTableStmt;
 	public abstract fun getDropIndextypeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropIndextypeStmt;
 	public abstract fun getDropJavaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropJavaStmt;
 	public abstract fun getDropLibraryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropLibraryStmt;
+	public abstract fun getDropMleEnvStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMleEnvStmt;
+	public abstract fun getDropMleModuleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMleModuleStmt;
 	public abstract fun getDropOperatorStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropOperatorStmt;
 	public abstract fun getDropOutlineStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropOutlineStmt;
 	public abstract fun getDropPackageStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropPackageStmt;
 	public abstract fun getDropProcedureStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropProcedureStmt;
+	public abstract fun getDropPropertyGraphStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropPropertyGraphStmt;
 	public abstract fun getDropTypeBodyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTypeBodyStmt;
 	public abstract fun getDropTypeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTypeStmt;
 	public abstract fun getExplainPlanStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExplainPlanStmt;
@@ -511,20 +556,25 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field DROP_ANALYTIC_VIEW_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_ATTRIBUTE_DIMENSION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_CLUSTER_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field DROP_CONTEXT_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_DATABASE_LINK_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_DIMENSION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_DIRECTORY_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_FUNCTION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_HIERARCHY_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field DROP_ICEBERG_TABLE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_INDEXTYPE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_JAVA_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_LIBRARY_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_MATERIALIZED_VIEW_LOG_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_MATERIALIZED_ZONEMAP_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field DROP_MLE_ENV_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field DROP_MLE_MODULE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_OPERATOR_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_OUTLINE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_PACKAGE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_PROCEDURE_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field DROP_PROPERTY_GRAPH_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_SEQUENCE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_SYNONYM_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_TRIGGER_STMT Lcom/intellij/psi/tree/IElementType;
@@ -576,20 +626,25 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitDropAnalyticViewStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAnalyticViewStmt;)V
 	public fun visitDropAttributeDimensionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAttributeDimensionStmt;)V
 	public fun visitDropClusterStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropClusterStmt;)V
+	public fun visitDropContextStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropContextStmt;)V
 	public fun visitDropDatabaseLinkStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDatabaseLinkStmt;)V
 	public fun visitDropDimensionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDimensionStmt;)V
 	public fun visitDropDirectoryStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDirectoryStmt;)V
 	public fun visitDropFunctionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropFunctionStmt;)V
 	public fun visitDropHierarchyStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropHierarchyStmt;)V
+	public fun visitDropIcebergTableStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropIcebergTableStmt;)V
 	public fun visitDropIndextypeStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropIndextypeStmt;)V
 	public fun visitDropJavaStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropJavaStmt;)V
 	public fun visitDropLibraryStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropLibraryStmt;)V
 	public fun visitDropMaterializedViewLogStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMaterializedViewLogStmt;)V
 	public fun visitDropMaterializedZonemapStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMaterializedZonemapStmt;)V
+	public fun visitDropMleEnvStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMleEnvStmt;)V
+	public fun visitDropMleModuleStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMleModuleStmt;)V
 	public fun visitDropOperatorStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropOperatorStmt;)V
 	public fun visitDropOutlineStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropOutlineStmt;)V
 	public fun visitDropPackageStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropPackageStmt;)V
 	public fun visitDropProcedureStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropProcedureStmt;)V
+	public fun visitDropPropertyGraphStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropPropertyGraphStmt;)V
 	public fun visitDropSequenceStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropSequenceStmt;)V
 	public fun visitDropSynonymStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropSynonymStmt;)V
 	public fun visitDropTriggerStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTriggerStmt;)V
@@ -754,6 +809,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDr
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDropContextStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropContextStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDropDatabaseLinkStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDatabaseLinkStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
@@ -779,6 +840,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDr
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDropHierarchyStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropHierarchyStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDropIcebergTableStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropIcebergTableStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
@@ -814,6 +881,18 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDr
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDropMleEnvStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMleEnvStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDropMleModuleStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMleModuleStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDropOperatorStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropOperatorStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
@@ -833,6 +912,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDr
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDropProcedureStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropProcedureStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDropPropertyGraphStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropPropertyGraphStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
@@ -887,20 +972,25 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getDropAnalyticViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAnalyticViewStmt;
 	public fun getDropAttributeDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAttributeDimensionStmt;
 	public fun getDropClusterStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropClusterStmt;
+	public fun getDropContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropContextStmt;
 	public fun getDropDatabaseLinkStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDatabaseLinkStmt;
 	public fun getDropDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDimensionStmt;
 	public fun getDropDirectoryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDirectoryStmt;
 	public fun getDropFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropFunctionStmt;
 	public fun getDropHierarchyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropHierarchyStmt;
+	public fun getDropIcebergTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropIcebergTableStmt;
 	public fun getDropIndextypeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropIndextypeStmt;
 	public fun getDropJavaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropJavaStmt;
 	public fun getDropLibraryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropLibraryStmt;
 	public fun getDropMaterializedViewLogStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMaterializedViewLogStmt;
 	public fun getDropMaterializedZonemapStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMaterializedZonemapStmt;
+	public fun getDropMleEnvStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMleEnvStmt;
+	public fun getDropMleModuleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMleModuleStmt;
 	public fun getDropOperatorStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropOperatorStmt;
 	public fun getDropOutlineStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropOutlineStmt;
 	public fun getDropPackageStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropPackageStmt;
 	public fun getDropProcedureStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropProcedureStmt;
+	public fun getDropPropertyGraphStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropPropertyGraphStmt;
 	public fun getDropSequenceStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropSequenceStmt;
 	public fun getDropSynonymStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropSynonymStmt;
 	public fun getDropTypeBodyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTypeBodyStmt;
@@ -954,18 +1044,23 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSt
 	public fun getDropAnalyticViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAnalyticViewStmt;
 	public fun getDropAttributeDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAttributeDimensionStmt;
 	public fun getDropClusterStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropClusterStmt;
+	public fun getDropContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropContextStmt;
 	public fun getDropDatabaseLinkStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDatabaseLinkStmt;
 	public fun getDropDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDimensionStmt;
 	public fun getDropDirectoryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDirectoryStmt;
 	public fun getDropFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropFunctionStmt;
 	public fun getDropHierarchyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropHierarchyStmt;
+	public fun getDropIcebergTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropIcebergTableStmt;
 	public fun getDropIndextypeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropIndextypeStmt;
 	public fun getDropJavaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropJavaStmt;
 	public fun getDropLibraryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropLibraryStmt;
+	public fun getDropMleEnvStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMleEnvStmt;
+	public fun getDropMleModuleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMleModuleStmt;
 	public fun getDropOperatorStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropOperatorStmt;
 	public fun getDropOutlineStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropOutlineStmt;
 	public fun getDropPackageStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropPackageStmt;
 	public fun getDropProcedureStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropProcedureStmt;
+	public fun getDropPropertyGraphStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropPropertyGraphStmt;
 	public fun getDropTypeBodyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTypeBodyStmt;
 	public fun getDropTypeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTypeStmt;
 	public fun getExplainPlanStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExplainPlanStmt;

@@ -669,6 +669,35 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle graph, Iceberg, context, and MLE drop statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                DROP PROPERTY GRAPH IF EXISTS hr.customer_graph;
+
+                DROP PROPERTY GRAPH sales_graph;
+
+                DROP ICEBERG TABLE lake.sales_orders WITHIN CATALOG lake_catalog PURGE;
+
+                DROP ICEBERG TABLE sales_orders_archive WITHIN CATALOG archive_catalog;
+
+                DROP CONTEXT hr_context;
+
+                DROP MLE ENV IF EXISTS hr.analytics_env;
+
+                DROP MLE ENV scratch_env;
+
+                DROP MLE MODULE IF EXISTS hr.forecast_module;
+
+                DROP MLE MODULE cleanup_module;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

@@ -316,6 +316,35 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle arithmetic and concatenation operators exactly") {
+            val sql =
+                """
+                CREATE TABLE operator_samples (
+                  id NUMBER PRIMARY KEY,
+                  amount NUMBER,
+                  tax NUMBER,
+                  first_name VARCHAR2(100),
+                  last_name VARCHAR2(100)
+                );
+
+                SELECT amount + tax AS gross_amount,
+                  amount - tax AS net_amount,
+                  amount * 2 AS doubled_amount,
+                  amount / 2 AS half_amount,
+                  -amount AS negative_amount,
+                  first_name || ' ' || last_name AS full_name
+                FROM operator_samples
+                WHERE amount + tax > 100
+                  AND first_name || last_name IS NOT NULL;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle floating-point and IS OF type conditions exactly") {
             val sql =
                 """

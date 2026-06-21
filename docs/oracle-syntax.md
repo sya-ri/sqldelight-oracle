@@ -263,7 +263,9 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [Multiset operators](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Multiset-Operators.html) parser coverage for `MULTISET UNION`, `MULTISET EXCEPT`, `MULTISET INTERSECT`, and `ALL` / `DISTINCT`
 - [x] [`JSON_ID` operator](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/json_id-operator.html) parser, type resolver, and sqldelight-check source pattern coverage for `'OID'` / `'UUID'` document identifiers returning `RAW`
 - [x] [Data quality operators](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/data-quality-operators.html) parser, type resolver, and sqldelight-check source pattern coverage for `FUZZY_MATCH` and `PHONIC_ENCODE`
-- [ ] [Operators](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Operators.html): remaining arithmetic, concatenation, set, and user-defined
+- [x] [Arithmetic operators](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Arithmetic-Operators.html) parser coverage for unary minus and binary `+`, `-`, `*`, `/`
+- [x] [Concatenation operator](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Concatenation-Operator.html) parser coverage for `||`
+- [ ] [User-defined operators](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Operators.html)
 - [ ] [`GRAPH_TABLE` operator](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graph_table-operator.html): graph references, path patterns, element patterns, graph table shape, and graph value expressions
 - [x] [`CURSOR` expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CURSOR-Expressions.html) parser support for `CURSOR(subquery)`
 - [x] [`CASE` expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CASE-Expressions.html) parser support for simple and searched `CASE`

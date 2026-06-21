@@ -3203,6 +3203,48 @@ class OracleParserBackedTest :
         test("parses Oracle role and user security statements exactly") {
             val sql =
                 """
+                CREATE DATA ROLE manager_role;
+
+                CREATE OR REPLACE DATA ROLE employee_role MAPPED TO 'AZURE_ROLE=employee';
+
+                CREATE DATA ROLE IF NOT EXISTS it_support_role ENABLED;
+
+                CREATE DATA ROLE disabled_support_role DISABLED;
+
+                GRANT DATA ROLE manager_role TO marvin;
+
+                GRANT DATA ROLE IF EXISTS employee_role TO DATA ROLE manager_role
+                  START TIME TO_TIMESTAMP_TZ('2025-03-01 19:30:00 +00:00', 'YYYY-MM-DD HH24:MI:SS TZH:TZM')
+                  END TIME TO_TIMESTAMP_TZ('2026-03-01 19:30:00 +00:00', 'YYYY-MM-DD HH24:MI:SS TZH:TZM');
+
+                GRANT DATA ROLE it_support_role TO APPLICATION IDENTITY hcm_app;
+
+                REVOKE DATA ROLE IF EXISTS manager_role FROM marvin;
+
+                REVOKE DATA ROLE employee_role FROM DATA ROLE manager_role;
+
+                DROP DATA ROLE IF EXISTS old_manager_role;
+
+                DROP DATA ROLE disabled_support_role;
+
+                CREATE OR REPLACE DATA GRANT app_admin.ManagerDirectReports AS
+                  SELECT (ALL COLUMNS EXCEPT ssn), UPDATE (salary, commission_pct)
+                  ON hr.employees
+                  WHERE manager = ORA_APP_USER.username
+                  TO app_manager_role
+                  START TIME TO_TIMESTAMP_TZ('2025-03-01 19:30:00 +00:00', 'YYYY-MM-DD HH24:MI:SS TZH:TZM')
+                  END TIME TO_TIMESTAMP_TZ('2026-03-01 19:30:00 +00:00', 'YYYY-MM-DD HH24:MI:SS TZH:TZM');
+
+                CREATE DATA GRANT IF NOT EXISTS app_admin.EndUserContextAccess AS
+                  SELECT, UPDATE
+                  ON sys.end_user_context
+                  WHERE owner = 'HR' AND name = 'HCM'
+                  TO END USER emma;
+
+                DROP DATA GRANT IF EXISTS app_admin.ManagerDirectReports;
+
+                DROP DATA GRANT app_admin.EndUserContextAccess;
+
                 CREATE APPLICATION IDENTITY hcm_app MAPPED TO 'AZURE_CLIENT_ID = f1fab37e-7aa2-4ff8-849c-7e731fea3b48';
 
                 CREATE OR REPLACE APPLICATION IDENTITY iam_app MAPPED TO 'IAM_OAUTH_CLIENT_ID = ocid1.oauthclient.oc1..example';

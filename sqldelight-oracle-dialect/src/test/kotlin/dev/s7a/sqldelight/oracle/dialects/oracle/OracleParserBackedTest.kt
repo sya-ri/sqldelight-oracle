@@ -979,6 +979,37 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle numeric single-row functions exactly") {
+            val sql =
+                """
+                CREATE TABLE measurements (
+                  id NUMBER PRIMARY KEY,
+                  amount NUMBER,
+                  ratio BINARY_DOUBLE,
+                  bucket_count NUMBER
+                );
+
+                SELECT ABS(amount) AS absolute_amount,
+                  BITAND(bucket_count, 7) AS masked_bucket,
+                  CEIL(amount) AS ceiling_amount,
+                  FLOOR(amount) AS floor_amount,
+                  MOD(bucket_count, 3) AS modulo_bucket,
+                  POWER(amount, 2) AS powered_amount,
+                  REMAINDER(bucket_count, 3) AS remainder_bucket,
+                  ROUND(amount, 2) AS rounded_amount,
+                  SIGN(amount) AS amount_sign,
+                  TRUNC(amount, 2) AS truncated_amount,
+                  WIDTH_BUCKET(ratio, 0, 1, 10) AS ratio_bucket
+                FROM measurements;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle text and national literals exactly") {
             val sql =
                 """

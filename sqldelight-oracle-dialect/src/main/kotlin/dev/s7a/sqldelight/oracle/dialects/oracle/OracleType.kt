@@ -133,12 +133,53 @@ public enum class OracleType(
             argumentTypes: List<OracleType>,
         ): OracleType? =
             when (functionName.trim().uppercase()) {
-                "COALESCE", "DECODE", "GREATEST", "LEAST", "NVL" -> argumentTypes.highestComparableType()
-                "NVL2" -> argumentTypes.drop(1).highestComparableType()
-                "NANVL" -> argumentTypes.highestType(INTEGER_NUMBER, LONG_NUMBER, DECIMAL_NUMBER, BINARY_FLOAT, BINARY_DOUBLE)
-                "MAX" -> argumentTypes.highestMaxType()
-                "MIN" -> argumentTypes.highestMinType()
-                else -> null
+                "ABS", "CEIL", "FLOOR" -> {
+                    argumentTypes.singleOrNull()?.takeIf { type -> type in numericTypes }
+                }
+
+                "MOD", "REMAINDER" -> {
+                    argumentTypes.highestType(*numericTypes.toTypedArray())
+                }
+
+                "POWER" -> {
+                    when {
+                        argumentTypes.any { type -> type == BINARY_FLOAT || type == BINARY_DOUBLE } -> BINARY_DOUBLE
+                        argumentTypes.all { type -> type in numericTypes } -> DECIMAL_NUMBER
+                        else -> null
+                    }
+                }
+
+                "ROUND", "TRUNC" -> {
+                    when {
+                        argumentTypes.size == 1 -> argumentTypes.single().takeIf { type -> type in numericTypes }
+                        argumentTypes.size == 2 && argumentTypes.all { type -> type in numericTypes } -> DECIMAL_NUMBER
+                        else -> null
+                    }
+                }
+
+                "COALESCE", "DECODE", "GREATEST", "LEAST", "NVL" -> {
+                    argumentTypes.highestComparableType()
+                }
+
+                "NVL2" -> {
+                    argumentTypes.drop(1).highestComparableType()
+                }
+
+                "NANVL" -> {
+                    argumentTypes.highestType(*numericTypes.toTypedArray())
+                }
+
+                "MAX" -> {
+                    argumentTypes.highestMaxType()
+                }
+
+                "MIN" -> {
+                    argumentTypes.highestMinType()
+                }
+
+                else -> {
+                    null
+                }
             }
 
         internal fun fromAggregateFunctionType(
@@ -213,6 +254,15 @@ public enum class OracleType(
                 "BFILE",
                 "RAW",
                 "LONG RAW",
+            )
+
+        private val numericTypes: Set<OracleType> =
+            setOf(
+                INTEGER_NUMBER,
+                LONG_NUMBER,
+                DECIMAL_NUMBER,
+                BINARY_FLOAT,
+                BINARY_DOUBLE,
             )
 
         private val functionReturnTypes: Map<String, OracleType> =
@@ -344,6 +394,8 @@ public enum class OracleType(
                 "FEATURE_COMPARE" to BINARY_DOUBLE,
                 "FEATURE_VALUE" to BINARY_DOUBLE,
                 "FUZZY_MATCH" to DECIMAL_NUMBER,
+                "BITAND" to DECIMAL_NUMBER,
+                "SIGN" to DECIMAL_NUMBER,
                 "SIN" to BINARY_DOUBLE,
                 "COS" to BINARY_DOUBLE,
                 "TAN" to BINARY_DOUBLE,
@@ -355,6 +407,7 @@ public enum class OracleType(
                 "LN" to BINARY_DOUBLE,
                 "LOG" to BINARY_DOUBLE,
                 "SQRT" to BINARY_DOUBLE,
+                "WIDTH_BUCKET" to LONG_NUMBER,
                 "IS_UUID" to BOOLEAN_TYPE,
                 "DOMAIN_CHECK" to BOOLEAN_TYPE,
                 "DOMAIN_CHECK_TYPE" to BOOLEAN_TYPE,

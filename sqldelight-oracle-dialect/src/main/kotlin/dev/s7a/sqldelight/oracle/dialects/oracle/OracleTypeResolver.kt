@@ -39,6 +39,67 @@ public class OracleTypeResolver(
         functionExpr: SqlFunctionExpr,
     ): IntermediateType? =
         when (functionName.trim().lowercase()) {
+            "abs", "ceil", "floor" -> {
+                functionExpr.exprList.singleOrNull()?.let { expression ->
+                    parentResolver.resolvedType(expression).takeIf { type -> type.dialectType in NUMERIC_TYPE_ORDER }
+                }
+            }
+
+            "mod", "remainder" -> {
+                functionExpr.exprList.takeIf { exprList -> exprList.size == 2 }?.let { exprList ->
+                    parentResolver.encapsulatingTypePreferringKotlin(exprList, *NUMERIC_TYPE_ORDER)
+                }
+            }
+
+            "power" -> {
+                functionExpr.exprList
+                    .takeIf { exprList -> exprList.size == 2 }
+                    ?.map { expression ->
+                        parentResolver.resolvedType(expression).dialectType
+                    }?.let { argumentTypes ->
+                        when {
+                            argumentTypes.any { type -> type == REAL || type == BINARY_FLOAT || type == BINARY_DOUBLE } -> {
+                                IntermediateType(BINARY_DOUBLE)
+                            }
+
+                            argumentTypes.all { type -> type in NUMERIC_TYPE_ORDER } -> {
+                                IntermediateType(DECIMAL_NUMBER)
+                            }
+
+                            else -> {
+                                null
+                            }
+                        }
+                    }
+            }
+
+            "round", "trunc" -> {
+                when (functionExpr.exprList.size) {
+                    1 -> {
+                        parentResolver
+                            .resolvedType(functionExpr.exprList.single())
+                            .takeIf { type -> type.dialectType in NUMERIC_TYPE_ORDER }
+                    }
+
+                    2 -> {
+                        functionExpr.exprList
+                            .map { expression ->
+                                parentResolver.resolvedType(expression).dialectType
+                            }.let { argumentTypes ->
+                                if (argumentTypes.all { type -> type in NUMERIC_TYPE_ORDER }) {
+                                    IntermediateType(DECIMAL_NUMBER)
+                                } else {
+                                    null
+                                }
+                            }
+                    }
+
+                    else -> {
+                        null
+                    }
+                }
+            }
+
             "coalesce", "nvl" -> {
                 functionExpr.exprList.takeIf { exprList -> exprList.isNotEmpty() }?.let { exprList ->
                     parentResolver.encapsulatingTypePreferringKotlin(

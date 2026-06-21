@@ -725,6 +725,31 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle administrative legacy drop statements exactly") {
+            val sql =
+                """
+                DROP LOCKDOWN PROFILE hr_prof;
+
+                DROP PMEM FILESTORE cloud_db_1 EXCLUDING CONTENTS;
+
+                DROP PMEM FILESTORE cloud_db_2 INCLUDING CONTENTS;
+
+                DROP PMEM FILESTORE cloud_db_3 FORCE INCLUDING CONTENTS;
+
+                DROP PROFILE app_user CASCADE;
+
+                DROP PROFILE reporting_user;
+
+                DROP ROLLBACK SEGMENT rbs_one;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

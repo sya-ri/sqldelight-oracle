@@ -504,6 +504,27 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle materialized drop statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                DROP MATERIALIZED VIEW LOG ON customers;
+
+                DROP MATERIALIZED VIEW LOG IF EXISTS ON oe.customers;
+
+                DROP SNAPSHOT LOG ON legacy_customers;
+
+                DROP MATERIALIZED ZONEMAP sales_zmap;
+
+                DROP MATERIALIZED ZONEMAP IF EXISTS reporting.sales_zmap;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

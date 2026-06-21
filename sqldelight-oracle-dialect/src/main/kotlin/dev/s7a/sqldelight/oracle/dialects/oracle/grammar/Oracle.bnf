@@ -289,7 +289,7 @@ create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ] [ 'E
   pin = 6
 }
 
-extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
+extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionStmt"
   override = true
@@ -301,6 +301,14 @@ create_sequence_stmt ::= 'CREATE' 'SEQUENCE' [ 'IF' 'NOT' 'EXISTS' ] oracle_sche
 
 drop_sequence_stmt ::= 'DROP' 'SEQUENCE' [ 'IF' 'EXISTS' ] oracle_schema_object_name {
   pin = 2
+}
+
+drop_materialized_view_log_stmt ::= 'DROP' ( 'MATERIALIZED' 'VIEW' | 'SNAPSHOT' ) 'LOG' [ 'IF' 'EXISTS' ] 'ON' oracle_schema_object_name {
+  pin = 3
+}
+
+drop_materialized_zonemap_stmt ::= 'DROP' 'MATERIALIZED' 'ZONEMAP' [ 'IF' 'EXISTS' ] oracle_schema_object_name {
+  pin = 3
 }
 
 alter_sequence_stmt ::= 'ALTER' 'SEQUENCE' [ 'IF' 'EXISTS' ] oracle_schema_object_name oracle_sequence_clause * {

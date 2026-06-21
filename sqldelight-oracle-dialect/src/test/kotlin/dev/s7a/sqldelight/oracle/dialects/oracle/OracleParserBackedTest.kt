@@ -560,6 +560,29 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle select list aliases and wildcard expansion through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE select_list_orders (
+                  id NUMBER PRIMARY KEY,
+                  region VARCHAR2(64),
+                  created_year NUMBER
+                );
+
+                selectListAliases:
+                SELECT id AS order_id,
+                       region order_region,
+                       select_list_orders.*
+                FROM select_list_orders;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle alter table statements through SQLDelight environment exactly") {
             val sql =
                 """

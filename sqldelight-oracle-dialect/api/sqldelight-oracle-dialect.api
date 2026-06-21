@@ -227,6 +227,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public fun parseLight (Lcom/intellij/psi/tree/IElementType;Lcom/intellij/lang/PsiBuilder;)V
 	protected fun parse_root_ (Lcom/intellij/psi/tree/IElementType;Lcom/intellij/lang/PsiBuilder;)Z
 	public static fun purge_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun qualified_table_name_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun rename_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun revoke_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun rollback_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -581,6 +582,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getOrdering_term ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOverrides ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getPurge_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getQualified_table_name ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getRename_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getRevoke_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getRollback_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -611,6 +613,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun overrideSqlParser ()V
 	public static final fun overridesExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun purgeStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun qualifiedTableNameExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun renameStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public final fun reset ()V
 	public static final fun revokeStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -791,6 +794,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setOrdering_term (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOverrides (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setPurge_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setQualified_table_name (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setRename_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setRevoke_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public static final fun setRoleStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -1529,6 +1533,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getJoinOperator ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleJoinOperator;
 	public abstract fun getLimitStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleLimitStmt;
 	public abstract fun getOrderingTerm ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOrderingTerm;
+	public abstract fun getQualifiedTableName ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleQualifiedTableName;
 	public abstract fun getRollbackStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleRollbackStmt;
 	public abstract fun getSavepointStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSavepointStmt;
 	public abstract fun getSelectStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSelectStmt;
@@ -1541,6 +1546,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OraclePurgeStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleQualifiedTableName : com/alecstrong/sql/psi/core/psi/SqlQualifiedTableName {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleRenameStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -1912,6 +1920,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field ORDERING_TERM Lcom/intellij/psi/tree/IElementType;
 	public static final field OVERRIDES Lcom/intellij/psi/tree/IElementType;
 	public static final field PURGE_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field QUALIFIED_TABLE_NAME Lcom/intellij/psi/tree/IElementType;
 	public static final field RENAME_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field REVOKE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ROLLBACK_STMT Lcom/intellij/psi/tree/IElementType;
@@ -2113,6 +2122,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitOrderingTerm (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOrderingTerm;)V
 	public fun visitOverrides (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOverrides;)V
 	public fun visitPurgeStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OraclePurgeStmt;)V
+	public fun visitQualifiedTableName (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleQualifiedTableName;)V
 	public fun visitRenameStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleRenameStmt;)V
 	public fun visitRevokeStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleRevokeStmt;)V
 	public fun visitRollbackStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleRollbackStmt;)V
@@ -2140,6 +2150,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitSqlJoinOperator (Lcom/alecstrong/sql/psi/core/psi/SqlJoinOperator;)V
 	public fun visitSqlLimitStmt (Lcom/alecstrong/sql/psi/core/psi/SqlLimitStmt;)V
 	public fun visitSqlOrderingTerm (Lcom/alecstrong/sql/psi/core/psi/SqlOrderingTerm;)V
+	public fun visitSqlQualifiedTableName (Lcom/alecstrong/sql/psi/core/psi/SqlQualifiedTableName;)V
 	public fun visitSqlRollbackStmt (Lcom/alecstrong/sql/psi/core/psi/SqlRollbackStmt;)V
 	public fun visitSqlSavepointStmt (Lcom/alecstrong/sql/psi/core/psi/SqlSavepointStmt;)V
 	public fun visitSqlSelectStmt (Lcom/alecstrong/sql/psi/core/psi/SqlSelectStmt;)V
@@ -3377,6 +3388,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOv
 	public fun getJoinOperator ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleJoinOperator;
 	public fun getLimitStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleLimitStmt;
 	public fun getOrderingTerm ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOrderingTerm;
+	public fun getQualifiedTableName ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleQualifiedTableName;
 	public fun getRollbackStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleRollbackStmt;
 	public fun getSavepointStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSavepointStmt;
 	public fun getSelectStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSelectStmt;
@@ -3389,6 +3401,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOv
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OraclePurgeStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OraclePurgeStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleQualifiedTableNameImpl : com/alecstrong/sql/psi/core/psi/impl/SqlQualifiedTableNameImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleQualifiedTableName {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V

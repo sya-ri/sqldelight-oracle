@@ -22,6 +22,7 @@
     "static com.alecstrong.sql.psi.core.SqlParserUtil.groupByExt"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.indexNameExt"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.joinClauseExt"
+    "static com.alecstrong.sql.psi.core.SqlParserUtil.qualifiedTableNameExt"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.resultColumnExt"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.signedNumberExt"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.tableAliasExt"
@@ -31,7 +32,7 @@
   ]
 }
 
-overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | insert_stmt | compound_select_stmt | select_stmt | with_clause | table_alias | table_or_subquery | group_by | join_operator | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt
+overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | insert_stmt | qualified_table_name | compound_select_stmt | select_stmt | with_clause | table_alias | table_or_subquery | group_by | join_operator | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt
 
 stmt ::= explain_plan_stmt | oracle_core_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlStmtImpl"
@@ -521,6 +522,13 @@ private oracle_insert_stmt_values ::= (
   {compound_select_stmt} |
   'DEFAULT' 'VALUES'
 ) [ oracle_error_logging_clause ]
+
+qualified_table_name ::= [ <<databaseNameExt <<database_name_real>>>> DOT ]
+  <<tableNameExt <<table_name_real>>>> [ oracle_partition_extension_clause ] [ 'INDEXED' 'BY' <<indexNameExt <<index_name_real>>>> | 'NOT' 'INDEXED' ] {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlQualifiedTableNameImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlQualifiedTableName"
+  override = true
+}
 
 table_alias ::= !'MINUS' ( <<identifierExt <<identifier_real>>>> | string ) {
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleTableAliasMixin"

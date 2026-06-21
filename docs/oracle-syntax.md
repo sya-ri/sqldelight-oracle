@@ -75,8 +75,10 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [`INSERT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html) `DEFAULT VALUES` parser coverage
 - [x] [`INSERT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html) [`partition_extension_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/partition_extension_clause.html) parser support for `PARTITION`, `PARTITION FOR`, `SUBPARTITION`, and `SUBPARTITION FOR`
 - [ ] [`INSERT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html) direct-path and advanced source forms
-- [ ] [`UPDATE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/UPDATE.html) partition extension, correlated subquery, object table, and update set clause forms
-- [ ] [`DELETE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DELETE.html) partition extension, correlated subquery, and object table forms
+- [x] [`UPDATE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/UPDATE.html) [`partition_extension_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/partition_extension_clause.html) parser support for target tables
+- [ ] [`UPDATE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/UPDATE.html) correlated subquery, object table, and update set clause forms
+- [x] [`DELETE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DELETE.html) [`partition_extension_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/partition_extension_clause.html) parser support for target tables
+- [ ] [`DELETE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DELETE.html) correlated subquery and object table forms
 - [ ] [`MERGE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/MERGE.html) full semantic integration for target/source aliases, DML table expression variants, optimizer hints, `wait_clause`, and `returning_clause`
 - [ ] [DML table expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html): subquery, collection, remote object, and `ONLY` target forms
 - [ ] [DML optimizer hints](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comments.html): statement-level and query-block hints in `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `MERGE`

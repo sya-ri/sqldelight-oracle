@@ -1058,6 +1058,42 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle update and delete partition extension clauses through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE partitioned_order_updates (
+                  order_id NUMBER PRIMARY KEY,
+                  region_code VARCHAR2(16) NOT NULL,
+                  order_total NUMBER(10, 2),
+                  archived_at TIMESTAMP
+                );
+
+                updatePartitionByName:
+                UPDATE partitioned_order_updates PARTITION (orders_2026_q1)
+                SET order_total = order_total + 1
+                WHERE region_code = ?;
+
+                updateSubpartitionForKey:
+                UPDATE partitioned_order_updates SUBPARTITION FOR ('US')
+                SET archived_at = CURRENT_TIMESTAMP
+                WHERE order_id = ?;
+
+                deletePartitionForKey:
+                DELETE FROM partitioned_order_updates PARTITION FOR (2026, 1)
+                WHERE archived_at IS NOT NULL;
+
+                deleteSubpartitionByName:
+                DELETE FROM partitioned_order_updates SUBPARTITION (orders_2026_q1_us)
+                WHERE region_code = ?;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle call statements through SQLDelight environment exactly") {
             val sql =
                 """

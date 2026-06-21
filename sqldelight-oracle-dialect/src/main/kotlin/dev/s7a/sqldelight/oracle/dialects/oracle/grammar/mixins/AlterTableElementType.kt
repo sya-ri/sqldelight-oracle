@@ -8,7 +8,7 @@ import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.impl.OracleAlterTab
 internal class AlterTableElementType(
     name: String,
 ) : AlterTableElementType("oracle.$name") {
-    override fun createPsi(stub: SchemaContributorStub) =
+    override fun createPsi(stub: SchemaContributorStub): OracleAlterTableStmtImpl =
         OracleAlterTableStmtImpl(
             stub as AlterTableStmtStub,
             this,

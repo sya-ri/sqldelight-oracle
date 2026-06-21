@@ -589,6 +589,47 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle alter PL/SQL and Java statements exactly") {
+            val sql =
+                """
+                ALTER FUNCTION IF EXISTS hr.second_max COMPILE DEBUG REUSE SETTINGS;
+
+                ALTER FUNCTION reporting.calculate_bonus NONEDITIONABLE;
+
+                ALTER PROCEDURE hr.remove_emp COMPILE;
+
+                ALTER PACKAGE emp_mgmt COMPILE BODY REUSE SETTINGS;
+
+                ALTER LIBRARY ext_lib COMPILE;
+
+                ALTER JAVA SOURCE IF EXISTS AgentSource COMPILE AUTHID CURRENT_USER;
+
+                ALTER JAVA CLASS Agent RESOLVE AUTHID DEFINER;
+
+                ALTER SYNONYM offices COMPILE;
+
+                ALTER PUBLIC SYNONYM emp_table COMPILE;
+
+                ALTER TRIGGER IF EXISTS hr.salary_check DISABLE;
+
+                ALTER TRIGGER salary_check RENAME TO salary_check_new;
+
+                ALTER TYPE IF EXISTS data_typ1 COMPILE BODY REUSE SETTINGS;
+
+                ALTER TYPE person_t FINAL;
+
+                ALTER TYPE address_t ADD ATTRIBUTE postal_code VARCHAR2;
+
+                ALTER TYPE address_t CASCADE INCLUDING TABLE DATA;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle drop type statements through SQLDelight environment exactly") {
             val sql =
                 """

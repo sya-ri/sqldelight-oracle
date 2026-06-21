@@ -54,9 +54,15 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public fun <init> ()V
 	public static fun administer_key_management_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_audit_policy_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun alter_function_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun alter_java_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun alter_library_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun alter_package_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun alter_procedure_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_role_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_sequence_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_session_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun alter_synonym_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_system_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_table_add_column_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_table_add_columns_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -68,6 +74,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun alter_table_rename_column_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_table_rules_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_table_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun alter_trigger_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun alter_type_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_user_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun analyze_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun associate_statistics_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -166,9 +174,15 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final field INSTANCE Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParserUtil;
 	public static final fun administerKeyManagementStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterAuditPolicyStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun alterFunctionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun alterJavaStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun alterLibraryStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun alterPackageStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun alterProcedureStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterRoleStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterSequenceStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterSessionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun alterSynonymStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterSystemStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterTableAddColumnExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterTableAddColumnsExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -180,6 +194,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun alterTableRenameColumnExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterTableRulesExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterTableStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun alterTriggerStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun alterTypeStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterUserStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun analyzeStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun associateStatisticsStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -251,9 +267,15 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun flashbackTableStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public final fun getAdminister_key_management_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_audit_policy_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getAlter_function_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getAlter_java_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getAlter_library_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getAlter_package_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getAlter_procedure_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_role_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_sequence_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_session_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getAlter_synonym_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_system_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_table_add_column ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_table_add_columns ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -265,6 +287,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getAlter_table_rename_column ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_table_rules ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_table_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getAlter_trigger_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getAlter_type_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_user_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAnalyze_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAssociate_statistics_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -370,9 +394,15 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun savepointStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public final fun setAdminister_key_management_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_audit_policy_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setAlter_function_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setAlter_java_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setAlter_library_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setAlter_package_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setAlter_procedure_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_role_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_sequence_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_session_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setAlter_synonym_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_system_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_table_add_column (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_table_add_columns (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -384,6 +414,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setAlter_table_rename_column (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_table_rules (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_table_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setAlter_trigger_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setAlter_type_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_user_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAnalyze_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAssociate_statistics_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -491,6 +523,21 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterAuditPolicyStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFunctionStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterJavaStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterLibraryStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPackageStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterProcedureStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterRoleStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
@@ -498,6 +545,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSessionStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSynonymStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSystemStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -540,6 +590,12 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTableStmt : com/alecstrong/sql/psi/core/psi/SqlAlterTableStmt, com/intellij/psi/StubBasedPsiElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTriggerStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTypeStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterUserStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -746,10 +802,18 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionStmt : com/alecstrong/sql/psi/core/psi/SqlExtensionStmt {
 	public abstract fun getAdministerKeyManagementStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAdministerKeyManagementStmt;
 	public abstract fun getAlterAuditPolicyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterAuditPolicyStmt;
+	public abstract fun getAlterFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFunctionStmt;
+	public abstract fun getAlterJavaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterJavaStmt;
+	public abstract fun getAlterLibraryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterLibraryStmt;
+	public abstract fun getAlterPackageStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPackageStmt;
+	public abstract fun getAlterProcedureStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterProcedureStmt;
 	public abstract fun getAlterRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterRoleStmt;
 	public abstract fun getAlterSequenceStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSequenceStmt;
 	public abstract fun getAlterSessionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSessionStmt;
+	public abstract fun getAlterSynonymStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSynonymStmt;
 	public abstract fun getAlterSystemStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSystemStmt;
+	public abstract fun getAlterTriggerStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTriggerStmt;
+	public abstract fun getAlterTypeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTypeStmt;
 	public abstract fun getAlterUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterUserStmt;
 	public abstract fun getAssociateStatisticsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAssociateStatisticsStmt;
 	public abstract fun getAuditStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAuditStmt;
@@ -895,9 +959,17 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleStmt : com/alecstrong/sql/psi/core/psi/SqlStmt {
 	public abstract fun getAdministerKeyManagementStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAdministerKeyManagementStmt;
 	public abstract fun getAlterAuditPolicyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterAuditPolicyStmt;
+	public abstract fun getAlterFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFunctionStmt;
+	public abstract fun getAlterJavaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterJavaStmt;
+	public abstract fun getAlterLibraryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterLibraryStmt;
+	public abstract fun getAlterPackageStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPackageStmt;
+	public abstract fun getAlterProcedureStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterProcedureStmt;
 	public abstract fun getAlterRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterRoleStmt;
 	public abstract fun getAlterSessionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSessionStmt;
+	public abstract fun getAlterSynonymStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSynonymStmt;
 	public abstract fun getAlterSystemStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSystemStmt;
+	public abstract fun getAlterTriggerStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTriggerStmt;
+	public abstract fun getAlterTypeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTypeStmt;
 	public abstract fun getAlterUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterUserStmt;
 	public abstract fun getAssociateStatisticsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAssociateStatisticsStmt;
 	public abstract fun getAuditStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAuditStmt;
@@ -980,9 +1052,15 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTypes {
 	public static final field ADMINISTER_KEY_MANAGEMENT_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_AUDIT_POLICY_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field ALTER_FUNCTION_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field ALTER_JAVA_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field ALTER_LIBRARY_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field ALTER_PACKAGE_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field ALTER_PROCEDURE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_ROLE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_SEQUENCE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_SESSION_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field ALTER_SYNONYM_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_SYSTEM_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_TABLE_ADD_COLUMN Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_TABLE_ADD_COLUMNS Lcom/intellij/psi/tree/IElementType;
@@ -994,6 +1072,8 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field ALTER_TABLE_RENAME_COLUMN Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_TABLE_RULES Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_TABLE_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field ALTER_TRIGGER_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field ALTER_TYPE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_USER_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ANALYZE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ASSOCIATE_STATISTICS_STMT Lcom/intellij/psi/tree/IElementType;
@@ -1104,9 +1184,15 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun <init> ()V
 	public fun visitAdministerKeyManagementStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAdministerKeyManagementStmt;)V
 	public fun visitAlterAuditPolicyStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterAuditPolicyStmt;)V
+	public fun visitAlterFunctionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFunctionStmt;)V
+	public fun visitAlterJavaStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterJavaStmt;)V
+	public fun visitAlterLibraryStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterLibraryStmt;)V
+	public fun visitAlterPackageStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPackageStmt;)V
+	public fun visitAlterProcedureStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterProcedureStmt;)V
 	public fun visitAlterRoleStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterRoleStmt;)V
 	public fun visitAlterSequenceStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSequenceStmt;)V
 	public fun visitAlterSessionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSessionStmt;)V
+	public fun visitAlterSynonymStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSynonymStmt;)V
 	public fun visitAlterSystemStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSystemStmt;)V
 	public fun visitAlterTableAddColumn (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTableAddColumn;)V
 	public fun visitAlterTableAddColumns (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTableAddColumns;)V
@@ -1118,6 +1204,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitAlterTableRenameColumn (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTableRenameColumn;)V
 	public fun visitAlterTableRules (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTableRules;)V
 	public fun visitAlterTableStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTableStmt;)V
+	public fun visitAlterTriggerStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTriggerStmt;)V
+	public fun visitAlterTypeStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTypeStmt;)V
 	public fun visitAlterUserStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterUserStmt;)V
 	public fun visitAnalyzeStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAnalyzeStmt;)V
 	public fun visitAssociateStatisticsStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAssociateStatisticsStmt;)V
@@ -1238,6 +1326,36 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAl
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterFunctionStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFunctionStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterJavaStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterJavaStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterLibraryStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterLibraryStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterPackageStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPackageStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterProcedureStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterProcedureStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterRoleStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterRoleStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
@@ -1251,6 +1369,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAl
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterSessionStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSessionStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterSynonymStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSynonymStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
@@ -1327,6 +1451,18 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAl
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterTableStmtImpl : com/alecstrong/sql/psi/core/psi/impl/SqlAlterTableStmtImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTableStmt {
 	public fun <init> (Lcom/alecstrong/sql/psi/core/psi/mixins/AlterTableStmtStub;Lcom/intellij/psi/stubs/IStubElementType;)V
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterTriggerStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTriggerStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterTypeStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTypeStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
@@ -1740,10 +1876,18 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 	public fun getAdministerKeyManagementStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAdministerKeyManagementStmt;
 	public fun getAlterAuditPolicyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterAuditPolicyStmt;
+	public fun getAlterFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFunctionStmt;
+	public fun getAlterJavaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterJavaStmt;
+	public fun getAlterLibraryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterLibraryStmt;
+	public fun getAlterPackageStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPackageStmt;
+	public fun getAlterProcedureStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterProcedureStmt;
 	public fun getAlterRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterRoleStmt;
 	public fun getAlterSequenceStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSequenceStmt;
 	public fun getAlterSessionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSessionStmt;
+	public fun getAlterSynonymStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSynonymStmt;
 	public fun getAlterSystemStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSystemStmt;
+	public fun getAlterTriggerStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTriggerStmt;
+	public fun getAlterTypeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTypeStmt;
 	public fun getAlterUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterUserStmt;
 	public fun getAssociateStatisticsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAssociateStatisticsStmt;
 	public fun getAuditStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAuditStmt;
@@ -1943,9 +2087,17 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSt
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 	public fun getAdministerKeyManagementStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAdministerKeyManagementStmt;
 	public fun getAlterAuditPolicyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterAuditPolicyStmt;
+	public fun getAlterFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFunctionStmt;
+	public fun getAlterJavaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterJavaStmt;
+	public fun getAlterLibraryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterLibraryStmt;
+	public fun getAlterPackageStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPackageStmt;
+	public fun getAlterProcedureStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterProcedureStmt;
 	public fun getAlterRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterRoleStmt;
 	public fun getAlterSessionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSessionStmt;
+	public fun getAlterSynonymStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSynonymStmt;
 	public fun getAlterSystemStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterSystemStmt;
+	public fun getAlterTriggerStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTriggerStmt;
+	public fun getAlterTypeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTypeStmt;
 	public fun getAlterUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterUserStmt;
 	public fun getAssociateStatisticsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAssociateStatisticsStmt;
 	public fun getAuditStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAuditStmt;

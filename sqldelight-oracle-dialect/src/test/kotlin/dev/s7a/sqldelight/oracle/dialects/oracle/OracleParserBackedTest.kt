@@ -462,6 +462,30 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle SQL JSON scalar function exactly") {
+            val sql =
+                """
+                CREATE TABLE events (
+                  id NUMBER PRIMARY KEY,
+                  occurred_at TIMESTAMP,
+                  active BOOLEAN,
+                  amount NUMBER(10, 2)
+                );
+
+                SELECT JSON_SCALAR(id),
+                  JSON_SCALAR(occurred_at),
+                  JSON_SCALAR(active),
+                  JSON_SCALAR(amount)
+                FROM events;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle inline column constraints through SQLDelight environment exactly") {
             val sql =
                 """

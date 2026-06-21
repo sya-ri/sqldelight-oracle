@@ -252,6 +252,25 @@ class OracleParserBackedTest :
                   NOSCALE
                   SHARD NOEXTEND
                   SESSION;
+
+                CREATE SEQUENCE hr.employee_seq
+                  START WITH 500
+                  NOCACHE;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle drop sequence statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                DROP SEQUENCE IF EXISTS account_id_seq;
+
+                DROP SEQUENCE hr.employee_seq;
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe

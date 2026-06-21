@@ -356,6 +356,11 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                 ) +
                 sourcePatterns(
                     "ACOS",
+                    "APPROX_COUNT",
+                    "APPROX_COUNT_DISTINCT",
+                    "APPROX_MEDIAN",
+                    "APPROX_PERCENTILE",
+                    "APPROX_SUM",
                     "ASIN",
                     "ATAN",
                     "ATAN2",

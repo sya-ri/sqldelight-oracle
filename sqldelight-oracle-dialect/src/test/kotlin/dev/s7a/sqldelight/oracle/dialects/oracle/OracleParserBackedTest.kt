@@ -1086,6 +1086,35 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle approximate aggregate functions exactly") {
+            val sql =
+                """
+                CREATE TABLE sales (
+                  id NUMBER PRIMARY KEY,
+                  region VARCHAR2(20),
+                  employee_id NUMBER,
+                  amount NUMBER,
+                  sold_at DATE
+                );
+
+                SELECT region,
+                  APPROX_COUNT(*) AS approximate_rows,
+                  APPROX_COUNT_DISTINCT(employee_id) AS approximate_employee_count,
+                  APPROX_SUM(amount) AS approximate_amount,
+                  APPROX_MEDIAN(amount) AS approximate_median_amount,
+                  APPROX_PERCENTILE(0.75) WITHIN GROUP (ORDER BY amount) AS approximate_percentile,
+                  APPROX_PERCENTILE(0.75 DETERMINISTIC, 'ERROR_RATE') WITHIN GROUP (ORDER BY amount) AS percentile_error_rate
+                FROM sales
+                GROUP BY region;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle named window clauses exactly") {
             val sql =
                 """

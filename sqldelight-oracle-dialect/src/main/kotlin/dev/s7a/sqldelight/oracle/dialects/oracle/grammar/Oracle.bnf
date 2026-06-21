@@ -276,7 +276,10 @@ private oracle_function_invocation ::= oracle_object_name_part LP [ oracle_funct
 
 private oracle_function_argument ::= '*' | 'DISTINCT' <<expr '-1'>> | 'ALL' <<expr '-1'>> | <<expr '-1'>>
 
-private oracle_ordered_aggregate_expr ::= oracle_listagg_expr [ oracle_over_clause ]
+private oracle_ordered_aggregate_expr ::= ( oracle_approx_percentile_expr | oracle_listagg_expr ) [ oracle_over_clause ]
+
+private oracle_approx_percentile_expr ::=
+  'APPROX_PERCENTILE' LP <<expr '-1'>> [ 'DETERMINISTIC' ] [ COMMA <<expr '-1'>> ] RP oracle_within_group_clause
 
 private oracle_listagg_expr ::=
   'LISTAGG' LP [ 'DISTINCT' ] <<expr '-1'>> [ COMMA <<expr '-1'>> ] [ oracle_listagg_overflow_clause ] RP oracle_within_group_clause

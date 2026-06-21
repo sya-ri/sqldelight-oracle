@@ -1,4 +1,4 @@
-package dev.s7a.sqldelight.oracle.dialect
+package dev.s7a.sqldelight.oracle
 
 import app.cash.sqldelight.dialect.api.DialectType
 import app.cash.sqldelight.dialect.api.IntermediateType
@@ -11,16 +11,16 @@ import app.cash.sqldelight.dialect.api.TypeResolver
 import app.cash.sqldelight.dialect.api.encapsulatingTypePreferringKotlin
 import com.alecstrong.sql.psi.core.psi.SqlFunctionExpr
 import com.alecstrong.sql.psi.core.psi.SqlTypeName
-import dev.s7a.sqldelight.oracle.dialect.OracleType.BINARY
-import dev.s7a.sqldelight.oracle.dialect.OracleType.BINARY_DOUBLE
-import dev.s7a.sqldelight.oracle.dialect.OracleType.BINARY_FLOAT
-import dev.s7a.sqldelight.oracle.dialect.OracleType.BOOLEAN_TYPE
-import dev.s7a.sqldelight.oracle.dialect.OracleType.DATE
-import dev.s7a.sqldelight.oracle.dialect.OracleType.DECIMAL_NUMBER
-import dev.s7a.sqldelight.oracle.dialect.OracleType.INTEGER_NUMBER
-import dev.s7a.sqldelight.oracle.dialect.OracleType.LONG_NUMBER
-import dev.s7a.sqldelight.oracle.dialect.OracleType.TIMESTAMP
-import dev.s7a.sqldelight.oracle.dialect.OracleType.TIMESTAMP_TIME_ZONE
+import dev.s7a.sqldelight.oracle.OracleType.BINARY
+import dev.s7a.sqldelight.oracle.OracleType.BINARY_DOUBLE
+import dev.s7a.sqldelight.oracle.OracleType.BINARY_FLOAT
+import dev.s7a.sqldelight.oracle.OracleType.BOOLEAN_TYPE
+import dev.s7a.sqldelight.oracle.OracleType.DATE
+import dev.s7a.sqldelight.oracle.OracleType.DECIMAL_NUMBER
+import dev.s7a.sqldelight.oracle.OracleType.INTEGER_NUMBER
+import dev.s7a.sqldelight.oracle.OracleType.LONG_NUMBER
+import dev.s7a.sqldelight.oracle.OracleType.TIMESTAMP
+import dev.s7a.sqldelight.oracle.OracleType.TIMESTAMP_TIME_ZONE
 
 public class OracleTypeResolver(
     private val parentResolver: TypeResolver,

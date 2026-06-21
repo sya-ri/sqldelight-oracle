@@ -18,6 +18,7 @@ The SQLite dialect artifact includes:
 - a parser utility object that resets and installs parser overrides
 - a `SqlDelightDialect.setup()` implementation that installs those overrides
 - a dialect-specific `TypeResolver`
+- dialect entry point and type resolver classes in the dialect package root, with generated parser classes under `grammar`
 - a `META-INF/services/app.cash.sqldelight.dialect.api.SqlDelightDialect` provider
 
 ## Current Oracle State
@@ -32,6 +33,7 @@ The SQLite dialect artifact includes:
 - [x] Generated Oracle parser and PSI classes via `app.cash.grammarkit-composer`
 - [x] Generated Oracle parser utility object
 - [x] `setup()` installs parser overrides
+- [x] Public package layout follows the official dialect shape: `dev.s7a.sqldelight.oracle` and `dev.s7a.sqldelight.oracle.grammar`
 - [ ] Parser-backed SQLDelight tests for Oracle `.sq` files
 
 ## Parser Override Targets
@@ -60,5 +62,5 @@ Oracle should add BNF overrides incrementally, with exact parser tests for each 
 - [x] Add the official SQLDelight `app.cash.grammarkit-composer` generation path
 - [x] Include generated parser/PSI sources in the compiled and published artifact
 - [x] Keep generated files deterministic and reproducible from `src/main/kotlin/**/grammar/*.bnf`
-- [ ] Add tests that fail when `setup()` does not install Oracle parser overrides
+- [x] Add tests that fail when `setup()` does not install Oracle parser overrides
 - [ ] Add parser tests using exact expected success/failure results for representative Oracle `.sq` files

@@ -1,4 +1,4 @@
-package dev.s7a.sqldelight.oracle.dialect
+package dev.s7a.sqldelight.oracle
 
 import app.cash.sqldelight.dialect.api.DialectType
 import com.squareup.kotlinpoet.BOOLEAN

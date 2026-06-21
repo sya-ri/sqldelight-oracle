@@ -1,11 +1,11 @@
-package dev.s7a.sqldelight.oracle.dialect
+package dev.s7a.sqldelight.oracle
 
 import app.cash.sqldelight.dialect.api.ConnectionManager
 import app.cash.sqldelight.dialect.api.RuntimeTypes
 import app.cash.sqldelight.dialect.api.SqlDelightDialect
 import app.cash.sqldelight.dialect.api.TypeResolver
 import com.squareup.kotlinpoet.ClassName
-import dev.s7a.sqldelight.oracle.dialect.grammar.OracleParserUtil
+import dev.s7a.sqldelight.oracle.grammar.OracleParserUtil
 import java.awt.Component
 import java.awt.Graphics
 import javax.swing.Icon

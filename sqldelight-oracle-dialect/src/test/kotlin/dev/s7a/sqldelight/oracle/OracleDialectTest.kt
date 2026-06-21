@@ -1,4 +1,4 @@
-package dev.s7a.sqldelight.oracle.dialect
+package dev.s7a.sqldelight.oracle
 
 import app.cash.sqldelight.dialect.api.IntermediateType
 import app.cash.sqldelight.dialect.api.QueryWithResults
@@ -25,7 +25,7 @@ class OracleDialectTest :
 
         test("publishes SQLDelight dialect ServiceLoader resource exactly") {
             serviceResource("META-INF/services/app.cash.sqldelight.dialect.api.SqlDelightDialect") shouldBe
-                "dev.s7a.sqldelight.oracle.dialect.OracleDialect\n"
+                "dev.s7a.sqldelight.oracle.OracleDialect\n"
         }
 
         test("uses JDBC runtime types") {

@@ -1,4 +1,4 @@
-package dev.s7a.sqldelight.oracle.dialect
+package dev.s7a.sqldelight.oracle
 
 import com.squareup.kotlinpoet.CodeBlock
 import io.kotest.assertions.throwables.shouldThrow

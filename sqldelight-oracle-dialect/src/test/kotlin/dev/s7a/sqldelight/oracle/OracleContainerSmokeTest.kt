@@ -1,4 +1,4 @@
-package dev.s7a.sqldelight.oracle.dialect
+package dev.s7a.sqldelight.oracle
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

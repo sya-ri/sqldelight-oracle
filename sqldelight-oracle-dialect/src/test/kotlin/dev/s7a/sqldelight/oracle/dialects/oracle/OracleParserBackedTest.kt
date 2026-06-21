@@ -54,6 +54,27 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle SQL line comments through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE sample (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(64)
+                );
+
+                selectWithComments:
+                SELECT id, name -- Result-column line comment.
+                FROM sample
+                WHERE id = 1; -- Trailing statement comment.
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle inline column constraints through SQLDelight environment exactly") {
             val sql =
                 """

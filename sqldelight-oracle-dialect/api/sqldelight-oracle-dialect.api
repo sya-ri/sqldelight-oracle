@@ -63,6 +63,7 @@ public class dev/s7a/sqldelight/oracle/grammar/OracleParser : com/intellij/lang/
 	public static fun alter_table_rules_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_table_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun column_constraint_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun create_index_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_table_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun oracle_type_name_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun overrides_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -86,6 +87,7 @@ public final class dev/s7a/sqldelight/oracle/grammar/OracleParserUtil : com/inte
 	public static final fun alterTableRulesExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterTableStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun columnConstraintExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun createIndexStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createTableStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public final fun getAlter_table_add_column ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_table_add_columns ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -99,6 +101,7 @@ public final class dev/s7a/sqldelight/oracle/grammar/OracleParserUtil : com/inte
 	public final fun getAlter_table_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getColumn_constraint ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreateElement ()Lkotlin/jvm/functions/Function1;
+	public final fun getCreate_index_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_table_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOracle_type_name ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOverrides ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -120,6 +123,7 @@ public final class dev/s7a/sqldelight/oracle/grammar/OracleParserUtil : com/inte
 	public final fun setAlter_table_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setColumn_constraint (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreateElement (Lkotlin/jvm/functions/Function1;)V
+	public final fun setCreate_index_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_table_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOracle_type_name (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOverrides (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -171,6 +175,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleAlte
 public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleColumnConstraint : com/alecstrong/sql/psi/core/psi/SqlColumnConstraint {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleCreateIndexStmt : com/alecstrong/sql/psi/core/psi/SqlCreateIndexStmt, com/intellij/psi/StubBasedPsiElement {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleCreateTableStmt : com/alecstrong/sql/psi/core/psi/SqlCreateTableStmt, com/intellij/psi/StubBasedPsiElement {
 }
 
@@ -181,6 +188,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleOver
 	public abstract fun getAlterTableRules ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableRules;
 	public abstract fun getAlterTableStmt ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableStmt;
 	public abstract fun getColumnConstraint ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleColumnConstraint;
+	public abstract fun getCreateIndexStmt ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleCreateIndexStmt;
 	public abstract fun getCreateTableStmt ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleCreateTableStmt;
 	public abstract fun getTableConstraint ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleTableConstraint;
 	public abstract fun getTypeName ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleTypeName;
@@ -206,6 +214,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleType
 	public static final field ALTER_TABLE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field COLUMN_CONSTRAINT Lcom/intellij/psi/tree/IElementType;
 	public static final field COMMA Lcom/intellij/psi/tree/IElementType;
+	public static final field CREATE_INDEX_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_TABLE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DIGIT Lcom/intellij/psi/tree/IElementType;
 	public static final field DOT Lcom/intellij/psi/tree/IElementType;
@@ -237,6 +246,7 @@ public class dev/s7a/sqldelight/oracle/grammar/psi/OracleVisitor : com/intellij/
 	public fun visitAlterTableRules (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableRules;)V
 	public fun visitAlterTableStmt (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableStmt;)V
 	public fun visitColumnConstraint (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleColumnConstraint;)V
+	public fun visitCreateIndexStmt (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleCreateIndexStmt;)V
 	public fun visitCreateTableStmt (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleCreateTableStmt;)V
 	public fun visitOracleTypeName (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleOracleTypeName;)V
 	public fun visitOverrides (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleOverrides;)V
@@ -245,6 +255,7 @@ public class dev/s7a/sqldelight/oracle/grammar/psi/OracleVisitor : com/intellij/
 	public fun visitSqlAlterTableStmt (Lcom/alecstrong/sql/psi/core/psi/SqlAlterTableStmt;)V
 	public fun visitSqlColumnConstraint (Lcom/alecstrong/sql/psi/core/psi/SqlColumnConstraint;)V
 	public fun visitSqlCompositeElement (Lcom/alecstrong/sql/psi/core/psi/SqlCompositeElement;)V
+	public fun visitSqlCreateIndexStmt (Lcom/alecstrong/sql/psi/core/psi/SqlCreateIndexStmt;)V
 	public fun visitSqlCreateTableStmt (Lcom/alecstrong/sql/psi/core/psi/SqlCreateTableStmt;)V
 	public fun visitSqlTableConstraint (Lcom/alecstrong/sql/psi/core/psi/SqlTableConstraint;)V
 	public fun visitSqlTypeName (Lcom/alecstrong/sql/psi/core/psi/SqlTypeName;)V
@@ -328,6 +339,13 @@ public class dev/s7a/sqldelight/oracle/grammar/psi/impl/OracleColumnConstraintIm
 	public fun accept (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/grammar/psi/impl/OracleCreateIndexStmtImpl : com/alecstrong/sql/psi/core/psi/impl/SqlCreateIndexStmtImpl, dev/s7a/sqldelight/oracle/grammar/psi/OracleCreateIndexStmt {
+	public fun <init> (Lcom/alecstrong/sql/psi/core/psi/SchemaContributorStub;Lcom/intellij/psi/stubs/IStubElementType;)V
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/grammar/psi/impl/OracleCreateTableStmtImpl : com/alecstrong/sql/psi/core/psi/impl/SqlCreateTableStmtImpl, dev/s7a/sqldelight/oracle/grammar/psi/OracleCreateTableStmt {
 	public fun <init> (Lcom/alecstrong/sql/psi/core/psi/SchemaContributorStub;Lcom/intellij/psi/stubs/IStubElementType;)V
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
@@ -348,6 +366,7 @@ public class dev/s7a/sqldelight/oracle/grammar/psi/impl/OracleOverridesImpl : co
 	public fun getAlterTableRules ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableRules;
 	public fun getAlterTableStmt ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableStmt;
 	public fun getColumnConstraint ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleColumnConstraint;
+	public fun getCreateIndexStmt ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleCreateIndexStmt;
 	public fun getCreateTableStmt ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleCreateTableStmt;
 	public fun getTableConstraint ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleTableConstraint;
 	public fun getTypeName ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleTypeName;

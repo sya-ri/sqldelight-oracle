@@ -78,8 +78,8 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [`constraint`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/constraint.html) parser support for table-level `PRIMARY KEY`, `UNIQUE`, `CHECK`, and `FOREIGN KEY` constraint states
 - [ ] [`CREATE TABLE AS SELECT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html), `ON COMMIT`, organization, clustering, and table-level storage variants
 - [x] [`CREATE TABLE AS SELECT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html) parser support for SQLDelight query files
-- [ ] [`CREATE INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-INDEX.html)
-- [ ] [`CREATE INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-INDEX.html) index variants: bitmap, unique, function-based, domain, reverse, invisible, partial, and local/global partitioned indexes
+- [x] [`CREATE INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-INDEX.html) parser support for `UNIQUE`, `BITMAP`, `IF NOT EXISTS`, ordinary/function-based indexed columns, visibility, `ONLINE`, `REVERSE`, logging, compression, and `INDEXING FULL/PARTIAL`
+- [ ] [`CREATE INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-INDEX.html) index variants: domain, cluster, bitmap join, XMLIndex, multivalue JSON, local/global partitioned indexes, ILM, storage, and advanced index attributes
 - [ ] [`CREATE VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-VIEW.html)
 - [ ] [`CREATE VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-VIEW.html) view variants: object views, XMLType views, editioning views, constraints, and `BEQUEATH`
 - [x] [`CREATE SEQUENCE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-SEQUENCE.html)

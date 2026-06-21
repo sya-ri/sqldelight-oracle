@@ -157,6 +157,40 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle create index statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE indexed_accounts (
+                  id NUMBER PRIMARY KEY,
+                  status VARCHAR2(32) NOT NULL,
+                  created_at TIMESTAMP,
+                  archived_at TIMESTAMP
+                );
+
+                CREATE UNIQUE INDEX IF NOT EXISTS indexed_accounts_status_idx
+                ON indexed_accounts (status) VISIBLE ONLINE;
+
+                CREATE BITMAP INDEX indexed_accounts_archive_idx
+                ON indexed_accounts (archived_at, created_at) INVISIBLE NOLOGGING;
+
+                CREATE INDEX indexed_accounts_created_idx
+                ON indexed_accounts (created_at DESC) REVERSE COMPUTE STATISTICS;
+
+                CREATE INDEX indexed_accounts_status_upper_idx
+                ON indexed_accounts (UPPER(status));
+
+                selectAll:
+                SELECT id, status, created_at, archived_at
+                FROM indexed_accounts;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

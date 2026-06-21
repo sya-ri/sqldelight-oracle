@@ -18,7 +18,7 @@
   ]
 }
 
-overrides ::= type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules
+overrides ::= type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt
 
 type_name ::= oracle_type_name | core_type_name {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTypeNameImpl"
@@ -215,3 +215,28 @@ alter_table_rename_column ::= 'RENAME' [ 'COLUMN' ] {column_name} 'TO' {column_a
   mixin = "dev.s7a.sqldelight.oracle.grammar.mixins.AlterTableRenameColumnMixin"
   pin = 1
 }
+
+create_index_stmt ::= 'CREATE' [ oracle_index_kind ] 'INDEX' [ 'IF' 'NOT' 'EXISTS' ] [ {database_name} DOT ] {index_name} 'ON' {table_name}
+  LP {indexed_column} ( COMMA {indexed_column} ) * RP oracle_index_attribute * {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCreateIndexStmtImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlCreateIndexStmt"
+  elementTypeClass = "com.alecstrong.sql.psi.core.psi.mixins.CreateIndexElementType"
+  stubClass = "com.alecstrong.sql.psi.core.psi.SchemaContributorStub"
+  override = true
+  pin = 3
+}
+
+private oracle_index_kind ::= 'UNIQUE' | 'BITMAP'
+
+private oracle_index_attribute ::= (
+  oracle_visibility |
+  'REVERSE' |
+  'ONLINE' |
+  'NOLOGGING' |
+  'LOGGING' |
+  'UNUSABLE' |
+  'COMPUTE' 'STATISTICS' |
+  'COMPRESS' [ {signed_number} ] |
+  'NOCOMPRESS' |
+  'INDEXING' ( 'FULL' | 'PARTIAL' )
+)

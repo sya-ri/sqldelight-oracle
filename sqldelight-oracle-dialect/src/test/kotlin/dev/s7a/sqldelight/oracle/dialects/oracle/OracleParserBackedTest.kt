@@ -953,6 +953,55 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle create property graph vertex statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE PROPERTY GRAPH my_graph VERTEX TABLES (my_table_1);
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create property graph if not exists statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE PROPERTY GRAPH IF NOT EXISTS sales_graph VERTEX TABLES (customers);
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create property graph edge statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE OR REPLACE PROPERTY GRAPH sales_graph
+                  VERTEX TABLES (
+                    customers KEY(customer_id) PROPERTIES ARE ALL COLUMNS,
+                    products KEY(product_id) NO PROPERTIES)
+                  EDGE TABLES (
+                    orders
+                      SOURCE KEY(customer_id) REFERENCES customers(customer_id)
+                      DESTINATION KEY(product_id) REFERENCES products(product_id)
+                      LABEL purchased
+                      PROPERTIES(order_id AS id))
+                  OPTIONS (TRUSTED MODE ALLOW MIXED PROPERTY TYPES);
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle graph, Iceberg, context, and MLE drop statements through SQLDelight environment exactly") {
             val sql =
                 """

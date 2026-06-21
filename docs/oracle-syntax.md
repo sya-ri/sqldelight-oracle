@@ -269,11 +269,13 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] Type conversion expressions parser support for [`CAST`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CAST.html) and [`TREAT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TREAT.html)
 - [ ] [Expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Expressions.html): JSON object access, object access, type constructors, boolean expressions
 - [ ] [Analytic view and model expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Expressions.html): analytic view expressions, model expressions, cell references, and iteration expressions
-- [ ] [Conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Conditions.html): comparison, logical, pattern matching, null, XML, SQL/JSON, compound, `BETWEEN`, `EXISTS`, and `IN`
+- [ ] [Conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Conditions.html): comparison, logical, pattern matching, null, XML, SQL/JSON function conditions, compound, `BETWEEN`, `EXISTS`, and `IN`
 - [x] [Boolean test conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Conditions.html) parser coverage for `IS TRUE`, `IS NOT FALSE`, `IS UNKNOWN`, and `TRUE`/`FALSE`/`UNKNOWN` literal expressions
 - [x] [Floating-point conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Floating-Point-Conditions.html) parser coverage for `IS [NOT] NAN` and `IS [NOT] INFINITE`
 - [x] [`IS OF type` condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/IS-OF-type-Condition.html) parser coverage for `IS [NOT] OF [TYPE] (...)` and `ONLY` type entries
 - [x] [Multiset conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Multiset-Conditions.html) parser coverage for `IS A SET`, `IS [NOT] EMPTY`, `MEMBER [OF]`, and `SUBMULTISET [OF]`
+- [x] [SQL/JSON `IS JSON` condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SQL-JSON-Conditions.html) parser coverage for `IS [NOT] JSON`, `STRICT`, `LAX`, unique-key modifiers, object/array/scalar modifiers, and schema validation
+- [ ] [SQL/JSON function conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SQL-JSON-Conditions.html): `JSON_EXISTS`, `JSON_EQUAL`, `JSON_TEXTCONTAINS`, `PASSING`, `ON ERROR`, and `ON EMPTY`
 - [ ] [Regular expression syntax](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Oracle-Regular-Expression-Support.html): POSIX, Unicode multilingual enhancements, and Perl-influenced extensions used by `REGEXP_*`
 
 ## Functions

@@ -283,6 +283,29 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle IS JSON conditions exactly") {
+            val sql =
+                """
+                CREATE TABLE json_samples (
+                  id NUMBER PRIMARY KEY,
+                  doc CLOB,
+                  expected_doc CLOB,
+                  search_text VARCHAR2(100)
+                );
+
+                SELECT id
+                FROM json_samples
+                WHERE doc IS JSON STRICT WITH UNIQUE KEYS
+                  AND expected_doc IS NOT JSON VALIDATE USING '{"type":"object"}';
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle cursor expressions exactly") {
             val sql =
                 """

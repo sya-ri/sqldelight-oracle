@@ -470,13 +470,28 @@ private oracle_hierarchical_operator_expr ::= ( 'PRIOR' | 'CONNECT_BY_ROOT' ) <<
 
 private oracle_shard_chunk_id_operator ::= 'SHARD_CHUNK_ID' LP <<expr '-1'>> COMMA <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP
 
-private oracle_condition_expr ::= oracle_floating_point_condition_expr | oracle_is_of_type_condition_expr
+private oracle_condition_expr ::= oracle_sql_json_condition_expr | oracle_floating_point_condition_expr | oracle_is_of_type_condition_expr
 
 private oracle_floating_point_condition_expr ::= oracle_condition_operand 'IS' [ 'NOT' ] ( 'NAN' | 'INFINITE' )
 
 private oracle_is_of_type_condition_expr ::= oracle_condition_operand 'IS' [ 'NOT' ] 'OF' [ 'TYPE' ] LP oracle_is_of_type_entry ( COMMA oracle_is_of_type_entry ) * RP
 
 private oracle_is_of_type_entry ::= [ 'ONLY' ] oracle_schema_object_name
+
+private oracle_sql_json_condition_expr ::= oracle_is_json_condition_expr
+
+private oracle_is_json_condition_expr ::= oracle_condition_operand 'IS' [ 'NOT' ] 'JSON' oracle_is_json_modifier *
+
+private oracle_is_json_modifier ::= (
+  'STRICT' |
+  'LAX' |
+  'WITH' 'UNIQUE' 'KEYS' |
+  'WITHOUT' 'UNIQUE' 'KEYS' |
+  'OBJECT' |
+  'ARRAY' |
+  'SCALAR' |
+  'VALIDATE' [ 'CAST' ] [ 'USING' ] {string_literal}
+)
 
 private oracle_multiset_expr ::= oracle_multiset_operator_expr | oracle_multiset_condition_expr
 

@@ -70,6 +70,12 @@ private oracle_core_stmt ::= (
   alter_mle_module_stmt |
   alter_property_graph_stmt |
   alter_json_relational_duality_view_stmt |
+  create_assertion_stmt |
+  create_directive_stmt |
+  create_edition_stmt |
+  create_inmemory_join_group_stmt |
+  create_java_stmt |
+  create_logical_partition_tracking_stmt |
   alter_assertion_stmt |
   alter_directive_stmt |
   alter_flashback_archive_stmt |
@@ -468,7 +474,7 @@ create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ] [ 'E
   pin = 6
 }
 
-extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | create_materialized_zonemap_stmt | alter_materialized_view_log_stmt | alter_materialized_zonemap_stmt | alter_analytic_view_stmt | alter_attribute_dimension_stmt | alter_hierarchy_stmt | alter_dimension_stmt | alter_cluster_stmt | alter_database_link_stmt | alter_indextype_stmt | alter_operator_stmt | alter_outline_stmt | create_profile_stmt | create_schema_stmt | create_flashback_archive_stmt | create_context_stmt | create_mle_module_stmt | create_mle_env_stmt | alter_mle_env_stmt | alter_mle_module_stmt | alter_property_graph_stmt | alter_json_relational_duality_view_stmt | alter_assertion_stmt | alter_directive_stmt | alter_flashback_archive_stmt | alter_inmemory_join_group_stmt | alter_lockdown_profile_stmt | alter_pmem_filestore_stmt | alter_profile_stmt | alter_resource_cost_stmt | alter_rollback_segment_stmt | alter_database_dictionary_stmt | alter_database_stmt | alter_pluggable_database_stmt | alter_tablespace_set_stmt | alter_tablespace_stmt | alter_diskgroup_stmt | create_operator_stmt | create_outline_stmt | create_iceberg_table_stmt | create_json_relational_duality_view_stmt | create_property_graph_stmt | create_analytic_view_stmt | create_attribute_dimension_stmt | create_hierarchy_stmt | create_dimension_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | drop_synonym_stmt | drop_type_body_stmt | drop_type_stmt | drop_function_stmt | drop_procedure_stmt | drop_package_stmt | drop_library_stmt | drop_java_stmt | drop_analytic_view_stmt | drop_attribute_dimension_stmt | drop_hierarchy_stmt | drop_dimension_stmt | drop_cluster_stmt | drop_database_link_stmt | drop_directory_stmt | drop_indextype_stmt | drop_operator_stmt | drop_outline_stmt | drop_property_graph_stmt | drop_iceberg_table_stmt | drop_context_stmt | drop_mle_env_stmt | drop_mle_module_stmt | drop_assertion_stmt | drop_directive_stmt | drop_edition_stmt | drop_flashback_archive_stmt | drop_inmemory_join_group_stmt | drop_lockdown_profile_stmt | drop_pmem_filestore_stmt | drop_profile_stmt | drop_rollback_segment_stmt | drop_database_stmt | drop_pluggable_database_stmt | drop_tablespace_set_stmt | drop_tablespace_stmt | drop_diskgroup_stmt | drop_restore_point_stmt | set_transaction_stmt | set_constraints_stmt | set_role_stmt | set_use_data_grants_only_stmt | alter_session_stmt | alter_system_stmt | alter_synonym_stmt | alter_trigger_stmt | alter_type_stmt | alter_function_stmt | alter_procedure_stmt | alter_package_stmt | alter_library_stmt | alter_java_stmt | administer_key_management_stmt | create_function_stmt | create_package_body_stmt | create_type_body_stmt | create_library_stmt | create_audit_policy_stmt | alter_audit_policy_stmt | drop_audit_policy_stmt | audit_stmt | noaudit_stmt | create_user_stmt | alter_user_stmt | create_role_stmt | alter_role_stmt | grant_stmt | revoke_stmt | drop_role_stmt | drop_user_stmt | associate_statistics_stmt | disassociate_statistics_stmt | rename_stmt | comment_on_stmt | purge_stmt | flashback_table_stmt | flashback_database_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
+extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | create_materialized_zonemap_stmt | alter_materialized_view_log_stmt | alter_materialized_zonemap_stmt | alter_analytic_view_stmt | alter_attribute_dimension_stmt | alter_hierarchy_stmt | alter_dimension_stmt | alter_cluster_stmt | alter_database_link_stmt | alter_indextype_stmt | alter_operator_stmt | alter_outline_stmt | create_profile_stmt | create_schema_stmt | create_flashback_archive_stmt | create_context_stmt | create_mle_module_stmt | create_mle_env_stmt | alter_mle_env_stmt | alter_mle_module_stmt | alter_property_graph_stmt | alter_json_relational_duality_view_stmt | create_assertion_stmt | create_directive_stmt | create_edition_stmt | create_inmemory_join_group_stmt | create_java_stmt | create_logical_partition_tracking_stmt | alter_assertion_stmt | alter_directive_stmt | alter_flashback_archive_stmt | alter_inmemory_join_group_stmt | alter_lockdown_profile_stmt | alter_pmem_filestore_stmt | alter_profile_stmt | alter_resource_cost_stmt | alter_rollback_segment_stmt | alter_database_dictionary_stmt | alter_database_stmt | alter_pluggable_database_stmt | alter_tablespace_set_stmt | alter_tablespace_stmt | alter_diskgroup_stmt | create_operator_stmt | create_outline_stmt | create_iceberg_table_stmt | create_json_relational_duality_view_stmt | create_property_graph_stmt | create_analytic_view_stmt | create_attribute_dimension_stmt | create_hierarchy_stmt | create_dimension_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | drop_synonym_stmt | drop_type_body_stmt | drop_type_stmt | drop_function_stmt | drop_procedure_stmt | drop_package_stmt | drop_library_stmt | drop_java_stmt | drop_analytic_view_stmt | drop_attribute_dimension_stmt | drop_hierarchy_stmt | drop_dimension_stmt | drop_cluster_stmt | drop_database_link_stmt | drop_directory_stmt | drop_indextype_stmt | drop_operator_stmt | drop_outline_stmt | drop_property_graph_stmt | drop_iceberg_table_stmt | drop_context_stmt | drop_mle_env_stmt | drop_mle_module_stmt | drop_assertion_stmt | drop_directive_stmt | drop_edition_stmt | drop_flashback_archive_stmt | drop_inmemory_join_group_stmt | drop_lockdown_profile_stmt | drop_pmem_filestore_stmt | drop_profile_stmt | drop_rollback_segment_stmt | drop_database_stmt | drop_pluggable_database_stmt | drop_tablespace_set_stmt | drop_tablespace_stmt | drop_diskgroup_stmt | drop_restore_point_stmt | set_transaction_stmt | set_constraints_stmt | set_role_stmt | set_use_data_grants_only_stmt | alter_session_stmt | alter_system_stmt | alter_synonym_stmt | alter_trigger_stmt | alter_type_stmt | alter_function_stmt | alter_procedure_stmt | alter_package_stmt | alter_library_stmt | alter_java_stmt | administer_key_management_stmt | create_function_stmt | create_package_body_stmt | create_type_body_stmt | create_library_stmt | create_audit_policy_stmt | alter_audit_policy_stmt | drop_audit_policy_stmt | audit_stmt | noaudit_stmt | create_user_stmt | alter_user_stmt | create_role_stmt | alter_role_stmt | grant_stmt | revoke_stmt | drop_role_stmt | drop_user_stmt | associate_statistics_stmt | disassociate_statistics_stmt | rename_stmt | comment_on_stmt | purge_stmt | flashback_table_stmt | flashback_database_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionStmt"
   override = true
@@ -1174,6 +1180,10 @@ drop_assertion_stmt ::= 'DROP' 'ASSERTION' [ 'IF' 'EXISTS' ] oracle_schema_objec
   pin = 2
 }
 
+create_assertion_stmt ::= 'CREATE' 'ASSERTION' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name
+  'CHECK' oracle_assertion_expression oracle_assertion_constraint_state * {
+}
+
 alter_assertion_stmt ::= 'ALTER' 'ASSERTION' [ 'IF' 'EXISTS' ] oracle_schema_object_name
   ( 'ENABLE' | 'DISABLE' | 'VALIDATE' | 'NOVALIDATE' ) + {
   pin = 2
@@ -1183,12 +1193,21 @@ drop_directive_stmt ::= 'DROP' 'DIRECTIVE' oracle_object_name_part {
   pin = 2
 }
 
+create_directive_stmt ::= 'CREATE' 'DIRECTIVE' oracle_object_name_part oracle_directive_action
+  ( COMMA oracle_directive_action ) * oracle_directive_processing_clause oracle_directive_enable_option *
+  'USING' oracle_directive_using_token + {
+}
+
 alter_directive_stmt ::= 'ALTER' 'DIRECTIVE' oracle_object_name_part ( 'ENABLE' | 'DISABLE' ) {
   pin = 2
 }
 
 drop_edition_stmt ::= 'DROP' 'EDITION' oracle_object_name_part [ 'IF' 'EXISTS' ] [ 'CASCADE' ] {
   pin = 2
+}
+
+create_edition_stmt ::= 'CREATE' 'EDITION' [ 'IF' 'NOT' 'EXISTS' ] oracle_object_name_part
+  [ 'AS' 'CHILD' 'OF' oracle_object_name_part ] {
 }
 
 drop_flashback_archive_stmt ::= 'DROP' 'FLASHBACK' 'ARCHIVE' oracle_object_name_part {
@@ -1203,9 +1222,23 @@ drop_inmemory_join_group_stmt ::= 'DROP' 'INMEMORY' 'JOIN' 'GROUP' [ 'IF' 'EXIST
   pin = 4
 }
 
+create_inmemory_join_group_stmt ::= 'CREATE' 'INMEMORY' 'JOIN' 'GROUP' [ 'IF' 'NOT' 'EXISTS' ]
+  oracle_schema_object_name LP oracle_join_group_column ( COMMA oracle_join_group_column ) * RP {
+}
+
 alter_inmemory_join_group_stmt ::= 'ALTER' 'INMEMORY' 'JOIN' 'GROUP' [ 'IF' 'EXISTS' ] oracle_schema_object_name
   ( 'ADD' | 'REMOVE' ) LP oracle_join_group_column RP {
   pin = 4
+}
+
+create_java_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'AND' ( 'RESOLVE' | 'COMPILE' ) ] [ 'NOFORCE' ]
+  'JAVA' ( 'SOURCE' | 'CLASS' | 'RESOURCE' ) [ 'IF' 'NOT' 'EXISTS' ] oracle_java_create_clause + {
+}
+
+create_logical_partition_tracking_stmt ::= 'CREATE' 'LOGICAL' 'PARTITION' 'TRACKING' 'ON'
+  oracle_schema_object_name 'PARTITION' 'BY' 'RANGE' LP oracle_object_name_part RP
+  [ 'INTERVAL' oracle_logical_partition_boundary ]
+  LP oracle_logical_partition_definition ( COMMA oracle_logical_partition_definition ) * RP {
 }
 
 drop_lockdown_profile_stmt ::= 'DROP' 'LOCKDOWN' 'PROFILE' oracle_object_name_part {
@@ -1239,6 +1272,103 @@ private oracle_flashback_archive_retention ::= {signed_number} ( 'DAY' | 'MONTH'
 private oracle_flashback_archive_boundary_token ::= oracle_plsql_source_token | 'SYSTIMESTAMP'
 
 private oracle_join_group_column ::= oracle_schema_object_name LP oracle_object_name_part RP
+
+private oracle_assertion_expression ::= LP oracle_assertion_token * RP
+
+private oracle_assertion_token ::= (
+  oracle_assertion_expression |
+  oracle_dimension_reference |
+  oracle_object_name_part |
+  {string_literal} |
+  string |
+  DIGIT |
+  {signed_number} |
+  COMMA |
+  DOT |
+  EQ |
+  'ALL' |
+  'AND' |
+  'BETWEEN' |
+  'EXISTS' |
+  'FROM' |
+  'IN' |
+  'IS' |
+  'NOT' |
+  'NULL' |
+  'OR' |
+  'SATISFY' |
+  'SELECT' |
+  'WHERE'
+)
+
+private oracle_assertion_constraint_state ::= (
+  [ 'NOT' ] 'DEFERRABLE' |
+  'INITIALLY' ( 'IMMEDIATE' | 'DEFERRED' ) |
+  'ENABLE' |
+  'DISABLE' |
+  'VALIDATE' |
+  'NOVALIDATE'
+)
+
+private oracle_directive_action ::= 'UPDATE' | 'INSERT' | 'SELECT'
+
+private oracle_directive_processing_clause ::= (
+  ( 'BEFORE' | 'AFTER' ) 'OBJECT' |
+  'ON' 'COMMIT'
+)
+
+private oracle_directive_enable_option ::= 'ENABLE' | 'DISABLE' | 'VALIDATE' | 'NOVALIDATE'
+
+private oracle_directive_using_token ::= (
+  oracle_assertion_token |
+  oracle_parenthesized_clause |
+  'BEGIN' |
+  'END' |
+  'EXPRESSION' |
+  'FUNCTION' |
+  'JSON' |
+  'SQL'
+)
+
+private oracle_java_create_clause ::= (
+  'NAMED' ( string | {string_literal} ) |
+  'SCHEMA' oracle_object_name_part |
+  'SHARING' EQ ( 'METADATA' | 'NONE' ) |
+  'AUTHID' ( 'CURRENT_USER' | 'DEFINER' ) |
+  'RESOLVER' oracle_parenthesized_clause |
+  'USING' oracle_java_using_clause |
+  'AS' oracle_java_source_token +
+)
+
+private oracle_java_using_clause ::= (
+  'BFILE' oracle_mle_module_source_boundary_token + |
+  ( 'CLOB' | 'BLOB' ) LP oracle_mle_module_source_boundary_token * RP
+)
+
+private oracle_java_source_token ::= (
+  oracle_mle_module_source_token |
+  oracle_parenthesized_clause |
+  'CLASS' |
+  'PUBLIC' |
+  'STATIC' |
+  'VOID'
+)
+
+private oracle_logical_partition_definition ::= 'PARTITION' [ oracle_object_name_part ] 'VALUES' 'LESS' 'THAN'
+  oracle_logical_partition_boundary
+
+private oracle_logical_partition_boundary ::= LP oracle_logical_partition_token * RP
+
+private oracle_logical_partition_token ::= (
+  oracle_object_name_part |
+  {string_literal} |
+  string |
+  DIGIT |
+  {signed_number} |
+  COMMA |
+  DOT |
+  'MAXVALUE'
+)
 
 private oracle_lockdown_profile_clause ::= ( 'ENABLE' | 'DISABLE' ) (
   'FEATURE' 'ALL' 'EXCEPT' EQ oracle_parenthesized_clause |

@@ -1372,6 +1372,139 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle create assertion statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE ASSERTION IF NOT EXISTS company_must_have_a_president
+                  CHECK (
+                    EXISTS (
+                      SELECT 'a president'
+                      FROM employees
+                      WHERE job_id = 'AD_PRES'
+                    )
+                  );
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create assertion universal statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE ASSERTION employee_in_every_dept
+                  CHECK (
+                    ALL (
+                      SELECT department_id
+                      FROM departments
+                    ) dept
+                    SATISFY (
+                      EXISTS (
+                        SELECT 'an employee'
+                        FROM employees
+                        WHERE department_id = dept.department_id
+                      )
+                    )
+                  )
+                  DEFERRABLE INITIALLY DEFERRED;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create directive statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE DIRECTIVE validate_order UPDATE, INSERT BEFORE OBJECT ENABLE VALIDATE
+                  USING FUNCTION validate_order_fn;
+
+                CREATE DIRECTIVE validate_read SELECT AFTER OBJECT DISABLE NOVALIDATE
+                  USING JSON '$.status';
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create edition statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE EDITION test_ed;
+
+                CREATE EDITION IF NOT EXISTS test_ed2 AS CHILD OF test_ed;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create inmemory join group statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE INMEMORY JOIN GROUP prod_id1
+                  (inventories(product_id), order_items(product_id));
+
+                CREATE INMEMORY JOIN GROUP IF NOT EXISTS oe.prod_id2
+                  (inventories(product_id), pm.online_media(product_id));
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create Java statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE JAVA SOURCE NAMED "Welcome" AS 'public class Welcome {}';
+
+                CREATE OR REPLACE AND RESOLVE NOFORCE JAVA CLASS SCHEMA app
+                  USING CLOB (
+                    SELECT 'compiled class bytes' FROM dual
+                  );
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create logical partition tracking statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE LOGICAL PARTITION TRACKING ON sales
+                  PARTITION BY RANGE (sale_date)
+                  INTERVAL ('1')
+                  (
+                    PARTITION p2025 VALUES LESS THAN ('2026-01-01'),
+                    PARTITION pmax VALUES LESS THAN (MAXVALUE)
+                  );
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle graph, Iceberg, context, and MLE drop statements through SQLDelight environment exactly") {
             val sql =
                 """

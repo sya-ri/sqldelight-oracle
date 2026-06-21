@@ -751,6 +751,45 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle analytic dimension alter statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                ALTER ANALYTIC VIEW sales_av RENAME TO mysales_av;
+
+                ALTER ANALYTIC VIEW IF EXISTS sh.sales_av COMPILE;
+
+                ALTER ANALYTIC VIEW sales_av
+                  ADD CACHE MEASURE GROUP (sales, units, cost)
+                  LEVELS (time.fiscal.fiscal_quarter, warehouse);
+
+                ALTER ANALYTIC VIEW sales_av
+                  DROP CACHE MEASURE GROUP (sales)
+                  LEVELS (time.fiscal.fiscal_quarter);
+
+                ALTER ATTRIBUTE DIMENSION product_attr_dim RENAME TO my_product_attr_dim;
+
+                ALTER ATTRIBUTE DIMENSION IF EXISTS sh.product_attr_dim COMPILE;
+
+                ALTER HIERARCHY product_hier RENAME TO myproduct_hier;
+
+                ALTER HIERARCHY IF EXISTS sh.product_hier COMPILE;
+
+                ALTER DIMENSION customers_dim DROP ATTRIBUTE country;
+
+                ALTER DIMENSION sh.customers_dim
+                  ADD LEVEL zone IS customers.cust_postal_code
+                  ADD ATTRIBUTE zone DETERMINES (cust_city);
+
+                ALTER DIMENSION customers_dim COMPILE;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle schema object drop statements through SQLDelight environment exactly") {
             val sql =
                 """

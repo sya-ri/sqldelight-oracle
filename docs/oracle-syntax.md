@@ -224,7 +224,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] Data use case domains: [`CREATE DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/create-domain.html), [`ALTER DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/alter-domain.html), [`DROP DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/drop-domain.html)
 - [x] [Boolean data type](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html)
 - [ ] [Extended data types](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html)
-- [ ] [ANSI, DB2, and SQL/DS data type aliases](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html)
+- [x] [ANSI, DB2, and SQL/DS data type aliases](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html)
 - [x] [Any types and XML URI types](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html): `ANYTYPE`, `ANYDATA`, `ANYDATASET`, `URIType`, `DBURIType`, `XDBURIType`, `HTTPURIType`
 - [x] [Spatial and GeoRaster type names](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html): `SDO_TOPO_GEOMETRY`, `SDO_GEORASTER`
 - [x] SQLDelight type resolver mapping for Oracle scalar data types, including `NUMBER` precision/scale, ANSI character/numeric aliases, `BINARY_INTEGER`, `PLS_INTEGER`, `DATE`, `TIMESTAMP`, text, binary, JSON/XML, spatial, collection, URI, and vector names

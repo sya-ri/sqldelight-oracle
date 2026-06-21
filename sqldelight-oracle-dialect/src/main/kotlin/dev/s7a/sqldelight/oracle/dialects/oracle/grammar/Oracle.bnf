@@ -236,9 +236,9 @@ private oracle_numeric_type ::= (
 )
 
 private oracle_character_type ::= (
-  ( 'CHAR' | 'CHARACTER' | 'NCHAR' | 'VARCHAR' | 'VARCHAR2' | 'NVARCHAR2' ) [ oracle_type_parameters ] |
   ( 'CHAR' | 'CHARACTER' ) 'VARYING' [ oracle_type_parameters ] |
   'NATIONAL' ( 'CHAR' | 'CHARACTER' ) [ 'VARYING' ] [ oracle_type_parameters ] |
+  ( 'CHAR' | 'CHARACTER' | 'NCHAR' | 'VARCHAR' | 'VARCHAR2' | 'NVARCHAR2' ) [ oracle_type_parameters ] |
   ( 'CLOB' | 'NCLOB' | 'LONG' | 'ROWID' | 'UROWID' | 'JSON' | 'XMLTYPE' )
 )
 

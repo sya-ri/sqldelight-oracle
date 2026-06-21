@@ -25,7 +25,12 @@ class OracleParserBackedTest :
                 CREATE TABLE sample (
                   id NUMBER(10) NOT NULL,
                   amount NUMBER(10, 2),
+                  numeric_alias NUMERIC(8, 0),
+                  decimal_alias DECIMAL(20, 0),
+                  integer_alias INTEGER,
+                  double_alias DOUBLE PRECISION,
                   name NATIONAL CHARACTER VARYING(100),
+                  character_alias CHARACTER VARYING(100),
                   payload JSON,
                   active BOOLEAN,
                   raw_uuid RAW(16),
@@ -35,7 +40,7 @@ class OracleParserBackedTest :
                 );
 
                 selectAll:
-                SELECT id, amount, name, payload, active, raw_uuid, embedding, created_at, elapsed
+                SELECT id, amount, numeric_alias, decimal_alias, integer_alias, double_alias, name, character_alias, payload, active, raw_uuid, embedding, created_at, elapsed
                 FROM sample;
                 """.trimIndent()
 

@@ -970,6 +970,50 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle assertion, directive, flashback, In-Memory, and lockdown alter statements exactly") {
+            val sql =
+                """
+                ALTER ASSERTION IF EXISTS company_must_have_a_president DISABLE;
+
+                ALTER ASSERTION staff_earn_less_than_manager VALIDATE;
+
+                ALTER ASSERTION hr.salary_within_job_limit ENABLE NOVALIDATE;
+
+                ALTER DIRECTIVE validate_email_directive ENABLE;
+
+                ALTER DIRECTIVE validate_email_directive DISABLE;
+
+                ALTER FLASHBACK ARCHIVE fla1 SET DEFAULT;
+
+                ALTER FLASHBACK ARCHIVE fla1 ADD TABLESPACE tbs1 QUOTA 10 G;
+
+                ALTER FLASHBACK ARCHIVE fla1 MODIFY RETENTION 1 YEAR;
+
+                ALTER FLASHBACK ARCHIVE fla1 PURGE BEFORE SCN 728969;
+
+                ALTER FLASHBACK ARCHIVE fla1 NO OPTIMIZE DATA;
+
+                ALTER INMEMORY JOIN GROUP prod_id1 ADD(product_descriptions(product_id));
+
+                ALTER INMEMORY JOIN GROUP IF EXISTS sh.prod_id1 REMOVE(product_descriptions(product_id));
+
+                ALTER LOCKDOWN PROFILE hr_prof DISABLE FEATURE = ('NETWORK_ACCESS');
+
+                ALTER LOCKDOWN PROFILE hr_prof
+                  ENABLE OPTION = ('PARTITIONING');
+
+                ALTER LOCKDOWN PROFILE hr_prof
+                  DISABLE STATEMENT = ('ALTER SESSION') CLAUSE = ('SET') OPTION = ('QUERY_REWRITE_ENABLED') VALUE = ('FALSE')
+                  USERS = LOCAL;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle administrative legacy drop statements exactly") {
             val sql =
                 """

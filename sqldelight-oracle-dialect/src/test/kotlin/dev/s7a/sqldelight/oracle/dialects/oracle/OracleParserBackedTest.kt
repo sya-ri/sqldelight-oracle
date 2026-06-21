@@ -332,6 +332,13 @@ class OracleParserBackedTest :
                 CYCLE id SET is_cycle TO 'Y' DEFAULT 'N'
                 SELECT id, parent_id
                 FROM unit_tree;
+
+                selectValuesFactored:
+                WITH staged_units (id, unit_name) AS (
+                  VALUES (1, 'Operations'), (2, 'Finance')
+                )
+                SELECT id, unit_name
+                FROM staged_units;
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe
@@ -734,6 +741,10 @@ class OracleParserBackedTest :
                 CREATE HYBRID VECTOR INDEX indexed_accounts_search_hybrid_idx
                 ON indexed_accounts (search_doc)
                 PARAMETERS ('JSON($.text) VECTOR($.embedding)');
+
+                ALTER INDEX indexed_accounts_status_idx REBUILD ONLINE TABLESPACE users;
+
+                ALTER INDEX indexed_accounts_created_global_idx REBUILD PARTITION p_max TABLESPACE users;
 
                 selectAll:
                 SELECT id, status, created_at, archived_at, embedding, search_doc
@@ -1169,6 +1180,13 @@ class OracleParserBackedTest :
                   WHERE department_id = 20;
 
                 EXPLAIN PLAN FOR
+                  INSERT INTO explain_employees (id, department_id, salary)
+                  VALUES (100, 10, 1200);
+
+                EXPLAIN PLAN FOR
+                  INSERT INTO explain_employees DEFAULT VALUES;
+
+                EXPLAIN PLAN FOR
                   MERGE INTO explain_employees target
                   USING explain_departments source
                   ON (1 = 1)
@@ -1182,6 +1200,9 @@ class OracleParserBackedTest :
                 EXPLAIN PLAN FOR
                   CREATE INDEX explain_employees_department_idx
                   ON explain_employees (department_id);
+
+                EXPLAIN PLAN FOR
+                  ALTER INDEX explain_employees_department_idx REBUILD ONLINE;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe

@@ -42,7 +42,8 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [Analytic view](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-ANALYTIC-VIEW.html) query syntax source-scanner boundaries
 - [x] [SQL/PGQ graph query](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graph_table-operator.html) syntax source-scanner boundaries
 - [x] [Subquery factoring](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html): `WITH`, query name column aliases, nested factoring, `SEARCH`, and `CYCLE` parser support
-- [ ] [`with_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/with_clause.html) additions: recursive CTE semantic integration, inline [`plsql_declarations`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/plsql_declarations.html), [`subav_factoring_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/subav_factoring_clause.html), and [`values_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/values_clause.html) factoring
+- [x] [`with_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/with_clause.html) [`values_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/values_clause.html) factoring parser support
+- [ ] [`with_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/with_clause.html) additions: recursive CTE semantic integration, inline [`plsql_declarations`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/plsql_declarations.html), and [`subav_factoring_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/subav_factoring_clause.html)
 - [x] [Set operators](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/The-UNION-ALL-INTERSECT-MINUS-Operators.html): `UNION`, `UNION ALL`, `INTERSECT`, `INTERSECT ALL`, `MINUS`, `MINUS ALL`, `EXCEPT`, and `EXCEPT ALL`
 - [x] [ANSI join operator](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Joins.html) and [`cross_outer_apply_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/cross_outer_apply_clause.html) parser support for `RIGHT OUTER JOIN`, `FULL OUTER JOIN`, `CROSS APPLY`, and `OUTER APPLY`
 - [ ] [Join syntax](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Joins.html): Oracle outer join operator, partitioned outer joins, lateral inline views, and full semantic validation for correlated `APPLY`
@@ -72,7 +73,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [`CALL`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CALL.html) parser support for positional-argument [`routine_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/routine_clause.html)
 - [x] [`CALL`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CALL.html) parser support for named and mixed argument notation with `=>`
 - [x] [`LOCK TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/LOCK-TABLE.html) parser support for multiple table references, [`partition_extension_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/partition_extension_clause.html), lock modes, `NOWAIT`, and `WAIT`
-- [x] [`EXPLAIN PLAN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/EXPLAIN-PLAN.html) parser support for `SET STATEMENT_ID`, `INTO`, and `FOR` `SELECT` / `UPDATE` / `DELETE` / `MERGE` / `CREATE TABLE` / `CREATE INDEX` statements
+- [x] [`EXPLAIN PLAN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/EXPLAIN-PLAN.html) parser support for `SET STATEMENT_ID`, `INTO`, and `FOR` `SELECT` / `INSERT` / `UPDATE` / `DELETE` / `MERGE` / `CREATE TABLE` / `CREATE INDEX` / `ALTER INDEX ... REBUILD` statements
 - [x] [`INSERT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html) `DEFAULT VALUES` parser coverage
 - [x] [`INSERT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html) [`partition_extension_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/partition_extension_clause.html) parser support for `PARTITION`, `PARTITION FOR`, `SUBPARTITION`, and `SUBPARTITION FOR`
 - [ ] [`INSERT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html) direct-path and advanced source forms
@@ -86,7 +87,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [DML error logging clause](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html): `LOG ERRORS INTO`, `REJECT LIMIT`, and reusable DML clause parsing for `INSERT` and `MERGE`
 - [ ] [`CALL`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/call.html) full support for `object_access_expression`, `@dblink_name`, and `INTO :host_variable`
 - [ ] [`LOCK TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/LOCK-TABLE.html) full support for remote object references with `@dblink`
-- [ ] [`EXPLAIN PLAN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/EXPLAIN-PLAN.html) full support for remote output tables with `@dblink`, `INSERT` statement variants, and `ALTER INDEX ... REBUILD`
+- [ ] [`EXPLAIN PLAN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/EXPLAIN-PLAN.html) full support for remote output tables with `@dblink`
 
 ## DDL
 
@@ -140,6 +141,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html) parser support for Oracle multiple-column `ADD` and `MODIFY`
 - [ ] [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html) parser support for Oracle partition, storage, LOB, and table property clauses
 - [x] [`ALTER INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-INDEX.html)
+- [x] [`ALTER INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-INDEX.html) parser support for [`rebuild_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/rebuild_clause.html), `PARTITION`, `SUBPARTITION`, and reusable index attributes
 - [x] [`ALTER SEQUENCE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-SEQUENCE.html) parser support for schema-qualified names, `IF EXISTS`, `RESTART`, and sequence option clauses shared with `CREATE SEQUENCE`
 - [x] [`ALTER VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-VIEW.html)
 - [x] [`ALTER MATERIALIZED VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-MATERIALIZED-VIEW.html)

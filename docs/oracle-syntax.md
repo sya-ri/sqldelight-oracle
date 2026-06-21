@@ -104,6 +104,6 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 ## Database Verification
 
 - [x] Gated Testcontainers smoke test for connection, DDL, and DML execution
-- [ ] Testcontainers smoke test executed against local Docker
+- [x] Testcontainers smoke test executed against local Docker with `gvenzl/oracle-free:23-slim-faststart` and `ORACLE_TESTCONTAINERS_SERVICE_NAME=FREEPDB1`
 - [x] Gated Testcontainers DDL round-trip test for representative supported type names
 - [x] Gated Testcontainers DML round-trip test for `INSERT`, `UPDATE`, `DELETE`, `MERGE`

@@ -212,6 +212,9 @@ private val oracleTestcontainersImage: String =
 private val oracleTestcontainersSharedMemoryBytes: Long =
     System.getenv("ORACLE_TESTCONTAINERS_SHM_BYTES")?.toLongOrNull() ?: 2L * 1024L * 1024L * 1024L
 
+private val oracleTestcontainersServiceName: String? =
+    System.getenv("ORACLE_TESTCONTAINERS_SERVICE_NAME")?.takeIf { value -> value.isNotBlank() }
+
 private val oracleTestcontainersDockerImageName: DockerImageName =
     DockerImageName
         .parse(oracleTestcontainersImage)
@@ -219,4 +222,9 @@ private val oracleTestcontainersDockerImageName: DockerImageName =
 
 private fun OracleContainer?.requireStarted(): OracleContainer = requireNotNull(this)
 
-private fun OracleContainer.connection(): Connection = DriverManager.getConnection(jdbcUrl, username, password)
+private fun OracleContainer.connection(): Connection = DriverManager.getConnection(testJdbcUrl(), username, password)
+
+private fun OracleContainer.testJdbcUrl(): String =
+    oracleTestcontainersServiceName?.let { serviceName ->
+        "jdbc:oracle:thin:@$host:$oraclePort/$serviceName"
+    } ?: jdbcUrl

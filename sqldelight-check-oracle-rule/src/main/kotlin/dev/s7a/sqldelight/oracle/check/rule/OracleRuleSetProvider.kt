@@ -5,6 +5,7 @@ import dev.s7a.sqldelight.check.rule.api.RuleProvider
 import dev.s7a.sqldelight.check.rule.api.RuleSetProvider
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoEmptyStringComparisonRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NullableNotInPredicateRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.PreferIdentityColumnRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.RequireNumberPrecisionRule
 
 /**
@@ -17,6 +18,7 @@ public class OracleRuleSetProvider : RuleSetProvider {
         setOf(
             RuleProvider(::NullableNotInPredicateRule),
             RuleProvider(::NoEmptyStringComparisonRule),
+            RuleProvider(::PreferIdentityColumnRule),
             RuleProvider(::RequireNumberPrecisionRule),
         )
 }

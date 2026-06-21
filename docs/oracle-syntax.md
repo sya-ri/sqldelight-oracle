@@ -13,9 +13,9 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] `MODEL`
 - [x] `MATCH_RECOGNIZE`
 - [x] `QUALIFY`
-- [ ] Flashback query clauses
-- [ ] `JSON_TABLE`
-- [ ] `XMLTABLE`
+- [x] Flashback query clauses: `AS OF SCN`, `AS OF TIMESTAMP`, `VERSIONS BETWEEN`
+- [x] `JSON_TABLE`
+- [x] `XMLTABLE`
 - [ ] Analytic view query syntax
 - [ ] SQL/PGQ graph query syntax
 
@@ -23,13 +23,13 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 
 - [x] [`MERGE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/MERGE.html) statement start
 - [x] `RETURNING` clause boundary
-- [ ] `INSERT`
+- [x] `INSERT`
 - [ ] Multi-table `INSERT`
-- [ ] `UPDATE`
-- [ ] `DELETE`
-- [ ] `CALL`
-- [ ] `LOCK TABLE`
-- [ ] `EXPLAIN PLAN`
+- [x] `UPDATE`
+- [x] `DELETE`
+- [x] `CALL`
+- [x] `LOCK TABLE`
+- [x] `EXPLAIN PLAN`
 
 ## DDL
 
@@ -53,33 +53,33 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [ ] `ALTER MATERIALIZED VIEW`
 - [ ] `DROP TABLE`
 - [ ] `DROP INDEX`
-- [ ] `DROP SEQUENCE`
-- [ ] `DROP VIEW`
-- [ ] `DROP MATERIALIZED VIEW`
-- [ ] `TRUNCATE TABLE`
-- [ ] `RENAME`
-- [ ] `COMMENT ON`
+- [x] `DROP SEQUENCE`
+- [x] `DROP VIEW`
+- [x] `DROP MATERIALIZED VIEW`
+- [x] `TRUNCATE TABLE`
+- [x] `RENAME`
+- [x] `COMMENT ON`
 
 ## Transactions And Session Statements
 
 - [x] `ALTER SESSION`
 - [x] `ALTER SYSTEM`
 - [ ] `COMMIT`
-- [ ] `ROLLBACK`
-- [ ] `SAVEPOINT`
-- [ ] `SET TRANSACTION`
-- [ ] `SET CONSTRAINT`
+- [x] `ROLLBACK`
+- [x] `SAVEPOINT`
+- [x] `SET TRANSACTION`
+- [x] `SET CONSTRAINT`
 
 ## Security And Privileges
 
 - [x] `GRANT`
 - [x] `REVOKE`
-- [ ] `CREATE USER`
-- [ ] `ALTER USER`
-- [ ] `DROP USER`
-- [ ] `CREATE ROLE`
-- [ ] `ALTER ROLE`
-- [ ] `DROP ROLE`
+- [x] `CREATE USER`
+- [x] `ALTER USER`
+- [x] `DROP USER`
+- [x] `CREATE ROLE`
+- [x] `ALTER ROLE`
+- [x] `DROP ROLE`
 
 ## Data Types
 
@@ -89,7 +89,8 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] LOB and raw types: `BLOB`, `CLOB`, `NCLOB`, `BFILE`, `RAW`, `LONG RAW`
 - [x] Row id types: `ROWID`, `UROWID`
 - [x] JSON/XML/spatial/vector names: `JSON`, `XMLTYPE`, `SDO_GEOMETRY`, `VECTOR`
-- [ ] Object types and collection types
+- [x] Object/reference type names: `OBJECT`, `REF`, `ANYDATA`
+- [ ] Collection types and nested tables
 - [ ] Data use case domains
 
 ## Rules

@@ -9,9 +9,12 @@ import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.JoinConditionBou
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.KeywordCaseTarget
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.OrderByBoundary
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.PredicateBoundary
+import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.SqlDelightExecutableStatementStart
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.SqlDelightStatementStart
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.StatementStart
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.TableReferenceBoundary
+import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.TransactionEndStatement
+import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.TransactionStartStatement
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatterns
 import dev.s7a.sqldelight.check.api.sourcePatterns
 
@@ -25,6 +28,8 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                 sourcePatterns(
                     "ALTER SESSION",
                     "ALTER SYSTEM",
+                    "ALTER USER",
+                    "ALTER ROLE",
                     "ANALYZE",
                     "CALL",
                     "COMMENT",
@@ -36,25 +41,44 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                     "CREATE MATERIALIZED VIEW LOG",
                     "CREATE PACKAGE",
                     "CREATE PROCEDURE",
+                    "CREATE ROLE",
                     "CREATE SEQUENCE",
                     "CREATE SYNONYM",
                     "CREATE TRIGGER",
                     "CREATE TYPE",
+                    "CREATE USER",
+                    "DROP MATERIALIZED VIEW",
+                    "DROP ROLE",
+                    "DROP SEQUENCE",
+                    "DROP SYNONYM",
+                    "DROP USER",
+                    "DROP VIEW",
                     "EXPLAIN PLAN",
                     "FLASHBACK",
                     "GRANT",
                     "LOCK TABLE",
                     "MERGE",
                     "PURGE",
+                    "RENAME",
                     "REVOKE",
+                    "ROLLBACK",
+                    "SAVEPOINT",
+                    "SET CONSTRAINT",
+                    "SET TRANSACTION",
                     "TRUNCATE",
                     roles = setOf(StatementStart, SqlDelightStatementStart),
                 ) +
+                sourcePatterns("MERGE", roles = setOf(SqlDelightExecutableStatementStart)) +
+                sourcePatterns("SET TRANSACTION", roles = setOf(TransactionStartStatement)) +
+                sourcePatterns("COMMIT", "ROLLBACK", roles = setOf(TransactionEndStatement)) +
                 sourcePatterns("CREATE SEQUENCE", roles = setOf(CreateSequenceStatementStart)) +
                 sourcePatterns(
+                    "AS OF SCN",
+                    "AS OF TIMESTAMP",
                     "CONNECT BY",
                     "FETCH {FIRST|NEXT} [ROW|ROWS]",
                     "FOR UPDATE",
+                    "JSON_TABLE",
                     "MATCH_RECOGNIZE",
                     "MODEL",
                     "OFFSET",
@@ -63,6 +87,8 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                     "RETURNING",
                     "START WITH",
                     "UNPIVOT",
+                    "VERSIONS BETWEEN",
+                    "XMLTABLE",
                     roles = setOf(ClauseBoundary),
                 ) +
                 sourcePatterns("CONNECT BY", roles = setOf(ConnectByClause)) +
@@ -96,13 +122,16 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                     "LONG RAW",
                     "NCHAR",
                     "NCLOB",
+                    "OBJECT",
                     "NUMBER",
                     "NVARCHAR2",
                     "PLS_INTEGER",
                     "RAW",
+                    "REF",
                     "ROWID",
                     "SDO_GEOMETRY",
                     "TIMESTAMP",
+                    "URITYPE",
                     "UROWID",
                     "VARCHAR2",
                     "VECTOR",

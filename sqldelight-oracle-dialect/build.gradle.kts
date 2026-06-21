@@ -8,4 +8,6 @@ dependencies {
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.kotest.framework.engine)
     testImplementation(libs.kotest.runner.junit5)
+    testImplementation(libs.ojdbc11)
+    testImplementation(libs.testcontainers.oracle.xe)
 }

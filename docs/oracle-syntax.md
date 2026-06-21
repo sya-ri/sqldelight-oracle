@@ -103,6 +103,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 
 ## Database Verification
 
-- [ ] Testcontainers smoke test for connection and simple query execution
+- [x] Gated Testcontainers smoke test for connection, DDL, and DML execution
+- [ ] Testcontainers smoke test executed against local Docker
 - [ ] Testcontainers DDL round-trip for supported type names
 - [ ] Testcontainers DML round-trip for `INSERT`, `UPDATE`, `DELETE`, `MERGE`

@@ -356,6 +356,7 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                 ) +
                 sourcePatterns(
                     "ACOS",
+                    "ADD_MONTHS",
                     "APPROX_COUNT",
                     "APPROX_COUNT_DISTINCT",
                     "APPROX_MEDIAN",
@@ -427,6 +428,7 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                     "L2_DISTANCE",
                     "LAG",
                     "LAST_VALUE",
+                    "LAST_DAY",
                     "LEAST",
                     "LEAD",
                     "LENGTH",
@@ -437,7 +439,9 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                     "MAX",
                     "MEDIAN",
                     "MIN",
+                    "MONTHS_BETWEEN",
                     "NANVL",
+                    "NEXT_DAY",
                     "NTH_VALUE",
                     "NTILE",
                     "NVL",

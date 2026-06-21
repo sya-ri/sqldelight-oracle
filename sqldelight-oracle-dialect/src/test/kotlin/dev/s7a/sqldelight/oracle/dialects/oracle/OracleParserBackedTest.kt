@@ -915,6 +915,29 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle datetime single-row functions exactly") {
+            val sql =
+                """
+                CREATE TABLE employees (
+                  id NUMBER PRIMARY KEY,
+                  hire_date DATE
+                );
+
+                SELECT id,
+                  ADD_MONTHS(hire_date, 1) AS next_month,
+                  LAST_DAY(hire_date) AS month_end,
+                  NEXT_DAY(hire_date, 'TUESDAY') AS next_tuesday,
+                  MONTHS_BETWEEN(CURRENT_DATE, hire_date) AS tenure_months
+                FROM employees;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle text and national literals exactly") {
             val sql =
                 """

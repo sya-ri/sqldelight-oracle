@@ -1,4 +1,4 @@
-package dev.s7a.sqldelight.oracle.grammar.mixins
+package dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins
 
 import com.alecstrong.sql.psi.core.psi.AlterTableApplier
 import com.alecstrong.sql.psi.core.psi.LazyQuery
@@ -6,7 +6,7 @@ import com.alecstrong.sql.psi.core.psi.QueryElement
 import com.alecstrong.sql.psi.core.psi.SqlColumnDef
 import com.alecstrong.sql.psi.core.psi.SqlCompositeElementImpl
 import com.intellij.lang.ASTNode
-import dev.s7a.sqldelight.oracle.grammar.psi.OracleAlterTableAddColumns
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleAlterTableAddColumns
 
 internal abstract class AlterTableAddColumnsMixin(
     node: ASTNode,

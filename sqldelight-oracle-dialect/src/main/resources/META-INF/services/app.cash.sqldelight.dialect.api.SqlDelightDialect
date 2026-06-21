@@ -1,1 +1,1 @@
-dev.s7a.sqldelight.oracle.OracleDialect
+dev.s7a.sqldelight.oracle.dialects.oracle.OracleDialect

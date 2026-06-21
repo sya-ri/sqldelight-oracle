@@ -1,4 +1,4 @@
-package dev.s7a.sqldelight.oracle
+package dev.s7a.sqldelight.oracle.dialects.oracle
 
 import app.cash.sqldelight.core.SqlDelightCompilationUnit
 import app.cash.sqldelight.core.SqlDelightDatabaseName

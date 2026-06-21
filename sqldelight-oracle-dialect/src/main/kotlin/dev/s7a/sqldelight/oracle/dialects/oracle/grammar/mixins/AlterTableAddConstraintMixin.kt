@@ -1,4 +1,4 @@
-package dev.s7a.sqldelight.oracle.grammar.mixins
+package dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins
 
 import com.alecstrong.sql.psi.core.psi.AlterTableApplier
 import com.alecstrong.sql.psi.core.psi.LazyQuery
@@ -7,7 +7,7 @@ import com.alecstrong.sql.psi.core.psi.SqlTableConstraint
 import com.alecstrong.sql.psi.core.psi.SqlTypes
 import com.intellij.lang.ASTNode
 import com.intellij.psi.util.PsiTreeUtil
-import dev.s7a.sqldelight.oracle.grammar.psi.OracleAlterTableAddConstraint
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleAlterTableAddConstraint
 
 internal abstract class AlterTableAddConstraintMixin(
     node: ASTNode,

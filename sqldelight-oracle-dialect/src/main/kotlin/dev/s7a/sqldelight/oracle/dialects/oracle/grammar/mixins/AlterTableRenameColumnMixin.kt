@@ -1,4 +1,4 @@
-package dev.s7a.sqldelight.oracle.grammar.mixins
+package dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins
 
 import com.alecstrong.sql.psi.core.SqlAnnotationHolder
 import com.alecstrong.sql.psi.core.psi.AlterTableApplier
@@ -9,7 +9,7 @@ import com.alecstrong.sql.psi.core.psi.SqlColumnName
 import com.alecstrong.sql.psi.core.psi.SqlCompositeElementImpl
 import com.alecstrong.sql.psi.core.psi.alterStmt
 import com.intellij.lang.ASTNode
-import dev.s7a.sqldelight.oracle.grammar.psi.OracleAlterTableRenameColumn
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleAlterTableRenameColumn
 
 internal abstract class AlterTableRenameColumnMixin(
     node: ASTNode,

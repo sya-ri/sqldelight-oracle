@@ -1,9 +1,9 @@
-package dev.s7a.sqldelight.oracle.grammar.mixins
+package dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins
 
 import com.alecstrong.sql.psi.core.psi.SchemaContributorStub
 import com.alecstrong.sql.psi.core.psi.mixins.AlterTableElementType
 import com.alecstrong.sql.psi.core.psi.mixins.AlterTableStmtStub
-import dev.s7a.sqldelight.oracle.grammar.psi.impl.OracleAlterTableStmtImpl
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.impl.OracleAlterTableStmtImpl
 
 internal class AlterTableElementType(
     name: String,

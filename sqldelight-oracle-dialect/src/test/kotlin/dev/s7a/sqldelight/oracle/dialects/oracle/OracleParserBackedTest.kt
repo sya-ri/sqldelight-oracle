@@ -258,6 +258,34 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle scalar subquery expressions exactly") {
+            val sql =
+                """
+                CREATE TABLE departments (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(100)
+                );
+
+                CREATE TABLE employees (
+                  id NUMBER PRIMARY KEY,
+                  department_id NUMBER,
+                  salary NUMBER
+                );
+
+                SELECT id,
+                  (SELECT name FROM departments WHERE departments.id = employees.department_id),
+                  salary + (SELECT 100 FROM departments WHERE departments.id = employees.department_id)
+                FROM employees
+                WHERE salary > (SELECT 50000 FROM departments WHERE departments.id = employees.department_id);
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle inline column constraints through SQLDelight environment exactly") {
             val sql =
                 """

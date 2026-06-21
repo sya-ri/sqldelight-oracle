@@ -559,6 +559,36 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle PL/SQL create boundary statements exactly") {
+            val sql =
+                """
+                CREATE OR REPLACE EDITIONABLE FUNCTION hr.second_max
+                  RETURN NUMBER
+                  AS LANGUAGE JAVA
+                  NAME 'SecondMax.evaluate(int) return int';
+
+                CREATE NONEDITIONABLE FUNCTION IF NOT EXISTS reporting.calculate_bonus
+                  RETURN NUMBER
+                  AS LANGUAGE JAVASCRIPT
+                  NAME 'bonus.calculate';
+
+                CREATE OR REPLACE PACKAGE BODY emp_mgmt
+                  AS END emp_mgmt;
+
+                CREATE TYPE BODY IF NOT EXISTS data_typ1
+                  AS END data_typ1;
+
+                CREATE OR REPLACE LIBRARY ext_lib
+                  AS '/u01/app/oracle/lib/ext_lib.so';
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle drop type statements through SQLDelight environment exactly") {
             val sql =
                 """

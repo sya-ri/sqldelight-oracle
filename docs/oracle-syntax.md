@@ -93,12 +93,12 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [`CREATE SYNONYM`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-SYNONYM.html)
 - [x] [`CREATE TRIGGER`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TRIGGER.html)
 - [x] [`CREATE TYPE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TYPE.html)
-- [ ] [`CREATE TYPE BODY`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TYPE-BODY.html)
+- [x] [`CREATE TYPE BODY`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TYPE-BODY.html) parser support for [`create_type_body`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/create_type_body.html): `OR REPLACE`, `IF NOT EXISTS`, editioning, schema-qualified names, and PL/SQL body boundary
 - [x] [`CREATE PACKAGE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-PACKAGE.html)
-- [ ] [`CREATE PACKAGE BODY`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-PACKAGE-BODY.html)
-- [ ] [`CREATE FUNCTION`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-FUNCTION.html)
+- [x] [`CREATE PACKAGE BODY`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-PACKAGE-BODY.html) parser support for [`create_package_body`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/create_package_body.html): `OR REPLACE`, `IF NOT EXISTS`, editioning, schema-qualified names, and PL/SQL body boundary
+- [x] [`CREATE FUNCTION`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-FUNCTION.html) parser support for [`create_function`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/create_function.html): `OR REPLACE`, `IF NOT EXISTS`, editioning, schema-qualified names, and PL/SQL/call-spec body boundary
 - [x] [`CREATE PROCEDURE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-PROCEDURE.html)
-- [ ] [`CREATE LIBRARY`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-LIBRARY.html)
+- [x] [`CREATE LIBRARY`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-LIBRARY.html) parser support for [`create_library`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/create_library.html): `OR REPLACE`, `IF NOT EXISTS`, editioning, schema-qualified names, and PL/SQL library source boundary
 - [x] [`CREATE DIRECTORY`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-DIRECTORY.html)
 - [x] [`CREATE DATABASE LINK`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-DATABASE-LINK.html)
 - [x] [`CREATE CLUSTER`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-CLUSTER.html)

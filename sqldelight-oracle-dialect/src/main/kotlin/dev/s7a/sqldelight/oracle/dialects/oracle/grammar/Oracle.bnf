@@ -509,14 +509,17 @@ private oracle_grouping_expression ::= oracle_composite_grouping | <<expr '-1'>>
 
 insert_stmt ::= [ {with_clause} ]
   ( 'INSERT' 'OR' 'REPLACE' | 'REPLACE' | 'INSERT' 'OR' 'ROLLBACK' | 'INSERT' 'OR' 'ABORT' | 'INSERT' 'OR' 'FAIL' | 'INSERT' 'OR' 'IGNORE' | 'INSERT' )
-  'INTO' oracle_insert_target_table
-  [ oracle_partition_extension_clause ] [ 'AS' <<tableAliasExt <<table_alias_real>>>> ]
-  [ LP {column_name} ( COMMA {column_name} ) * RP ] oracle_insert_stmt_values {
+  ( oracle_single_table_insert | oracle_multi_table_insert ) {
   mixin="dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleInsertStmtMixin"
   implements="com.alecstrong.sql.psi.core.psi.SqlInsertStmt"
   override = true
-  pin = 5
+  pin = 2
 }
+
+private oracle_single_table_insert ::=
+  'INTO' oracle_insert_target_table
+  [ oracle_partition_extension_clause ] [ 'AS' <<tableAliasExt <<table_alias_real>>>> ]
+  [ LP {column_name} ( COMMA {column_name} ) * RP ] oracle_insert_stmt_values
 
 private oracle_insert_target_table ::= (
   'ONLY' LP [ <<databaseNameExt <<database_name_real>>>> DOT ] <<tableNameExt <<table_name_real>>>> RP |
@@ -528,6 +531,21 @@ private oracle_insert_stmt_values ::= (
   {compound_select_stmt} |
   'DEFAULT' 'VALUES'
 ) [ oracle_error_logging_clause ]
+
+private oracle_multi_table_insert ::= ( 'ALL' | 'FIRST' ) oracle_multi_table_insert_clause + {compound_select_stmt}
+
+private oracle_multi_table_insert_clause ::= (
+  oracle_multi_table_insert_into_clause |
+  'WHEN' <<expr '-1'>> 'THEN' oracle_multi_table_insert_into_clause + |
+  'ELSE' oracle_multi_table_insert_into_clause +
+)
+
+private oracle_multi_table_insert_into_clause ::= 'INTO' oracle_insert_target_table
+  [ oracle_partition_extension_clause ]
+  [ LP {column_name} ( COMMA {column_name} ) * RP ]
+  [ 'VALUES' LP oracle_multi_table_insert_value ( COMMA oracle_multi_table_insert_value ) * RP ]
+
+private oracle_multi_table_insert_value ::= 'DEFAULT' | <<expr '-1'>>
 
 qualified_table_name ::= (
   'ONLY' LP [ <<databaseNameExt <<database_name_real>>>> DOT ] <<tableNameExt <<table_name_real>>>> RP |

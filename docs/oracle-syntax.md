@@ -67,7 +67,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [`MERGE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/MERGE.html) parser support for `INTO`, table/subquery/`VALUES` `USING` sources, `ON`, [`merge_update_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/merge_update_clause.html), [`merge_insert_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/merge_insert_clause.html), `DELETE WHERE`, and [`error_logging_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/error_logging_clause.html)
 - [x] [`RETURNING`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html) clause boundary
 - [x] [`INSERT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html)
-- [x] [Multi-table `INSERT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html)
+- [x] [Multi-table `INSERT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html) parser support for `INSERT ALL`, `INSERT FIRST`, unconditional insert-all clauses, conditional `WHEN ... THEN`, `ELSE`, `VALUES`, and subquery sources
 - [x] [`UPDATE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/UPDATE.html)
 - [x] [`DELETE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DELETE.html)
 - [x] [`CALL`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CALL.html) parser support for positional-argument [`routine_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/routine_clause.html)
@@ -78,7 +78,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [`EXPLAIN PLAN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/EXPLAIN-PLAN.html) parser support for `SET STATEMENT_ID`, `INTO`, and `FOR` `SELECT` / `INSERT` / `UPDATE` / `DELETE` / `MERGE` / `CREATE TABLE` / `CREATE INDEX` / `ALTER INDEX ... REBUILD` statements
 - [x] [`INSERT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html) `DEFAULT VALUES` parser coverage
 - [x] [`INSERT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html) [`partition_extension_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/partition_extension_clause.html) parser support for `PARTITION`, `PARTITION FOR`, `SUBPARTITION`, and `SUBPARTITION FOR`
-- [ ] [`INSERT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html) direct-path and advanced source forms
+- [ ] [`INSERT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html) direct-path and remaining advanced source forms
 - [x] [`UPDATE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/UPDATE.html) [`partition_extension_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/partition_extension_clause.html) parser support for target tables
 - [ ] [`UPDATE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/UPDATE.html) correlated subquery, object table, and update set clause forms
 - [x] [`DELETE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DELETE.html) [`partition_extension_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/partition_extension_clause.html) parser support for target tables

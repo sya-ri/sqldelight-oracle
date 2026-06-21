@@ -1035,6 +1035,58 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle multi-table insert statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE staged_order_lines (
+                  order_id NUMBER PRIMARY KEY,
+                  region_code VARCHAR2(16),
+                  order_total NUMBER(10, 2)
+                );
+
+                CREATE TABLE archived_order_lines (
+                  order_id NUMBER PRIMARY KEY,
+                  region_code VARCHAR2(16),
+                  order_total NUMBER(10, 2)
+                );
+
+                CREATE TABLE regional_order_lines (
+                  order_id NUMBER PRIMARY KEY,
+                  region_code VARCHAR2(16)
+                );
+
+                archiveAndRoute:
+                INSERT ALL
+                  INTO archived_order_lines (order_id, order_total)
+                    VALUES (1, 100)
+                  WHEN 1 = 1 THEN
+                    INTO regional_order_lines (order_id, region_code)
+                      VALUES (1, 'US')
+                  ELSE
+                    INTO regional_order_lines (order_id, region_code)
+                      VALUES (1, DEFAULT)
+                SELECT order_id, region_code, order_total
+                FROM staged_order_lines;
+
+                firstMatchingRoute:
+                INSERT FIRST
+                  WHEN 1001 > 1000 THEN
+                    INTO archived_order_lines (order_id, order_total)
+                      VALUES (2, 1001)
+                  WHEN 'EU' IS NOT NULL THEN
+                    INTO regional_order_lines (order_id, region_code)
+                      VALUES (2, 'EU')
+                SELECT order_id, region_code, order_total
+                FROM staged_order_lines;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle insert partition extension clauses through SQLDelight environment exactly") {
             val sql =
                 """

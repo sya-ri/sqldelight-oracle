@@ -99,7 +99,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [ ] Prefer identity columns over sequence-trigger pairs
 - [ ] Flag nullable `NOT IN` predicates where Oracle null semantics are likely unintended
 - [ ] Flag unsafe DDL in migrations that rewrites or locks large tables
-- [ ] Require explicit precision for `NUMBER` where generated Kotlin type would be ambiguous
+- [x] Require explicit precision for `NUMBER` where generated Kotlin type would be ambiguous
 
 ## Database Verification
 

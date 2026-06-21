@@ -544,6 +544,46 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle materialized log and zonemap alter statements exactly") {
+            val sql =
+                """
+                ALTER MATERIALIZED VIEW LOG ON order_items ADD ROWID;
+
+                ALTER MATERIALIZED VIEW LOG IF EXISTS ON hr.employees
+                  ADD (commission_pct)
+                  EXCLUDING NEW VALUES;
+
+                ALTER SNAPSHOT LOG ON legacy_customers INCLUDING NEW VALUES;
+
+                ALTER MATERIALIZED VIEW LOG ON sales
+                  PURGE IMMEDIATE ASYNCHRONOUS;
+
+                ALTER MATERIALIZED VIEW LOG ON sales
+                  FOR SYNCHRONOUS REFRESH;
+
+                ALTER MATERIALIZED VIEW LOG ON sales
+                  PCTFREE 20 PCTUSED 50 NOCACHE PARALLEL 4;
+
+                ALTER MATERIALIZED ZONEMAP sales_zmap
+                  PCTFREE 20 PCTUSED 50 NOCACHE;
+
+                ALTER MATERIALIZED ZONEMAP IF EXISTS reporting.sales_zmap
+                  REFRESH FAST ON DEMAND ENABLE PRUNING;
+
+                ALTER MATERIALIZED ZONEMAP sales_zmap COMPILE;
+
+                ALTER MATERIALIZED ZONEMAP sales_zmap REBUILD;
+
+                ALTER MATERIALIZED ZONEMAP sales_zmap UNUSABLE;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle drop trigger statements through SQLDelight environment exactly") {
             val sql =
                 """

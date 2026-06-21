@@ -57,6 +57,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun alter_function_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_java_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_library_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun alter_materialized_view_log_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun alter_materialized_zonemap_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_package_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_procedure_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_role_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -177,6 +179,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun alterFunctionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterJavaStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterLibraryStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun alterMaterializedViewLogStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun alterMaterializedZonemapStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterPackageStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterProcedureStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterRoleStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -270,6 +274,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getAlter_function_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_java_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_library_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getAlter_materialized_view_log_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getAlter_materialized_zonemap_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_package_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_procedure_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_role_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -397,6 +403,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setAlter_function_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_java_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_library_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setAlter_materialized_view_log_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setAlter_materialized_zonemap_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_package_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_procedure_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_role_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -530,6 +538,12 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterLibraryStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedViewLogStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedZonemapStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPackageStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -805,6 +819,8 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getAlterFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFunctionStmt;
 	public abstract fun getAlterJavaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterJavaStmt;
 	public abstract fun getAlterLibraryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterLibraryStmt;
+	public abstract fun getAlterMaterializedViewLogStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedViewLogStmt;
+	public abstract fun getAlterMaterializedZonemapStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedZonemapStmt;
 	public abstract fun getAlterPackageStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPackageStmt;
 	public abstract fun getAlterProcedureStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterProcedureStmt;
 	public abstract fun getAlterRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterRoleStmt;
@@ -1055,6 +1071,8 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field ALTER_FUNCTION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_JAVA_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_LIBRARY_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field ALTER_MATERIALIZED_VIEW_LOG_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field ALTER_MATERIALIZED_ZONEMAP_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_PACKAGE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_PROCEDURE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_ROLE_STMT Lcom/intellij/psi/tree/IElementType;
@@ -1187,6 +1205,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitAlterFunctionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFunctionStmt;)V
 	public fun visitAlterJavaStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterJavaStmt;)V
 	public fun visitAlterLibraryStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterLibraryStmt;)V
+	public fun visitAlterMaterializedViewLogStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedViewLogStmt;)V
+	public fun visitAlterMaterializedZonemapStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedZonemapStmt;)V
 	public fun visitAlterPackageStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPackageStmt;)V
 	public fun visitAlterProcedureStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterProcedureStmt;)V
 	public fun visitAlterRoleStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterRoleStmt;)V
@@ -1339,6 +1359,18 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAl
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterLibraryStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterLibraryStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterMaterializedViewLogStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedViewLogStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterMaterializedZonemapStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedZonemapStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
@@ -1879,6 +1911,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getAlterFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFunctionStmt;
 	public fun getAlterJavaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterJavaStmt;
 	public fun getAlterLibraryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterLibraryStmt;
+	public fun getAlterMaterializedViewLogStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedViewLogStmt;
+	public fun getAlterMaterializedZonemapStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedZonemapStmt;
 	public fun getAlterPackageStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPackageStmt;
 	public fun getAlterProcedureStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterProcedureStmt;
 	public fun getAlterRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterRoleStmt;

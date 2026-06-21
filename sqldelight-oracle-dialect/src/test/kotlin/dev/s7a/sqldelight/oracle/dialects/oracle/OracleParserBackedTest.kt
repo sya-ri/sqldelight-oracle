@@ -1160,6 +1160,55 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle administrative storage alter statements exactly") {
+            val sql =
+                """
+                ALTER TABLESPACE IF EXISTS users ONLINE;
+
+                ALTER TABLESPACE users OFFLINE NORMAL;
+
+                ALTER TABLESPACE users READ ONLY;
+
+                ALTER TABLESPACE users READ WRITE;
+
+                ALTER TABLESPACE users BEGIN BACKUP;
+
+                ALTER TABLESPACE users END BACKUP;
+
+                ALTER TABLESPACE users ADD DATAFILE '/u01/oradata/users02.dbf' SIZE 100 M;
+
+                ALTER TABLESPACE users DROP DATAFILE '/u01/oradata/users02.dbf';
+
+                ALTER TABLESPACE users RENAME TO app_users;
+
+                ALTER TABLESPACE temp SHRINK SPACE KEEP 128 M;
+
+                ALTER TABLESPACE SET ts1 ADD TABLESPACE users;
+
+                ALTER TABLESPACE SET ts1 DROP TABLESPACE users;
+
+                ALTER TABLESPACE SET ts1 RENAME TO ts2;
+
+                ALTER DISKGROUP data MOUNT;
+
+                ALTER DISKGROUP data DISMOUNT;
+
+                ALTER DISKGROUP data ADD DISK '/devices/diskb1' NAME diskb1;
+
+                ALTER DISKGROUP data DROP DISK diskb1;
+
+                ALTER DISKGROUP data REBALANCE POWER 4;
+
+                ALTER DISKGROUP data CHECK ALL REPAIR;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle transaction constraint statements exactly") {
             val sql =
                 """

@@ -526,6 +526,10 @@ class OracleParserBackedTest :
                 SELECT id, region
                 FROM partitioned_orders SAMPLE BLOCK (10) SEED (42) po;
 
+                selectTableCollection:
+                SELECT 1
+                FROM TABLE(ODCINUMBERLIST(1, 2)) numbers;
+
                 selectLateralSubquery:
                 SELECT region, derived_year
                 FROM partitioned_orders po, LATERAL (

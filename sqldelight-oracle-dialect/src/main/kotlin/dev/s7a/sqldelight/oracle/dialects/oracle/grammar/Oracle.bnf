@@ -400,11 +400,13 @@ private oracle_group_by_having_clause ::= (
   'HAVING' <<expr '-1'>>
 )
 
-table_or_subquery ::= oracle_subquery_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
+table_or_subquery ::= oracle_collection_table_reference | oracle_subquery_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTableOrSubqueryImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlTableOrSubquery"
   override = true
 }
+
+private oracle_collection_table_reference ::= 'TABLE' LP <<expr '-1'>> RP [ oracle_table_alias_clause ]
 
 private oracle_table_reference ::= oracle_only_table_reference | oracle_plain_table_reference
 

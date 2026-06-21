@@ -525,6 +525,13 @@ class OracleParserBackedTest :
                 selectSampleBlock:
                 SELECT id, region
                 FROM partitioned_orders SAMPLE BLOCK (10) SEED (42) po;
+
+                selectLateralSubquery:
+                SELECT region, derived_year
+                FROM partitioned_orders po, LATERAL (
+                  SELECT created_year AS derived_year
+                  FROM partitioned_orders
+                ) years;
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe

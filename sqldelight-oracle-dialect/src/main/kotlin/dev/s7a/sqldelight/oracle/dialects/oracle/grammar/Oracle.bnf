@@ -400,7 +400,7 @@ private oracle_group_by_having_clause ::= (
   'HAVING' <<expr '-1'>>
 )
 
-table_or_subquery ::= oracle_table_reference | oracle_parenthesized_table_reference | oracle_subquery_table_reference {
+table_or_subquery ::= oracle_subquery_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTableOrSubqueryImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlTableOrSubquery"
   override = true
@@ -428,7 +428,7 @@ private oracle_parenthesized_table_reference ::= LP (
   <<tableOrSubqueryExt <<table_or_subquery_real>>>> ( COMMA <<tableOrSubqueryExt <<table_or_subquery_real>>>> ) *
 ) RP
 
-private oracle_subquery_table_reference ::= LP <<compoundSelectStmtExt <<compound_select_stmt_real>>>> RP [ oracle_table_alias_clause ]
+private oracle_subquery_table_reference ::= [ 'LATERAL' ] LP <<compoundSelectStmtExt <<compound_select_stmt_real>>>> RP [ oracle_table_alias_clause ]
 
 join_operator ::= (
   COMMA |

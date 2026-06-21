@@ -1120,6 +1120,94 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle create context statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE CONTEXT hr_context USING emp_mgmt;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create context global statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE OR REPLACE CONTEXT hr_context USING hr.emp_mgmt
+                  SHARING = METADATA
+                  INITIALIZED GLOBALLY
+                  ACCESSED GLOBALLY;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create MLE env statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE MLE ENV scott.myenv;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create MLE env clone statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE PURE MLE ENV IF NOT EXISTS scott.myenv CLONE other_env;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create MLE env imports statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE OR REPLACE MLE ENV scott.analytics_env
+                  IMPORTS ("math" MODULE scott.math_module, "util" MODULE scott.util_module)
+                  LANGUAGE OPTIONS 'js.strict=true';
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create MLE module statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE MLE MODULE IF NOT EXISTS scott.my_mle_module
+                  LANGUAGE JAVASCRIPT
+                  VERSION '1.0.0'
+                  USING CLOB (
+                    SELECT 'export function add(a, b) { return a + b; }' FROM dual
+                  );
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle graph, Iceberg, context, and MLE drop statements through SQLDelight environment exactly") {
             val sql =
                 """

@@ -5,7 +5,7 @@ plugins {
 
 dependencies {
     compileOnly(libs.sqldelight.check.rule.api)
-    implementation(dependencies.project(":sqldelight-check-oracle-dialect"))
+    implementation(dependencyFactory.createProjectDependency(":sqldelight-check-oracle-dialect"))
     testImplementation(libs.sqldelight.check.rule.api)
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.kotest.framework.engine)

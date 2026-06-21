@@ -29,8 +29,8 @@ val publishedArtifacts =
 
 dependencies {
     publishedArtifacts.keys.forEach { projectPath ->
-        dokka(dependencies.project(projectPath))
-        kover(dependencies.project(projectPath))
+        dokka(dependencyFactory.createProjectDependency(projectPath))
+        kover(dependencyFactory.createProjectDependency(projectPath))
     }
     dokkaPlugin(libs.dokka.versioning.plugin)
 }

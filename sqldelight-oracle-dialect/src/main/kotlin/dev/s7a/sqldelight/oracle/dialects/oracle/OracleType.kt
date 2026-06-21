@@ -272,6 +272,8 @@ public enum class OracleType(
                 "CUME_DIST" to BINARY_DOUBLE,
                 "PERCENT_RANK" to BINARY_DOUBLE,
                 "RATIO_TO_REPORT" to BINARY_DOUBLE,
+                "PERCENTILE_CONT" to DECIMAL_NUMBER,
+                "PERCENTILE_DISC" to DECIMAL_NUMBER,
                 "CLUSTER_ID" to LONG_NUMBER,
                 "FEATURE_ID" to LONG_NUMBER,
                 "VECTOR_DIMENSION_COUNT" to LONG_NUMBER,

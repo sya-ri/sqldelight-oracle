@@ -148,6 +148,8 @@ class OracleTypeTest :
                     "CUME_DIST" to OracleType.BINARY_DOUBLE,
                     "PERCENT_RANK" to OracleType.BINARY_DOUBLE,
                     "RATIO_TO_REPORT" to OracleType.BINARY_DOUBLE,
+                    "PERCENTILE_CONT" to OracleType.DECIMAL_NUMBER,
+                    "PERCENTILE_DISC" to OracleType.DECIMAL_NUMBER,
                     "CLUSTER_ID" to OracleType.LONG_NUMBER,
                     "FEATURE_ID" to OracleType.LONG_NUMBER,
                     "VECTOR_DIMENSION_COUNT" to OracleType.LONG_NUMBER,

@@ -446,6 +446,8 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                     "PREDICTION_PROBABILITY",
                     "PREDICTION_SET",
                     "PERCENT_RANK",
+                    "PERCENTILE_CONT",
+                    "PERCENTILE_DISC",
                     "RANK",
                     "RATIO_TO_REPORT",
                     "RAW_TO_UUID",

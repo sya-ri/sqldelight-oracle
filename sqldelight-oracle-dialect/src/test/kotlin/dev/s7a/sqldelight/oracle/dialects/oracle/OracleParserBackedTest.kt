@@ -1115,6 +1115,34 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle ordered-set percentile aggregate functions exactly") {
+            val sql =
+                """
+                CREATE TABLE sales (
+                  id NUMBER PRIMARY KEY,
+                  region VARCHAR2(20),
+                  amount NUMBER
+                );
+
+                SELECT region,
+                  PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY amount DESC) AS median_continuous,
+                  PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY amount DESC) AS median_discrete
+                FROM sales
+                GROUP BY region;
+
+                SELECT region,
+                  PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY amount DESC) OVER (PARTITION BY region) AS analytic_continuous,
+                  PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY amount DESC) OVER (PARTITION BY region) AS analytic_discrete
+                FROM sales;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle bit and boolean aggregate functions exactly") {
             val sql =
                 """

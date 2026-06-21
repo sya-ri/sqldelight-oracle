@@ -808,6 +808,59 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle analyze statements exactly") {
+            val sql =
+                """
+                ANALYZE TABLE hr.employees VALIDATE STRUCTURE CASCADE;
+
+                ANALYZE TABLE customers VALIDATE REF UPDATE SET DANGLING TO NULL;
+
+                ANALYZE INDEX hr.employee_name_idx PARTITION (sales_q1)
+                  VALIDATE STRUCTURE CASCADE COMPLETE ONLINE INTO invalid_rows;
+
+                ANALYZE CLUSTER personnel LIST CHAINED ROWS INTO chained_rows;
+
+                ANALYZE TABLE orders DELETE SYSTEM STATISTICS;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle associate and disassociate statistics statements exactly") {
+            val sql =
+                """
+                ASSOCIATE STATISTICS WITH COLUMNS hr.employees.salary, hr.employees.commission_pct
+                  USING salary_stats WITH SYSTEM MANAGED STORAGE TABLES;
+
+                ASSOCIATE STATISTICS WITH FUNCTIONS hr.compensation_cost USING cost_stats;
+
+                ASSOCIATE STATISTICS WITH PACKAGES hr.estimates USING NULL;
+
+                ASSOCIATE STATISTICS WITH TYPES hr.employee_t
+                  DEFAULT COST (1, 2, 3), DEFAULT SELECTIVITY 10;
+
+                ASSOCIATE STATISTICS WITH INDEXTYPES hr.position_indextype
+                  DEFAULT SELECTIVITY 5, DEFAULT COST (10, 20, 30)
+                  WITH USER MANAGED STORAGE TABLES;
+
+                DISASSOCIATE STATISTICS FROM COLUMNS hr.employees.salary, hr.employees.commission_pct FORCE;
+
+                DISASSOCIATE STATISTICS FROM FUNCTIONS hr.compensation_cost;
+
+                DISASSOCIATE STATISTICS FROM INDEXTYPES hr.position_indextype FORCE;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle purge and flashback statements exactly") {
             val sql =
                 """

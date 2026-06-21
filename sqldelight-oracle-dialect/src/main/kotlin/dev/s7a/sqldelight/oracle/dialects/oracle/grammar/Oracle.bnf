@@ -20,7 +20,7 @@
   ]
 }
 
-overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | drop_trigger_stmt | extension_stmt
+overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | drop_trigger_stmt | analyze_stmt | extension_stmt
 
 stmt ::= explain_plan_stmt | oracle_core_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlStmtImpl"
@@ -38,6 +38,8 @@ private oracle_core_stmt ::= (
   drop_restore_point_stmt |
   set_role_stmt |
   set_use_data_grants_only_stmt |
+  associate_statistics_stmt |
+  disassociate_statistics_stmt |
   purge_stmt |
   flashback_table_stmt |
   flashback_database_stmt |
@@ -331,7 +333,7 @@ create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ] [ 'E
   pin = 6
 }
 
-extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | drop_synonym_stmt | drop_type_body_stmt | drop_type_stmt | drop_function_stmt | drop_procedure_stmt | drop_package_stmt | drop_library_stmt | drop_java_stmt | drop_analytic_view_stmt | drop_attribute_dimension_stmt | drop_hierarchy_stmt | drop_dimension_stmt | drop_cluster_stmt | drop_database_link_stmt | drop_directory_stmt | drop_indextype_stmt | drop_operator_stmt | drop_outline_stmt | drop_property_graph_stmt | drop_iceberg_table_stmt | drop_context_stmt | drop_mle_env_stmt | drop_mle_module_stmt | drop_assertion_stmt | drop_directive_stmt | drop_edition_stmt | drop_flashback_archive_stmt | drop_inmemory_join_group_stmt | drop_lockdown_profile_stmt | drop_pmem_filestore_stmt | drop_profile_stmt | drop_rollback_segment_stmt | drop_database_stmt | drop_pluggable_database_stmt | drop_tablespace_set_stmt | drop_tablespace_stmt | drop_diskgroup_stmt | drop_restore_point_stmt | set_role_stmt | set_use_data_grants_only_stmt | purge_stmt | flashback_table_stmt | flashback_database_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
+extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | drop_synonym_stmt | drop_type_body_stmt | drop_type_stmt | drop_function_stmt | drop_procedure_stmt | drop_package_stmt | drop_library_stmt | drop_java_stmt | drop_analytic_view_stmt | drop_attribute_dimension_stmt | drop_hierarchy_stmt | drop_dimension_stmt | drop_cluster_stmt | drop_database_link_stmt | drop_directory_stmt | drop_indextype_stmt | drop_operator_stmt | drop_outline_stmt | drop_property_graph_stmt | drop_iceberg_table_stmt | drop_context_stmt | drop_mle_env_stmt | drop_mle_module_stmt | drop_assertion_stmt | drop_directive_stmt | drop_edition_stmt | drop_flashback_archive_stmt | drop_inmemory_join_group_stmt | drop_lockdown_profile_stmt | drop_pmem_filestore_stmt | drop_profile_stmt | drop_rollback_segment_stmt | drop_database_stmt | drop_pluggable_database_stmt | drop_tablespace_set_stmt | drop_tablespace_stmt | drop_diskgroup_stmt | drop_restore_point_stmt | set_role_stmt | set_use_data_grants_only_stmt | associate_statistics_stmt | disassociate_statistics_stmt | purge_stmt | flashback_table_stmt | flashback_database_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionStmt"
   override = true
@@ -540,6 +542,67 @@ private oracle_role_password ::= oracle_object_name_part
 set_use_data_grants_only_stmt ::= 'SET' 'USE' 'DATA' 'GRANTS' 'ONLY' 'ON' oracle_schema_object_name [ 'ENABLED' | 'DISABLED' ] {
   pin = 5
 }
+
+analyze_stmt ::= 'ANALYZE' oracle_analyze_target oracle_analyze_action {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlAnalyzeStmtImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlAnalyzeStmt"
+  override = true
+  pin = 1
+}
+
+private oracle_analyze_target ::= (
+  ( 'TABLE' | 'INDEX' ) oracle_schema_object_name [ oracle_partition_extension_clause ] |
+  'CLUSTER' oracle_schema_object_name
+)
+
+private oracle_analyze_action ::= (
+  oracle_validation_clause |
+  'LIST' 'CHAINED' 'ROWS' [ oracle_into_clause ] |
+  'DELETE' [ 'SYSTEM' ] 'STATISTICS'
+)
+
+private oracle_validation_clause ::= (
+  'VALIDATE' 'REF' 'UPDATE' [ 'SET' 'DANGLING' 'TO' 'NULL' ] |
+  'VALIDATE' 'STRUCTURE' [ 'CASCADE' [ 'FAST' | 'COMPLETE' ( 'OFFLINE' | 'ONLINE' ) [ oracle_into_clause ] ] ]
+)
+
+private oracle_into_clause ::= 'INTO' oracle_schema_object_name
+
+associate_statistics_stmt ::= 'ASSOCIATE' 'STATISTICS' 'WITH'
+  ( oracle_column_association | oracle_function_association ) [ oracle_storage_table_clause ] {
+  pin = 2
+}
+
+private oracle_column_association ::= 'COLUMNS' oracle_column_reference ( COMMA oracle_column_reference ) * oracle_using_statistics_type
+
+private oracle_function_association ::= oracle_association_kind oracle_schema_object_name ( COMMA oracle_schema_object_name ) *
+  ( oracle_using_statistics_type | oracle_default_statistics_clause )
+
+private oracle_association_kind ::= 'FUNCTIONS' | 'PACKAGES' | 'TYPES' | 'INDEXES' | 'INDEXTYPES'
+
+private oracle_using_statistics_type ::= 'USING' ( oracle_schema_object_name | 'NULL' )
+
+private oracle_default_statistics_clause ::= (
+  oracle_default_cost_clause [ COMMA oracle_default_selectivity_clause ] |
+  oracle_default_selectivity_clause [ COMMA oracle_default_cost_clause ]
+)
+
+private oracle_default_cost_clause ::= 'DEFAULT' 'COST' LP <<expr '-1'>> COMMA <<expr '-1'>> COMMA <<expr '-1'>> RP
+
+private oracle_default_selectivity_clause ::= 'DEFAULT' 'SELECTIVITY' <<expr '-1'>>
+
+private oracle_storage_table_clause ::= 'WITH' ( 'SYSTEM' | 'USER' ) 'MANAGED' 'STORAGE' 'TABLES'
+
+disassociate_statistics_stmt ::= 'DISASSOCIATE' 'STATISTICS' 'FROM' oracle_statistics_association_target [ 'FORCE' ] {
+  pin = 2
+}
+
+private oracle_statistics_association_target ::= (
+  'COLUMNS' oracle_column_reference ( COMMA oracle_column_reference ) * |
+  oracle_association_kind oracle_schema_object_name ( COMMA oracle_schema_object_name ) *
+)
+
+private oracle_column_reference ::= oracle_schema_object_name DOT oracle_object_name_part
 
 purge_stmt ::= 'PURGE' (
   ( 'TABLE' | 'INDEX' ) oracle_schema_object_name |

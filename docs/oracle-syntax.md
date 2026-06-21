@@ -154,7 +154,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [`RENAME`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/RENAME.html)
 - [x] [`COMMENT ON`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/COMMENT.html)
 - [ ] [`ANALYZE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ANALYZE.html), [`ASSOCIATE STATISTICS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ASSOCIATE-STATISTICS.html), [`DISASSOCIATE STATISTICS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DISASSOCIATE-STATISTICS.html)
-- [ ] [`PURGE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/PURGE.html), [`FLASHBACK TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/FLASHBACK-TABLE.html), [`FLASHBACK DATABASE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/FLASHBACK-DATABASE.html)
+- [x] [`PURGE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/PURGE.html), [`FLASHBACK TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/FLASHBACK-TABLE.html), and [`FLASHBACK DATABASE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/FLASHBACK-DATABASE.html) parser support for recycle bin objects, tablespace/table/index variants, SCN/timestamp/restore point targets, triggers, `BEFORE DROP`, and `TO BEFORE`
 
 ## Common DDL Clauses
 

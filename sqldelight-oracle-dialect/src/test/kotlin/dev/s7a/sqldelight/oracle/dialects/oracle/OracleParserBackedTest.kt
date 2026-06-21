@@ -808,6 +808,41 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle purge and flashback statements exactly") {
+            val sql =
+                """
+                PURGE TABLE employees;
+
+                PURGE INDEX hr.employee_name_idx;
+
+                PURGE TABLESPACE users USER hr;
+
+                PURGE TABLESPACE SET shard_ts USER app_user;
+
+                PURGE RECYCLEBIN;
+
+                PURGE DBA_RECYCLEBIN;
+
+                FLASHBACK TABLE hr.employees, hr.departments TO SCN 123456 ENABLE TRIGGERS;
+
+                FLASHBACK TABLE employees TO TIMESTAMP CURRENT_TIMESTAMP DISABLE TRIGGERS;
+
+                FLASHBACK TABLE old_employees TO RESTORE POINT before_cleanup;
+
+                FLASHBACK TABLE dropped_employees TO BEFORE DROP RENAME TO employees;
+
+                FLASHBACK DATABASE TO RESTORE POINT before_upgrade;
+
+                FLASHBACK STANDBY PLUGGABLE DATABASE pdb1 TO BEFORE RESETLOGS;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

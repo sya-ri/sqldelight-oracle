@@ -373,10 +373,11 @@ create_index_stmt ::= 'CREATE' [ oracle_index_kind ] 'INDEX' [ 'IF' 'NOT' 'EXIST
   pin = 3
 }
 
-private oracle_index_kind ::= 'UNIQUE' | 'BITMAP'
+private oracle_index_kind ::= 'UNIQUE' | 'BITMAP' | 'VECTOR' | 'HYBRID' 'VECTOR'
 
 private oracle_index_attribute ::= (
   oracle_visibility |
+  oracle_vector_index_attribute |
   'REVERSE' |
   'ONLINE' |
   'NOLOGGING' |
@@ -386,6 +387,63 @@ private oracle_index_attribute ::= (
   'COMPRESS' [ {signed_number} ] |
   'NOCOMPRESS' |
   'INDEXING' ( 'FULL' | 'PARTIAL' )
+)
+
+private oracle_vector_index_attribute ::= (
+  'INCLUDE' LP oracle_vector_parameter_value_token * RP |
+  'GLOBAL' |
+  'ORGANIZATION' [ 'INMEMORY' ] 'NEIGHBOR' ( 'GRAPH' | 'PARTITIONS' ) |
+  'DISTANCE' oracle_object_name_part |
+  'WITH' 'TARGET' 'ACCURACY' ( {signed_number} | DIGIT | oracle_object_name_part ) |
+  oracle_vector_parameters_clause |
+  'QUANTIZATION' oracle_object_name_part 'COMPRESSION' 'RATIO' ( {signed_number} | DIGIT | oracle_object_name_part ) |
+  ( 'DUPLICATE' 'ALL' | 'DISTRIBUTE' oracle_vector_index_boundary_token * ) |
+  'PARALLEL' [ DIGIT | oracle_object_name_part ] |
+  'LOCAL'
+)
+
+private oracle_vector_parameters_clause ::= 'PARAMETERS' LP oracle_vector_index_parameter_token * RP {
+  pin = 1
+}
+
+private oracle_vector_index_parameter_token ::= (
+  oracle_vector_parameter_value_token |
+  'ACCURACY' |
+  'EFCONSTRUCTION' |
+  'HNSW' |
+  'IVF' |
+  'MIN_VECTORS_PER_PARTITION' |
+  'NEIGHBOR' |
+  'NEIGHBORS' |
+  'OFFLOAD_CREDENTIAL_NAME' |
+  'OFFLOAD_URL' |
+  'PARTITIONS' |
+  'SAMPLES_PER_PARTITION' |
+  'TYPE'
+)
+
+private oracle_vector_parameter_value_token ::= (
+  oracle_dimension_reference |
+  oracle_object_name_part |
+  {string_literal} |
+  string |
+  DIGIT |
+  {signed_number} |
+  COMMA |
+  DOT |
+  EQ
+)
+
+private oracle_vector_index_boundary_token ::= (
+  oracle_dimension_reference |
+  oracle_plsql_source_token |
+  oracle_parenthesized_clause |
+  'AUTO' |
+  'BY' |
+  'PARTITION' |
+  'RANGE' |
+  'ROWID' |
+  'SUBPARTITION'
 )
 
 create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ] [ 'EDITIONING' | 'EDITIONABLE' | 'NONEDITIONABLE' ] 'VIEW'

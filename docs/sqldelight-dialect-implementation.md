@@ -51,7 +51,7 @@ Oracle should add BNF overrides incrementally, with exact parser tests for each 
 - [x] `alter_table_stmt` single-operation support: `ADD` table constraint, `MODIFY` column, `DROP COLUMN`, `DROP CONSTRAINT`, and `RENAME COLUMN`
 - [x] `alter_table_stmt` multiple-column support: Oracle `ADD (...)` and `MODIFY (...)`
 - [ ] `create_index_stmt`: Oracle bitmap, unique, function-based, domain, reverse, invisible, partial, and local/global index clauses
-- [x] `create_index_stmt` baseline: Oracle `UNIQUE`, `BITMAP`, `IF NOT EXISTS`, ordinary/function-based indexed columns, visibility, `ONLINE`, `REVERSE`, logging, compression, and `INDEXING FULL/PARTIAL`
+- [x] `create_index_stmt` baseline: Oracle `UNIQUE`, `BITMAP`, `VECTOR`, `HYBRID VECTOR`, `IF NOT EXISTS`, ordinary/function-based indexed columns, visibility, vector organization/parameters, `ONLINE`, `LOCAL`, `REVERSE`, logging, compression, and `INDEXING FULL/PARTIAL`
 - [x] `create_view_stmt` baseline: Oracle `OR REPLACE`, `FORCE` / `NO FORCE`, editioning keywords, `BEQUEATH`, `WITH CHECK OPTION`, and `WITH READ ONLY`
 - [x] `drop_trigger_stmt` baseline: Oracle `IF EXISTS` and schema-qualified trigger names
 - [x] `commit_stmt` / `rollback_stmt` / `savepoint_stmt`: Oracle `WORK`, `COMMENT`, `WRITE`, `FORCE`, and `TO SAVEPOINT` parser overrides while keeping core SQLDelight PSI interfaces

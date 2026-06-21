@@ -164,7 +164,9 @@ class OracleParserBackedTest :
                   id NUMBER PRIMARY KEY,
                   status VARCHAR2(32) NOT NULL,
                   created_at TIMESTAMP,
-                  archived_at TIMESTAMP
+                  archived_at TIMESTAMP,
+                  embedding VECTOR(3, FLOAT32),
+                  search_doc JSON
                 );
 
                 CREATE UNIQUE INDEX IF NOT EXISTS indexed_accounts_status_idx
@@ -179,8 +181,29 @@ class OracleParserBackedTest :
                 CREATE INDEX indexed_accounts_status_upper_idx
                 ON indexed_accounts (UPPER(status));
 
+                CREATE VECTOR INDEX indexed_accounts_embedding_hnsw_idx
+                ON indexed_accounts (embedding)
+                ORGANIZATION INMEMORY NEIGHBOR GRAPH
+                DISTANCE COSINE
+                WITH TARGET ACCURACY 90
+                PARAMETERS (type HNSW, neighbors 40, efconstruction 500)
+                DUPLICATE ALL ONLINE;
+
+                CREATE VECTOR INDEX indexed_accounts_embedding_ivf_idx
+                ON indexed_accounts (embedding)
+                INCLUDE (status)
+                ORGANIZATION NEIGHBOR PARTITIONS
+                DISTANCE COSINE
+                WITH TARGET ACCURACY 95
+                PARAMETERS (type IVF, neighbor partitions 10)
+                LOCAL;
+
+                CREATE HYBRID VECTOR INDEX indexed_accounts_search_hybrid_idx
+                ON indexed_accounts (search_doc)
+                PARAMETERS ('JSON($.text) VECTOR($.embedding)');
+
                 selectAll:
-                SELECT id, status, created_at, archived_at
+                SELECT id, status, created_at, archived_at, embedding, search_doc
                 FROM indexed_accounts;
                 """.trimIndent()
 

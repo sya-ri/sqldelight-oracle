@@ -254,7 +254,7 @@ create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ] [ 'E
   pin = 6
 }
 
-extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | merge_stmt | call_stmt {
+extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | merge_stmt | call_stmt | lock_table_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionStmt"
   override = true
@@ -339,3 +339,30 @@ call_stmt ::= 'CALL' oracle_call_routine_name LP [ oracle_call_argument ( COMMA 
 private oracle_call_routine_name ::= oracle_schema_object_name [ DOT ( <<identifierExt <<identifier_real>>>> | string ) ]
 
 private oracle_call_argument ::= <<expr '-1'>>
+
+lock_table_stmt ::= 'LOCK' 'TABLE' oracle_lock_table_reference ( COMMA oracle_lock_table_reference ) * 'IN' oracle_lock_mode 'MODE'
+  [ 'NOWAIT' | 'WAIT' {signed_number} ] {
+  pin = 2
+}
+
+private oracle_lock_table_reference ::= oracle_schema_object_name [ oracle_partition_extension_clause ]
+
+private oracle_partition_extension_clause ::= (
+  'PARTITION' LP oracle_partition_name RP |
+  'PARTITION' 'FOR' LP oracle_partition_key_value ( COMMA oracle_partition_key_value ) * RP |
+  'SUBPARTITION' LP oracle_partition_name RP |
+  'SUBPARTITION' 'FOR' LP oracle_partition_key_value ( COMMA oracle_partition_key_value ) * RP
+)
+
+private oracle_partition_name ::= <<identifierExt <<identifier_real>>>> | string
+
+private oracle_partition_key_value ::= <<expr '-1'>>
+
+private oracle_lock_mode ::= (
+  'ROW' 'SHARE' |
+  'ROW' 'EXCLUSIVE' |
+  'SHARE' 'UPDATE' |
+  'SHARE' 'ROW' 'EXCLUSIVE' |
+  'SHARE' |
+  'EXCLUSIVE'
+)

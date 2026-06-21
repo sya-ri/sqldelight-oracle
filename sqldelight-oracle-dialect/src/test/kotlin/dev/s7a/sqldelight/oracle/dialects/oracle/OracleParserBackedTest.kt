@@ -394,6 +394,28 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle lock table statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                LOCK TABLE employees IN EXCLUSIVE MODE NOWAIT;
+
+                LOCK TABLE hr.employees, hr.departments IN SHARE MODE;
+
+                LOCK TABLE sales PARTITION (sales_q1) IN ROW SHARE MODE WAIT 30;
+
+                LOCK TABLE sales PARTITION FOR (2026, 1), sales SUBPARTITION (sales_q1_north)
+                IN SHARE ROW EXCLUSIVE MODE;
+
+                LOCK TABLE sales SUBPARTITION FOR ('NORTH') IN SHARE UPDATE MODE;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

@@ -20,7 +20,7 @@
   ]
 }
 
-overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | compound_select_stmt | with_clause | table_alias | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt
+overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | compound_select_stmt | with_clause | table_alias | group_by | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt
 
 stmt ::= explain_plan_stmt | oracle_core_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlStmtImpl"
@@ -388,6 +388,33 @@ ordering_term ::= <<expr '-1'>> [ 'COLLATE' {collation_name} ] [ 'ASC' | 'DESC' 
   implements = "com.alecstrong.sql.psi.core.psi.SqlOrderingTerm"
   override = true
 }
+
+group_by ::= 'GROUP' 'BY' oracle_group_by_elements {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlGroupByImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlGroupBy"
+  override = true
+}
+
+private oracle_group_by_elements ::= 'ALL' | oracle_grouping_element ( COMMA oracle_grouping_element ) *
+
+private oracle_grouping_element ::= (
+  oracle_rollup_cube_clause |
+  oracle_grouping_sets_clause |
+  oracle_composite_grouping |
+  <<expr '-1'>>
+)
+
+private oracle_rollup_cube_clause ::= ( 'ROLLUP' | 'CUBE' ) LP oracle_grouping_expression_list RP
+
+private oracle_grouping_sets_clause ::= 'GROUPING' 'SETS' LP oracle_grouping_set ( COMMA oracle_grouping_set ) * RP
+
+private oracle_grouping_set ::= oracle_rollup_cube_clause | LP [ oracle_grouping_expression_list ] RP | oracle_grouping_expression_list
+
+private oracle_composite_grouping ::= LP oracle_grouping_expression_list RP
+
+private oracle_grouping_expression_list ::= oracle_grouping_expression ( COMMA oracle_grouping_expression ) *
+
+private oracle_grouping_expression ::= oracle_composite_grouping | <<expr '-1'>>
 
 table_alias ::= !'MINUS' ( <<identifierExt <<identifier_real>>>> | string ) {
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleTableAliasMixin"

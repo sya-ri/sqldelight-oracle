@@ -383,6 +383,50 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle group by aggregation extensions through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE grouped_sales (
+                  id NUMBER PRIMARY KEY,
+                  region VARCHAR2(64),
+                  product_name VARCHAR2(128),
+                  amount NUMBER
+                );
+
+                selectRollup:
+                SELECT region, product_name, SUM(amount) AS total_amount
+                FROM grouped_sales
+                GROUP BY ROLLUP (region, product_name)
+                HAVING SUM(amount) > 0;
+
+                selectCube:
+                SELECT region, product_name, SUM(amount) AS total_amount
+                FROM grouped_sales
+                GROUP BY CUBE (region, product_name);
+
+                selectGroupingSets:
+                SELECT region, product_name, SUM(amount) AS total_amount
+                FROM grouped_sales
+                GROUP BY GROUPING SETS ((region, product_name), (region), ());
+
+                selectCompositeGrouping:
+                SELECT region, product_name, SUM(amount) AS total_amount
+                FROM grouped_sales
+                GROUP BY (region, product_name);
+
+                selectGroupAll:
+                SELECT region, SUM(amount) AS total_amount
+                FROM grouped_sales
+                GROUP BY ALL;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle alter table statements through SQLDelight environment exactly") {
             val sql =
                 """

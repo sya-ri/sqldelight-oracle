@@ -1782,6 +1782,120 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle administrative database create statements exactly") {
+            val sql =
+                """
+                CREATE DATABASE mynewdb
+                  USER SYS IDENTIFIED BY sys_password
+                  USER SYSTEM IDENTIFIED BY system_password
+                  LOGFILE GROUP 1 ('/u01/log1a.rdo', '/u02/log1b.rdo') SIZE 100 M
+                  MAXLOGFILES 5
+                  MAXDATAFILES 100
+                  CHARACTER SET AL32UTF8
+                  NATIONAL CHARACTER SET AL16UTF16
+                  EXTENT MANAGEMENT LOCAL
+                  DATAFILE '/u01/system01.dbf' SIZE 325 M
+                  SYSAUX DATAFILE '/u01/sysaux01.dbf' SIZE 325 M
+                  DEFAULT TABLESPACE users
+                  DEFAULT TEMPORARY TABLESPACE temp TEMPFILE '/u01/temp01.dbf' SIZE 20 M
+                  UNDO TABLESPACE undotbs DATAFILE '/u01/undotbs01.dbf' SIZE 200 M
+                  ENABLE PLUGGABLE DATABASE;
+
+                CREATE CONTROLFILE REUSE DATABASE prod RESETLOGS ARCHIVELOG
+                  MAXLOGFILES 16
+                  MAXLOGMEMBERS 3
+                  MAXDATAFILES 100
+                  LOGFILE GROUP 1 '/u01/log1.log' SIZE 100 M
+                  DATAFILE '/u01/system01.dbf';
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle pluggable database create statements exactly") {
+            val sql =
+                """
+                CREATE PLUGGABLE DATABASE pdb1
+                  ADMIN USER pdb_admin IDENTIFIED BY pdb_password
+                  ROLES = (DBA)
+                  DEFAULT TABLESPACE users
+                  DATAFILE '/u01/pdb1/users01.dbf' SIZE 250 M
+                  FILE_NAME_CONVERT = ('/pdbseed/', '/pdb1/');
+
+                CREATE PLUGGABLE DATABASE pdb_clone FROM pdb1
+                  FILE_NAME_CONVERT = ('/pdb1/', '/pdb_clone/')
+                  STORAGE MAXSIZE 2 G;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle tablespace and diskgroup create statements exactly") {
+            val sql =
+                """
+                CREATE TABLESPACE app_data
+                  DATAFILE '/u01/app_data01.dbf' SIZE 100 M
+                  AUTOEXTEND ON NEXT 10 M MAXSIZE 1 G
+                  LOGGING
+                  EXTENT MANAGEMENT LOCAL
+                  SEGMENT SPACE MANAGEMENT AUTO;
+
+                CREATE BIGFILE TABLESPACE big_data
+                  DATAFILE '/u01/big_data01.dbf' SIZE 1 G
+                  NOLOGGING;
+
+                CREATE TEMPORARY TABLESPACE temp_ts
+                  TEMPFILE '/u01/temp_ts01.dbf' SIZE 100 M;
+
+                CREATE TABLESPACE SET ts1
+                  IN SHARDSPACE sgr1
+                  USING TEMPLATE
+                  (DATAFILE SIZE 100 M EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO);
+
+                CREATE DISKGROUP data NORMAL REDUNDANCY
+                  FAILGROUP controller1 DISK '/devices/diska1' NAME diska1 SIZE 100 G
+                  FAILGROUP controller2 DISK '/devices/diskb1' NAME diskb1 SIZE 100 G
+                  ATTRIBUTE 'compatible.asm' = '19.0';
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle parameter file and true cache create statements exactly") {
+            val sql =
+                """
+                CREATE SPFILE = 's_params.ora' FROM PFILE = '${'$'}ORACLE_HOME/work/t_init1.ora';
+
+                CREATE SPFILE FROM MEMORY;
+
+                CREATE PFILE = 'my_init.ora' FROM SPFILE = 's_params.ora';
+
+                CREATE PFILE FROM MEMORY;
+
+                CREATE TRUE CACHE true_cache1 FOR primary_db
+                  CONNECT TO primary_user IDENTIFIED BY primary_password
+                  CACHE DIRECTORY '/u01/true_cache';
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle database and pluggable database alter statements exactly") {
             val sql =
                 """

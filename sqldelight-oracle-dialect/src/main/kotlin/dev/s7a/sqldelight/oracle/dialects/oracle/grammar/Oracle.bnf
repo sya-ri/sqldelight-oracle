@@ -470,7 +470,9 @@ private oracle_hierarchical_operator_expr ::= ( 'PRIOR' | 'CONNECT_BY_ROOT' ) <<
 
 private oracle_shard_chunk_id_operator ::= 'SHARD_CHUNK_ID' LP <<expr '-1'>> COMMA <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP
 
-private oracle_condition_expr ::= oracle_sql_json_condition_expr | oracle_pattern_matching_condition_expr | oracle_floating_point_condition_expr | oracle_is_of_type_condition_expr
+private oracle_condition_expr ::= oracle_sql_json_condition_expr | oracle_pattern_matching_condition_expr | oracle_comparison_condition_expr | oracle_floating_point_condition_expr | oracle_is_of_type_condition_expr
+
+private oracle_comparison_condition_expr ::= oracle_condition_operand '^=' oracle_condition_operand
 
 private oracle_floating_point_condition_expr ::= oracle_condition_operand 'IS' [ 'NOT' ] ( 'NAN' | 'INFINITE' )
 

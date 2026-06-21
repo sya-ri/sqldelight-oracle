@@ -329,6 +329,29 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle caret inequality condition exactly") {
+            val sql =
+                """
+                CREATE TABLE salary_samples (
+                  id NUMBER PRIMARY KEY,
+                  salary NUMBER,
+                  department_id NUMBER,
+                  status VARCHAR2(20)
+                );
+
+                SELECT id
+                FROM salary_samples
+                WHERE status ^= 'inactive'
+                  AND department_id ^= 30;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle cursor expressions exactly") {
             val sql =
                 """

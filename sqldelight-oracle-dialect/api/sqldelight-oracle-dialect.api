@@ -128,7 +128,9 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	protected fun parse_root_ (Lcom/intellij/psi/tree/IElementType;Lcom/intellij/lang/PsiBuilder;)Z
 	public static fun purge_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun rename_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun set_constraints_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun set_role_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun set_transaction_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun set_use_data_grants_only_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun table_constraint_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -280,7 +282,9 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getOverrides ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getPurge_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getRename_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getSet_constraints_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getSet_role_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getSet_transaction_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getSet_use_data_grants_only_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getStmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getTable_constraint ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -311,6 +315,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setCall_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setColumn_constraint (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setComment_on_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public static final fun setConstraintsStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public final fun setCreateElement (Lkotlin/jvm/functions/Function1;)V
 	public final fun setCreate_index_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_sequence_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -370,10 +375,13 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setPurge_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setRename_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public static final fun setRoleStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public final fun setSet_constraints_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setSet_role_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setSet_transaction_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setSet_use_data_grants_only_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setStmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setTable_constraint (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public static final fun setTransactionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public final fun setTruncate_cluster_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setTruncate_table_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setType_name (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -644,7 +652,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getMergeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleMergeStmt;
 	public abstract fun getPurgeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OraclePurgeStmt;
 	public abstract fun getRenameStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleRenameStmt;
+	public abstract fun getSetConstraintsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetConstraintsStmt;
 	public abstract fun getSetRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetRoleStmt;
+	public abstract fun getSetTransactionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetTransactionStmt;
 	public abstract fun getSetUseDataGrantsOnlyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetUseDataGrantsOnlyStmt;
 	public abstract fun getTruncateClusterStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTruncateClusterStmt;
 	public abstract fun getTruncateTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTruncateTableStmt;
@@ -686,7 +696,13 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleRenameStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetConstraintsStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetRoleStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetTransactionStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetUseDataGrantsOnlyStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -738,7 +754,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getFlashbackTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleFlashbackTableStmt;
 	public abstract fun getPurgeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OraclePurgeStmt;
 	public abstract fun getRenameStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleRenameStmt;
+	public abstract fun getSetConstraintsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetConstraintsStmt;
 	public abstract fun getSetRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetRoleStmt;
+	public abstract fun getSetTransactionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetTransactionStmt;
 	public abstract fun getSetUseDataGrantsOnlyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetUseDataGrantsOnlyStmt;
 }
 
@@ -837,7 +855,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field PURGE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field RENAME_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field RP Lcom/intellij/psi/tree/IElementType;
+	public static final field SET_CONSTRAINTS_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field SET_ROLE_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field SET_TRANSACTION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field SET_USE_DATA_GRANTS_ONLY_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field SIGNED_NUMBER_REAL Lcom/intellij/psi/tree/IElementType;
 	public static final field STMT Lcom/intellij/psi/tree/IElementType;
@@ -928,7 +948,9 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitOverrides (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOverrides;)V
 	public fun visitPurgeStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OraclePurgeStmt;)V
 	public fun visitRenameStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleRenameStmt;)V
+	public fun visitSetConstraintsStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetConstraintsStmt;)V
 	public fun visitSetRoleStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetRoleStmt;)V
+	public fun visitSetTransactionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetTransactionStmt;)V
 	public fun visitSetUseDataGrantsOnlyStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetUseDataGrantsOnlyStmt;)V
 	public fun visitSqlAlterTableAddColumn (Lcom/alecstrong/sql/psi/core/psi/SqlAlterTableAddColumn;)V
 	public fun visitSqlAlterTableRules (Lcom/alecstrong/sql/psi/core/psi/SqlAlterTableRules;)V
@@ -1409,7 +1431,9 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getMergeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleMergeStmt;
 	public fun getPurgeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OraclePurgeStmt;
 	public fun getRenameStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleRenameStmt;
+	public fun getSetConstraintsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetConstraintsStmt;
 	public fun getSetRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetRoleStmt;
+	public fun getSetTransactionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetTransactionStmt;
 	public fun getSetUseDataGrantsOnlyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetUseDataGrantsOnlyStmt;
 	public fun getTruncateClusterStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTruncateClusterStmt;
 	public fun getTruncateTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTruncateTableStmt;
@@ -1475,7 +1499,19 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleRe
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSetConstraintsStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetConstraintsStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSetRoleStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetRoleStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSetTransactionStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetTransactionStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
@@ -1536,7 +1572,9 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSt
 	public fun getFlashbackTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleFlashbackTableStmt;
 	public fun getPurgeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OraclePurgeStmt;
 	public fun getRenameStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleRenameStmt;
+	public fun getSetConstraintsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetConstraintsStmt;
 	public fun getSetRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetRoleStmt;
+	public fun getSetTransactionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetTransactionStmt;
 	public fun getSetUseDataGrantsOnlyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetUseDataGrantsOnlyStmt;
 }
 

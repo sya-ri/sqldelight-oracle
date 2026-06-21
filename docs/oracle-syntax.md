@@ -173,8 +173,8 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [`COMMIT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/COMMIT.html)
 - [x] [`ROLLBACK`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ROLLBACK.html)
 - [x] [`SAVEPOINT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SAVEPOINT.html)
-- [x] [`SET TRANSACTION`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SET-TRANSACTION.html)
-- [x] [`SET CONSTRAINTS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SET-CONSTRAINTS.html)
+- [x] [`SET TRANSACTION`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SET-TRANSACTION.html) parser support for [`set_transaction`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/set_transaction.html): `READ ONLY`, `READ WRITE`, isolation levels, rollback segments, and transaction names
+- [x] [`SET CONSTRAINTS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SET-CONSTRAINTS.html) parser support for [`set_constraints`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/set_constraints.html): `CONSTRAINT` / `CONSTRAINTS`, `ALL`, constraint lists, `IMMEDIATE`, and `DEFERRED`
 - [x] [`SET ROLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SET-ROLE.html) parser support for role lists, `IDENTIFIED BY`, `ALL EXCEPT`, and `NONE`
 - [x] [`SET USE DATA GRANTS ONLY`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/set-use-data-grants-only.html) parser support for schema-qualified objects and optional `ENABLED` / `DISABLED`
 - [ ] [`ADMINISTER KEY MANAGEMENT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ADMINISTER-KEY-MANAGEMENT.html)

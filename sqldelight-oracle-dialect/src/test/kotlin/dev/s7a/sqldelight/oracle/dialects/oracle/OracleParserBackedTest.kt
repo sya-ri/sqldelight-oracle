@@ -781,6 +781,35 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle transaction constraint statements exactly") {
+            val sql =
+                """
+                SET TRANSACTION READ ONLY;
+
+                SET TRANSACTION READ WRITE NAME 'bulk load';
+
+                SET TRANSACTION ISOLATION LEVEL SERIALIZABLE NAME 'serial report';
+
+                SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+                SET TRANSACTION USE ROLLBACK SEGMENT rbs_one;
+
+                SET TRANSACTION NAME 'named transaction';
+
+                SET CONSTRAINTS ALL IMMEDIATE;
+
+                SET CONSTRAINT emp_job_nn DEFERRED;
+
+                SET CONSTRAINTS emp_job_nn, emp_salary_min, hr.jhist_dept_fk DEFERRED;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle role and data grant session statements exactly") {
             val sql =
                 """

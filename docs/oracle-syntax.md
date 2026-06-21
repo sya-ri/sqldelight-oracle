@@ -275,11 +275,12 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [ ] [JSON object access expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Expressions.html): dot and array-step JSON field access expression forms
 - [x] [Type constructor expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Type-Constructor-Expressions.html) parser coverage for `NEW type_name(...)` object constructors
 - [ ] [Type constructor expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Type-Constructor-Expressions.html): collection constructors without `NEW`, optional `NEW` for object constructors, empty collection constructors, and constructor argument-count validation
-- [ ] [BOOLEAN expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/boolean-expressions.html): condition-valued expressions wherever `expr` appears, including `IS NULL` / `IS NOT NULL` boolean tests
+- [ ] [BOOLEAN expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/boolean-expressions.html): condition-valued expressions wherever `expr` appears, including boolean `AND` / `OR` / `NOT` result expressions
 - [ ] [Analytic view and model expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Expressions.html): analytic view expressions, model expressions, cell references, and iteration expressions
 - [ ] [Conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Conditions.html): comparison group conditions, logical, null, XML, SQL/JSON function conditions, compound, `BETWEEN`, `EXISTS`, and `IN`
 - [x] [Comparison conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comparison-Conditions.html) parser coverage for Oracle `^=` inequality
 - [ ] [Group comparison conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comparison-Conditions.html): `op ANY`, `op SOME`, and `op ALL` with lists and subqueries
+- [x] [Null conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Null-Conditions.html) parser coverage for `IS NULL` and `IS NOT NULL`
 - [x] [BETWEEN condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/BETWEEN-Condition.html) parser coverage for `BETWEEN` and `NOT BETWEEN`
 - [x] [EXISTS condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/EXISTS-Condition.html) parser coverage for subquery existence predicates
 - [x] [IN condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/IN-Condition.html) parser coverage for single-column `IN`, expression lists, and subqueries

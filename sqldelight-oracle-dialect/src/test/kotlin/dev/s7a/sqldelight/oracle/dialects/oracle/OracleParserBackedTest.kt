@@ -1080,6 +1080,32 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle null conditions exactly") {
+            val sql =
+                """
+                CREATE TABLE feature_flags (
+                  id NUMBER PRIMARY KEY,
+                  enabled BOOLEAN,
+                  reviewed BOOLEAN,
+                  deleted_at TIMESTAMP,
+                  note VARCHAR2(100)
+                );
+
+                SELECT id,
+                  enabled,
+                  reviewed
+                FROM feature_flags
+                WHERE deleted_at IS NULL
+                  AND note IS NOT NULL;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle table constraints through SQLDelight environment exactly") {
             val sql =
                 """

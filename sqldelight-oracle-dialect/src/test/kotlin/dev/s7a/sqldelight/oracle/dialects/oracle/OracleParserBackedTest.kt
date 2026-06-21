@@ -1194,6 +1194,10 @@ class OracleParserBackedTest :
 
                 CALL hr.remote_api.current_status@reporting_link(tenant_id => 42) INTO :status_out;
 
+                CALL warehouse_typ(456, 'Warehouse 456', 2236).ret_name() INTO :warehouse_name;
+
+                CALL ret_warehouse_typ(warehouse_typ(234, 'Warehouse 234', 2235)).ret_name() INTO :warehouse_name;
+
                 CALL refresh_cache();
                 """.trimIndent()
 

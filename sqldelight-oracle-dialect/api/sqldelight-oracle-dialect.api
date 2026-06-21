@@ -53,6 +53,11 @@ public final class dev/s7a/sqldelight/oracle/OracleTypeResolver : app/cash/sqlde
 public class dev/s7a/sqldelight/oracle/grammar/OracleParser : com/intellij/lang/LightPsiParser, com/intellij/lang/PsiParser {
 	public fun <init> ()V
 	public static fun alter_table_add_column_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun alter_table_add_constraint_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun alter_table_drop_column_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun alter_table_drop_constraint_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun alter_table_modify_column_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun alter_table_rename_column_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_table_rules_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_table_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun column_constraint_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -69,11 +74,21 @@ public class dev/s7a/sqldelight/oracle/grammar/OracleParser : com/intellij/lang/
 public final class dev/s7a/sqldelight/oracle/grammar/OracleParserUtil : com/intellij/lang/parser/GeneratedParserUtilBase {
 	public static final field INSTANCE Ldev/s7a/sqldelight/oracle/grammar/OracleParserUtil;
 	public static final fun alterTableAddColumnExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun alterTableAddConstraintExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun alterTableDropColumnExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun alterTableDropConstraintExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun alterTableModifyColumnExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun alterTableRenameColumnExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterTableRulesExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterTableStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun columnConstraintExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createTableStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public final fun getAlter_table_add_column ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getAlter_table_add_constraint ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getAlter_table_drop_column ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getAlter_table_drop_constraint ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getAlter_table_modify_column ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getAlter_table_rename_column ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_table_rules ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_table_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getColumn_constraint ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -88,6 +103,11 @@ public final class dev/s7a/sqldelight/oracle/grammar/OracleParserUtil : com/inte
 	public static final fun overridesExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public final fun reset ()V
 	public final fun setAlter_table_add_column (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setAlter_table_add_constraint (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setAlter_table_drop_column (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setAlter_table_drop_constraint (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setAlter_table_modify_column (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setAlter_table_rename_column (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_table_rules (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_table_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setColumn_constraint (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -104,9 +124,29 @@ public final class dev/s7a/sqldelight/oracle/grammar/OracleParserUtil : com/inte
 public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableAddColumn : com/alecstrong/sql/psi/core/psi/SqlAlterTableAddColumn {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableAddConstraint : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableDropColumn : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableDropConstraint : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableModifyColumn : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableRenameColumn : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableRules : com/alecstrong/sql/psi/core/psi/SqlAlterTableRules {
 	public synthetic fun getAlterTableAddColumn ()Lcom/alecstrong/sql/psi/core/psi/SqlAlterTableAddColumn;
 	public abstract fun getAlterTableAddColumn ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableAddColumn;
+	public abstract fun getAlterTableAddConstraint ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableAddConstraint;
+	public abstract fun getAlterTableDropColumn ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableDropColumn;
+	public abstract fun getAlterTableDropConstraint ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableDropConstraint;
+	public abstract fun getAlterTableModifyColumn ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableModifyColumn;
+	public abstract fun getAlterTableRenameColumn ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableRenameColumn;
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableStmt : com/alecstrong/sql/psi/core/psi/SqlAlterTableStmt, com/intellij/psi/StubBasedPsiElement {
@@ -139,6 +179,11 @@ public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleType
 
 public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleTypes {
 	public static final field ALTER_TABLE_ADD_COLUMN Lcom/intellij/psi/tree/IElementType;
+	public static final field ALTER_TABLE_ADD_CONSTRAINT Lcom/intellij/psi/tree/IElementType;
+	public static final field ALTER_TABLE_DROP_COLUMN Lcom/intellij/psi/tree/IElementType;
+	public static final field ALTER_TABLE_DROP_CONSTRAINT Lcom/intellij/psi/tree/IElementType;
+	public static final field ALTER_TABLE_MODIFY_COLUMN Lcom/intellij/psi/tree/IElementType;
+	public static final field ALTER_TABLE_RENAME_COLUMN Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_TABLE_RULES Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_TABLE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field COLUMN_CONSTRAINT Lcom/intellij/psi/tree/IElementType;
@@ -164,6 +209,11 @@ public class dev/s7a/sqldelight/oracle/grammar/psi/OracleTypes$Factory {
 public class dev/s7a/sqldelight/oracle/grammar/psi/OracleVisitor : com/intellij/psi/PsiElementVisitor {
 	public fun <init> ()V
 	public fun visitAlterTableAddColumn (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableAddColumn;)V
+	public fun visitAlterTableAddConstraint (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableAddConstraint;)V
+	public fun visitAlterTableDropColumn (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableDropColumn;)V
+	public fun visitAlterTableDropConstraint (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableDropConstraint;)V
+	public fun visitAlterTableModifyColumn (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableModifyColumn;)V
+	public fun visitAlterTableRenameColumn (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableRenameColumn;)V
 	public fun visitAlterTableRules (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableRules;)V
 	public fun visitAlterTableStmt (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableStmt;)V
 	public fun visitColumnConstraint (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleColumnConstraint;)V
@@ -188,12 +238,47 @@ public class dev/s7a/sqldelight/oracle/grammar/psi/impl/OracleAlterTableAddColum
 	public fun accept (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/grammar/psi/impl/OracleAlterTableAddConstraintImpl : dev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableAddConstraint {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/grammar/psi/impl/OracleAlterTableDropColumnImpl : dev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableDropColumn {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/grammar/psi/impl/OracleAlterTableDropConstraintImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableDropConstraint {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/grammar/psi/impl/OracleAlterTableModifyColumnImpl : dev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableModifyColumn {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/grammar/psi/impl/OracleAlterTableRenameColumnImpl : dev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableRenameColumn {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/grammar/psi/impl/OracleAlterTableRulesImpl : com/alecstrong/sql/psi/core/psi/impl/SqlAlterTableRulesImpl, dev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableRules {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleVisitor;)V
 	public synthetic fun getAlterTableAddColumn ()Lcom/alecstrong/sql/psi/core/psi/SqlAlterTableAddColumn;
 	public fun getAlterTableAddColumn ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableAddColumn;
+	public fun getAlterTableAddConstraint ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableAddConstraint;
+	public fun getAlterTableDropColumn ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableDropColumn;
+	public fun getAlterTableDropConstraint ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableDropConstraint;
+	public fun getAlterTableModifyColumn ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableModifyColumn;
+	public fun getAlterTableRenameColumn ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableRenameColumn;
 }
 
 public class dev/s7a/sqldelight/oracle/grammar/psi/impl/OracleAlterTableStmtImpl : com/alecstrong/sql/psi/core/psi/impl/SqlAlterTableStmtImpl, dev/s7a/sqldelight/oracle/grammar/psi/OracleAlterTableStmt {

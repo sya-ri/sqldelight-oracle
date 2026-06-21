@@ -48,6 +48,7 @@ Oracle should add BNF overrides incrementally, with exact parser tests for each 
 - [x] `create_table_stmt` baseline: Oracle `IF NOT EXISTS`, temporary table scopes, `ON COMMIT`, and `CREATE TABLE AS SELECT`
 - [ ] `alter_table_stmt`: Oracle add/modify/drop/rename column and constraint operations
 - [x] `alter_table_stmt` baseline: official SQLDelight-style `ALTER TABLE ... ADD column` parser/stub support
+- [x] `alter_table_stmt` single-operation support: `ADD` table constraint, `MODIFY` column, `DROP COLUMN`, `DROP CONSTRAINT`, and `RENAME COLUMN`
 - [ ] `create_index_stmt`: Oracle bitmap, unique, function-based, domain, reverse, invisible, partial, and local/global index clauses
 - [ ] `select_stmt`: Oracle `hierarchical_query_clause`, `flashback_query_clause`, `pivot_clause`, `unpivot_clause`, `model_clause`, `row_pattern_clause`, `qualify_clause`, and row limiting
 - [ ] `table_or_subquery`: Oracle `JSON_TABLE`, `XMLTABLE`, `GRAPH_TABLE`, `NESTED`, `LATERAL`, flashback table syntax, and partition extension syntax

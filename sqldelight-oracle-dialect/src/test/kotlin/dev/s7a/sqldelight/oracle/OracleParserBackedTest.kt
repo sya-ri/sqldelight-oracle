@@ -125,7 +125,7 @@ class OracleParserBackedTest :
                 )
         }
 
-        test("parses Oracle alter table add column through SQLDelight environment exactly") {
+        test("parses Oracle alter table statements through SQLDelight environment exactly") {
             val sql =
                 """
                 CREATE TABLE alter_targets (
@@ -134,6 +134,11 @@ class OracleParserBackedTest :
                 );
 
                 ALTER TABLE alter_targets ADD created_at TIMESTAMP;
+                ALTER TABLE alter_targets ADD CONSTRAINT alter_targets_status_check CHECK (status IS NOT NULL) ENABLE;
+                ALTER TABLE alter_targets MODIFY status VARCHAR2(32) NOT NULL;
+                ALTER TABLE alter_targets RENAME COLUMN status TO account_status;
+                ALTER TABLE alter_targets DROP COLUMN created_at CASCADE CONSTRAINTS;
+                ALTER TABLE alter_targets DROP CONSTRAINT alter_targets_status_check;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe

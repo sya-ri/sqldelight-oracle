@@ -112,7 +112,8 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [ ] Administrative legacy/create object statements: [`CREATE LOCKDOWN PROFILE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-LOCKDOWN-PROFILE.html), [`CREATE PMEM FILESTORE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/create-pmem-filestore.html), [`CREATE RESTORE POINT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-RESTORE-POINT.html), [`CREATE ROLLBACK SEGMENT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-ROLLBACK-SEGMENT.html)
 - [x] [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html)
 - [x] [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html) parser support for `ADD column`
-- [ ] [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html) parser support for Oracle `ADD` multiple columns/constraints, `MODIFY`, `DROP`, `RENAME`, partition, storage, LOB, and table property clauses
+- [x] [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html) parser support for single-operation `ADD` table constraint, `MODIFY` column, `DROP COLUMN`, `DROP CONSTRAINT`, and `RENAME COLUMN`
+- [ ] [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html) parser support for Oracle multiple-column `ADD`/`MODIFY`, partition, storage, LOB, and table property clauses
 - [x] [`ALTER INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-INDEX.html)
 - [x] [`ALTER SEQUENCE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-SEQUENCE.html)
 - [x] [`ALTER VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-VIEW.html)

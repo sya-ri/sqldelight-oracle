@@ -53,5 +53,5 @@ META-INF/services/app.cash.sqldelight.dialect.api.SqlDelightDialect
 with:
 
 ```text
-dev.s7a.sqldelight.oracle.OracleDialect
+dev.s7a.sqldelight.oracle.dialects.oracle.OracleDialect
 ```

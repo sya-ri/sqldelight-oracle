@@ -175,8 +175,8 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [`SAVEPOINT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SAVEPOINT.html)
 - [x] [`SET TRANSACTION`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SET-TRANSACTION.html)
 - [x] [`SET CONSTRAINTS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SET-CONSTRAINTS.html)
-- [ ] [`SET ROLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SET-ROLE.html)
-- [ ] [`SET USE DATA GRANTS ONLY`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/set-use-data-grants-only.html)
+- [x] [`SET ROLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SET-ROLE.html) parser support for role lists, `IDENTIFIED BY`, `ALL EXCEPT`, and `NONE`
+- [x] [`SET USE DATA GRANTS ONLY`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/set-use-data-grants-only.html) parser support for schema-qualified objects and optional `ENABLED` / `DISABLED`
 - [ ] [`ADMINISTER KEY MANAGEMENT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ADMINISTER-KEY-MANAGEMENT.html)
 
 ## Security And Privileges

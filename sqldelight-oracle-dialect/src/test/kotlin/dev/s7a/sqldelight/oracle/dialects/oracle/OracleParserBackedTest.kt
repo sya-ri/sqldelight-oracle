@@ -781,6 +781,33 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle role and data grant session statements exactly") {
+            val sql =
+                """
+                SET ROLE dw_manager IDENTIFIED BY warehouse_password;
+
+                SET ROLE app_user, reporting_user IDENTIFIED BY reporting_password;
+
+                SET ROLE ALL;
+
+                SET ROLE ALL EXCEPT dw_manager, app_admin;
+
+                SET ROLE NONE;
+
+                SET USE DATA GRANTS ONLY ON hr.employees ENABLED;
+
+                SET USE DATA GRANTS ONLY ON employees_view DISABLED;
+
+                SET USE DATA GRANTS ONLY ON reporting.sales_summary;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

@@ -229,7 +229,7 @@ type_name ::= oracle_type_name | core_type_name {
   override = true
 }
 
-extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_boolean_literal_expr | oracle_oml_function_expr | oracle_ordered_aggregate_expr | oracle_analytic_function_expr | oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_condition_expr | oracle_multiset_expr | oracle_collate_expr | oracle_cursor_expr | oracle_type_constructor_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_bind_placeholder_expr {
+extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_boolean_literal_expr | oracle_oml_function_expr | oracle_ordered_aggregate_expr | oracle_analytic_function_expr | oracle_aggregate_function_expr | oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_condition_expr | oracle_multiset_expr | oracle_collate_expr | oracle_cursor_expr | oracle_type_constructor_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_bind_placeholder_expr {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionExprImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionExpr"
   override = true
@@ -274,7 +274,17 @@ private oracle_analytic_function_expr ::= oracle_function_invocation ( oracle_ke
 
 private oracle_function_invocation ::= oracle_object_name_part LP [ oracle_function_argument ( COMMA oracle_function_argument ) * ] RP
 
-private oracle_function_argument ::= '*' | 'DISTINCT' <<expr '-1'>> | 'ALL' <<expr '-1'>> | <<expr '-1'>>
+private oracle_function_argument ::= '*' | ( 'DISTINCT' | 'UNIQUE' | 'ALL' ) <<expr '-1'>> | <<expr '-1'>>
+
+private oracle_aggregate_function_expr ::= oracle_aggregate_function_name LP [ oracle_function_argument ( COMMA oracle_function_argument ) * ] RP [ oracle_over_clause ]
+
+private oracle_aggregate_function_name ::= (
+  'APPROX_COUNT' | 'APPROX_COUNT_DISTINCT' | 'APPROX_MEDIAN' | 'APPROX_SUM' |
+  'AVG' | 'BIT_AND_AGG' | 'BIT_OR_AGG' | 'BIT_XOR_AGG' | 'BOOLEAN_AND_AGG' | 'BOOLEAN_OR_AGG' | 'CHECKSUM' |
+  'CORR' | 'COUNT' | 'COVAR_POP' | 'COVAR_SAMP' | 'KURTOSIS_POP' | 'KURTOSIS_SAMP' |
+  'MAX' | 'MEDIAN' | 'MIN' | 'SKEWNESS_POP' | 'SKEWNESS_SAMP' |
+  'STDDEV' | 'STDDEV_POP' | 'STDDEV_SAMP' | 'SUM' | 'VARIANCE' | 'VAR_POP' | 'VAR_SAMP'
+)
 
 private oracle_ordered_aggregate_expr ::= ( oracle_approx_percentile_expr | oracle_percentile_expr | oracle_listagg_expr ) [ oracle_over_clause ]
 

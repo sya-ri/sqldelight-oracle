@@ -1058,6 +1058,38 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle aggregate argument modifiers exactly") {
+            val sql =
+                """
+                CREATE TABLE sales (
+                  id NUMBER PRIMARY KEY,
+                  region VARCHAR2(20),
+                  employee_id NUMBER,
+                  amount NUMBER,
+                  discount NUMBER,
+                  enabled BOOLEAN
+                );
+
+                SELECT region,
+                  COUNT(DISTINCT employee_id) AS distinct_employee_count,
+                  COUNT(UNIQUE employee_id) AS unique_employee_count,
+                  SUM(ALL amount) AS all_amount,
+                  AVG(DISTINCT discount) AS distinct_average_discount,
+                  MIN(UNIQUE amount) AS unique_minimum_amount,
+                  MAX(ALL amount) AS all_maximum_amount,
+                  BIT_XOR_AGG(DISTINCT employee_id) AS distinct_parity_bits,
+                  BOOLEAN_OR_AGG(ALL enabled) AS all_any_enabled
+                FROM sales
+                GROUP BY region;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle LISTAGG ordered aggregate exactly") {
             val sql =
                 """

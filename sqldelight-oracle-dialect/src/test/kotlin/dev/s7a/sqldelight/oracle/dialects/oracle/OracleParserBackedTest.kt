@@ -432,6 +432,45 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle BETWEEN, EXISTS, and IN conditions exactly") {
+            val sql =
+                """
+                CREATE TABLE departments (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(100)
+                );
+
+                CREATE TABLE employees (
+                  id NUMBER PRIMARY KEY,
+                  department_id NUMBER,
+                  status VARCHAR2(20),
+                  salary NUMBER
+                );
+
+                SELECT id
+                FROM employees
+                WHERE salary BETWEEN 50000 AND 100000
+                  AND department_id NOT BETWEEN 90 AND 99
+                  AND status IN ('ACTIVE', 'PENDING')
+                  AND department_id IN (
+                    SELECT id
+                    FROM departments
+                    WHERE name IN ('SALES', 'HR')
+                  )
+                  AND EXISTS (
+                    SELECT id
+                    FROM departments
+                    WHERE departments.id = employees.department_id
+                  );
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle type constructor expressions exactly") {
             val sql =
                 """

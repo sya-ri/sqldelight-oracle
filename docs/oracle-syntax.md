@@ -280,9 +280,10 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [ ] [Conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Conditions.html): comparison group conditions, logical, null, XML, SQL/JSON function conditions, compound, `BETWEEN`, `EXISTS`, and `IN`
 - [x] [Comparison conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comparison-Conditions.html) parser coverage for Oracle `^=` inequality
 - [ ] [Group comparison conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comparison-Conditions.html): `op ANY`, `op SOME`, and `op ALL` with lists and subqueries
-- [ ] [BETWEEN condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/BETWEEN-Condition.html): `BETWEEN`, `NOT BETWEEN`, datatype compatibility, and evaluation semantics
-- [ ] [EXISTS condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/EXISTS-Condition.html): subquery existence predicates
-- [ ] [IN condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/IN-Condition.html): single-column and multi-column `IN` / `NOT IN`, expression lists, subqueries, and `values_clause`
+- [x] [BETWEEN condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/BETWEEN-Condition.html) parser coverage for `BETWEEN` and `NOT BETWEEN`
+- [x] [EXISTS condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/EXISTS-Condition.html) parser coverage for subquery existence predicates
+- [x] [IN condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/IN-Condition.html) parser coverage for single-column `IN`, expression lists, and subqueries
+- [ ] [IN condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/IN-Condition.html): multi-column `IN` / `NOT IN` row-value lists and `values_clause`
 - [x] [Boolean test conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Conditions.html) parser coverage for `IS TRUE`, `IS NOT FALSE`, `IS UNKNOWN`, and `TRUE`/`FALSE`/`UNKNOWN` literal expressions
 - [x] [Floating-point conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Floating-Point-Conditions.html) parser coverage for `IS [NOT] NAN` and `IS [NOT] INFINITE`
 - [x] [`IS OF type` condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/IS-OF-type-Condition.html) parser coverage for `IS [NOT] OF [TYPE] (...)` and `ONLY` type entries

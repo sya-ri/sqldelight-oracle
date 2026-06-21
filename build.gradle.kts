@@ -1,4 +1,5 @@
 @file:OptIn(ExperimentalAbiValidation::class)
+@file:Suppress("UnstableApiUsage")
 
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinJvm

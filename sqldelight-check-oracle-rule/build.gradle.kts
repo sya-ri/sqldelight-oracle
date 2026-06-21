@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 plugins {
     `java-library`
     alias(libs.plugins.kotlin.jvm)

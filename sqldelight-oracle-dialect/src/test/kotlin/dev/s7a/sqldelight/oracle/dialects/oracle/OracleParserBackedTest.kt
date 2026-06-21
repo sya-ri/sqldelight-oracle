@@ -548,6 +548,64 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle create materialized zonemap on table statement exactly") {
+            val sql =
+                """
+                CREATE MATERIALIZED ZONEMAP sales_zmap
+                  ON sales(cust_id, prod_id);
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create materialized zonemap attributes statement exactly") {
+            val sql =
+                """
+                CREATE MATERIALIZED ZONEMAP IF NOT EXISTS reporting.sales_zmap
+                  TABLESPACE users
+                  SCALE 10
+                  PCTFREE 20
+                  PCTUSED 50
+                  NOCACHE
+                  REFRESH FAST ON LOAD DATA MOVEMENT
+                  DISABLE PRUNING
+                  ON sales(cust_id);
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create materialized zonemap subquery statement exactly") {
+            val sql =
+                """
+                CREATE TABLE sales(
+                  cust_id NUMBER,
+                  prod_id NUMBER
+                );
+
+                CREATE MATERIALIZED ZONEMAP sales_zmap
+                  AS SELECT SYS_OP_ZONE_ID(rowid),
+                            MIN(cust_id), MAX(cust_id),
+                            MIN(prod_id), MAX(prod_id)
+                     FROM sales
+                     GROUP BY SYS_OP_ZONE_ID(rowid);
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle drop synonym statements through SQLDelight environment exactly") {
             val sql =
                 """

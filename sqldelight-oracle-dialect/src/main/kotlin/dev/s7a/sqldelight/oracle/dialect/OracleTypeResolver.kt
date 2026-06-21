@@ -114,7 +114,7 @@ public class OracleTypeResolver(
 
     private companion object {
         private val COMPARABLE_TYPE_ORDER: Array<DialectType> =
-            arrayOf<DialectType>(
+            arrayOf(
                 BOOLEAN,
                 BOOLEAN_TYPE,
                 INTEGER,
@@ -135,7 +135,7 @@ public class OracleTypeResolver(
         private val MAX_TYPE_ORDER = COMPARABLE_TYPE_ORDER
 
         private val MIN_TYPE_ORDER: Array<DialectType> =
-            arrayOf<DialectType>(
+            arrayOf(
                 BLOB,
                 BINARY,
                 TEXT,

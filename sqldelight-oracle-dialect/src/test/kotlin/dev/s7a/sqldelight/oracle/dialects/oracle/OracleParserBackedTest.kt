@@ -530,6 +530,13 @@ class OracleParserBackedTest :
                 SELECT 1
                 FROM TABLE(ODCINUMBERLIST(1, 2)) numbers;
 
+                selectValuesTable:
+                SELECT *
+                FROM (
+                  VALUES (1, 'SCOTT'),
+                         (2, 'SMITH')
+                ) value_employees (employee_id, first_name);
+
                 selectLateralSubquery:
                 SELECT region, derived_year
                 FROM partitioned_orders po, LATERAL (

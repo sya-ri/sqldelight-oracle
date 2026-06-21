@@ -229,11 +229,27 @@ type_name ::= oracle_type_name | core_type_name {
   override = true
 }
 
-extension_expr ::= oracle_datetime_literal | oracle_interval_literal {
+extension_expr ::= oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionExprImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionExpr"
   override = true
 }
+
+private oracle_pseudocolumn_expr ::= oracle_simple_pseudocolumn
+
+private oracle_simple_pseudocolumn ::= (
+  'COLUMN_VALUE' |
+  'CONNECT_BY_ISCYCLE' |
+  'CONNECT_BY_ISLEAF' |
+  'LEVEL' |
+  'OBJECT_ID' |
+  'OBJECT_VALUE' |
+  'ORA_ROWSCN' |
+  'ORA_SHARDSPACE_NAME' |
+  'ROWID' |
+  'ROWNUM' |
+  'XMLDATA'
+)
 
 private oracle_datetime_literal ::= (
   'DATE' {string_literal} |

@@ -120,6 +120,44 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle pseudocolumns exactly") {
+            val sql =
+                """
+                CREATE TABLE employees (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(100)
+                );
+
+                CREATE TABLE employeeSeq (
+                  NEXTVAL NUMBER,
+                  CURRVAL NUMBER
+                );
+
+                SELECT employeeSeq.NEXTVAL
+                FROM employeeSeq;
+
+                SELECT employeeSeq.CURRVAL
+                FROM employeeSeq;
+
+                SELECT ROWNUM, ROWID, ORA_ROWSCN, name
+                FROM employees
+                WHERE ROWNUM < 11;
+
+                SELECT LEVEL, CONNECT_BY_ISLEAF, CONNECT_BY_ISCYCLE, name
+                FROM employees
+                WHERE LEVEL <= 3;
+
+                SELECT COLUMN_VALUE, OBJECT_ID, OBJECT_VALUE, XMLDATA, ORA_SHARDSPACE_NAME
+                FROM employees;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle inline column constraints through SQLDelight environment exactly") {
             val sql =
                 """

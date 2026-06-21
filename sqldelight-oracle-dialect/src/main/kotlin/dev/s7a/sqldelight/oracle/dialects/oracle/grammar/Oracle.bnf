@@ -33,7 +33,7 @@
   ]
 }
 
-overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | insert_stmt | qualified_table_name | compound_select_stmt | select_stmt | with_clause | table_alias | table_or_subquery | group_by | join_operator | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt
+overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | insert_stmt | qualified_table_name | compound_select_stmt | select_stmt | with_clause | table_alias | table_or_subquery | group_by | join_operator | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt | extension_expr
 
 stmt ::= explain_plan_stmt | oracle_core_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlStmtImpl"
@@ -228,6 +228,43 @@ type_name ::= oracle_type_name | core_type_name {
   implements = "com.alecstrong.sql.psi.core.psi.SqlTypeName"
   override = true
 }
+
+extension_expr ::= oracle_datetime_literal | oracle_interval_literal {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionExprImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionExpr"
+  override = true
+}
+
+private oracle_datetime_literal ::= (
+  'DATE' {string_literal} |
+  'TIMESTAMP' {string_literal} [ 'AT' [ 'LOCAL' ] 'TIME' 'ZONE' ( {string_literal} | <<expr '-1'>> ) ]
+)
+
+private oracle_interval_literal ::= 'INTERVAL' {string_literal} oracle_interval_qualifier
+
+private oracle_interval_qualifier ::= (
+  'YEAR' [ oracle_type_parameters ] [ 'TO' 'MONTH' ] |
+  'MONTH' [ oracle_type_parameters ] |
+  'DAY' [ oracle_type_parameters ] [ 'TO' oracle_interval_day_to_second_trailing_field ] |
+  'HOUR' [ oracle_type_parameters ] [ 'TO' oracle_interval_hour_to_second_trailing_field ] |
+  'MINUTE' [ oracle_type_parameters ] [ 'TO' oracle_interval_minute_to_second_trailing_field ] |
+  'SECOND' [ oracle_type_parameters ]
+)
+
+private oracle_interval_day_to_second_trailing_field ::= (
+  'HOUR' |
+  'MINUTE' |
+  'SECOND' oracle_type_parameters |
+  'SECOND'
+)
+
+private oracle_interval_hour_to_second_trailing_field ::= (
+  'MINUTE' |
+  'SECOND' oracle_type_parameters |
+  'SECOND'
+)
+
+private oracle_interval_minute_to_second_trailing_field ::= 'SECOND' oracle_type_parameters | 'SECOND'
 
 oracle_type_name ::= (
   oracle_numeric_type |

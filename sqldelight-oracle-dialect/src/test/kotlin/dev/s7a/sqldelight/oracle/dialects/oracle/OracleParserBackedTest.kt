@@ -75,6 +75,51 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle datetime and interval literals exactly") {
+            val sql =
+                """
+                CREATE TABLE dual (
+                  dummy VARCHAR2(1)
+                );
+
+                SELECT DATE '1998-12-25'
+                FROM dual;
+
+                SELECT TIMESTAMP '1997-01-31 09:26:50.124'
+                FROM dual;
+
+                SELECT TIMESTAMP '1999-04-15 8:00:00 US/Pacific'
+                FROM dual;
+
+                SELECT TIMESTAMP '2009-10-29 01:30:00' AT TIME ZONE 'US/Pacific'
+                FROM dual;
+
+                SELECT INTERVAL '123-2' YEAR(3) TO MONTH
+                FROM dual;
+
+                SELECT INTERVAL '300' MONTH(3)
+                FROM dual;
+
+                SELECT INTERVAL '4 5:12:10.222' DAY TO SECOND(3)
+                FROM dual;
+
+                SELECT INTERVAL '11:12:10.2222222' HOUR TO SECOND(7)
+                FROM dual;
+
+                SELECT INTERVAL '10:22' MINUTE TO SECOND
+                FROM dual;
+
+                SELECT INTERVAL '30.12345' SECOND(2, 4)
+                FROM dual;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle inline column constraints through SQLDelight environment exactly") {
             val sql =
                 """

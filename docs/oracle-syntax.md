@@ -22,8 +22,9 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 
 - [ ] [Text literals](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html): ordinary strings, national character strings, alternative quoting `q'...'`, and `nq'...'`
 - [ ] [Numeric literals](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html): signed numbers, exponent notation, `BINARY_FLOAT`/`BINARY_DOUBLE` suffixes, NaN, and infinity literals
-- [ ] [Datetime literals](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html): `DATE`, `TIMESTAMP`, and time-zone literal forms
-- [ ] [Interval literals](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html): `INTERVAL YEAR TO MONTH` and `INTERVAL DAY TO SECOND`
+- [x] [Datetime literals](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html): `DATE`, `TIMESTAMP`, timestamp time-zone strings, and `AT TIME ZONE`
+- [x] [Interval literals](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html): `INTERVAL YEAR TO MONTH` and `INTERVAL DAY TO SECOND`
+- [ ] Datetime and interval literal semantic validation for precision ranges, time-zone ambiguity, and field-order restrictions
 - [ ] [Number, datetime, and XML format models](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Format-Models.html): format model tokens used by conversion functions
 
 ## Queries

@@ -352,6 +352,30 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle type constructor expressions exactly") {
+            val sql =
+                """
+                CREATE TABLE constructor_samples (
+                  id NUMBER PRIMARY KEY,
+                  street VARCHAR2(100),
+                  postal_code NUMBER,
+                  city VARCHAR2(80),
+                  state_code VARCHAR2(2),
+                  country_code VARCHAR2(2)
+                );
+
+                SELECT NEW cust_address_typ(street, postal_code, city, state_code, country_code) AS address_value,
+                  NEW hr.cust_address_typ(street, postal_code, city, state_code, country_code) AS schema_address_value
+                FROM constructor_samples;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle cursor expressions exactly") {
             val sql =
                 """

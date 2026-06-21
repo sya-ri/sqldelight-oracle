@@ -289,7 +289,7 @@ create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ] [ 'E
   pin = 6
 }
 
-extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt {
+extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionStmt"
   override = true
@@ -415,4 +415,15 @@ private oracle_explainable_stmt ::= (
   merge_stmt |
   create_table_stmt |
   create_index_stmt
+)
+
+truncate_table_stmt ::= 'TRUNCATE' 'TABLE' oracle_schema_object_name [ oracle_materialized_view_log_clause ] [ oracle_truncate_storage_clause ] [ 'CASCADE' ] {
+  pin = 2
+}
+
+private oracle_materialized_view_log_clause ::= ( 'PRESERVE' | 'PURGE' ) ( 'MATERIALIZED' 'VIEW' | 'SNAPSHOT' ) 'LOG'
+
+private oracle_truncate_storage_clause ::= (
+  'DROP' [ 'ALL' ] 'STORAGE' |
+  'REUSE' 'STORAGE'
 )

@@ -468,6 +468,25 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle truncate table statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                TRUNCATE TABLE employees_demo;
+
+                TRUNCATE TABLE hr.sales_demo PRESERVE MATERIALIZED VIEW LOG DROP STORAGE;
+
+                TRUNCATE TABLE orders_demo PURGE SNAPSHOT LOG DROP ALL STORAGE CASCADE;
+
+                TRUNCATE TABLE private_temp_orders REUSE STORAGE;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

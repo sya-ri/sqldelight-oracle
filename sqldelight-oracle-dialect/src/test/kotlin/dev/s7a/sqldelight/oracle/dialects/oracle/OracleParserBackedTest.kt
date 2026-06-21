@@ -535,6 +535,31 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle SQL vector functions exactly") {
+            val sql =
+                """
+                CREATE TABLE documents (
+                  id NUMBER PRIMARY KEY,
+                  body CLOB,
+                  embedding VECTOR(3, FLOAT32)
+                );
+
+                SELECT VECTOR('[1,2,3]'),
+                  TO_VECTOR('[1,2,3]', 3, FLOAT32),
+                  VECTOR_DISTANCE(embedding, TO_VECTOR('[1,2,3]', 3, FLOAT32), COSINE),
+                  VECTOR_EMBEDDING(all_minilm_l12 USING body AS DATA),
+                  VECTOR_SERIALIZE(embedding RETURNING CLOB)
+                FROM documents
+                ORDER BY VECTOR_DISTANCE(embedding, VECTOR('[1,2,3]'));
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle inline column constraints through SQLDelight environment exactly") {
             val sql =
                 """

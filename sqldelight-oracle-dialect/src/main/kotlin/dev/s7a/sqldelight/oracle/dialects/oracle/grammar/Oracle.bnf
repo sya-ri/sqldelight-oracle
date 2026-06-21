@@ -229,7 +229,7 @@ type_name ::= oracle_type_name | core_type_name {
   override = true
 }
 
-extension_expr ::= oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_cursor_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_bind_placeholder_expr {
+extension_expr ::= oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_cursor_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_bind_placeholder_expr {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionExprImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionExpr"
   override = true
@@ -268,6 +268,22 @@ private oracle_xml_passing_clause ::= 'PASSING' [ 'BY' 'VALUE' ] oracle_xml_pass
 private oracle_xml_passing_binding ::= <<expr '-1'>> [ 'AS' oracle_xml_name ]
 
 private oracle_xml_name ::= {string_literal} | string | oracle_object_name_part | 'EVALNAME' <<expr '-1'>>
+
+private oracle_vector_expr ::= oracle_to_vector_expr | oracle_vector_distance_expr | oracle_vector_embedding_expr | oracle_vector_serialize_expr
+
+private oracle_to_vector_expr ::= 'TO_VECTOR' LP <<expr '-1'>> [ COMMA <<expr '-1'>> [ COMMA oracle_vector_dimension_format ] ] RP
+
+private oracle_vector_distance_expr ::= 'VECTOR_DISTANCE' LP <<expr '-1'>> COMMA <<expr '-1'>> [ COMMA oracle_vector_distance_metric ] RP
+
+private oracle_vector_distance_metric ::= 'COSINE' | 'DOT' | 'EUCLIDEAN' | 'EUCLIDEAN_SQUARED' | 'HAMMING' | 'MANHATTAN' | oracle_object_name_part
+
+private oracle_vector_dimension_format ::= 'INT8' | 'BINARY' | 'FLOAT32' | 'FLOAT64' | oracle_object_name_part
+
+private oracle_vector_embedding_expr ::= 'VECTOR_EMBEDDING' LP oracle_schema_object_name 'USING' <<expr '-1'>> 'AS' 'DATA' RP
+
+private oracle_vector_serialize_expr ::= 'VECTOR_SERIALIZE' LP <<expr '-1'>> [ 'RETURNING' oracle_vector_returning_type ] RP
+
+private oracle_vector_returning_type ::= oracle_object_name_part [ oracle_type_parameters ]
 
 private oracle_sql_json_expr ::= oracle_sql_json_generation_expr | oracle_sql_json_query_expr
 

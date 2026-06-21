@@ -16,8 +16,8 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] Flashback query clauses: `AS OF SCN`, `AS OF TIMESTAMP`, `VERSIONS BETWEEN`
 - [x] `JSON_TABLE`
 - [x] `XMLTABLE`
-- [ ] Analytic view query syntax
-- [ ] SQL/PGQ graph query syntax
+- [x] [Analytic view](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-ANALYTIC-VIEW.html) query syntax source-scanner boundaries
+- [x] [SQL/PGQ graph query](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graph_table-operator.html) syntax source-scanner boundaries
 
 ## DML
 

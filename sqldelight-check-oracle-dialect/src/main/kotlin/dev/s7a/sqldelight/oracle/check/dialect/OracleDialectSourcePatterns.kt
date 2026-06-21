@@ -26,13 +26,19 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
         patterns =
             SqlDialectSourcePatterns.SourceScannerDefault.patterns +
                 sourcePatterns(
+                    "ALTER INDEX",
+                    "ALTER MATERIALIZED VIEW",
+                    "ALTER ROLE",
+                    "ALTER SEQUENCE",
                     "ALTER SESSION",
                     "ALTER SYSTEM",
+                    "ALTER TABLE",
                     "ALTER USER",
-                    "ALTER ROLE",
+                    "ALTER VIEW",
                     "ANALYZE",
                     "CALL",
                     "COMMENT",
+                    "COMMIT",
                     "CREATE CLUSTER",
                     "CREATE DATABASE LINK",
                     "CREATE DIRECTORY",
@@ -47,10 +53,12 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                     "CREATE TRIGGER",
                     "CREATE TYPE",
                     "CREATE USER",
+                    "DROP INDEX",
                     "DROP MATERIALIZED VIEW",
                     "DROP ROLE",
                     "DROP SEQUENCE",
                     "DROP SYNONYM",
+                    "DROP TABLE",
                     "DROP USER",
                     "DROP VIEW",
                     "EXPLAIN PLAN",
@@ -68,7 +76,12 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                     "TRUNCATE",
                     roles = setOf(StatementStart, SqlDelightStatementStart),
                 ) +
-                sourcePatterns("MERGE", roles = setOf(SqlDelightExecutableStatementStart)) +
+                sourcePatterns(
+                    "INSERT ALL",
+                    "INSERT FIRST",
+                    "MERGE",
+                    roles = setOf(SqlDelightExecutableStatementStart),
+                ) +
                 sourcePatterns("SET TRANSACTION", roles = setOf(TransactionStartStatement)) +
                 sourcePatterns("COMMIT", "ROLLBACK", roles = setOf(TransactionEndStatement)) +
                 sourcePatterns("CREATE SEQUENCE", roles = setOf(CreateSequenceStatementStart)) +
@@ -78,6 +91,8 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                     "CONNECT BY",
                     "FETCH {FIRST|NEXT} [ROW|ROWS]",
                     "FOR UPDATE",
+                    "INSERT ALL",
+                    "INSERT FIRST",
                     "JSON_TABLE",
                     "MATCH_RECOGNIZE",
                     "MODEL",
@@ -122,6 +137,7 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                     "LONG RAW",
                     "NCHAR",
                     "NCLOB",
+                    "NESTED TABLE",
                     "OBJECT",
                     "NUMBER",
                     "NVARCHAR2",
@@ -134,6 +150,8 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                     "URITYPE",
                     "UROWID",
                     "VARCHAR2",
+                    "VARRAY",
+                    "VARYING ARRAY",
                     "VECTOR",
                     "XMLTYPE",
                     roles = setOf(DataTypeName),

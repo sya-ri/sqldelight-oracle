@@ -24,7 +24,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [`MERGE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/MERGE.html) statement start
 - [x] `RETURNING` clause boundary
 - [x] `INSERT`
-- [ ] Multi-table `INSERT`
+- [x] [Multi-table `INSERT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html)
 - [x] `UPDATE`
 - [x] `DELETE`
 - [x] `CALL`
@@ -46,13 +46,13 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] `CREATE DATABASE LINK`
 - [x] `CREATE CLUSTER`
 - [x] `CREATE INDEXTYPE`
-- [ ] `ALTER TABLE`
-- [ ] `ALTER INDEX`
-- [ ] `ALTER SEQUENCE`
-- [ ] `ALTER VIEW`
-- [ ] `ALTER MATERIALIZED VIEW`
-- [ ] `DROP TABLE`
-- [ ] `DROP INDEX`
+- [x] [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html)
+- [x] [`ALTER INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-INDEX.html)
+- [x] [`ALTER SEQUENCE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-SEQUENCE.html)
+- [x] [`ALTER VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-VIEW.html)
+- [x] [`ALTER MATERIALIZED VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-MATERIALIZED-VIEW.html)
+- [x] [`DROP TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DROP-TABLE.html)
+- [x] [`DROP INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DROP-INDEX.html)
 - [x] `DROP SEQUENCE`
 - [x] `DROP VIEW`
 - [x] `DROP MATERIALIZED VIEW`
@@ -64,7 +64,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 
 - [x] `ALTER SESSION`
 - [x] `ALTER SYSTEM`
-- [ ] `COMMIT`
+- [x] [`COMMIT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/COMMIT.html)
 - [x] `ROLLBACK`
 - [x] `SAVEPOINT`
 - [x] `SET TRANSACTION`
@@ -90,7 +90,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] Row id types: `ROWID`, `UROWID`
 - [x] JSON/XML/spatial/vector names: `JSON`, `XMLTYPE`, `SDO_GEOMETRY`, `VECTOR`
 - [x] Object/reference type names: `OBJECT`, `REF`, `ANYDATA`
-- [ ] Collection types and nested tables
+- [x] [Collection types and nested tables](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html)
 - [ ] Data use case domains
 
 ## Rules

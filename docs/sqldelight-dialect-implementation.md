@@ -50,8 +50,7 @@ Oracle should add BNF overrides incrementally, with exact parser tests for each 
 - [x] `alter_table_stmt` baseline: official SQLDelight-style `ALTER TABLE ... ADD column` parser/stub support
 - [x] `alter_table_stmt` single-operation support: `ADD` table constraint, `MODIFY` column, `DROP COLUMN`, `DROP CONSTRAINT`, and `RENAME COLUMN`
 - [x] `alter_table_stmt` multiple-column support: Oracle `ADD (...)` and `MODIFY (...)`
-- [ ] `create_index_stmt`: Oracle bitmap, unique, function-based, domain, reverse, invisible, partial, and local/global index clauses
-- [x] `create_index_stmt` baseline: Oracle `UNIQUE`, `BITMAP`, `VECTOR`, `HYBRID VECTOR`, `IF NOT EXISTS`, ordinary/function-based indexed columns, visibility, vector organization/parameters, `ONLINE`, `LOCAL`, `REVERSE`, logging, compression, and `INDEXING FULL/PARTIAL`
+- [x] `create_index_stmt` baseline: Oracle `UNIQUE`, `BITMAP`, `MULTIVALUE`, `VECTOR`, `HYBRID VECTOR`, `IF NOT EXISTS`, ordinary/function-based indexed columns, domain/XMLIndex/cluster/bitmap join index variants, local/global partition boundaries, ILM boundaries, visibility, vector organization/parameters, `ONLINE`, `LOCAL`, `REVERSE`, logging, compression, `TABLESPACE`, `PARALLEL`, and `INDEXING FULL/PARTIAL`
 - [x] `create_view_stmt` baseline: Oracle `OR REPLACE`, `FORCE` / `NO FORCE`, editioning keywords, `IF NOT EXISTS`, `JSON COLLECTION`, `SHARING`, object/XMLType view clauses, view column constraint boundaries, `DEFAULT COLLATION`, `BEQUEATH`, `WITH CHECK OPTION`, `WITH READ ONLY`, `CONTAINER_MAP`, and `CONTAINERS_DEFAULT`
 - [x] `drop_trigger_stmt` baseline: Oracle `IF EXISTS` and schema-qualified trigger names
 - [x] `commit_stmt` / `rollback_stmt` / `savepoint_stmt`: Oracle `WORK`, `COMMENT`, `WRITE`, `FORCE`, and `TO SAVEPOINT` parser overrides while keeping core SQLDelight PSI interfaces

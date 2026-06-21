@@ -166,6 +166,7 @@ class OracleParserBackedTest :
                   created_at TIMESTAMP,
                   archived_at TIMESTAMP,
                   embedding VECTOR(3, FLOAT32),
+                  payload XMLTYPE,
                   search_doc JSON
                 );
 
@@ -180,6 +181,48 @@ class OracleParserBackedTest :
 
                 CREATE INDEX indexed_accounts_status_upper_idx
                 ON indexed_accounts (UPPER(status));
+
+                CREATE INDEX indexed_accounts_text_domain_idx
+                ON indexed_accounts (search_doc)
+                INDEXTYPE IS CTXSYS.CONTEXT
+                PARAMETERS ('SYNC (ON COMMIT)')
+                PARALLEL 2;
+
+                CREATE INDEX indexed_accounts_xml_idx
+                ON indexed_accounts (payload)
+                INDEXTYPE IS XDB.XMLINDEX
+                PARAMETERS ('PATH TABLE indexed_accounts_path_tab');
+
+                CREATE JSON MULTIVALUE INDEX indexed_accounts_json_score_idx
+                ON indexed_accounts (search_doc)
+                TABLESPACE DEFAULT
+                SORT
+                USABLE
+                IMMEDIATE INVALIDATION;
+
+                CREATE INDEX indexed_accounts_created_global_idx
+                ON indexed_accounts (created_at)
+                GLOBAL PARTITION BY RANGE (created_at)
+                (PARTITION p_max VALUES LESS THAN (MAXVALUE))
+                TABLESPACE users
+                PCTFREE 10
+                INITRANS 2
+                COMPRESS ADVANCED LOW;
+
+                CREATE BITMAP INDEX indexed_accounts_bitmap_join_idx
+                ON indexed_accounts (status)
+                FROM indexed_accounts
+                WHERE status IS NOT NULL
+                LOCAL;
+
+                CREATE INDEX indexed_accounts_cluster_idx
+                ON CLUSTER indexed_accounts
+                TABLESPACE users
+                NOSORT;
+
+                CREATE INDEX indexed_accounts_ilm_idx
+                ILM ADD POLICY TIER TO users
+                ON indexed_accounts (status);
 
                 CREATE VECTOR INDEX indexed_accounts_embedding_hnsw_idx
                 ON indexed_accounts (embedding)

@@ -894,6 +894,36 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle MLE alter statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                ALTER MLE ENV scott.myenv
+                  ADD IMPORTS ("math" MODULE scott.math_module);
+
+                ALTER MLE ENV IF EXISTS scott.myenv
+                  ALTER IMPORTS ("util" MODULE scott.util_module, "config" MODULE scott.config_module);
+
+                ALTER MLE ENV scott.myenv
+                  DROP IMPORTS ("math", "util");
+
+                ALTER MLE ENV scott.myenv
+                  SET LANGUAGE OPTIONS 'js.strict=true';
+
+                ALTER MLE ENV scott.myenv COMPILE;
+
+                ALTER MLE MODULE IF EXISTS scott.my_mle_module
+                  SET METADATA USING CLOB (
+                    SELECT JSON('{ "version": "1.2.0" }')
+                  );
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle assertion, directive, edition, flashback, and In-Memory drop statements exactly") {
             val sql =
                 """

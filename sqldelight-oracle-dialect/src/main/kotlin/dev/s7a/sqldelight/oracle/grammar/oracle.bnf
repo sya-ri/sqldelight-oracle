@@ -9,6 +9,10 @@
 
   parserImports=[
     "static com.alecstrong.sql.psi.core.SqlParser.*"
+    "static com.alecstrong.sql.psi.core.psi.SqlTypes.COMMA"
+    "static com.alecstrong.sql.psi.core.psi.SqlTypes.DIGIT"
+    "static com.alecstrong.sql.psi.core.psi.SqlTypes.LP"
+    "static com.alecstrong.sql.psi.core.psi.SqlTypes.RP"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.identifierExt"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.signedNumberExt"
   ]
@@ -17,15 +21,73 @@
 overrides ::= type_name
 
 type_name ::= oracle_type_name | core_type_name {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTypeNameImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlTypeName"
   override = true
 }
 
-oracle_type_name ::= oracle_type_word (oracle_type_word) * [ oracle_type_parameters ]
+oracle_type_name ::= (
+  oracle_numeric_type |
+  oracle_character_type |
+  oracle_binary_type |
+  oracle_datetime_type |
+  oracle_interval_type |
+  oracle_named_type
+)
 
 private core_type_name ::= <<identifierExt identifier_real>> [ LP <<signedNumberExt signed_number_real>> RP | LP <<signedNumberExt signed_number_real>> COMMA <<signedNumberExt signed_number_real>> RP ]
 
-private oracle_type_word ::= identifier
+private oracle_numeric_type ::= (
+  ( 'NUMBER' | 'NUMERIC' | 'DECIMAL' | 'DEC' ) [ oracle_type_parameters ] |
+  ( 'INTEGER' | 'INT' | 'SMALLINT' | 'BINARY_INTEGER' | 'PLS_INTEGER' ) |
+  'FLOAT' [ oracle_type_parameters ] |
+  'REAL' |
+  'DOUBLE' 'PRECISION' |
+  'BINARY_FLOAT' |
+  'BINARY_DOUBLE' |
+  'BOOLEAN'
+)
+
+private oracle_character_type ::= (
+  ( 'CHAR' | 'CHARACTER' | 'NCHAR' | 'VARCHAR' | 'VARCHAR2' | 'NVARCHAR2' ) [ oracle_type_parameters ] |
+  ( 'CHAR' | 'CHARACTER' ) 'VARYING' [ oracle_type_parameters ] |
+  'NATIONAL' ( 'CHAR' | 'CHARACTER' ) [ 'VARYING' ] [ oracle_type_parameters ] |
+  ( 'CLOB' | 'NCLOB' | 'LONG' | 'ROWID' | 'UROWID' | 'JSON' | 'XMLTYPE' )
+)
+
+private oracle_binary_type ::= ( 'RAW' [ oracle_type_parameters ] | 'LONG' 'RAW' | 'BLOB' | 'BFILE' )
+
+private oracle_datetime_type ::= (
+  'DATE' |
+  'TIMESTAMP' [ oracle_type_parameters ] [ 'WITH' [ 'LOCAL' ] 'TIME' 'ZONE' ]
+)
+
+private oracle_interval_type ::= (
+  'INTERVAL' 'YEAR' [ oracle_type_parameters ] 'TO' 'MONTH' |
+  'INTERVAL' 'DAY' [ oracle_type_parameters ] 'TO' 'SECOND' [ oracle_type_parameters ]
+)
+
+private oracle_named_type ::= (
+  'SDO_GEOMETRY' |
+  'SDO_TOPO_GEOMETRY' |
+  'SDO_GEORASTER' |
+  'VECTOR' [ oracle_type_parameters ] |
+  'OBJECT' |
+  'REF' |
+  'ANYTYPE' |
+  'ANYDATA' |
+  'ANYDATASET' |
+  'URITYPE' |
+  'DBURITYPE' |
+  'XDBURITYPE' |
+  'HTTPURITYPE' |
+  'NESTED' 'TABLE' |
+  'VARRAY' [ oracle_type_parameters ] |
+  'VARYING' 'ARRAY' [ oracle_type_parameters ]
+)
 
 private oracle_type_parameters ::= LP oracle_type_parameter_token (oracle_type_parameter_token) * RP
 
-private oracle_type_parameter_token ::= identifier | signed_number | COMMA
+private oracle_type_parameter_token ::= <<identifierExt identifier_real>> | oracle_vector_format | DIGIT | {signed_number} | COMMA
+
+private oracle_vector_format ::= 'FLOAT32' | 'FLOAT64' | 'INT8' | 'BINARY'

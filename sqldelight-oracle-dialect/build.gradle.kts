@@ -41,5 +41,7 @@ dependencies {
     testImplementation(libs.kotest.framework.engine)
     testImplementation(libs.kotest.runner.junit5)
     testImplementation(libs.ojdbc11)
+    testImplementation(libs.sqldelight.gradle.plugin)
+    testImplementation(libs.sql.psi.environment)
     testImplementation(libs.testcontainers.oracle.xe)
 }

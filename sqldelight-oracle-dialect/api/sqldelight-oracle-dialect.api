@@ -84,19 +84,18 @@ public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleOver
 	public abstract fun getTypeName ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleTypeName;
 }
 
-public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleTypeName : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleTypeName : com/alecstrong/sql/psi/core/psi/SqlTypeName {
 	public abstract fun getOracleTypeName ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleOracleTypeName;
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleTypes {
 	public static final field COMMA Lcom/intellij/psi/tree/IElementType;
-	public static final field IDENTIFIER Lcom/intellij/psi/tree/IElementType;
+	public static final field DIGIT Lcom/intellij/psi/tree/IElementType;
 	public static final field IDENTIFIER_REAL Lcom/intellij/psi/tree/IElementType;
 	public static final field LP Lcom/intellij/psi/tree/IElementType;
 	public static final field ORACLE_TYPE_NAME Lcom/intellij/psi/tree/IElementType;
 	public static final field OVERRIDES Lcom/intellij/psi/tree/IElementType;
 	public static final field RP Lcom/intellij/psi/tree/IElementType;
-	public static final field SIGNED_NUMBER Lcom/intellij/psi/tree/IElementType;
 	public static final field SIGNED_NUMBER_REAL Lcom/intellij/psi/tree/IElementType;
 	public static final field TYPE_NAME Lcom/intellij/psi/tree/IElementType;
 }
@@ -111,6 +110,7 @@ public class dev/s7a/sqldelight/oracle/grammar/psi/OracleVisitor : com/intellij/
 	public fun visitOracleTypeName (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleOracleTypeName;)V
 	public fun visitOverrides (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleOverrides;)V
 	public fun visitSqlCompositeElement (Lcom/alecstrong/sql/psi/core/psi/SqlCompositeElement;)V
+	public fun visitSqlTypeName (Lcom/alecstrong/sql/psi/core/psi/SqlTypeName;)V
 	public fun visitTypeName (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleTypeName;)V
 }
 
@@ -127,7 +127,7 @@ public class dev/s7a/sqldelight/oracle/grammar/psi/impl/OracleOverridesImpl : co
 	public fun getTypeName ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleTypeName;
 }
 
-public class dev/s7a/sqldelight/oracle/grammar/psi/impl/OracleTypeNameImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/grammar/psi/OracleTypeName {
+public class dev/s7a/sqldelight/oracle/grammar/psi/impl/OracleTypeNameImpl : com/alecstrong/sql/psi/core/psi/impl/SqlTypeNameImpl, dev/s7a/sqldelight/oracle/grammar/psi/OracleTypeName {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleVisitor;)V

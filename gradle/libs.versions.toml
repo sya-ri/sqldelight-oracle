@@ -10,6 +10,7 @@ mavenPublish = "0.37.0-rc1"
 ojdbc = "23.26.2.0.0"
 sqldelight = "2.3.2"
 sqldelightCheck = "0.3.0"
+sqlPsi = "0.7.3"
 testcontainers = "1.21.4"
 
 [plugins]
@@ -29,7 +30,9 @@ kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref 
 ojdbc11 = { module = "com.oracle.database.jdbc:ojdbc11", version.ref = "ojdbc" }
 sqldelight-dialect-api = { module = "app.cash.sqldelight:dialect-api", version.ref = "sqldelight" }
 sqldelight-compiler-env = { module = "app.cash.sqldelight:compiler-env", version.ref = "sqldelight" }
+sqldelight-gradle-plugin = { module = "app.cash.sqldelight:gradle-plugin", version.ref = "sqldelight" }
 sqldelight-check-api = { module = "dev.s7a:sqldelight-check-api", version.ref = "sqldelightCheck" }
 sqldelight-check-rule-api = { module = "dev.s7a:sqldelight-check-rule-api", version.ref = "sqldelightCheck" }
+sql-psi-environment = { module = "app.cash.sql-psi:environment", version.ref = "sqlPsi" }
 testcontainers-junit-jupiter = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
 testcontainers-oracle-xe = { module = "org.testcontainers:oracle-xe", version.ref = "testcontainers" }

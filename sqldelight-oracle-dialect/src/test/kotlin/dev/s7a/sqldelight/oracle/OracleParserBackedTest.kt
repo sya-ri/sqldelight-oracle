@@ -1,0 +1,135 @@
+package dev.s7a.sqldelight.oracle
+
+import app.cash.sqldelight.core.SqlDelightCompilationUnit
+import app.cash.sqldelight.core.SqlDelightDatabaseName
+import app.cash.sqldelight.core.SqlDelightDatabaseProperties
+import app.cash.sqldelight.core.SqlDelightEnvironment
+import app.cash.sqldelight.core.SqlDelightSourceFolder
+import app.cash.sqldelight.core.annotators.OptimisticLockCompilerAnnotator
+import app.cash.sqldelight.core.lang.MigrationLanguage
+import app.cash.sqldelight.core.lang.SqlDelightLanguage
+import app.cash.sqldelight.core.lang.SqlDelightQueriesFile
+import com.alecstrong.sql.psi.core.SqlAnnotationHolder
+import com.intellij.lang.LanguageParserDefinitions
+import com.intellij.psi.PsiDocumentManager
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
+import java.io.File
+import java.nio.file.Files
+
+class OracleParserBackedTest :
+    FunSpec({
+        test("parses Oracle create table type names through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE sample (
+                  id NUMBER(10) NOT NULL,
+                  amount NUMBER(10, 2),
+                  name NATIONAL CHARACTER VARYING(100),
+                  payload JSON,
+                  raw_uuid RAW(16),
+                  embedding VECTOR(3, FLOAT32),
+                  created_at TIMESTAMP(6) WITH LOCAL TIME ZONE,
+                  elapsed INTERVAL DAY TO SECOND
+                );
+
+                selectAll:
+                SELECT id, amount, name, payload, raw_uuid, embedding, created_at, elapsed
+                FROM sample;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
+        test("reports malformed Oracle SQL through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE sample (
+                  id NUMBER(10),
+                  name VARCHAR2(100)
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors =
+                        listOf(
+                            "Test.sq: (3, 20): ')', ',', <column constraint real> or AS expected",
+                        ),
+                )
+        }
+    })
+
+private data class ParseResult(
+    val fileNames: List<String>,
+    val errors: List<String>,
+)
+
+private fun parseOracleSql(sql: String): ParseResult {
+    val root = Files.createTempDirectory("sqldelight-oracle-parser-test").toFile()
+    val sourceDirectory = File(root, "com/example").apply { mkdirs() }
+    File(sourceDirectory, "Test.sq").writeText(sql)
+
+    val errors = mutableListOf<String>()
+    val compilationUnit = OracleParserTestCompilationUnit(File(root, "output"))
+    val environment =
+        SqlDelightEnvironment(
+            sourceFolders = listOf(root),
+            dependencyFolders = emptyList(),
+            properties = OracleParserTestDatabaseProperties(root, compilationUnit),
+            dialect = OracleDialect(),
+            verifyMigrations = true,
+            moduleName = "oracle-parser-test",
+            compilationUnit = compilationUnit,
+        )
+
+    LanguageParserDefinitions.INSTANCE.forLanguage(SqlDelightLanguage).createParser(environment.project)
+    LanguageParserDefinitions.INSTANCE.forLanguage(MigrationLanguage).createParser(environment.project)
+    environment.annotate(listOf(OptimisticLockCompilerAnnotator()), createAnnotationHolder(errors))
+
+    val fileNames = mutableListOf<String>()
+    environment.forSourceFiles { psiFile ->
+        if (psiFile is SqlDelightQueriesFile) {
+            fileNames += psiFile.name
+        }
+    }
+
+    return ParseResult(
+        fileNames = fileNames.sorted(),
+        errors = errors,
+    )
+}
+
+private data class OracleParserTestCompilationUnit(
+    override val outputDirectoryFile: File,
+) : SqlDelightCompilationUnit {
+    override val name: String = "test"
+    override val sourceFolders: Set<SqlDelightSourceFolder> = emptySet()
+}
+
+private data class OracleParserTestDatabaseProperties(
+    override val rootDirectory: File,
+    private val compilationUnit: SqlDelightCompilationUnit,
+) : SqlDelightDatabaseProperties {
+    override val packageName: String = "com.example"
+    override val className: String = "TestDatabase"
+    override val dependencies: List<SqlDelightDatabaseName> = emptyList()
+    override val compilationUnits: List<SqlDelightCompilationUnit> = listOf(compilationUnit)
+    override val deriveSchemaFromMigrations: Boolean = false
+    override val generateAsync: Boolean = false
+    override val expandSelectStar: Boolean = true
+    override val treatNullAsUnknownForEquality: Boolean = false
+}
+
+private fun createAnnotationHolder(errors: MutableList<String>): SqlAnnotationHolder =
+    SqlAnnotationHolder { element, message ->
+        val documentManager = PsiDocumentManager.getInstance(element.project)
+        val document = requireNotNull(documentManager.getDocument(element.containingFile))
+        val lineNumber = document.getLineNumber(element.textOffset)
+        val offsetInLine = element.textOffset - document.getLineStartOffset(lineNumber)
+        errors += "${element.containingFile.name}: (${lineNumber + 1}, $offsetInLine): $message"
+    }

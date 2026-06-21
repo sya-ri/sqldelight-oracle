@@ -286,6 +286,37 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle placeholder expressions exactly") {
+            val sql =
+                """
+                CREATE TABLE employees (
+                  id NUMBER PRIMARY KEY,
+                  department_id NUMBER,
+                  name VARCHAR2(100),
+                  salary NUMBER
+                );
+
+                SELECT id, name
+                FROM employees
+                WHERE department_id = :department_id
+                  AND salary > ?;
+
+                INSERT INTO employees (id, department_id, name, salary)
+                VALUES (:id, :department_id, :name, ?);
+
+                UPDATE employees
+                SET salary = :salary
+                WHERE id = :1
+                  OR id = ?;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle inline column constraints through SQLDelight environment exactly") {
             val sql =
                 """

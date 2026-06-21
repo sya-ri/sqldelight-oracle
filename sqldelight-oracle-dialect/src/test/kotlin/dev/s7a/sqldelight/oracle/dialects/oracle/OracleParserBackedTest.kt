@@ -751,6 +751,94 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle create attribute dimension statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE OR REPLACE ATTRIBUTE DIMENSION product_attr_dim
+                USING product_dim
+                ATTRIBUTES
+                 (department_id,
+                  department_name,
+                  category_id,
+                  category_name)
+                LEVEL department
+                  KEY department_id
+                  ALTERNATE KEY department_name
+                  MEMBER NAME department_name
+                  MEMBER CAPTION department_name
+                  ORDER BY department_name
+                LEVEL category
+                  KEY category_id
+                  ALTERNATE KEY category_name
+                  MEMBER NAME category_name
+                  MEMBER CAPTION category_name
+                  ORDER BY category_name
+                  DETERMINES(department_id)
+                ALL MEMBER NAME 'ALL PRODUCTS';
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create hierarchy statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE OR REPLACE HIERARCHY product_hier
+                USING product_attr_dim
+                 (category CHILD OF department);
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create analytic view statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE FORCE ANALYTIC VIEW IF NOT EXISTS sales_av
+                USING sales_fact
+                DIMENSION BY
+                  (product_attr_dim
+                    KEY category_id REFERENCES category_id
+                    HIERARCHIES (
+                      product_hier DEFAULT))
+                MEASURES
+                 (sales FACT sales,
+                  units FACT units)
+                DEFAULT MEASURE sales;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create dimension statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE DIMENSION customers_dim
+                  LEVEL customer IS customers.cust_id
+                  LEVEL city IS customers.cust_city
+                  HIERARCHY geography (customer CHILD OF city)
+                  ATTRIBUTE customer DETERMINES (cust_first_name, cust_last_name);
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle analytic dimension alter statements through SQLDelight environment exactly") {
             val sql =
                 """

@@ -91,7 +91,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] JSON/XML/spatial/vector names: `JSON`, `XMLTYPE`, `SDO_GEOMETRY`, `VECTOR`
 - [x] Object/reference type names: `OBJECT`, `REF`, `ANYDATA`
 - [x] [Collection types and nested tables](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html)
-- [ ] Data use case domains
+- [x] Data use case domains: [`CREATE DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/create-domain.html), [`ALTER DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/alter-domain.html), [`DROP DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/drop-domain.html)
 
 ## Rules
 

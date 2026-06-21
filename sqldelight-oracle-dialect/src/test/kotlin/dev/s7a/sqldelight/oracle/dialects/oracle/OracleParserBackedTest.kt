@@ -537,6 +537,14 @@ class OracleParserBackedTest :
                          (2, 'SMITH')
                 ) value_employees (employee_id, first_name);
 
+                selectContainersTable:
+                SELECT 1
+                FROM CONTAINERS(partitioned_orders) container_orders;
+
+                selectShardsTable:
+                SELECT 1
+                FROM SHARDS(partitioned_orders) shard_orders;
+
                 selectLateralSubquery:
                 SELECT region, derived_year
                 FROM partitioned_orders po, LATERAL (

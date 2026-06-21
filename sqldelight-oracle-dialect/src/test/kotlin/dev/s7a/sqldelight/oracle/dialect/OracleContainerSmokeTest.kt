@@ -15,7 +15,7 @@ class OracleContainerSmokeTest :
         beforeSpec {
             if (oracleTestcontainersEnabled) {
                 oracle =
-                    OracleContainer(DockerImageName.parse(oracleTestcontainersImage)).also { container ->
+                    OracleContainer(oracleTestcontainersDockerImageName).also { container ->
                         container.start()
                     }
             }
@@ -207,6 +207,11 @@ private val oracleTestcontainersEnabled: Boolean =
 
 private val oracleTestcontainersImage: String =
     System.getenv("ORACLE_TESTCONTAINERS_IMAGE") ?: "gvenzl/oracle-xe:21-slim-faststart"
+
+private val oracleTestcontainersDockerImageName: DockerImageName =
+    DockerImageName
+        .parse(oracleTestcontainersImage)
+        .asCompatibleSubstituteFor("gvenzl/oracle-xe")
 
 private fun OracleContainer?.requireStarted(): OracleContainer = requireNotNull(this)
 

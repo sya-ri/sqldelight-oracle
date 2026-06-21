@@ -750,6 +750,37 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle administrative drop statements exactly") {
+            val sql =
+                """
+                DROP DATABASE;
+
+                DROP PLUGGABLE DATABASE pdb1 INCLUDING DATAFILES;
+
+                DROP PLUGGABLE DATABASE app_root_clone FORCE KEEP DATAFILES;
+
+                DROP TABLESPACE IF EXISTS tbs_01 DROP QUOTA INCLUDING CONTENTS CASCADE CONSTRAINTS;
+
+                DROP TABLESPACE tbs_02 INCLUDING CONTENTS AND DATAFILES;
+
+                DROP TABLESPACE SET ts1 KEEP QUOTA INCLUDING CONTENTS KEEP DATAFILES;
+
+                DROP DISKGROUP dgroup_01 INCLUDING CONTENTS;
+
+                DROP DISKGROUP dgroup_02 FORCE INCLUDING CONTENTS;
+
+                DROP RESTORE POINT good_data;
+
+                DROP RESTORE POINT pdb_good_data FOR PLUGGABLE DATABASE pdb1;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

@@ -16,6 +16,7 @@ class OracleContainerSmokeTest :
             if (oracleTestcontainersEnabled) {
                 oracle =
                     OracleContainer(oracleTestcontainersDockerImageName).also { container ->
+                        container.withSharedMemorySize(oracleTestcontainersSharedMemoryBytes)
                         container.start()
                     }
             }
@@ -207,6 +208,9 @@ private val oracleTestcontainersEnabled: Boolean =
 
 private val oracleTestcontainersImage: String =
     System.getenv("ORACLE_TESTCONTAINERS_IMAGE") ?: "gvenzl/oracle-xe:21-slim-faststart"
+
+private val oracleTestcontainersSharedMemoryBytes: Long =
+    System.getenv("ORACLE_TESTCONTAINERS_SHM_BYTES")?.toLongOrNull() ?: 2L * 1024L * 1024L * 1024L
 
 private val oracleTestcontainersDockerImageName: DockerImageName =
     DockerImageName

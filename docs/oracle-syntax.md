@@ -4,9 +4,25 @@ Baseline: [Oracle AI Database 26ai SQL Language Reference](https://docs.oracle.c
 
 This checklist tracks parser/source-scanner/rule support. Check an item only after it has targeted FunSpec tests.
 
+## Lexical Syntax And Names
+
+- [ ] [Lexical conventions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Lexical-Conventions.html): case sensitivity, whitespace, delimiters, comments, and statement terminators
+- [ ] [Database object names and qualifiers](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Database-Object-Names-and-Qualifiers.html): quoted identifiers, schema qualifiers, database links, and partition/subpartition qualifiers
+- [ ] [Schema object reference syntax](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Syntax-for-Schema-Objects-and-Parts-in-SQL-Statements.html): remote object names, object attributes/methods, and partitioned table/index references
+- [ ] [Oracle reserved words and keywords](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Oracle-SQL-Reserved-Words-and-Keywords.html)
+- [ ] [SQL comments and hints](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comments.html): `--`, `/* ... */`, optimizer hints, and hint placement in DML/queries
+
 ## Source Scanner
 
 - [x] sqldelight-check source scanner statement starts synchronized with the Oracle 26ai SQL Statements TOC
+
+## Literals And Format Models
+
+- [ ] [Text literals](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html): ordinary strings, national character strings, alternative quoting `q'...'`, and `nq'...'`
+- [ ] [Numeric literals](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html): signed numbers, exponent notation, `BINARY_FLOAT`/`BINARY_DOUBLE` suffixes, NaN, and infinity literals
+- [ ] [Datetime literals](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html): `DATE`, `TIMESTAMP`, and time-zone literal forms
+- [ ] [Interval literals](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html): `INTERVAL YEAR TO MONTH` and `INTERVAL DAY TO SECOND`
+- [ ] [Number, datetime, and XML format models](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Format-Models.html): format model tokens used by conversion functions
 
 ## Queries
 
@@ -27,6 +43,10 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [ ] [Join syntax](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Joins.html): ANSI joins, Oracle outer join operator, partitioned outer joins, lateral inline views
 - [ ] [`query_table_expression`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html): table collection expressions, `ONLY`, `SAMPLE`, partition extension, `LATERAL`
 - [ ] [`CONTAINERS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) and [`SHARDS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) query clauses
+- [ ] [`select_list`, aliases, and wildcard expansion](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html): `DISTINCT`, `UNIQUE`, `ALL`, object attributes, and column alias forms
+- [ ] [`GROUP BY`, `HAVING`, and aggregation extensions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html): `ROLLUP`, `CUBE`, `GROUPING SETS`, composite columns, and grouping expressions
+- [ ] [`ORDER BY` and `order_by_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html): positional ordering, aliases, `NULLS FIRST/LAST`, and `SIBLINGS`
+- [ ] [`for_update_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html): `FOR UPDATE`, `OF`, `NOWAIT`, `WAIT`, and `SKIP LOCKED`
 - [ ] [`GRAPHQL` table function](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graphql-table-function.html)
 
 ## DML
@@ -44,13 +64,20 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [ ] [`UPDATE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/UPDATE.html) partition extension, correlated subquery, object table, and update set clause forms
 - [ ] [`DELETE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DELETE.html) partition extension, correlated subquery, and object table forms
 - [ ] [`MERGE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/MERGE.html) `DELETE WHERE`, insert/update branch omission, and error logging clauses
+- [ ] [DML table expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html): subquery, collection, partition/subpartition, remote object, and `ONLY` target forms
+- [ ] [DML optimizer hints](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comments.html): statement-level and query-block hints in `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `MERGE`
+- [ ] [DML error logging clause](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html): `LOG ERRORS INTO`, `REJECT LIMIT`, and reusable DML clause parsing
 
 ## DDL
 
 - [x] [`CREATE TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html) type names and statement baseline
 - [ ] [`CREATE TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html) advanced table forms: `IF NOT EXISTS`, private temporary tables, blockchain/immutable tables, sharded tables, external tables, object tables, XMLType tables
+- [ ] [`CREATE TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html) column and table clauses: identity, default/collation, virtual columns, invisible columns, encryption, compression, in-memory, and row archival
+- [ ] [`CREATE TABLE AS SELECT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html), `ON COMMIT`, organization, clustering, and table-level storage variants
 - [ ] [`CREATE INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-INDEX.html)
+- [ ] [`CREATE INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-INDEX.html) index variants: bitmap, unique, function-based, domain, reverse, invisible, partial, and local/global partitioned indexes
 - [ ] [`CREATE VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-VIEW.html)
+- [ ] [`CREATE VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-VIEW.html) view variants: object views, XMLType views, editioning views, constraints, and `BEQUEATH`
 - [x] [`CREATE SEQUENCE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-SEQUENCE.html)
 - [x] [`CREATE MATERIALIZED VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-MATERIALIZED-VIEW.html)
 - [x] [`CREATE MATERIALIZED VIEW LOG`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-MATERIALIZED-VIEW-LOG.html)
@@ -121,6 +148,9 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [ ] [`physical_attributes_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/physical_attributes_clause.html), [`storage_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/storage_clause.html), [`logging_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/logging_clause.html), [`parallel_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/parallel_clause.html)
 - [ ] [`allocate_extent_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/allocate_extent_clause.html), [`deallocate_unused_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/deallocate_unused_clause.html), [`file_specification`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/file_specification.html), [`size_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/size_clause.html)
 - [ ] [`annotations_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/annotations_clause.html)
+- [ ] [Partitioning clauses](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html): range, list, hash, composite, interval, reference, system, automatic list, and partition templates
+- [ ] [LOB storage and XMLType storage clauses](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html): SecureFiles/BasicFiles, inline/out-of-line storage, compression, deduplication, and encryption
+- [ ] [Object-relational clauses](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html): object identifiers, object properties, nested table storage, varray storage, and `REF` constraints
 
 ## Transactions And Session Statements
 
@@ -158,14 +188,14 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [LOB and raw types](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html): `BLOB`, `CLOB`, `NCLOB`, `BFILE`, `RAW`, `LONG RAW`
 - [x] [Row id types](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html): `ROWID`, `UROWID`
 - [x] [JSON/XML/spatial/vector names](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html): `JSON`, `XMLTYPE`, `SDO_GEOMETRY`, `VECTOR`
-- [x] [Object/reference type names](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html): `OBJECT`, `REF`, `ANYDATA`
+- [x] [Object/reference type names](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html): `OBJECT`, `REF`
 - [x] [Collection types and nested tables](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html)
 - [x] Data use case domains: [`CREATE DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/create-domain.html), [`ALTER DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/alter-domain.html), [`DROP DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/drop-domain.html)
 - [ ] [Boolean data type](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html)
 - [ ] [Extended data types](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html)
 - [ ] [ANSI, DB2, and SQL/DS data type aliases](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html)
-- [ ] [Any types and XML URI types](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html): `ANYTYPE`, `ANYDATA`, `ANYDATASET`, `URIType`, `DBURIType`, `XDBURIType`, `HTTPURIType`
-- [ ] [Spatial and GeoRaster type names](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html): `SDO_TOPO_GEOMETRY`, `SDO_GEORASTER`
+- [x] [Any types and XML URI types](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html): `ANYTYPE`, `ANYDATA`, `ANYDATASET`, `URIType`, `DBURIType`, `XDBURIType`, `HTTPURIType`
+- [x] [Spatial and GeoRaster type names](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html): `SDO_TOPO_GEOMETRY`, `SDO_GEORASTER`
 - [x] SQLDelight type resolver mapping for Oracle scalar data types, including `NUMBER` precision/scale, ANSI character/numeric aliases, `BINARY_INTEGER`, `PLS_INTEGER`, `DATE`, `TIMESTAMP`, text, binary, JSON/XML, spatial, collection, URI, and vector names
 - [x] SQLDelight parser `type_name` hook for Oracle scalar, multi-word, and parameterized data type names
 - [x] SQLDelight function resolver mapping for deterministic Oracle functions such as `SYSDATE`, `SYSTIMESTAMP`, `TO_CHAR`, `TO_NUMBER`, `HEXTORAW`, JSON/XML constructors, analytic rank functions, and numeric math functions
@@ -175,18 +205,29 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 ## Operators, Expressions, And Conditions
 
 - [ ] [Pseudocolumns](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Pseudocolumns.html): hierarchical, sequence, version query, `ROWID`, `ROWNUM`, `ORA_ROWSCN`
+- [ ] [Additional pseudocolumns](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Pseudocolumns.html): `COLUMN_VALUE`, `OBJECT_ID`, `OBJECT_VALUE`, `ORA_SHARDSPACE_NAME`, and `XMLDATA`
 - [ ] [Operators](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Operators.html): arithmetic, `COLLATE`, concatenation, hierarchical, set, multiset, user-defined, data quality, `JSON_ID`
+- [ ] [`GRAPH_TABLE` operator](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graph_table-operator.html): graph references, path patterns, element patterns, graph table shape, and graph value expressions
 - [ ] [Expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Expressions.html): `CASE`, `CURSOR`, datetime/interval, JSON object access, object access, placeholders, scalar subqueries, type constructors, boolean expressions
+- [ ] [Analytic view and model expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Expressions.html): analytic view expressions, model expressions, cell references, and iteration expressions
 - [ ] [Conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Conditions.html): comparison, floating-point, logical, multiset, pattern matching, null, XML, SQL/JSON, compound, `BETWEEN`, `EXISTS`, `IN`, `IS OF`, boolean test
+- [ ] [Regular expression syntax](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Oracle-Regular-Expression-Support.html): POSIX, Unicode multilingual enhancements, and Perl-influenced extensions used by `REGEXP_*`
 
 ## Functions
 
-- [ ] [Aggregate functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Aggregate-Functions.html) and [`analytic_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Analytic-Functions.html)
+- [ ] [Aggregate functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Aggregate-Functions.html): ordinary aggregates, `DISTINCT`/`ALL`, approximate aggregates, bit/boolean aggregates, statistical aggregates, and `KEEP`
+- [ ] [Analytic functions and `analytic_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Analytic-Functions.html): `OVER`, `PARTITION BY`, `ORDER BY`, windowing, ranking, distribution, reporting, and lag/lead functions
 - [ ] [Single-row function categories](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Single-Row-Functions.html): numeric, calendar, character, character set, collation, datetime, comparison, conversion, LOB, collection, hierarchical, encoding/decoding, null-related, environment and identifier
+- [ ] [Model, object reference, OLAP, and data cartridge functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Functions.html): `CV`, `ITERATION_NUMBER`, `PRESENT*`, `PREVIOUS`, `REF`, `DEREF`, `MAKE_REF`, and extensible index functions
 - [ ] [SQL/JSON functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Single-Row-Functions.html#GUID-C13171B3-C070-4137-AC71-7A30BD26F380): `JSON_ARRAY`, `JSON_OBJECT`, `JSON_QUERY`, `JSON_VALUE`, `JSON_SERIALIZE`, `JSON_TRANSFORM`, `JSON_SCALAR`
 - [ ] [XML functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Single-Row-Functions.html#GUID-C64CC0DE-0D7C-42C8-B078-92A2984AD953): `XMLAGG`, `XMLCAST`, `XMLELEMENT`, `XMLEXISTS`, `XMLQUERY`, `XMLSERIALIZE`, `XMLTABLE`
 - [ ] [Vector functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Single-Row-Functions.html#GUID-C0C477F1-8210-4CA9-A5FA-0A340C409892): `VECTOR`, `TO_VECTOR`, `VECTOR_DISTANCE`, `VECTOR_EMBEDDING`, `VECTOR_SERIALIZE`
 - [ ] [Domain functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Single-Row-Functions.html#GUID-AEF8F898-493F-4BE8-86E6-06241BB78AB0), [UUID functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Single-Row-Functions.html#GUID-97F3185F-B39A-492A-AD01-8CBCD4713AC9), [Oracle Machine Learning functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Single-Row-Functions.html#GUID-E64F8D20-C7E2-482A-914F-2781D0AA4E64)
+
+## SQL Standards And Compatibility
+
+- [ ] [Oracle and Standard SQL](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Oracle-and-Standard-SQL.html): Oracle extensions, optional SQL/Foundation features, SQL/XML, SQL/JSON, SQL/PGQ, and older standards compatibility
+- [ ] [Older Oracle SQL compatibility](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Oracle-Compliance-with-Older-Standards.html): legacy outer joins, older data type aliases, and compatibility syntax that may appear in existing schemas
 
 ## Rules
 

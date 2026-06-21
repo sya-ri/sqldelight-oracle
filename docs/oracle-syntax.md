@@ -92,6 +92,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] Object/reference type names: `OBJECT`, `REF`, `ANYDATA`
 - [x] [Collection types and nested tables](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html)
 - [x] Data use case domains: [`CREATE DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/create-domain.html), [`ALTER DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/alter-domain.html), [`DROP DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/drop-domain.html)
+- [x] SQLDelight type resolver mapping for Oracle scalar data types, including `NUMBER` precision/scale, `DATE`, `TIMESTAMP`, text, binary, JSON/XML, spatial, and vector names
 
 ## Rules
 

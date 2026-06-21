@@ -25,10 +25,10 @@ public class OracleDialect : SqlDelightDialect {
 
     override val connectionManager: ConnectionManager? = null
 
-    override fun typeResolver(parentResolver: TypeResolver): TypeResolver = parentResolver
+    override fun typeResolver(parentResolver: TypeResolver): TypeResolver = OracleTypeResolver(parentResolver)
 
     override fun setup() {
-        // Oracle grammar hooks are added incrementally as the dialect parser is implemented.
+        // Oracle-specific type resolution is provided without parser hooks until grammar generation is added.
     }
 }
 

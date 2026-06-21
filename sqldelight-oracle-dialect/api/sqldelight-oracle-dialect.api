@@ -12,3 +12,40 @@ public final class dev/s7a/sqldelight/oracle/dialect/OracleDialect : app/cash/sq
 	public fun typeResolver (Lapp/cash/sqldelight/dialect/api/TypeResolver;)Lapp/cash/sqldelight/dialect/api/TypeResolver;
 }
 
+public final class dev/s7a/sqldelight/oracle/dialect/OracleType : java/lang/Enum, app/cash/sqldelight/dialect/api/DialectType {
+	public static final field BINARY Ldev/s7a/sqldelight/oracle/dialect/OracleType;
+	public static final field BINARY_DOUBLE Ldev/s7a/sqldelight/oracle/dialect/OracleType;
+	public static final field BINARY_FLOAT Ldev/s7a/sqldelight/oracle/dialect/OracleType;
+	public static final field BOOLEAN_TYPE Ldev/s7a/sqldelight/oracle/dialect/OracleType;
+	public static final field Companion Ldev/s7a/sqldelight/oracle/dialect/OracleType$Companion;
+	public static final field DATE Ldev/s7a/sqldelight/oracle/dialect/OracleType;
+	public static final field DECIMAL_NUMBER Ldev/s7a/sqldelight/oracle/dialect/OracleType;
+	public static final field INTEGER_NUMBER Ldev/s7a/sqldelight/oracle/dialect/OracleType;
+	public static final field LONG_NUMBER Ldev/s7a/sqldelight/oracle/dialect/OracleType;
+	public static final field TEXT Ldev/s7a/sqldelight/oracle/dialect/OracleType;
+	public static final field TIMESTAMP Ldev/s7a/sqldelight/oracle/dialect/OracleType;
+	public static final field TIMESTAMP_TIME_ZONE Ldev/s7a/sqldelight/oracle/dialect/OracleType;
+	public fun cursorGetter (ILjava/lang/String;)Lcom/squareup/kotlinpoet/CodeBlock;
+	public fun decode (Lcom/squareup/kotlinpoet/CodeBlock;)Lcom/squareup/kotlinpoet/CodeBlock;
+	public fun encode (Lcom/squareup/kotlinpoet/CodeBlock;)Lcom/squareup/kotlinpoet/CodeBlock;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public fun getJavaType ()Lcom/squareup/kotlinpoet/TypeName;
+	public fun prepareStatementBinder (Lcom/squareup/kotlinpoet/CodeBlock;Lcom/squareup/kotlinpoet/CodeBlock;)Lcom/squareup/kotlinpoet/CodeBlock;
+	public static fun valueOf (Ljava/lang/String;)Ldev/s7a/sqldelight/oracle/dialect/OracleType;
+	public static fun values ()[Ldev/s7a/sqldelight/oracle/dialect/OracleType;
+}
+
+public final class dev/s7a/sqldelight/oracle/dialect/OracleType$Companion {
+	public final fun fromSqlTypeName (Ljava/lang/String;)Ldev/s7a/sqldelight/oracle/dialect/OracleType;
+}
+
+public final class dev/s7a/sqldelight/oracle/dialect/OracleTypeResolver : app/cash/sqldelight/dialect/api/TypeResolver {
+	public fun <init> (Lapp/cash/sqldelight/dialect/api/TypeResolver;)V
+	public fun argumentType (Lcom/intellij/psi/PsiElement;Lcom/alecstrong/sql/psi/core/psi/SqlExpr;)Lapp/cash/sqldelight/dialect/api/IntermediateType;
+	public fun definitionType (Lcom/alecstrong/sql/psi/core/psi/SqlTypeName;)Lapp/cash/sqldelight/dialect/api/IntermediateType;
+	public fun functionType (Lcom/alecstrong/sql/psi/core/psi/SqlFunctionExpr;)Lapp/cash/sqldelight/dialect/api/IntermediateType;
+	public fun queryWithResults (Lcom/alecstrong/sql/psi/core/psi/SqlStmt;)Lapp/cash/sqldelight/dialect/api/QueryWithResults;
+	public fun resolvedType (Lcom/alecstrong/sql/psi/core/psi/SqlExpr;)Lapp/cash/sqldelight/dialect/api/IntermediateType;
+	public fun simplifyType (Lapp/cash/sqldelight/dialect/api/IntermediateType;)Lapp/cash/sqldelight/dialect/api/IntermediateType;
+}
+

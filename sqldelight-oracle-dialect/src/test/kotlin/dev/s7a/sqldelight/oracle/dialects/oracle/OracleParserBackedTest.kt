@@ -229,6 +229,35 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle case expressions exactly") {
+            val sql =
+                """
+                CREATE TABLE employees (
+                  id NUMBER PRIMARY KEY,
+                  status VARCHAR2(20),
+                  salary NUMBER
+                );
+
+                SELECT CASE status
+                  WHEN 'ACTIVE' THEN 'current'
+                  WHEN 'INACTIVE' THEN 'former'
+                  ELSE 'unknown'
+                END,
+                CASE
+                  WHEN salary > 100000 THEN 'high'
+                  WHEN salary > 50000 THEN 'mid'
+                  ELSE 'standard'
+                END
+                FROM employees;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle inline column constraints through SQLDelight environment exactly") {
             val sql =
                 """

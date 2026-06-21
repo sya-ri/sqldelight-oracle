@@ -306,6 +306,29 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle Unicode LIKE conditions exactly") {
+            val sql =
+                """
+                CREATE TABLE name_samples (
+                  id NUMBER PRIMARY KEY,
+                  display_name VARCHAR2(100),
+                  normalized_name NVARCHAR2(100)
+                );
+
+                SELECT id
+                FROM name_samples
+                WHERE display_name LIKEC 'A\_%' ESCAPE '\'
+                  AND normalized_name NOT LIKE2 'B%'
+                  AND (display_name) LIKE4 'C_';
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle cursor expressions exactly") {
             val sql =
                 """

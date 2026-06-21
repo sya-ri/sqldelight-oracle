@@ -567,6 +567,11 @@ class OracleParserBackedTest :
                 SELECT 1
                 FROM TABLE(ODCINUMBERLIST(1, 2)) numbers;
 
+                selectOuterJoinedTableCollection:
+                SELECT 1
+                FROM partitioned_orders po,
+                     TABLE(ODCINUMBERLIST(1))(+) numbers;
+
                 selectValuesTable:
                 SELECT *
                 FROM (

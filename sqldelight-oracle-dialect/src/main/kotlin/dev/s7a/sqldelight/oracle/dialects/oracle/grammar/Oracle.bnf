@@ -413,7 +413,7 @@ table_or_subquery ::= oracle_containers_table_reference | oracle_collection_tabl
 private oracle_containers_table_reference ::= ( 'CONTAINERS' | 'SHARDS' ) LP [ <<databaseNameExt <<database_name_real>>>> DOT ]
   <<tableNameExt <<table_name_real>>>> RP [ oracle_table_alias_clause ]
 
-private oracle_collection_table_reference ::= 'TABLE' LP <<expr '-1'>> RP [ oracle_table_alias_clause ]
+private oracle_collection_table_reference ::= 'TABLE' LP <<expr '-1'>> RP [ LP '+' RP ] [ oracle_table_alias_clause ]
 
 private oracle_values_table_reference ::= LP 'VALUES'
   <<valuesExpressionExt <<values_expression_real>>>> ( COMMA <<valuesExpressionExt <<values_expression_real>>>> ) *

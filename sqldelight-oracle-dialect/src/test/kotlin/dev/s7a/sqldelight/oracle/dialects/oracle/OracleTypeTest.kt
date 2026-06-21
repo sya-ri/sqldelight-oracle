@@ -166,6 +166,7 @@ class OracleTypeTest :
                     "CLUSTER_PROBABILITY" to OracleType.BINARY_DOUBLE,
                     "FEATURE_COMPARE" to OracleType.BINARY_DOUBLE,
                     "FEATURE_VALUE" to OracleType.BINARY_DOUBLE,
+                    "FUZZY_MATCH" to OracleType.DECIMAL_NUMBER,
                     "SIN" to OracleType.BINARY_DOUBLE,
                     "COS" to OracleType.BINARY_DOUBLE,
                     "TAN" to OracleType.BINARY_DOUBLE,
@@ -183,6 +184,7 @@ class OracleTypeTest :
                     "REGEXP_LIKE" to OracleType.BOOLEAN_TYPE,
                     "RAW_TO_UUID" to OracleType.TEXT,
                     "DOMAIN_NAME" to OracleType.TEXT,
+                    "PHONIC_ENCODE" to OracleType.TEXT,
                 )
 
             mappings.map { (functionName, expectedType) -> functionName to OracleType.fromFunctionName(functionName) } shouldBe mappings

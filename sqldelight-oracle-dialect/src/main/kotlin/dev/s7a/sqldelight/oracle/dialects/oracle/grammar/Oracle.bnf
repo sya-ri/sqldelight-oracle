@@ -466,9 +466,30 @@ private oracle_bind_placeholder_expr ::= ':' ( oracle_object_name_part | {signed
 
 private oracle_cursor_expr ::= 'CURSOR' LP <<compoundSelectStmtExt <<compound_select_stmt_real>>>> RP
 
-private oracle_operator_expr ::= oracle_hierarchical_operator_expr | oracle_json_id_operator | oracle_shard_chunk_id_operator
+private oracle_operator_expr ::= oracle_hierarchical_operator_expr | oracle_data_quality_operator | oracle_json_id_operator | oracle_shard_chunk_id_operator
 
 private oracle_hierarchical_operator_expr ::= ( 'PRIOR' | 'CONNECT_BY_ROOT' ) <<expr '-1'>>
+
+private oracle_data_quality_operator ::= oracle_fuzzy_match_operator | oracle_phonic_encode_operator
+
+private oracle_fuzzy_match_operator ::= 'FUZZY_MATCH' LP oracle_data_quality_algorithm COMMA <<expr '-1'>> COMMA <<expr '-1'>> ( COMMA oracle_fuzzy_match_option ) * RP
+
+private oracle_fuzzy_match_option ::= 'UNSCALED' | 'RELATE_TO_SHORTER' | 'EDIT_TOLERANCE' <<expr '-1'>>
+
+private oracle_phonic_encode_operator ::= 'PHONIC_ENCODE' LP oracle_phonic_encode_algorithm COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] RP
+
+private oracle_data_quality_algorithm ::= (
+  'LEVENSHTEIN' |
+  'DAMERAU_LEVENSHTEIN' |
+  'JARO_WINKLER' |
+  'BIGRAM' |
+  'TRIGRAM' |
+  'WHOLE_WORD_MATCH' |
+  'LONGEST_COMMON_SUBSTRING' |
+  oracle_object_name_part
+)
+
+private oracle_phonic_encode_algorithm ::= 'DOUBLE_METAPHONE' | 'DOUBLE_METAPHONE_ALT' | oracle_object_name_part
 
 private oracle_json_id_operator ::= 'JSON_ID' LP ( 'OID' | 'UUID' | {string_literal} ) RP
 

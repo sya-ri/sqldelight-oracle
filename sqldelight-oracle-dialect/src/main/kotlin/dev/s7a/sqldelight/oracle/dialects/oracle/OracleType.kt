@@ -289,6 +289,7 @@ public enum class OracleType(
                 "CLUSTER_PROBABILITY" to BINARY_DOUBLE,
                 "FEATURE_COMPARE" to BINARY_DOUBLE,
                 "FEATURE_VALUE" to BINARY_DOUBLE,
+                "FUZZY_MATCH" to DECIMAL_NUMBER,
                 "SIN" to BINARY_DOUBLE,
                 "COS" to BINARY_DOUBLE,
                 "TAN" to BINARY_DOUBLE,
@@ -306,6 +307,7 @@ public enum class OracleType(
                 "REGEXP_LIKE" to BOOLEAN_TYPE,
                 "RAW_TO_UUID" to TEXT,
                 "DOMAIN_NAME" to TEXT,
+                "PHONIC_ENCODE" to TEXT,
             )
 
         private fun String.numberType(): OracleType {

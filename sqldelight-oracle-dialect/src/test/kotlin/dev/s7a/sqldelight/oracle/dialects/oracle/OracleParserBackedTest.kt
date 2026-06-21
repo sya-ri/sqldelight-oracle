@@ -210,6 +210,32 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle data quality operators exactly") {
+            val sql =
+                """
+                CREATE TABLE contact_samples (
+                  id NUMBER PRIMARY KEY,
+                  first_name VARCHAR2(100),
+                  last_name VARCHAR2(100),
+                  alternate_name VARCHAR2(100)
+                );
+
+                SELECT FUZZY_MATCH(LEVENSHTEIN, first_name, alternate_name),
+                  FUZZY_MATCH(DAMERAU_LEVENSHTEIN, first_name, alternate_name, RELATE_TO_SHORTER),
+                  FUZZY_MATCH(WHOLE_WORD_MATCH, last_name, alternate_name, EDIT_TOLERANCE 60),
+                  FUZZY_MATCH(BIGRAM, first_name, alternate_name, UNSCALED),
+                  PHONIC_ENCODE(DOUBLE_METAPHONE, last_name),
+                  PHONIC_ENCODE(DOUBLE_METAPHONE_ALT, last_name, 10)
+                FROM contact_samples;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle COLLATE operator exactly") {
             val sql =
                 """

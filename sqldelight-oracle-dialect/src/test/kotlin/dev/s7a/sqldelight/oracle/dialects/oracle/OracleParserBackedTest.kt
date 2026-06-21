@@ -861,6 +861,41 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle rename and comment statements exactly") {
+            val sql =
+                """
+                RENAME departments_new TO emp_departments;
+
+                COMMENT ON AUDIT POLICY policy_user_actions IS 'Unified audit policy comment';
+
+                COMMENT ON COLUMN employees.job_id IS 'abbreviated job title';
+
+                COMMENT ON COLUMN hr.employees.salary IS '';
+
+                COMMENT ON EDITION patch_release IS 'Patch release edition';
+
+                COMMENT ON INDEXTYPE hr.position_indextype IS 'Position indextype';
+
+                COMMENT ON MATERIALIZED VIEW reporting.sales_mv IS 'Sales materialized view';
+
+                COMMENT ON MINING MODEL sh.sales_model IS 'Sales mining model';
+
+                COMMENT ON OPERATOR hr.eq_op IS 'Equality operator';
+
+                COMMENT ON TABLE employees IS 'Employee table';
+
+                COMMENT ON TABLE hr.employee_view IS 'Employee view';
+
+                COMMENT ON PROPERTY GRAPH hr.customer_graph IS 'Customer graph';
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle purge and flashback statements exactly") {
             val sql =
                 """

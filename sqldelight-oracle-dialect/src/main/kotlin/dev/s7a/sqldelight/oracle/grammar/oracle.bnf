@@ -18,7 +18,7 @@
   ]
 }
 
-overrides ::= type_name | column_constraint | table_constraint
+overrides ::= type_name | column_constraint | table_constraint | create_table_stmt
 
 type_name ::= oracle_type_name | core_type_name {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTypeNameImpl"
@@ -137,3 +137,19 @@ table_constraint ::= [ 'CONSTRAINT' {identifier} ] (
   implements = "com.alecstrong.sql.psi.core.psi.SqlTableConstraint"
   override = true
 }
+
+create_table_stmt ::= 'CREATE' [ oracle_table_scope ] 'TABLE' [ 'IF' 'NOT' 'EXISTS' ] [ {database_name} DOT ] {table_name} (
+  LP {column_def} ( COMMA {column_def} ) * ( COMMA {table_constraint} ) * RP [ oracle_on_commit_clause ] |
+  'AS' {compound_select_stmt}
+) {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCreateTableStmtImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlCreateTableStmt"
+  elementTypeClass = "com.alecstrong.sql.psi.core.psi.mixins.CreateTableElementType"
+  stubClass = "com.alecstrong.sql.psi.core.psi.SchemaContributorStub"
+  override = true
+  pin = 6
+}
+
+private oracle_table_scope ::= ( 'GLOBAL' | 'PRIVATE' ) 'TEMPORARY' | 'TEMP' | 'TEMPORARY'
+
+private oracle_on_commit_clause ::= 'ON' 'COMMIT' ( 'DELETE' | 'PRESERVE' ) 'ROWS'

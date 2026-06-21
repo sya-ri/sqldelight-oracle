@@ -45,6 +45,7 @@ Oracle should add BNF overrides incrementally, with exact parser tests for each 
 - [x] `column_constraint`: Oracle `identity_clause`, inline `ENABLE` / `DISABLE`, `DEFERRABLE`, `INITIALLY`, `RELY`, `NOVALIDATE`, `VISIBLE`, `INVISIBLE`
 - [x] `table_constraint`: Oracle constraint states for table-level `PRIMARY KEY`, `UNIQUE`, `CHECK`, and `FOREIGN KEY`
 - [ ] `create_table_stmt`: Oracle relational table clauses, object table clauses, temporary tables, external tables, blockchain/immutable table clauses, and `CREATE TABLE AS SELECT`
+- [x] `create_table_stmt` baseline: Oracle `IF NOT EXISTS`, temporary table scopes, `ON COMMIT`, and `CREATE TABLE AS SELECT`
 - [ ] `alter_table_stmt`: Oracle add/modify/drop/rename column and constraint operations
 - [ ] `create_index_stmt`: Oracle bitmap, unique, function-based, domain, reverse, invisible, partial, and local/global index clauses
 - [ ] `select_stmt`: Oracle `hierarchical_query_clause`, `flashback_query_clause`, `pivot_clause`, `unpivot_clause`, `model_clause`, `row_pattern_clause`, `qualify_clause`, and row limiting

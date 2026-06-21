@@ -72,10 +72,12 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 
 - [x] [`CREATE TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html) type names and statement baseline
 - [ ] [`CREATE TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html) advanced table forms: `IF NOT EXISTS`, private temporary tables, blockchain/immutable tables, sharded tables, external tables, object tables, XMLType tables
+- [x] [`CREATE TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html) parser support for `IF NOT EXISTS`, `GLOBAL TEMPORARY`, `PRIVATE TEMPORARY`, and `ON COMMIT`
 - [ ] [`CREATE TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html) column and table clauses: identity, default/collation, virtual columns, invisible columns, encryption, compression, in-memory, and row archival
 - [x] [`identity_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html), inline visibility, and inline constraint state parser support for `CREATE TABLE` columns
 - [x] [`constraint`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/constraint.html) parser support for table-level `PRIMARY KEY`, `UNIQUE`, `CHECK`, and `FOREIGN KEY` constraint states
 - [ ] [`CREATE TABLE AS SELECT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html), `ON COMMIT`, organization, clustering, and table-level storage variants
+- [x] [`CREATE TABLE AS SELECT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html) parser support for SQLDelight query files
 - [ ] [`CREATE INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-INDEX.html)
 - [ ] [`CREATE INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-INDEX.html) index variants: bitmap, unique, function-based, domain, reverse, invisible, partial, and local/global partitioned indexes
 - [ ] [`CREATE VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-VIEW.html)

@@ -95,6 +95,36 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle create table statement variants through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE GLOBAL TEMPORARY TABLE IF NOT EXISTS staged_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64),
+                  CONSTRAINT staged_accounts_pk PRIMARY KEY (account_id)
+                ) ON COMMIT PRESERVE ROWS;
+
+                CREATE PRIVATE TEMPORARY TABLE private_staged_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) ON COMMIT DELETE ROWS;
+
+                CREATE TABLE account_snapshot AS
+                SELECT account_id, external_id
+                FROM staged_accounts;
+
+                selectAll:
+                SELECT account_id, external_id
+                FROM account_snapshot;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

@@ -931,6 +931,24 @@ class OracleParserBackedTest :
 
                 ALTER ROLE app_external IDENTIFIED GLOBALLY AS 'AZURE_ROLE = app-role';
 
+                GRANT CREATE SESSION, CREATE TABLE TO app_user WITH ADMIN OPTION;
+
+                GRANT SELECT ANY TABLE TO app_reader CONTAINER = CURRENT;
+
+                GRANT app_runtime TO app_user IDENTIFIED BY runtime_password;
+
+                GRANT SELECT, INSERT, UPDATE (name, status) ON hr.employees TO app_user WITH GRANT OPTION;
+
+                GRANT app_role TO PROCEDURE hr.run_job;
+
+                REVOKE CREATE SESSION FROM app_user;
+
+                REVOKE SELECT ANY TABLE FROM app_reader CONTAINER = ALL;
+
+                REVOKE SELECT, UPDATE ON hr.employees FROM app_user CASCADE CONSTRAINTS;
+
+                REVOKE app_role FROM PROCEDURE hr.run_job;
+
                 DROP ROLE IF EXISTS app_reader;
 
                 DROP ROLE app_writer;

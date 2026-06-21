@@ -44,6 +44,8 @@ private oracle_core_stmt ::= (
   alter_user_stmt |
   create_role_stmt |
   alter_role_stmt |
+  grant_stmt |
+  revoke_stmt |
   drop_role_stmt |
   drop_user_stmt |
   associate_statistics_stmt |
@@ -343,7 +345,7 @@ create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ] [ 'E
   pin = 6
 }
 
-extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | drop_synonym_stmt | drop_type_body_stmt | drop_type_stmt | drop_function_stmt | drop_procedure_stmt | drop_package_stmt | drop_library_stmt | drop_java_stmt | drop_analytic_view_stmt | drop_attribute_dimension_stmt | drop_hierarchy_stmt | drop_dimension_stmt | drop_cluster_stmt | drop_database_link_stmt | drop_directory_stmt | drop_indextype_stmt | drop_operator_stmt | drop_outline_stmt | drop_property_graph_stmt | drop_iceberg_table_stmt | drop_context_stmt | drop_mle_env_stmt | drop_mle_module_stmt | drop_assertion_stmt | drop_directive_stmt | drop_edition_stmt | drop_flashback_archive_stmt | drop_inmemory_join_group_stmt | drop_lockdown_profile_stmt | drop_pmem_filestore_stmt | drop_profile_stmt | drop_rollback_segment_stmt | drop_database_stmt | drop_pluggable_database_stmt | drop_tablespace_set_stmt | drop_tablespace_stmt | drop_diskgroup_stmt | drop_restore_point_stmt | set_transaction_stmt | set_constraints_stmt | set_role_stmt | set_use_data_grants_only_stmt | create_user_stmt | alter_user_stmt | create_role_stmt | alter_role_stmt | drop_role_stmt | drop_user_stmt | associate_statistics_stmt | disassociate_statistics_stmt | rename_stmt | comment_on_stmt | purge_stmt | flashback_table_stmt | flashback_database_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
+extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | drop_synonym_stmt | drop_type_body_stmt | drop_type_stmt | drop_function_stmt | drop_procedure_stmt | drop_package_stmt | drop_library_stmt | drop_java_stmt | drop_analytic_view_stmt | drop_attribute_dimension_stmt | drop_hierarchy_stmt | drop_dimension_stmt | drop_cluster_stmt | drop_database_link_stmt | drop_directory_stmt | drop_indextype_stmt | drop_operator_stmt | drop_outline_stmt | drop_property_graph_stmt | drop_iceberg_table_stmt | drop_context_stmt | drop_mle_env_stmt | drop_mle_module_stmt | drop_assertion_stmt | drop_directive_stmt | drop_edition_stmt | drop_flashback_archive_stmt | drop_inmemory_join_group_stmt | drop_lockdown_profile_stmt | drop_pmem_filestore_stmt | drop_profile_stmt | drop_rollback_segment_stmt | drop_database_stmt | drop_pluggable_database_stmt | drop_tablespace_set_stmt | drop_tablespace_stmt | drop_diskgroup_stmt | drop_restore_point_stmt | set_transaction_stmt | set_constraints_stmt | set_role_stmt | set_use_data_grants_only_stmt | create_user_stmt | alter_user_stmt | create_role_stmt | alter_role_stmt | grant_stmt | revoke_stmt | drop_role_stmt | drop_user_stmt | associate_statistics_stmt | disassociate_statistics_stmt | rename_stmt | comment_on_stmt | purge_stmt | flashback_table_stmt | flashback_database_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionStmt"
   override = true
@@ -688,6 +690,22 @@ alter_role_stmt ::= 'ALTER' 'ROLE' [ 'IF' 'EXISTS' ] oracle_object_name_part
   pin = 2
 }
 
+grant_stmt ::= 'GRANT' (
+  oracle_grant_object_privileges |
+  oracle_grant_roles_to_programs |
+  oracle_grant_system_privileges
+) [ oracle_container_clause ] {
+  pin = 1
+}
+
+revoke_stmt ::= 'REVOKE' (
+  oracle_revoke_roles_from_programs |
+  oracle_revoke_object_privileges |
+  oracle_revoke_system_privileges
+) [ oracle_container_clause ] {
+  pin = 1
+}
+
 drop_role_stmt ::= 'DROP' 'ROLE' [ 'IF' 'EXISTS' ] oracle_object_name_part {
   pin = 2
 }
@@ -705,6 +723,100 @@ private oracle_role_identification ::= (
     'GLOBALLY' 'AS' {string_literal}
   )
 )
+
+private oracle_grant_system_privileges ::= oracle_grant_system_privilege ( COMMA oracle_grant_system_privilege ) *
+  'TO' ( oracle_grantee_identified_by | oracle_grantee_clause ) [ 'WITH' ( 'ADMIN' | 'DELEGATE' ) 'OPTION' ]
+
+private oracle_revoke_system_privileges ::= oracle_grant_system_privilege ( COMMA oracle_grant_system_privilege ) *
+  'FROM' oracle_grantee_clause
+
+private oracle_grant_object_privileges ::= oracle_grant_object_privilege ( COMMA oracle_grant_object_privilege ) *
+  oracle_on_object_clause 'TO' oracle_grantee_clause [ 'WITH' 'HIERARCHY' 'OPTION' ] [ 'WITH' 'GRANT' 'OPTION' ]
+
+private oracle_revoke_object_privileges ::= oracle_revoke_object_privilege ( COMMA oracle_revoke_object_privilege ) *
+  oracle_on_object_clause 'FROM' oracle_grantee_clause [ 'CASCADE' 'CONSTRAINTS' | 'FORCE' ]
+
+private oracle_grant_roles_to_programs ::= oracle_object_name_part ( COMMA oracle_object_name_part ) *
+  'TO' oracle_program_unit ( COMMA oracle_program_unit ) *
+
+private oracle_revoke_roles_from_programs ::= ( oracle_object_name_part ( COMMA oracle_object_name_part ) * | 'ALL' )
+  'FROM' oracle_program_unit ( COMMA oracle_program_unit ) *
+
+private oracle_grantee_clause ::= oracle_grantee ( COMMA oracle_grantee ) *
+
+private oracle_grantee ::= oracle_object_name_part | 'PUBLIC'
+
+private oracle_grantee_identified_by ::= oracle_object_name_part ( COMMA oracle_object_name_part ) *
+  'IDENTIFIED' 'BY' oracle_role_password ( COMMA oracle_role_password ) *
+
+private oracle_grant_system_privilege ::= (
+  'ALL' 'PRIVILEGES' |
+  'UNLIMITED' 'TABLESPACE' |
+  'CREATE' oracle_system_privilege_target |
+  'ALTER' oracle_any_system_privilege_target |
+  'DROP' oracle_any_system_privilege_target |
+  'SELECT' oracle_any_system_privilege_target |
+  'INSERT' oracle_any_system_privilege_target |
+  'UPDATE' oracle_any_system_privilege_target |
+  'DELETE' oracle_any_system_privilege_target |
+  'EXECUTE' oracle_any_system_privilege_target |
+  oracle_object_name_part
+)
+
+private oracle_system_privilege_target ::= (
+  'SESSION' |
+  'TABLE' |
+  'VIEW' |
+  'PROCEDURE' |
+  'SEQUENCE' |
+  'SYNONYM' |
+  'TRIGGER' |
+  'USER' |
+  'ROLE' |
+  oracle_any_system_privilege_target
+)
+
+private oracle_any_system_privilege_target ::= 'ANY' (
+  'TABLE' |
+  'VIEW' |
+  'PROCEDURE' |
+  'SEQUENCE' |
+  'SYNONYM' |
+  'TRIGGER' |
+  'TYPE' |
+  'DIRECTORY'
+)
+
+private oracle_grant_object_privilege ::= oracle_object_privilege [ LP oracle_object_name_part ( COMMA oracle_object_name_part ) * RP ]
+
+private oracle_revoke_object_privilege ::= oracle_object_privilege
+
+private oracle_object_privilege ::= (
+  'ALL' [ 'PRIVILEGES' ] |
+  'SELECT' |
+  'INSERT' |
+  'UPDATE' |
+  'DELETE' |
+  'REFERENCES' |
+  'READ' |
+  'WRITE' |
+  'EXECUTE' |
+  'DEBUG' |
+  'FLASHBACK' |
+  'ON' 'COMMIT' 'REFRESH'
+)
+
+private oracle_on_object_clause ::= 'ON' (
+  oracle_schema_object_name |
+  'USER' oracle_object_name_part ( COMMA oracle_object_name_part ) * |
+  'DIRECTORY' oracle_object_name_part |
+  'EDITION' oracle_object_name_part |
+  'MINING' 'MODEL' oracle_schema_object_name |
+  'JAVA' ( 'SOURCE' | 'RESOURCE' ) oracle_schema_object_name |
+  'SQL' 'TRANSLATION' 'PROFILE' oracle_schema_object_name
+)
+
+private oracle_program_unit ::= ( 'FUNCTION' | 'PROCEDURE' | 'PACKAGE' ) oracle_schema_object_name
 
 private oracle_container_clause ::= 'CONTAINER' EQ ( 'CURRENT' | 'ALL' )
 

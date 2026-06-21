@@ -207,6 +207,29 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle COLLATE operator exactly") {
+            val sql =
+                """
+                CREATE TABLE customers (
+                  id NUMBER PRIMARY KEY,
+                  last_name VARCHAR2(100)
+                );
+
+                SELECT id,
+                  last_name COLLATE BINARY_CI AS normalized_last_name,
+                  ('prefix' COLLATE USING_NLS_COMP) AS normalized_literal
+                FROM customers
+                WHERE last_name COLLATE BINARY_CI = 'smith'
+                ORDER BY last_name COLLATE GENERIC_M;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle cursor expressions exactly") {
             val sql =
                 """

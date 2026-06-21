@@ -229,7 +229,7 @@ type_name ::= oracle_type_name | core_type_name {
   override = true
 }
 
-extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_boolean_literal_expr | oracle_oml_function_expr | oracle_analytic_function_expr | oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_cursor_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_bind_placeholder_expr {
+extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_boolean_literal_expr | oracle_oml_function_expr | oracle_analytic_function_expr | oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_collate_expr | oracle_cursor_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_bind_placeholder_expr {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionExprImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionExpr"
   override = true
@@ -469,6 +469,12 @@ private oracle_operator_expr ::= oracle_hierarchical_operator_expr | oracle_shar
 private oracle_hierarchical_operator_expr ::= ( 'PRIOR' | 'CONNECT_BY_ROOT' ) <<expr '-1'>>
 
 private oracle_shard_chunk_id_operator ::= 'SHARD_CHUNK_ID' LP <<expr '-1'>> COMMA <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP
+
+private oracle_collate_expr ::= oracle_collate_operand 'COLLATE' {collation_name}
+
+private oracle_collate_operand ::= oracle_qualified_object_name | {string_literal} | LP <<expr '-1'>> RP
+
+private oracle_qualified_object_name ::= oracle_object_name_part ( DOT oracle_object_name_part ) *
 
 private oracle_pseudocolumn_expr ::= oracle_simple_pseudocolumn
 

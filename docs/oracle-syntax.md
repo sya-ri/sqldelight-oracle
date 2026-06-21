@@ -258,7 +258,8 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [ ] Pseudocolumn semantic validation for allowed statement positions, hierarchical query context, flashback version query scope, and object/XML table context
 - [x] [Hierarchical operators](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Operators.html) parser support for `PRIOR` and `CONNECT_BY_ROOT`
 - [x] [`SHARD_CHUNK_ID`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/shard_chunk_id-operator.html) operator parser support
-- [ ] [Operators](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Operators.html): arithmetic, `COLLATE`, concatenation, set, multiset, user-defined, data quality, and `JSON_ID`
+- [x] [`COLLATE` operator](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/COLLATE-Operator.html) parser coverage for postfix expression collation in select lists, predicates, and `ORDER BY`
+- [ ] [Operators](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Operators.html): remaining arithmetic, concatenation, set, multiset, user-defined, data quality, and `JSON_ID`
 - [ ] [`GRAPH_TABLE` operator](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graph_table-operator.html): graph references, path patterns, element patterns, graph table shape, and graph value expressions
 - [x] [`CURSOR` expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CURSOR-Expressions.html) parser support for `CURSOR(subquery)`
 - [x] [`CASE` expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CASE-Expressions.html) parser support for simple and searched `CASE`

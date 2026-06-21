@@ -265,7 +265,7 @@ private oracle_json_on_null_clause ::= ( 'NULL' | 'ABSENT' ) 'ON' 'NULL'
 
 private oracle_json_returning_clause ::= 'RETURNING' oracle_type_name
 
-private oracle_sql_json_query_expr ::= oracle_json_value_expr | oracle_json_query_expr | oracle_json_serialize_expr
+private oracle_sql_json_query_expr ::= oracle_json_value_expr | oracle_json_query_expr | oracle_json_serialize_expr | oracle_json_transform_expr
 
 private oracle_json_value_expr ::= 'JSON_VALUE' LP <<expr '-1'>> [ oracle_json_format_clause ] COMMA oracle_json_path_expression oracle_json_value_clause * RP
 
@@ -278,6 +278,43 @@ private oracle_json_query_clause ::= oracle_json_returning_clause | oracle_json_
 private oracle_json_serialize_expr ::= 'JSON_SERIALIZE' LP <<expr '-1'>> oracle_json_serialize_clause * RP
 
 private oracle_json_serialize_clause ::= oracle_json_returning_clause | oracle_json_ascii_clause | oracle_json_pretty_clause | 'ORDERED' | 'TRUNCATE' | oracle_json_serialize_on_error_clause
+
+private oracle_json_transform_expr ::= 'JSON_TRANSFORM' LP <<expr '-1'>> COMMA oracle_json_transform_operation ( COMMA oracle_json_transform_operation ) * oracle_json_transform_clause * RP
+
+private oracle_json_transform_clause ::= oracle_json_returning_clause | oracle_json_passing_clause
+
+private oracle_json_passing_clause ::= 'PASSING' oracle_json_passing_binding ( COMMA oracle_json_passing_binding ) *
+
+private oracle_json_passing_binding ::= <<expr '-1'>> 'AS' oracle_json_variable_name
+
+private oracle_json_transform_operation ::= (
+  oracle_json_transform_set_operation |
+  oracle_json_transform_rhs_operation |
+  oracle_json_transform_path_operation |
+  oracle_json_transform_rename_operation |
+  oracle_json_transform_case_operation |
+  oracle_json_transform_nested_path_operation
+)
+
+private oracle_json_transform_set_operation ::= ( 'SET' | 'INSERT' | 'REPLACE' ) oracle_json_path_expression EQ <<expr '-1'>> oracle_json_transform_handler *
+
+private oracle_json_transform_rhs_operation ::= ( 'APPEND' | 'PREPEND' | 'ADD_SET' | 'COPY' | 'INTERSECT' | 'MERGE' | 'MINUS' | 'UNION' ) oracle_json_path_expression EQ oracle_json_transform_rhs oracle_json_transform_handler *
+
+private oracle_json_transform_path_operation ::= ( 'REMOVE' | 'REMOVE_SET' | 'KEEP' | 'SORT' ) oracle_json_path_expression ( COMMA oracle_json_path_expression ) * oracle_json_transform_handler *
+
+private oracle_json_transform_rename_operation ::= 'RENAME' oracle_json_path_expression EQ <<expr '-1'>> oracle_json_transform_handler *
+
+private oracle_json_transform_case_operation ::= 'CASE' oracle_json_transform_when_clause + [ 'ELSE' LP [ oracle_json_transform_operation ( COMMA oracle_json_transform_operation ) * ] RP ] 'END'
+
+private oracle_json_transform_when_clause ::= 'WHEN' oracle_json_path_expression 'THEN' LP [ oracle_json_transform_operation ( COMMA oracle_json_transform_operation ) * ] RP
+
+private oracle_json_transform_nested_path_operation ::= 'NESTED' 'PATH' oracle_json_path_expression LP [ oracle_json_transform_operation ( COMMA oracle_json_transform_operation ) * ] RP
+
+private oracle_json_transform_rhs ::= <<expr '-1'>> | oracle_json_path_expression | oracle_json_variable_name
+
+private oracle_json_transform_handler ::= ( 'CREATE' | 'ERROR' | 'IGNORE' | 'REMOVE' | 'REPLACE' ) 'ON' ( 'EXISTING' | 'MISSING' | 'NULL' | 'EMPTY' | 'ERROR' )
+
+private oracle_json_variable_name ::= '$' oracle_object_name_part
 
 private oracle_json_path_expression ::= {string_literal}
 

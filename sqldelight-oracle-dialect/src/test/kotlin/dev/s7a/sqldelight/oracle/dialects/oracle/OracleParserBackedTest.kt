@@ -418,6 +418,50 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle SQL JSON transform function exactly") {
+            val sql =
+                """
+                CREATE TABLE documents (
+                  id NUMBER PRIMARY KEY,
+                  payload JSON,
+                  threshold NUMBER
+                );
+
+                SELECT JSON_TRANSFORM(
+                  payload,
+                  SET '$.lastUpdated' = '2026-01-01T00:00:00',
+                  INSERT '$.status' = 'active' ERROR ON EXISTING,
+                  REPLACE '$.score' = threshold IGNORE ON MISSING,
+                  APPEND '$.items' = JSON_ARRAY('new'),
+                  PREPEND '$.items' = '$.defaults',
+                  REMOVE '$.ssn',
+                  RENAME '$.oldName' = 'newName',
+                  KEEP '$.public', '$.items',
+                  SORT '$.items',
+                  NESTED PATH '$.address' (
+                    SET '$.verified' = 1
+                  ),
+                  CASE
+                    WHEN '$.archived' THEN (
+                      REMOVE '$.active'
+                    )
+                    ELSE (
+                      SET '$.active' = 1
+                    )
+                  END
+                  RETURNING JSON
+                  PASSING threshold AS ${'$'}threshold
+                )
+                FROM documents;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle inline column constraints through SQLDelight environment exactly") {
             val sql =
                 """

@@ -380,7 +380,7 @@ select_stmt ::= oracle_select_query | oracle_values_query {
   override = true
 }
 
-private oracle_select_query ::= 'SELECT' [ 'DISTINCT' | 'ALL' ]
+private oracle_select_query ::= 'SELECT' [ 'DISTINCT' | 'UNIQUE' | 'ALL' ]
   <<resultColumnExt <<result_column_real>>>> ( COMMA <<resultColumnExt <<result_column_real>>>> ) *
   [ 'FROM' <<joinClauseExt <<join_clause_real>>>> ]
   [ 'WHERE' <<expr '-1'>> ]

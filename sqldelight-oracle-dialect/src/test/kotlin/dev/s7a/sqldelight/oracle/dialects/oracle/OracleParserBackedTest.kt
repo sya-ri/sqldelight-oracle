@@ -433,6 +433,26 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle select unique quantifier through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE unique_regions (
+                  id NUMBER PRIMARY KEY,
+                  region VARCHAR2(64)
+                );
+
+                selectUniqueRegions:
+                SELECT UNIQUE region
+                FROM unique_regions;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle alter table statements through SQLDelight environment exactly") {
             val sql =
                 """

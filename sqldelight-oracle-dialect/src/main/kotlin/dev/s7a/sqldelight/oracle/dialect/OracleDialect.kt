@@ -28,7 +28,8 @@ public class OracleDialect : SqlDelightDialect {
     override fun typeResolver(parentResolver: TypeResolver): TypeResolver = OracleTypeResolver(parentResolver)
 
     override fun setup() {
-        // Oracle-specific type resolution is provided without parser hooks until grammar generation is added.
+        OracleParserUtil.reset()
+        OracleParserUtil.overrideSqlParser()
     }
 }
 

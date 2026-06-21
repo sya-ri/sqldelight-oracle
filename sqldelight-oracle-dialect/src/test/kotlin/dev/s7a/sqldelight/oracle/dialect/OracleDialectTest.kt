@@ -4,12 +4,14 @@ import app.cash.sqldelight.dialect.api.IntermediateType
 import app.cash.sqldelight.dialect.api.QueryWithResults
 import app.cash.sqldelight.dialect.api.SqlDelightDialect
 import app.cash.sqldelight.dialect.api.TypeResolver
+import com.alecstrong.sql.psi.core.SqlParserUtil
 import com.alecstrong.sql.psi.core.psi.SqlExpr
 import com.alecstrong.sql.psi.core.psi.SqlFunctionExpr
 import com.alecstrong.sql.psi.core.psi.SqlStmt
 import com.alecstrong.sql.psi.core.psi.SqlTypeName
 import com.intellij.psi.PsiElement
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import java.util.ServiceLoader
 
@@ -50,6 +52,14 @@ class OracleDialectTest :
             dialect.icon.iconWidth shouldBe 16
             dialect.icon.iconHeight shouldBe 16
             dialect.setup() shouldBe Unit
+        }
+
+        test("installs Oracle parser hooks") {
+            SqlParserUtil.type_name = null
+
+            OracleDialect().setup()
+
+            SqlParserUtil.type_name.shouldNotBeNull()
         }
     })
 

@@ -27,11 +27,11 @@ The SQLite dialect artifact includes:
 - [x] Oracle scalar type mapping
 - [x] Oracle function return type mapping
 - [x] Argument-dependent function return type mapping
-- [ ] Oracle parser overrides
+- [x] Initial Oracle `type_name` parser override hook
 - [ ] Oracle BNF source file
 - [ ] Generated Oracle parser and PSI classes
-- [ ] Oracle parser utility object
-- [ ] `setup()` installs parser overrides
+- [x] Oracle parser utility object
+- [x] `setup()` installs parser overrides
 - [ ] Parser-backed SQLDelight tests for Oracle `.sq` files
 
 ## Parser Override Targets
@@ -39,7 +39,7 @@ The SQLite dialect artifact includes:
 The sql-psi core grammar is SQLite-shaped and exposes parser hooks through `SqlParserUtil`.
 Oracle should add BNF overrides incrementally, with exact parser tests for each supported query.
 
-- [ ] `type_name`: Oracle multi-word and parameterized data types such as `TIMESTAMP WITH TIME ZONE`, `INTERVAL YEAR TO MONTH`, `DOUBLE PRECISION`, `LONG RAW`, `NATIONAL CHARACTER VARYING`
+- [x] `type_name`: initial hook for Oracle multi-word and parameterized data types such as `TIMESTAMP WITH TIME ZONE`, `INTERVAL YEAR TO MONTH`, `DOUBLE PRECISION`, `LONG RAW`, `NATIONAL CHARACTER VARYING`
 - [ ] `column_constraint`: Oracle `identity_clause`, inline `ENABLE` / `DISABLE`, `DEFERRABLE`, `INITIALLY`, `RELY`, `NOVALIDATE`, `VISIBLE`, `INVISIBLE`
 - [ ] `table_constraint`: Oracle constraint states and storage-related suffixes
 - [ ] `create_table_stmt`: Oracle relational table clauses, object table clauses, temporary tables, external tables, blockchain/immutable table clauses, and `CREATE TABLE AS SELECT`
@@ -62,4 +62,3 @@ Oracle should add BNF overrides incrementally, with exact parser tests for each 
 - [ ] Keep generated files deterministic and reproducible
 - [ ] Add tests that fail when `setup()` does not install Oracle parser overrides
 - [ ] Add parser tests using exact expected success/failure results for representative Oracle `.sq` files
-

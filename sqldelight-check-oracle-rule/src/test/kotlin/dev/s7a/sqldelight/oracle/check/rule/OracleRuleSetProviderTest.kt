@@ -2,6 +2,7 @@ package dev.s7a.sqldelight.oracle.check.rule
 
 import dev.s7a.sqldelight.check.rule.api.RuleSetProvider
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoEmptyStringComparisonRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.NullableNotInPredicateRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.RequireNumberPrecisionRule
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -15,6 +16,7 @@ class OracleRuleSetProviderTest :
             provider.id.value shouldBe "oracle"
             provider.ruleProviders().map { ruleProvider -> ruleProvider.create()::class } shouldBe
                 listOf(
+                    NullableNotInPredicateRule::class,
                     NoEmptyStringComparisonRule::class,
                     RequireNumberPrecisionRule::class,
                 )

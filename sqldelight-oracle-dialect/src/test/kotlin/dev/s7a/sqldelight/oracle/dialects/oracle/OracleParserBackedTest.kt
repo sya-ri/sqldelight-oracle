@@ -487,6 +487,23 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle truncate cluster statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                TRUNCATE CLUSTER personnel;
+
+                TRUNCATE CLUSTER hr.personnel DROP STORAGE;
+
+                TRUNCATE CLUSTER archived_personnel REUSE STORAGE;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

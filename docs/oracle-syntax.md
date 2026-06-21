@@ -259,7 +259,8 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [Hierarchical operators](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Operators.html) parser support for `PRIOR` and `CONNECT_BY_ROOT`
 - [x] [`SHARD_CHUNK_ID`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/shard_chunk_id-operator.html) operator parser support
 - [x] [`COLLATE` operator](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/COLLATE-Operator.html) parser coverage for postfix expression collation in select lists, predicates, and `ORDER BY`
-- [ ] [Operators](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Operators.html): remaining arithmetic, concatenation, set, multiset, user-defined, data quality, and `JSON_ID`
+- [x] [Multiset operators](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Multiset-Operators.html) parser coverage for `MULTISET UNION`, `MULTISET EXCEPT`, `MULTISET INTERSECT`, and `ALL` / `DISTINCT`
+- [ ] [Operators](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Operators.html): remaining arithmetic, concatenation, set, user-defined, data quality, and `JSON_ID`
 - [ ] [`GRAPH_TABLE` operator](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graph_table-operator.html): graph references, path patterns, element patterns, graph table shape, and graph value expressions
 - [x] [`CURSOR` expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CURSOR-Expressions.html) parser support for `CURSOR(subquery)`
 - [x] [`CASE` expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CASE-Expressions.html) parser support for simple and searched `CASE`
@@ -268,8 +269,9 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] Type conversion expressions parser support for [`CAST`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CAST.html) and [`TREAT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TREAT.html)
 - [ ] [Expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Expressions.html): JSON object access, object access, type constructors, boolean expressions
 - [ ] [Analytic view and model expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Expressions.html): analytic view expressions, model expressions, cell references, and iteration expressions
-- [ ] [Conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Conditions.html): comparison, floating-point, logical, multiset, pattern matching, null, XML, SQL/JSON, compound, `BETWEEN`, `EXISTS`, `IN`, `IS OF`, boolean test
+- [ ] [Conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Conditions.html): comparison, floating-point, logical, pattern matching, null, XML, SQL/JSON, compound, `BETWEEN`, `EXISTS`, `IN`, and `IS OF`
 - [x] [Boolean test conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Conditions.html) parser coverage for `IS TRUE`, `IS NOT FALSE`, `IS UNKNOWN`, and `TRUE`/`FALSE`/`UNKNOWN` literal expressions
+- [x] [Multiset conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Multiset-Conditions.html) parser coverage for `IS A SET`, `IS [NOT] EMPTY`, `MEMBER [OF]`, and `SUBMULTISET [OF]`
 - [ ] [Regular expression syntax](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Oracle-Regular-Expression-Support.html): POSIX, Unicode multilingual enhancements, and Perl-influenced extensions used by `REGEXP_*`
 
 ## Functions

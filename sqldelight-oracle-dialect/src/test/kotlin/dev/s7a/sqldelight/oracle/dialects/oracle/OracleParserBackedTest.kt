@@ -230,6 +230,34 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle multiset operators and conditions exactly") {
+            val sql =
+                """
+                CREATE TABLE collection_samples (
+                  id NUMBER PRIMARY KEY,
+                  tags VARCHAR2(100),
+                  other_tags VARCHAR2(100),
+                  tag_value VARCHAR2(40)
+                );
+
+                SELECT id,
+                  tags MULTISET UNION other_tags AS all_tags,
+                  tags MULTISET EXCEPT DISTINCT other_tags AS removed_tags,
+                  tags MULTISET INTERSECT ALL other_tags AS common_tags
+                FROM collection_samples
+                WHERE tags IS A SET
+                  AND other_tags IS NOT EMPTY
+                  AND tag_value MEMBER OF tags
+                  AND tags NOT SUBMULTISET OF other_tags;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle cursor expressions exactly") {
             val sql =
                 """

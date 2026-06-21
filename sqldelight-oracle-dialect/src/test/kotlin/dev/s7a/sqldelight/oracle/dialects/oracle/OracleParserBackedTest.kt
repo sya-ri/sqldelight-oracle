@@ -525,6 +525,25 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle drop synonym statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                DROP SYNONYM customers_synonym;
+
+                DROP SYNONYM IF EXISTS oe.customers_synonym;
+
+                DROP PUBLIC SYNONYM customers;
+
+                DROP PUBLIC SYNONYM IF EXISTS customer_type_synonym FORCE;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

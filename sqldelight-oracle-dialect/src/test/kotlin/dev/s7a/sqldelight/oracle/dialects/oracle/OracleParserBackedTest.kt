@@ -1039,6 +1039,47 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle administrative legacy alter statements exactly") {
+            val sql =
+                """
+                ALTER PMEM FILESTORE cloud_db_1 ADD MOUNTPOINT '/pmem/cloud_db_1' SIZE 10 G;
+
+                ALTER PMEM FILESTORE cloud_db_1 RESIZE SIZE 20 G;
+
+                ALTER PROFILE new_profile
+                   LIMIT PASSWORD_REUSE_TIME 90
+                   PASSWORD_REUSE_MAX UNLIMITED;
+
+                ALTER PROFILE app_user LIMIT
+                   FAILED_LOGIN_ATTEMPTS 5
+                   PASSWORD_LOCK_TIME 1;
+
+                ALTER PROFILE app_user2 LIMIT
+                   PASSWORD_LIFE_TIME 90
+                   PASSWORD_GRACE_TIME 5;
+
+                ALTER RESOURCE COST
+                   CPU_PER_SESSION 100
+                   CONNECT_TIME 1;
+
+                ALTER RESOURCE COST
+                   LOGICAL_READS_PER_SESSION 2
+                   CONNECT_TIME 0;
+
+                ALTER ROLLBACK SEGMENT rbs_one ONLINE;
+
+                ALTER ROLLBACK SEGMENT rbs_one OFFLINE;
+
+                ALTER ROLLBACK SEGMENT rbs_one SHRINK TO 100 M;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle administrative drop statements exactly") {
             val sql =
                 """

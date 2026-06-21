@@ -860,6 +860,43 @@ class OracleParserBackedTest :
         test("parses Oracle role and user security statements exactly") {
             val sql =
                 """
+                CREATE USER IF NOT EXISTS app_user IDENTIFIED BY app_password
+                  DEFAULT COLLATION binary_ci
+                  DEFAULT TABLESPACE users
+                  TEMPORARY TABLESPACE temp
+                  QUOTA 100 M ON users
+                  PROFILE app_profile
+                  PASSWORD EXPIRE
+                  ACCOUNT UNLOCK
+                  ENABLE EDITIONS FORCE
+                  CONTAINER = CURRENT
+                  READ WRITE;
+
+                CREATE USER external_user IDENTIFIED EXTERNALLY AS 'CN=External User'
+                  ACCOUNT LOCK;
+
+                CREATE USER global_user IDENTIFIED GLOBALLY AS 'IAM_GROUP_NAME = analytics'
+                  QUOTA UNLIMITED ON data;
+
+                CREATE USER no_auth_user NO AUTHENTICATION DEFAULT TABLESPACE users;
+
+                ALTER USER IF EXISTS app_user IDENTIFIED BY new_password REPLACE app_password
+                  DEFAULT ROLE app_reader, app_writer
+                  PASSWORD EXPIRE
+                  ACCOUNT LOCK;
+
+                ALTER USER app_user ADD ( FACTOR 'otp' AS 'external-otp' );
+
+                ALTER USER app_user UPDATE ( FACTOR 'otp' AS 'external-otp-v2' );
+
+                ALTER USER app_user DROP FACTOR 'otp';
+
+                ALTER USER app_user DEFAULT ROLE ALL EXCEPT app_admin;
+
+                ALTER USER app_user EXPIRE PASSWORD ROLLOVER PERIOD;
+
+                ALTER USER app_user ENABLE DICTIONARY PROTECTION READ ONLY;
+
                 CREATE ROLE IF NOT EXISTS app_reader NOT IDENTIFIED;
 
                 CREATE ROLE app_writer IDENTIFIED BY writer_password CONTAINER = CURRENT;

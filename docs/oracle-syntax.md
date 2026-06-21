@@ -4,6 +4,10 @@ Baseline: [Oracle AI Database 26ai SQL Language Reference](https://docs.oracle.c
 
 This checklist tracks parser/source-scanner/rule support. Check an item only after it has targeted FunSpec tests.
 
+## Source Scanner
+
+- [x] sqldelight-check source scanner statement starts synchronized with the Oracle 26ai SQL Statements TOC
+
 ## Queries
 
 - [x] [`SELECT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) source-scanner statement and major clause boundaries

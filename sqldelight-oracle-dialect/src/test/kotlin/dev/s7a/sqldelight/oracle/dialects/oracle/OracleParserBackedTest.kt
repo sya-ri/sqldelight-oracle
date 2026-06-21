@@ -580,6 +580,39 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle PL/SQL and Java drop statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                DROP FUNCTION oe.SecondMax;
+
+                DROP FUNCTION IF EXISTS reporting.calculate_bonus;
+
+                DROP PROCEDURE hr.remove_emp;
+
+                DROP PROCEDURE IF EXISTS archive.purge_history;
+
+                DROP PACKAGE emp_mgmt;
+
+                DROP PACKAGE BODY IF EXISTS hr.emp_mgmt;
+
+                DROP LIBRARY ext_lib;
+
+                DROP LIBRARY IF EXISTS hr.ext_lib;
+
+                DROP JAVA SOURCE IF EXISTS AgentSource;
+
+                DROP JAVA CLASS Agent;
+
+                DROP JAVA RESOURCE IF EXISTS hr.config_properties;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

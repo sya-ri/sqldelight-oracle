@@ -20,7 +20,7 @@
   ]
 }
 
-overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | extension_stmt
+overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | drop_trigger_stmt | extension_stmt
 
 stmt ::= explain_plan_stmt | oracle_core_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlStmtImpl"
@@ -29,6 +29,7 @@ stmt ::= explain_plan_stmt | oracle_core_stmt {
 }
 
 private oracle_core_stmt ::= (
+  {drop_trigger_stmt} |
   {extension_stmt} |
   {alter_table_stmt} |
   {analyze_stmt} |
@@ -44,7 +45,6 @@ private oracle_core_stmt ::= (
   {detach_stmt} |
   {drop_index_stmt} |
   {drop_table_stmt} |
-  {drop_trigger_stmt} |
   {drop_view_stmt} |
   {insert_stmt} |
   {pragma_stmt} |
@@ -312,6 +312,13 @@ drop_materialized_zonemap_stmt ::= 'DROP' 'MATERIALIZED' 'ZONEMAP' [ 'IF' 'EXIST
 }
 
 drop_synonym_stmt ::= 'DROP' [ 'PUBLIC' ] 'SYNONYM' [ 'IF' 'EXISTS' ] oracle_schema_object_name [ 'FORCE' ] {
+  pin = 2
+}
+
+drop_trigger_stmt ::= 'DROP' 'TRIGGER' [ 'IF' 'EXISTS' ] oracle_schema_object_name {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlDropTriggerStmtImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlDropTriggerStmt"
+  override = true
   pin = 2
 }
 

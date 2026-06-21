@@ -544,6 +544,21 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle drop trigger statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                DROP TRIGGER salary_check;
+
+                DROP TRIGGER IF EXISTS hr.salary_check;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

@@ -53,6 +53,7 @@ Oracle should add BNF overrides incrementally, with exact parser tests for each 
 - [ ] `create_index_stmt`: Oracle bitmap, unique, function-based, domain, reverse, invisible, partial, and local/global index clauses
 - [x] `create_index_stmt` baseline: Oracle `UNIQUE`, `BITMAP`, `IF NOT EXISTS`, ordinary/function-based indexed columns, visibility, `ONLINE`, `REVERSE`, logging, compression, and `INDEXING FULL/PARTIAL`
 - [x] `create_view_stmt` baseline: Oracle `OR REPLACE`, `FORCE` / `NO FORCE`, editioning keywords, `BEQUEATH`, `WITH CHECK OPTION`, and `WITH READ ONLY`
+- [x] `drop_trigger_stmt` baseline: Oracle `IF EXISTS` and schema-qualified trigger names
 - [x] `stmt` / `extension_stmt` baseline: Oracle `CREATE SEQUENCE`, `ALTER SEQUENCE`, `DROP SEQUENCE`, `DROP MATERIALIZED VIEW LOG`, `DROP MATERIALIZED ZONEMAP`, `DROP SYNONYM`, `MERGE`, `CALL`, `LOCK TABLE`, `EXPLAIN PLAN`, `TRUNCATE TABLE`, and `TRUNCATE CLUSTER` parser support for statements that are not represented by core schema contributor/query statements
 - [ ] `select_stmt`: Oracle `hierarchical_query_clause`, `flashback_query_clause`, `pivot_clause`, `unpivot_clause`, `model_clause`, `row_pattern_clause`, `qualify_clause`, and row limiting
 - [ ] `table_or_subquery`: Oracle `JSON_TABLE`, `XMLTABLE`, `GRAPH_TABLE`, `NESTED`, `LATERAL`, flashback table syntax, and partition extension syntax

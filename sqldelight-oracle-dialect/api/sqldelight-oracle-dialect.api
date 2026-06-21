@@ -73,6 +73,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun drop_materialized_zonemap_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_sequence_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_synonym_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun drop_trigger_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun explain_plan_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun extension_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun lock_table_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -112,6 +113,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun dropMaterializedZonemapStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropSequenceStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropSynonymStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun dropTriggerStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun explainPlanStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun extensionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public final fun getAlter_sequence_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -136,6 +138,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getDrop_materialized_zonemap_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_sequence_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_synonym_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getDrop_trigger_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getExplain_plan_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getExtension_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getLock_table_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -175,6 +178,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setDrop_materialized_zonemap_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_sequence_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_synonym_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setDrop_trigger_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setExplain_plan_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setExtension_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setLock_table_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -265,6 +269,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropSynonymStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTriggerStmt : com/alecstrong/sql/psi/core/psi/SqlDropTriggerStmt {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExplainPlanStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 	public abstract fun getCreateIndexStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIndexStmt;
 	public abstract fun getCreateTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTableStmt;
@@ -302,6 +309,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreateIndexStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIndexStmt;
 	public abstract fun getCreateTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTableStmt;
 	public abstract fun getCreateViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateViewStmt;
+	public abstract fun getDropTriggerStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTriggerStmt;
 	public abstract fun getExtensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionStmt;
 	public abstract fun getStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleStmt;
 	public abstract fun getTableConstraint ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTableConstraint;
@@ -351,6 +359,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field DROP_MATERIALIZED_ZONEMAP_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_SEQUENCE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_SYNONYM_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field DROP_TRIGGER_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field EQ Lcom/intellij/psi/tree/IElementType;
 	public static final field EXPLAIN_PLAN_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field EXTENSION_STMT Lcom/intellij/psi/tree/IElementType;
@@ -398,6 +407,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitDropMaterializedZonemapStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropMaterializedZonemapStmt;)V
 	public fun visitDropSequenceStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropSequenceStmt;)V
 	public fun visitDropSynonymStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropSynonymStmt;)V
+	public fun visitDropTriggerStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTriggerStmt;)V
 	public fun visitExplainPlanStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExplainPlanStmt;)V
 	public fun visitExtensionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionStmt;)V
 	public fun visitLockTableStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleLockTableStmt;)V
@@ -411,6 +421,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitSqlCompositeElement (Lcom/alecstrong/sql/psi/core/psi/SqlCompositeElement;)V
 	public fun visitSqlCreateIndexStmt (Lcom/alecstrong/sql/psi/core/psi/SqlCreateIndexStmt;)V
 	public fun visitSqlCreateTableStmt (Lcom/alecstrong/sql/psi/core/psi/SqlCreateTableStmt;)V
+	public fun visitSqlDropTriggerStmt (Lcom/alecstrong/sql/psi/core/psi/SqlDropTriggerStmt;)V
 	public fun visitSqlExtensionStmt (Lcom/alecstrong/sql/psi/core/psi/SqlExtensionStmt;)V
 	public fun visitSqlStmt (Lcom/alecstrong/sql/psi/core/psi/SqlStmt;)V
 	public fun visitSqlTableConstraint (Lcom/alecstrong/sql/psi/core/psi/SqlTableConstraint;)V
@@ -562,6 +573,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDr
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDropTriggerStmtImpl : com/alecstrong/sql/psi/core/psi/impl/SqlDropTriggerStmtImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTriggerStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleExplainPlanStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExplainPlanStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
@@ -617,6 +634,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOv
 	public fun getCreateIndexStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIndexStmt;
 	public fun getCreateTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTableStmt;
 	public fun getCreateViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateViewStmt;
+	public fun getDropTriggerStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTriggerStmt;
 	public fun getExtensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionStmt;
 	public fun getStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleStmt;
 	public fun getTableConstraint ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTableConstraint;

@@ -18,7 +18,7 @@
   ]
 }
 
-overrides ::= type_name | column_constraint | table_constraint | create_table_stmt
+overrides ::= type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules
 
 type_name ::= oracle_type_name | core_type_name {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTypeNameImpl"
@@ -153,3 +153,27 @@ create_table_stmt ::= 'CREATE' [ oracle_table_scope ] 'TABLE' [ 'IF' 'NOT' 'EXIS
 private oracle_table_scope ::= ( 'GLOBAL' | 'PRIVATE' ) 'TEMPORARY' | 'TEMP' | 'TEMPORARY'
 
 private oracle_on_commit_clause ::= 'ON' 'COMMIT' ( 'DELETE' | 'PRESERVE' ) 'ROWS'
+
+alter_table_stmt ::= 'ALTER' 'TABLE' [ {database_name} DOT ] {table_name} {alter_table_rules} ( COMMA {alter_table_rules} ) * {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlAlterTableStmtImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlAlterTableStmt"
+  elementTypeClass = "dev.s7a.sqldelight.oracle.grammar.mixins.AlterTableElementType"
+  stubClass = "com.alecstrong.sql.psi.core.psi.mixins.AlterTableStmtStub"
+  override = true
+  pin = 1
+}
+
+alter_table_rules ::= (
+  alter_table_add_column
+) {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlAlterTableRulesImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlAlterTableRules"
+  override = true
+}
+
+alter_table_add_column ::= 'ADD' [ 'COLUMN' ] {column_def} {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlAlterTableAddColumnImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlAlterTableAddColumn"
+  override = true
+  pin = 1
+}

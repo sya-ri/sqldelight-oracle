@@ -125,6 +125,24 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle alter table add column through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE alter_targets (
+                  id NUMBER PRIMARY KEY,
+                  status VARCHAR2(16)
+                );
+
+                ALTER TABLE alter_targets ADD created_at TIMESTAMP;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """
@@ -149,10 +167,13 @@ private data class ParseResult(
     val errors: List<String>,
 )
 
-private fun parseOracleSql(sql: String): ParseResult {
+private fun parseOracleSql(
+    sql: String,
+    fileName: String = "Test.sq",
+): ParseResult {
     val root = Files.createTempDirectory("sqldelight-oracle-parser-test").toFile()
     val sourceDirectory = File(root, "com/example").apply { mkdirs() }
-    File(sourceDirectory, "Test.sq").writeText(sql)
+    File(sourceDirectory, fileName).writeText(sql)
 
     val errors = mutableListOf<String>()
     val compilationUnit = OracleParserTestCompilationUnit(File(root, "output"))

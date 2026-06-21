@@ -124,6 +124,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun create_index_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_json_relational_duality_view_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_library_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun create_operator_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun create_outline_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_package_body_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_property_graph_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_role_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -281,6 +283,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun createIndexStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createJsonRelationalDualityViewStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createLibraryStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun createOperatorStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun createOutlineStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createPackageBodyStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createPropertyGraphStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createRoleStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -412,6 +416,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getCreate_index_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_json_relational_duality_view_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_library_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getCreate_operator_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getCreate_outline_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_package_body_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_property_graph_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_role_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -577,6 +583,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setCreate_index_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_json_relational_duality_view_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_library_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setCreate_operator_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setCreate_outline_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_package_body_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_property_graph_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_role_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -892,6 +900,13 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLibraryStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateOperatorStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+	public abstract fun getOracleTypeNameList ()Ljava/util/List;
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateOutlineStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePackageBodyStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
@@ -1119,6 +1134,8 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreateIcebergTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIcebergTableStmt;
 	public abstract fun getCreateJsonRelationalDualityViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJsonRelationalDualityViewStmt;
 	public abstract fun getCreateLibraryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLibraryStmt;
+	public abstract fun getCreateOperatorStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateOperatorStmt;
+	public abstract fun getCreateOutlineStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateOutlineStmt;
 	public abstract fun getCreatePackageBodyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePackageBodyStmt;
 	public abstract fun getCreatePropertyGraphStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePropertyGraphStmt;
 	public abstract fun getCreateRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRoleStmt;
@@ -1309,6 +1326,8 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreateIcebergTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIcebergTableStmt;
 	public abstract fun getCreateJsonRelationalDualityViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJsonRelationalDualityViewStmt;
 	public abstract fun getCreateLibraryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLibraryStmt;
+	public abstract fun getCreateOperatorStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateOperatorStmt;
+	public abstract fun getCreateOutlineStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateOutlineStmt;
 	public abstract fun getCreatePackageBodyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePackageBodyStmt;
 	public abstract fun getCreatePropertyGraphStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePropertyGraphStmt;
 	public abstract fun getCreateRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRoleStmt;
@@ -1457,6 +1476,8 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field CREATE_INDEX_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_JSON_RELATIONAL_DUALITY_VIEW_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_LIBRARY_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field CREATE_OPERATOR_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field CREATE_OUTLINE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_PACKAGE_BODY_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_PROPERTY_GRAPH_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_ROLE_STMT Lcom/intellij/psi/tree/IElementType;
@@ -1624,6 +1645,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitCreateIndexStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIndexStmt;)V
 	public fun visitCreateJsonRelationalDualityViewStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJsonRelationalDualityViewStmt;)V
 	public fun visitCreateLibraryStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLibraryStmt;)V
+	public fun visitCreateOperatorStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateOperatorStmt;)V
+	public fun visitCreateOutlineStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateOutlineStmt;)V
 	public fun visitCreatePackageBodyStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePackageBodyStmt;)V
 	public fun visitCreatePropertyGraphStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePropertyGraphStmt;)V
 	public fun visitCreateRoleStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRoleStmt;)V
@@ -2166,6 +2189,19 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCr
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateOperatorStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateOperatorStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+	public fun getOracleTypeNameList ()Ljava/util/List;
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateOutlineStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateOutlineStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreatePackageBodyStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePackageBodyStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
@@ -2563,6 +2599,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getCreateIcebergTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIcebergTableStmt;
 	public fun getCreateJsonRelationalDualityViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJsonRelationalDualityViewStmt;
 	public fun getCreateLibraryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLibraryStmt;
+	public fun getCreateOperatorStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateOperatorStmt;
+	public fun getCreateOutlineStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateOutlineStmt;
 	public fun getCreatePackageBodyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePackageBodyStmt;
 	public fun getCreatePropertyGraphStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePropertyGraphStmt;
 	public fun getCreateRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRoleStmt;
@@ -2807,6 +2845,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSt
 	public fun getCreateIcebergTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIcebergTableStmt;
 	public fun getCreateJsonRelationalDualityViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJsonRelationalDualityViewStmt;
 	public fun getCreateLibraryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLibraryStmt;
+	public fun getCreateOperatorStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateOperatorStmt;
+	public fun getCreateOutlineStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateOutlineStmt;
 	public fun getCreatePackageBodyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePackageBodyStmt;
 	public fun getCreatePropertyGraphStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePropertyGraphStmt;
 	public fun getCreateRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRoleStmt;

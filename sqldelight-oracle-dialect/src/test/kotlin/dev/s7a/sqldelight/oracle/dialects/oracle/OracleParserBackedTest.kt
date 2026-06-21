@@ -976,6 +976,70 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle create operator statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE OPERATOR eq_op
+                  BINDING (VARCHAR2, VARCHAR2)
+                  RETURN NUMBER
+                  USING eq_f;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create operator if not exists statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE OPERATOR IF NOT EXISTS hr.contains_op
+                  SHARING = METADATA
+                  BINDING (VARCHAR2, VARCHAR2)
+                  RETURN NUMBER
+                  WITH INDEX CONTEXT
+                  COMPUTE ANCILLARY DATA
+                  USING hr.contains_impl;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create outline from statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE OR REPLACE PRIVATE OUTLINE my_salaries
+                  FROM PUBLIC salaries;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create outline on statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE OUTLINE salaries
+                  FOR CATEGORY special
+                  ON SELECT last_name, salary FROM employees;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle create property graph vertex statement through SQLDelight environment exactly") {
             val sql =
                 """

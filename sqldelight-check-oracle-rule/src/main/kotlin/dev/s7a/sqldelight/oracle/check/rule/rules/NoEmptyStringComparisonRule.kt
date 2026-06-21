@@ -4,11 +4,10 @@ import dev.s7a.sqldelight.check.api.DialectId
 import dev.s7a.sqldelight.check.api.RuleDiagnostic
 import dev.s7a.sqldelight.check.api.RuleId
 import dev.s7a.sqldelight.check.api.Severity
-import dev.s7a.sqldelight.check.api.SourceRange
 import dev.s7a.sqldelight.check.rule.api.DiagnosticReporter
 import dev.s7a.sqldelight.check.rule.api.Rule
 import dev.s7a.sqldelight.check.rule.api.RuleContext
-import dev.s7a.sqldelight.check.rule.api.positionAt
+import dev.s7a.sqldelight.check.rule.api.rangeAtOffsets
 import dev.s7a.sqldelight.oracle.check.dialect.OracleDialectId
 
 /**
@@ -40,15 +39,6 @@ public class NoEmptyStringComparisonRule : Rule {
 }
 
 private val comparisonPattern = Regex("""(?i)(?:=\s*''|''\s*=|(?:<>|!=)\s*''|''\s*(?:<>|!=))""")
-
-private fun String.rangeAtOffsets(
-    startOffset: Int,
-    endOffset: Int,
-): SourceRange =
-    SourceRange(
-        start = positionAt(startOffset),
-        end = positionAt(endOffset),
-    )
 
 private fun String.maskSqlCommentsPreservingOffsets(): String {
     val chars = toCharArray()

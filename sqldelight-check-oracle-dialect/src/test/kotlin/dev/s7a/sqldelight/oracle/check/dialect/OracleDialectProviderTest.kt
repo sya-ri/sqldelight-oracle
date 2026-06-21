@@ -2,6 +2,7 @@ package dev.s7a.sqldelight.oracle.check.dialect
 
 import dev.s7a.sqldelight.check.api.SqlDialectCoordinate
 import dev.s7a.sqldelight.check.api.SqlDialectProvider
+import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.ClauseBoundary
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.CommonFunctionName
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.DataTypeName
@@ -9,8 +10,8 @@ import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.SqlDelightExecut
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.StatementStart
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.TransactionEndStatement
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.TransactionStartStatement
+import dev.s7a.sqldelight.check.api.SqlDialectSourcePatterns
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import java.util.ServiceLoader
 
@@ -29,59 +30,66 @@ class OracleDialectProviderTest :
         test("registers provider through ServiceLoader") {
             val providers = ServiceLoader.load(SqlDialectProvider::class.java).toList()
 
-            providers.map { provider -> provider::class } shouldContain OracleDialectProvider::class
+            providers.map { provider -> provider::class } shouldBe listOf(OracleDialectProvider::class)
         }
 
         oracleStatementStarts.forEach { syntax ->
             test("recognizes Oracle statement start: ${syntax.expression}") {
-                OracleDialectSourcePatterns.matches(StatementStart, syntax.terms) shouldBe true
+                OracleDialectSourcePatterns.shouldMatchExactly(StatementStart, syntax)
             }
         }
 
         oracleExecutableStatementStarts.forEach { syntax ->
             test("recognizes Oracle executable statement start: ${syntax.expression}") {
-                OracleDialectSourcePatterns.matches(SqlDelightExecutableStatementStart, syntax.terms) shouldBe true
+                OracleDialectSourcePatterns.shouldMatchExactly(SqlDelightExecutableStatementStart, syntax)
             }
         }
 
         oracleClauseBoundaries.forEach { syntax ->
             test("recognizes Oracle clause boundary: ${syntax.expression}") {
-                OracleDialectSourcePatterns.matches(ClauseBoundary, syntax.terms) shouldBe true
+                OracleDialectSourcePatterns.shouldMatchExactly(ClauseBoundary, syntax)
             }
         }
 
         oracleDataTypes.forEach { syntax ->
             test("recognizes Oracle data type: ${syntax.expression}") {
-                OracleDialectSourcePatterns.matches(DataTypeName, syntax.terms) shouldBe true
+                OracleDialectSourcePatterns.shouldMatchExactly(DataTypeName, syntax)
             }
         }
 
         oracleCommonFunctions.forEach { syntax ->
             test("recognizes Oracle common function: ${syntax.expression}") {
-                OracleDialectSourcePatterns.matches(CommonFunctionName, syntax.terms) shouldBe true
+                OracleDialectSourcePatterns.shouldMatchExactly(CommonFunctionName, syntax)
             }
         }
 
         test("recognizes Oracle CREATE SEQUENCE statement role") {
-            OracleDialectSourcePatterns.matches(CreateSequenceStatementStart, listOf("create", "sequence")) shouldBe true
+            OracleDialectSourcePatterns.shouldMatchExactly(CreateSequenceStatementStart, Syntax("CREATE SEQUENCE"))
         }
 
         test("recognizes Oracle CONNECT BY clause role") {
-            OracleDialectSourcePatterns.matches(ConnectByClause, listOf("connect", "by")) shouldBe true
+            OracleDialectSourcePatterns.shouldMatchExactly(ConnectByClause, Syntax("CONNECT BY"))
         }
 
         test("recognizes Oracle START WITH clause role") {
-            OracleDialectSourcePatterns.matches(StartWithClause, listOf("start", "with")) shouldBe true
+            OracleDialectSourcePatterns.shouldMatchExactly(StartWithClause, Syntax("START WITH"))
         }
 
         test("recognizes Oracle transaction start") {
-            OracleDialectSourcePatterns.matches(TransactionStartStatement, listOf("set", "transaction")) shouldBe true
+            OracleDialectSourcePatterns.shouldMatchExactly(TransactionStartStatement, Syntax("SET TRANSACTION"))
         }
 
         test("recognizes Oracle transaction end") {
-            OracleDialectSourcePatterns.matches(TransactionEndStatement, listOf("rollback")) shouldBe true
+            OracleDialectSourcePatterns.shouldMatchExactly(TransactionEndStatement, Syntax("ROLLBACK"))
         }
     })
+
+private fun SqlDialectSourcePatterns.shouldMatchExactly(
+    role: SqlDialectSourcePatternRole,
+    syntax: Syntax,
+) {
+    matchPrefix(role, syntax.terms) shouldBe syntax.terms.size
+}
 
 private val oracleStatementStarts =
     listOf(

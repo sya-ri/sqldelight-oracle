@@ -1,17 +1,6 @@
 package dev.s7a.sqldelight.oracle.check.rule.rules
 
-import dev.s7a.sqldelight.check.api.DatabaseContext
-import dev.s7a.sqldelight.check.api.RuleDiagnostic
-import dev.s7a.sqldelight.check.api.SourceFile
-import dev.s7a.sqldelight.check.api.SqlDialect
-import dev.s7a.sqldelight.check.rule.api.DiagnosticReporter
-import dev.s7a.sqldelight.check.rule.api.RuleContext
-import dev.s7a.sqldelight.check.rule.api.RuleOptions
-import dev.s7a.sqldelight.check.rule.api.SqlFacts
-import dev.s7a.sqldelight.oracle.check.dialect.OracleDialectId
-import dev.s7a.sqldelight.oracle.check.dialect.OracleDialectSourcePatterns
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 
 class NoEmptyStringComparisonRuleTest :
@@ -27,23 +16,39 @@ class NoEmptyStringComparisonRuleTest :
                     """,
                 )
 
-            diagnostics shouldHaveSize 1
-            diagnostics
-                .single()
-                .range
-                ?.start
-                ?.line shouldBe 4
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = EMPTY_STRING_MESSAGE,
+                        startLine = 4,
+                        startColumn = 12,
+                        endLine = 4,
+                        endColumn = 16,
+                    ),
+                )
         }
 
         test("reports inequality with an empty string literal") {
-            NoEmptyStringComparisonRule().diagnostics(
-                """
-                findPresent:
-                SELECT *
-                FROM customers
-                WHERE name <> '';
-                """,
-            ) shouldHaveSize 1
+            val diagnostics =
+                NoEmptyStringComparisonRule().diagnostics(
+                    """
+                    findPresent:
+                    SELECT *
+                    FROM customers
+                    WHERE name <> '';
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = EMPTY_STRING_MESSAGE,
+                        startLine = 4,
+                        startColumn = 12,
+                        endLine = 4,
+                        endColumn = 17,
+                    ),
+                )
         }
 
         test("accepts null predicates") {
@@ -69,29 +74,5 @@ class NoEmptyStringComparisonRuleTest :
         }
     })
 
-private fun NoEmptyStringComparisonRule.diagnostics(content: String): List<RuleDiagnostic> {
-    val diagnostics = mutableListOf<RuleDiagnostic>()
-    run(
-        context =
-            object : RuleContext {
-                override val database: DatabaseContext =
-                    DatabaseContext(
-                        name = "Database",
-                        dialect =
-                            SqlDialect(
-                                ids = setOf(OracleDialectId),
-                                sourcePatterns = OracleDialectSourcePatterns,
-                            ),
-                    )
-                override val file: SourceFile =
-                    SourceFile(
-                        path = "src/main/sqldelight/com/example/Query.sq",
-                        content = content.trimIndent() + "\n",
-                    )
-                override val options: RuleOptions = RuleOptions()
-                override val facts: SqlFacts = SqlFacts()
-            },
-        reporter = DiagnosticReporter { diagnostic -> diagnostics += diagnostic },
-    )
-    return diagnostics
-}
+private const val EMPTY_STRING_MESSAGE =
+    "Avoid comparing with Oracle empty string literals; Oracle treats '' as NULL, so use IS NULL or IS NOT NULL."

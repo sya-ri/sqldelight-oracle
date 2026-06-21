@@ -2,7 +2,6 @@ package dev.s7a.sqldelight.oracle.dialect
 
 import app.cash.sqldelight.dialect.api.SqlDelightDialect
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import java.util.ServiceLoader
 
@@ -11,7 +10,7 @@ class OracleDialectTest :
         test("registers SQLDelight dialect through ServiceLoader") {
             val dialects = ServiceLoader.load(SqlDelightDialect::class.java).toList()
 
-            dialects.map { dialect -> dialect::class } shouldContain OracleDialect::class
+            dialects.map { dialect -> dialect::class } shouldBe listOf(OracleDialect::class)
         }
 
         test("uses JDBC runtime types") {

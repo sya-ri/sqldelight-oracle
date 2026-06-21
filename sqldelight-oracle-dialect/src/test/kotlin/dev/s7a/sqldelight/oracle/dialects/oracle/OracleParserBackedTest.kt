@@ -698,6 +698,33 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle assertion, directive, edition, flashback, and In-Memory drop statements exactly") {
+            val sql =
+                """
+                DROP ASSERTION IF EXISTS company_must_have_a_president;
+
+                DROP ASSERTION hr.salary_within_job_limit;
+
+                DROP DIRECTIVE validate_email_directive;
+
+                DROP EDITION old_release IF EXISTS CASCADE;
+
+                DROP EDITION patch_release;
+
+                DROP FLASHBACK ARCHIVE archive_a;
+
+                DROP INMEMORY JOIN GROUP IF EXISTS sh.prod_id1;
+
+                DROP INMEMORY JOIN GROUP prod_id2;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

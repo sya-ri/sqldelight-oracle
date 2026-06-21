@@ -12,10 +12,12 @@ import com.alecstrong.sql.psi.core.psi.SqlWithClause
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleInsertStmt
 
-public abstract class OracleInsertStmtMixin(
+internal abstract class OracleInsertStmtMixin(
     node: ASTNode,
 ) : SqlCompositeElementImpl(node),
+    OracleInsertStmt,
     SqlInsertStmt {
     override fun getColumnNameList(): List<SqlColumnName> = PsiTreeUtil.getChildrenOfTypeAsList(this, SqlColumnName::class.java)
 

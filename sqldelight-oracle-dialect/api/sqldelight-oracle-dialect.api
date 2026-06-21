@@ -889,17 +889,6 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun withClauseExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 }
 
-public abstract class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/mixins/OracleInsertStmtMixin : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, com/alecstrong/sql/psi/core/psi/SqlInsertStmt {
-	public fun <init> (Lcom/intellij/lang/ASTNode;)V
-	public fun getColumnNameList ()Ljava/util/List;
-	public fun getDatabaseName ()Lcom/alecstrong/sql/psi/core/psi/SqlDatabaseName;
-	public fun getInsertStmtValues ()Lcom/alecstrong/sql/psi/core/psi/SqlInsertStmtValues;
-	public fun getTableAlias ()Lcom/alecstrong/sql/psi/core/psi/SqlTableAlias;
-	public fun getTableName ()Lcom/alecstrong/sql/psi/core/psi/SqlTableName;
-	public fun getWithClause ()Lcom/alecstrong/sql/psi/core/psi/SqlWithClause;
-	public fun queryAvailable (Lcom/intellij/psi/PsiElement;)Ljava/util/Collection;
-}
-
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAdministerKeyManagementStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
@@ -3598,7 +3587,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleGr
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
-public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleInsertStmtImpl : dev/s7a/sqldelight/oracle/dialects/oracle/grammar/mixins/OracleInsertStmtMixin, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleInsertStmt {
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleInsertStmtImpl : dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleInsertStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V

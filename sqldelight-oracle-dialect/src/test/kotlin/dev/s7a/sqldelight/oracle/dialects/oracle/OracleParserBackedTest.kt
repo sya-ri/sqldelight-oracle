@@ -358,6 +358,28 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle REGEXP_LIKE conditions exactly") {
+            val sql =
+                """
+                CREATE TABLE regex_samples (
+                  id NUMBER PRIMARY KEY,
+                  first_name VARCHAR2(100),
+                  last_name VARCHAR2(100)
+                );
+
+                SELECT id
+                FROM regex_samples
+                WHERE REGEXP_LIKE(first_name, '^Ste(v|ph)en${'$'}')
+                  AND REGEXP_LIKE(last_name, '([aeiou])\1', 'i');
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle caret inequality condition exactly") {
             val sql =
                 """

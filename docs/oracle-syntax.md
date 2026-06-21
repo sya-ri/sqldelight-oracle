@@ -282,7 +282,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [SQL/JSON `IS JSON` condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SQL-JSON-Conditions.html) parser coverage for `IS [NOT] JSON`, `STRICT`, `LAX`, unique-key modifiers, object/array/scalar modifiers, and schema validation
 - [ ] [SQL/JSON function conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SQL-JSON-Conditions.html): `JSON_EXISTS`, `JSON_EQUAL`, `JSON_TEXTCONTAINS`, `PASSING`, `ON ERROR`, and `ON EMPTY`
 - [x] [Pattern-matching `LIKE` conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Pattern-matching-Conditions.html) parser coverage for Oracle-specific `LIKEC`, `LIKE2`, `LIKE4`, `NOT`, and `ESCAPE`
-- [ ] [`REGEXP_LIKE` condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Pattern-matching-Conditions.html): function-like condition form and optional `match_param`
+- [x] [`REGEXP_LIKE` condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Pattern-matching-Conditions.html) parser, type resolver, and sqldelight-check source pattern coverage for `source_char`, `pattern`, and optional `match_param`
 - [ ] [Regular expression syntax](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Oracle-Regular-Expression-Support.html): POSIX, Unicode multilingual enhancements, and Perl-influenced extensions used by `REGEXP_*`
 
 ## Functions

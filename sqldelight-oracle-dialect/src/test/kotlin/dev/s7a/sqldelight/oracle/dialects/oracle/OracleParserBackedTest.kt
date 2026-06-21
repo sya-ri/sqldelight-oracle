@@ -938,6 +938,47 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle character single-row functions exactly") {
+            val sql =
+                """
+                CREATE TABLE names (
+                  id NUMBER PRIMARY KEY,
+                  first_name VARCHAR2(100),
+                  last_name VARCHAR2(100),
+                  label VARCHAR2(100)
+                );
+
+                SELECT CHR(65) AS chr_value,
+                  CONCAT(first_name, last_name) AS full_name,
+                  INITCAP(label) AS title_label,
+                  LOWER(label) AS lower_label,
+                  LPAD(label, 10, '*') AS left_padded,
+                  LTRIM(label, '*') AS left_trimmed,
+                  NCHR(12354) AS nchr_value,
+                  NLS_INITCAP(label, 'NLS_SORT = XGERMAN') AS nls_title,
+                  NLS_LOWER(label, 'NLS_SORT = XGERMAN') AS nls_lower,
+                  NLS_UPPER(label, 'NLS_SORT = XGERMAN') AS nls_upper,
+                  NLSSORT(label, 'NLS_SORT = XGERMAN') AS sort_key,
+                  REGEXP_REPLACE(label, '[aeiou]', '*') AS replaced_regex,
+                  REGEXP_SUBSTR(label, '[[:alpha:]]+') AS regex_part,
+                  RPAD(label, 10, '*') AS right_padded,
+                  RTRIM(label, '*') AS right_trimmed,
+                  SOUNDEX(label) AS soundex_value,
+                  SUBSTR(label, 1, 3) AS label_prefix,
+                  TRANSLATE(label, 'abc', 'xyz') AS translated_label,
+                  TRIM(label) AS trimmed_label,
+                  UPPER(label) AS upper_label,
+                  ASCII(label) AS ascii_value
+                FROM names;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle text and national literals exactly") {
             val sql =
                 """

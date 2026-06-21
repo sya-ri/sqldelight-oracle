@@ -2690,14 +2690,16 @@ drop_audit_policy_stmt ::= 'DROP' 'AUDIT' 'POLICY' oracle_object_name_part {
 
 audit_stmt ::= 'AUDIT' (
   'POLICY' oracle_object_name_part oracle_unified_audit_policy_tail |
-  oracle_audit_context_clause
+  oracle_audit_context_clause |
+  oracle_traditional_audit_clause
 ) {
   pin = 1
 }
 
 noaudit_stmt ::= 'NOAUDIT' (
   'POLICY' oracle_object_name_part oracle_unified_noaudit_policy_tail |
-  oracle_audit_context_clause [ oracle_audit_success_clause ]
+  oracle_audit_context_clause [ oracle_audit_success_clause ] |
+  oracle_traditional_noaudit_clause
 ) {
   pin = 1
 }
@@ -2773,6 +2775,91 @@ private oracle_audit_context_clause ::= oracle_audit_context_item ( COMMA oracle
 
 private oracle_audit_context_item ::= 'CONTEXT' 'NAMESPACE' oracle_object_name_part
   'ATTRIBUTES' oracle_object_name_part ( COMMA oracle_object_name_part ) *
+
+private oracle_traditional_audit_clause ::= oracle_traditional_audit_item ( COMMA oracle_traditional_audit_item ) *
+  [ oracle_traditional_auditing_users_clause ] [ oracle_traditional_audit_record_clause ]
+  [ oracle_audit_success_clause ] [ oracle_container_clause ]
+
+private oracle_traditional_noaudit_clause ::= oracle_traditional_audit_item ( COMMA oracle_traditional_audit_item ) *
+  [ oracle_traditional_auditing_users_clause ] [ oracle_audit_success_clause ] [ oracle_container_clause ]
+
+private oracle_traditional_audit_item ::= oracle_traditional_audit_operation [ oracle_traditional_auditing_on_clause ]
+
+private oracle_traditional_audit_operation ::= (
+  'ALL' [ 'STATEMENTS' | 'PRIVILEGES' ] |
+  oracle_traditional_audit_operation_word +
+)
+
+private oracle_traditional_audit_operation_word ::= (
+  'ALTER' |
+  'ANY' |
+  'AUDIT' |
+  'CALL' |
+  'CLUSTER' |
+  'COMMENT' |
+  'CONTEXT' |
+  'CREATE' |
+  'DATABASE' |
+  'DELETE' |
+  'DIMENSION' |
+  'DIRECT_PATH' |
+  'DIRECTORY' |
+  'DROP' |
+  'EXECUTE' |
+  'FUNCTION' |
+  'GRANT' |
+  'INDEX' |
+  'INSERT' |
+  'LIBRARY' |
+  'LINK' |
+  'LOAD' |
+  'LOCK' |
+  'MATERIALIZED' |
+  'MINING' |
+  'MODEL' |
+  'NETWORK' |
+  'NOT' |
+  'OUTLINE' |
+  'PACKAGE' |
+  'PLUGGABLE' |
+  'PRIVILEGES' |
+  'PROCEDURE' |
+  'PROFILE' |
+  'PUBLIC' |
+  'READ' |
+  'REVOKE' |
+  'ROLE' |
+  'ROLLBACK' |
+  'SEGMENT' |
+  'SELECT' |
+  'SEQUENCE' |
+  'SESSION' |
+  'STATEMENTS' |
+  'SYNONYM' |
+  'SYSTEM' |
+  'TABLE' |
+  'TABLESPACE' |
+  'TRANSLATION' |
+  'TRIGGER' |
+  'TYPE' |
+  'UPDATE' |
+  'USER' |
+  'VIEW' |
+  'WRITE'
+)
+
+private oracle_traditional_auditing_on_clause ::= 'ON' (
+  'DEFAULT' |
+  'DIRECTORY' oracle_object_name_part |
+  'MINING' 'MODEL' oracle_schema_object_name |
+  'SQL' 'TRANSLATION' 'PROFILE' oracle_object_name_part |
+  oracle_schema_object_name
+)
+
+private oracle_traditional_auditing_users_clause ::= 'BY' !'ACCESS' !'SESSION'
+  oracle_object_name_part ( COMMA oracle_object_name_part ) *
+
+private oracle_traditional_audit_record_clause ::= 'BY' ( 'ACCESS' | 'SESSION' ) | 'IN' 'SESSION' 'CURRENT'
 
 create_data_role_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] 'DATA' 'ROLE' [ 'IF' 'NOT' 'EXISTS' ]
   oracle_object_name_part [ oracle_data_role_clause ] {

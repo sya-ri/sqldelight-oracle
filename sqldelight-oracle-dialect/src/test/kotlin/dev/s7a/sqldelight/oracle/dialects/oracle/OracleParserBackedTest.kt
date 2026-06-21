@@ -3191,6 +3191,38 @@ class OracleParserBackedTest :
                   BY hr WHENEVER NOT SUCCESSFUL;
 
                 DROP AUDIT POLICY table_pol;
+
+                AUDIT ROLE;
+
+                AUDIT ROLE WHENEVER SUCCESSFUL;
+
+                AUDIT ROLE WHENEVER NOT SUCCESSFUL;
+
+                AUDIT SELECT TABLE, UPDATE TABLE BY hr, oe;
+
+                AUDIT DELETE ANY TABLE BY ACCESS WHENEVER NOT SUCCESSFUL;
+
+                AUDIT SELECT ON hr.employees WHENEVER SUCCESSFUL;
+
+                AUDIT READ ON DIRECTORY bfile_dir BY ACCESS;
+
+                AUDIT ALL ON DEFAULT;
+
+                AUDIT NETWORK;
+
+                AUDIT DIRECT_PATH LOAD;
+
+                NOAUDIT ROLE;
+
+                NOAUDIT SELECT TABLE BY hr;
+
+                NOAUDIT DELETE ANY TABLE;
+
+                NOAUDIT SELECT ON hr.employees WHENEVER SUCCESSFUL;
+
+                NOAUDIT ALL ON DEFAULT;
+
+                NOAUDIT NETWORK;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe

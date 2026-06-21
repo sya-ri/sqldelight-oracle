@@ -54,6 +54,11 @@ private oracle_core_stmt ::= (
   alter_attribute_dimension_stmt |
   alter_hierarchy_stmt |
   alter_dimension_stmt |
+  alter_cluster_stmt |
+  alter_database_link_stmt |
+  alter_indextype_stmt |
+  alter_operator_stmt |
+  alter_outline_stmt |
   administer_key_management_stmt |
   create_function_stmt |
   create_package_body_stmt |
@@ -369,7 +374,7 @@ create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ] [ 'E
   pin = 6
 }
 
-extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | alter_materialized_view_log_stmt | alter_materialized_zonemap_stmt | alter_analytic_view_stmt | alter_attribute_dimension_stmt | alter_hierarchy_stmt | alter_dimension_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | drop_synonym_stmt | drop_type_body_stmt | drop_type_stmt | drop_function_stmt | drop_procedure_stmt | drop_package_stmt | drop_library_stmt | drop_java_stmt | drop_analytic_view_stmt | drop_attribute_dimension_stmt | drop_hierarchy_stmt | drop_dimension_stmt | drop_cluster_stmt | drop_database_link_stmt | drop_directory_stmt | drop_indextype_stmt | drop_operator_stmt | drop_outline_stmt | drop_property_graph_stmt | drop_iceberg_table_stmt | drop_context_stmt | drop_mle_env_stmt | drop_mle_module_stmt | drop_assertion_stmt | drop_directive_stmt | drop_edition_stmt | drop_flashback_archive_stmt | drop_inmemory_join_group_stmt | drop_lockdown_profile_stmt | drop_pmem_filestore_stmt | drop_profile_stmt | drop_rollback_segment_stmt | drop_database_stmt | drop_pluggable_database_stmt | drop_tablespace_set_stmt | drop_tablespace_stmt | drop_diskgroup_stmt | drop_restore_point_stmt | set_transaction_stmt | set_constraints_stmt | set_role_stmt | set_use_data_grants_only_stmt | alter_session_stmt | alter_system_stmt | alter_synonym_stmt | alter_trigger_stmt | alter_type_stmt | alter_function_stmt | alter_procedure_stmt | alter_package_stmt | alter_library_stmt | alter_java_stmt | administer_key_management_stmt | create_function_stmt | create_package_body_stmt | create_type_body_stmt | create_library_stmt | create_audit_policy_stmt | alter_audit_policy_stmt | drop_audit_policy_stmt | audit_stmt | noaudit_stmt | create_user_stmt | alter_user_stmt | create_role_stmt | alter_role_stmt | grant_stmt | revoke_stmt | drop_role_stmt | drop_user_stmt | associate_statistics_stmt | disassociate_statistics_stmt | rename_stmt | comment_on_stmt | purge_stmt | flashback_table_stmt | flashback_database_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
+extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | alter_materialized_view_log_stmt | alter_materialized_zonemap_stmt | alter_analytic_view_stmt | alter_attribute_dimension_stmt | alter_hierarchy_stmt | alter_dimension_stmt | alter_cluster_stmt | alter_database_link_stmt | alter_indextype_stmt | alter_operator_stmt | alter_outline_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | drop_synonym_stmt | drop_type_body_stmt | drop_type_stmt | drop_function_stmt | drop_procedure_stmt | drop_package_stmt | drop_library_stmt | drop_java_stmt | drop_analytic_view_stmt | drop_attribute_dimension_stmt | drop_hierarchy_stmt | drop_dimension_stmt | drop_cluster_stmt | drop_database_link_stmt | drop_directory_stmt | drop_indextype_stmt | drop_operator_stmt | drop_outline_stmt | drop_property_graph_stmt | drop_iceberg_table_stmt | drop_context_stmt | drop_mle_env_stmt | drop_mle_module_stmt | drop_assertion_stmt | drop_directive_stmt | drop_edition_stmt | drop_flashback_archive_stmt | drop_inmemory_join_group_stmt | drop_lockdown_profile_stmt | drop_pmem_filestore_stmt | drop_profile_stmt | drop_rollback_segment_stmt | drop_database_stmt | drop_pluggable_database_stmt | drop_tablespace_set_stmt | drop_tablespace_stmt | drop_diskgroup_stmt | drop_restore_point_stmt | set_transaction_stmt | set_constraints_stmt | set_role_stmt | set_use_data_grants_only_stmt | alter_session_stmt | alter_system_stmt | alter_synonym_stmt | alter_trigger_stmt | alter_type_stmt | alter_function_stmt | alter_procedure_stmt | alter_package_stmt | alter_library_stmt | alter_java_stmt | administer_key_management_stmt | create_function_stmt | create_package_body_stmt | create_type_body_stmt | create_library_stmt | create_audit_policy_stmt | alter_audit_policy_stmt | drop_audit_policy_stmt | audit_stmt | noaudit_stmt | create_user_stmt | alter_user_stmt | create_role_stmt | alter_role_stmt | grant_stmt | revoke_stmt | drop_role_stmt | drop_user_stmt | associate_statistics_stmt | disassociate_statistics_stmt | rename_stmt | comment_on_stmt | purge_stmt | flashback_table_stmt | flashback_database_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionStmt"
   override = true
@@ -494,6 +499,106 @@ private oracle_dimension_boundary_token ::= (
   'JOIN' |
   'KEY' |
   'REFERENCES'
+)
+
+alter_cluster_stmt ::= 'ALTER' 'CLUSTER' [ 'IF' 'EXISTS' ] oracle_schema_object_name oracle_cluster_clause + {
+  pin = 2
+}
+
+alter_database_link_stmt ::= 'ALTER' [ 'SHARED' ] [ 'PUBLIC' ] 'DATABASE' 'LINK' [ 'IF' 'EXISTS' ] oracle_database_link_name
+  oracle_database_link_clause {
+  pin = 4
+}
+
+alter_indextype_stmt ::= 'ALTER' 'INDEXTYPE' [ 'IF' 'EXISTS' ] oracle_schema_object_name oracle_indextype_clause + {
+  pin = 2
+}
+
+alter_operator_stmt ::= 'ALTER' 'OPERATOR' [ 'IF' 'EXISTS' ] oracle_schema_object_name oracle_operator_clause {
+  pin = 2
+}
+
+alter_outline_stmt ::= 'ALTER' [ 'PUBLIC' | 'PRIVATE' ] 'OUTLINE' oracle_schema_object_name oracle_outline_clause {
+  pin = 3
+}
+
+private oracle_cluster_clause ::= (
+  'SIZE' oracle_size_clause |
+  'CACHE' |
+  'NOCACHE' |
+  'ALLOCATE' 'EXTENT' oracle_cluster_boundary_token * |
+  'DEALLOCATE' 'UNUSED' [ 'KEEP' oracle_size_clause ] |
+  'MODIFY' 'PARTITION' oracle_object_name_part 'ALLOCATE' 'EXTENT' oracle_cluster_boundary_token * |
+  oracle_cluster_boundary_token
+)
+
+private oracle_database_link_clause ::= (
+  'CONNECT' (
+    'TO' oracle_object_name_part 'IDENTIFIED' 'BY' oracle_authentication_value [ oracle_dblink_authentication ] |
+    'WITH' oracle_object_name_part
+  ) |
+  oracle_dblink_authentication
+)
+
+private oracle_dblink_authentication ::= 'AUTHENTICATED' (
+  'BY' oracle_object_name_part 'IDENTIFIED' 'BY' oracle_authentication_value |
+  'WITH' oracle_object_name_part
+)
+
+private oracle_indextype_clause ::= (
+  'COMPILE' |
+  ( 'ADD' | 'DROP' ) 'OPERATOR' oracle_schema_object_name [ LP oracle_type_name ( COMMA oracle_type_name ) * RP ] |
+  'USING' oracle_indextype_boundary_token + |
+  'WITH' 'LOCAL' 'PARTITION' oracle_indextype_boundary_token *
+)
+
+private oracle_operator_clause ::= (
+  'COMPILE' |
+  'ADD' 'BINDING' oracle_operator_boundary_token + |
+  'DROP' 'BINDING' oracle_operator_boundary_token + [ 'FORCE' ]
+)
+
+private oracle_outline_clause ::= (
+  'REBUILD' |
+  'RENAME' 'TO' oracle_object_name_part |
+  'CHANGE' 'CATEGORY' 'TO' oracle_object_name_part |
+  'ENABLE' |
+  'DISABLE'
+)
+
+private oracle_cluster_boundary_token ::= (
+  oracle_plsql_source_token |
+  oracle_size_clause |
+  'FREEPOOLS' |
+  'INITRANS' |
+  'MAXEXTENTS' |
+  'MINEXTENTS' |
+  'NEXT' |
+  'PARALLEL' |
+  'PCTFREE' |
+  'PCTINCREASE' |
+  'PCTUSED' |
+  'STORAGE'
+)
+
+private oracle_indextype_boundary_token ::= (
+  oracle_plsql_source_token |
+  oracle_type_name |
+  'ARRAY' |
+  'DML' |
+  'LOCAL' |
+  'PARTITION' |
+  'STORAGE' |
+  'TABLE'
+)
+
+private oracle_operator_boundary_token ::= (
+  oracle_plsql_source_token |
+  oracle_type_name |
+  'BINDING' |
+  'CONTEXT' |
+  'RETURN' |
+  'USING'
 )
 
 drop_synonym_stmt ::= 'DROP' [ 'PUBLIC' ] 'SYNONYM' [ 'IF' 'EXISTS' ] oracle_schema_object_name [ 'FORCE' ] {

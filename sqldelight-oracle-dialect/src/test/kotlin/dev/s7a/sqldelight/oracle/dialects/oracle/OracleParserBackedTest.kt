@@ -819,6 +819,52 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle schema object alter statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                ALTER CLUSTER personnel SIZE 1024 CACHE;
+
+                ALTER CLUSTER IF EXISTS hr.language DEALLOCATE UNUSED KEEP 30 K;
+
+                ALTER DATABASE LINK private_link
+                  CONNECT TO hr IDENTIFIED BY hr_new_password;
+
+                ALTER PUBLIC DATABASE LINK public_link
+                  CONNECT TO scott IDENTIFIED BY scott_new_password;
+
+                ALTER SHARED PUBLIC DATABASE LINK shared_pub_link
+                  CONNECT TO scott IDENTIFIED BY scott_new_password
+                  AUTHENTICATED BY hr IDENTIFIED BY hr_new_password;
+
+                ALTER DATABASE LINK IF EXISTS private_credential_link
+                  CONNECT WITH hr_credential;
+
+                ALTER INDEXTYPE position_indextype COMPILE;
+
+                ALTER INDEXTYPE IF EXISTS hr.position_indextype
+                  ADD OPERATOR eq_op(NUMBER, NUMBER);
+
+                ALTER OPERATOR eq_op COMPILE;
+
+                ALTER OPERATOR IF EXISTS hr.eq_op
+                  DROP BINDING (NUMBER, NUMBER) FORCE;
+
+                ALTER OUTLINE salaries REBUILD;
+
+                ALTER PRIVATE OUTLINE session_outline RENAME TO session_outline_v2;
+
+                ALTER PUBLIC OUTLINE salaries CHANGE CATEGORY TO reporting;
+
+                ALTER OUTLINE salaries DISABLE;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle graph, Iceberg, context, and MLE drop statements through SQLDelight environment exactly") {
             val sql =
                 """

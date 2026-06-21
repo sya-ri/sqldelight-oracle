@@ -448,9 +448,40 @@ private oracle_domain_index_clause ::= 'INDEXTYPE' 'IS' oracle_schema_object_nam
 
 private oracle_index_parameters_clause ::= 'PARAMETERS' LP oracle_index_boundary_token * RP
 
-private oracle_index_storage_clause ::= oracle_index_storage_keyword LP oracle_index_boundary_token * RP
+private oracle_index_storage_clause ::= 'STORAGE' LP oracle_index_storage_token * RP {
+  pin = 1
+}
 
-private oracle_index_storage_keyword ::= <<identifierExt identifier_real>> | 'STORAGE'
+private oracle_index_storage_token ::= (
+  oracle_index_storage_parenthesized_clause |
+  oracle_size_clause |
+  oracle_object_name_part |
+  {string_literal} |
+  string |
+  DIGIT |
+  {signed_number} |
+  COMMA |
+  DOT |
+  EQ |
+  'BUFFER_POOL' |
+  'CELL_FLASH_CACHE' |
+  'ENCRYPT' |
+  'FLASH_CACHE' |
+  'FREELIST' |
+  'FREELISTS' |
+  'GROUPS' |
+  'INITIAL' |
+  'KEEP' |
+  'MAXEXTENTS' |
+  'MINEXTENTS' |
+  'NEXT' |
+  'NONE' |
+  'OPTIMAL' |
+  'PCTINCREASE' |
+  'RECYCLE'
+)
+
+private oracle_index_storage_parenthesized_clause ::= LP oracle_index_storage_token * RP
 
 private oracle_index_partition_clause ::= (
   'GLOBAL' oracle_index_boundary_token * |

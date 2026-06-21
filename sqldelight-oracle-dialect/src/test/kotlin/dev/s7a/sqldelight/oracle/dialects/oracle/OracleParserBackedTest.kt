@@ -205,6 +205,7 @@ class OracleParserBackedTest :
                 GLOBAL PARTITION BY RANGE (created_at)
                 (PARTITION p_max VALUES LESS THAN (MAXVALUE))
                 TABLESPACE users
+                STORAGE (INITIAL 64 K NEXT 64 K)
                 PCTFREE 10
                 INITRANS 2
                 COMPRESS ADVANCED LOW;
@@ -218,6 +219,7 @@ class OracleParserBackedTest :
                 CREATE INDEX indexed_accounts_cluster_idx
                 ON CLUSTER indexed_accounts
                 TABLESPACE users
+                STORAGE (INITIAL 64 K)
                 NOSORT;
 
                 CREATE INDEX indexed_accounts_ilm_idx

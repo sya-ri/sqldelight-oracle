@@ -991,6 +991,17 @@ class OracleParserBackedTest :
                     PARTITION BY department_id
                     ORDER BY amount DESC NULLS LAST
                   ) AS amount_rank,
+                  CUME_DIST() OVER (
+                    PARTITION BY department_id
+                    ORDER BY amount
+                  ) AS cumulative_distribution,
+                  PERCENT_RANK() OVER (
+                    PARTITION BY department_id
+                    ORDER BY amount
+                  ) AS percent_rank,
+                  RATIO_TO_REPORT(amount) OVER (
+                    PARTITION BY region
+                  ) AS regional_ratio,
                   MAX(employee_id) KEEP (
                     DENSE_RANK LAST ORDER BY amount NULLS LAST
                   ) AS top_employee_id

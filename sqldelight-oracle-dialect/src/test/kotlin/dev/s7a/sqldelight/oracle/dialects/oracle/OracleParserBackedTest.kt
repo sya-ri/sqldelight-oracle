@@ -27,6 +27,7 @@ class OracleParserBackedTest :
                   amount NUMBER(10, 2),
                   name NATIONAL CHARACTER VARYING(100),
                   payload JSON,
+                  active BOOLEAN,
                   raw_uuid RAW(16),
                   embedding VECTOR(3, FLOAT32),
                   created_at TIMESTAMP(6) WITH LOCAL TIME ZONE,
@@ -34,7 +35,7 @@ class OracleParserBackedTest :
                 );
 
                 selectAll:
-                SELECT id, amount, name, payload, raw_uuid, embedding, created_at, elapsed
+                SELECT id, amount, name, payload, active, raw_uuid, embedding, created_at, elapsed
                 FROM sample;
                 """.trimIndent()
 

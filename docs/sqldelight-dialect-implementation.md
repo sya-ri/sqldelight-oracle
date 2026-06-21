@@ -33,7 +33,7 @@ The SQLite dialect artifact includes:
 - [x] Generated Oracle parser and PSI classes via `app.cash.grammarkit-composer`
 - [x] Generated Oracle parser utility object
 - [x] `setup()` installs parser overrides
-- [x] Public package layout follows the official dialect shape: `dev.s7a.sqldelight.oracle.dialects.oracle` and `dev.s7a.sqldelight.oracle.dialects.oracle.grammar`
+- [x] Public package and file layout follows the official [`dialects/<name>`](https://github.com/sqldelight/sqldelight/tree/master/dialects) shape: `dev.s7a.sqldelight.oracle.dialects.oracle`, `grammar/Oracle.bnf`, and `grammar/mixins`
 - [x] Parser-backed SQLDelight tests for Oracle `.sq` files
 
 ## Parser Override Targets

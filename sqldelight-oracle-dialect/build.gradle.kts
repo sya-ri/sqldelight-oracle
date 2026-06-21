@@ -9,8 +9,8 @@ grammarKit {
 }
 
 tasks.matching { task -> task.name == "lintKotlinMain" }.configureEach {
-    dependsOn("createComposabledev_s7a_sqldelight_oracle_dialects_oracle_grammar_oracleGrammar")
-    dependsOn("generatedev_s7a_sqldelight_oracle_dialects_oracle_grammar_oracleParser")
+    dependsOn("createComposabledev_s7a_sqldelight_oracle_dialects_oracle_grammar_OracleGrammar")
+    dependsOn("generatedev_s7a_sqldelight_oracle_dialects_oracle_grammar_OracleParser")
 }
 
 afterEvaluate {

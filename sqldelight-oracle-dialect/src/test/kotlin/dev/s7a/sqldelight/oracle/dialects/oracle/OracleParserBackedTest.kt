@@ -258,6 +258,31 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle floating-point and IS OF type conditions exactly") {
+            val sql =
+                """
+                CREATE TABLE measurement_samples (
+                  id NUMBER PRIMARY KEY,
+                  payload OBJECT,
+                  salary BINARY_DOUBLE,
+                  commission_pct BINARY_FLOAT
+                );
+
+                SELECT id
+                FROM measurement_samples
+                WHERE salary IS NAN
+                  AND commission_pct IS NOT INFINITE
+                  AND payload IS OF TYPE (employee_t)
+                  AND payload IS NOT OF (ONLY part_time_emp_t, hr.contractor_t);
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle cursor expressions exactly") {
             val sql =
                 """

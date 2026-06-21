@@ -1,0 +1,32 @@
+[versions]
+dokka = "2.2.0"
+kotlin = "2.4.0"
+kotest = "6.2.1"
+kotlinter = "5.5.0"
+kover = "0.9.8"
+mavenPublish = "0.37.0-rc1"
+ojdbc = "23.26.2.0.0"
+sqldelight = "2.3.2"
+sqldelightCheck = "0.3.0"
+testcontainers = "1.21.4"
+
+[plugins]
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+dokka-javadoc = { id = "org.jetbrains.dokka-javadoc", version.ref = "dokka" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }
+maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPublish" }
+
+[libraries]
+dokka-versioning-plugin = { module = "org.jetbrains.dokka:versioning-plugin", version.ref = "dokka" }
+kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-framework-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
+kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+ojdbc11 = { module = "com.oracle.database.jdbc:ojdbc11", version.ref = "ojdbc" }
+sqldelight-dialect-api = { module = "app.cash.sqldelight:dialect-api", version.ref = "sqldelight" }
+sqldelight-postgresql-dialect = { module = "app.cash.sqldelight:postgresql-dialect", version.ref = "sqldelight" }
+sqldelight-check-api = { module = "dev.s7a:sqldelight-check-api", version.ref = "sqldelightCheck" }
+sqldelight-check-rule-api = { module = "dev.s7a:sqldelight-check-rule-api", version.ref = "sqldelightCheck" }
+testcontainers-junit-jupiter = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
+testcontainers-oracle-xe = { module = "org.testcontainers:oracle-xe", version.ref = "testcontainers" }

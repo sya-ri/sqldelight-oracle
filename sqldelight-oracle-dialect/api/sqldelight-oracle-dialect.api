@@ -36,6 +36,7 @@ public final class dev/s7a/sqldelight/oracle/dialect/OracleType : java/lang/Enum
 }
 
 public final class dev/s7a/sqldelight/oracle/dialect/OracleType$Companion {
+	public final fun fromFunctionName (Ljava/lang/String;)Ldev/s7a/sqldelight/oracle/dialect/OracleType;
 	public final fun fromSqlTypeName (Ljava/lang/String;)Ldev/s7a/sqldelight/oracle/dialect/OracleType;
 }
 

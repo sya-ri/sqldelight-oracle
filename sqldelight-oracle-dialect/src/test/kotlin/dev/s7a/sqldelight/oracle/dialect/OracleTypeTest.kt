@@ -65,6 +65,65 @@ class OracleTypeTest :
             exception.message shouldBe "Unknown Kotlin type for Oracle SQL type UNSUPPORTED_TYPE"
         }
 
+        test("maps Oracle function names to SQLDelight dialect types exactly") {
+            val mappings =
+                listOf(
+                    "CURRENT_DATE" to OracleType.DATE,
+                    "SYSDATE" to OracleType.DATE,
+                    "CURRENT_TIMESTAMP" to OracleType.TIMESTAMP,
+                    "LOCALTIMESTAMP" to OracleType.TIMESTAMP,
+                    "SYSTIMESTAMP" to OracleType.TIMESTAMP_TIME_ZONE,
+                    "TO_CHAR" to OracleType.TEXT,
+                    "RAWTOHEX" to OracleType.TEXT,
+                    "JSON_QUERY" to OracleType.TEXT,
+                    "JSON_SERIALIZE" to OracleType.TEXT,
+                    "XMLSERIALIZE" to OracleType.TEXT,
+                    "TO_DATE" to OracleType.DATE,
+                    "TO_TIMESTAMP" to OracleType.TIMESTAMP,
+                    "TO_TIMESTAMP_TZ" to OracleType.TIMESTAMP_TIME_ZONE,
+                    "TO_NUMBER" to OracleType.DECIMAL_NUMBER,
+                    "HEXTORAW" to OracleType.BINARY,
+                    "JSON_OBJECT" to OracleType.TEXT,
+                    "JSON_ARRAY" to OracleType.TEXT,
+                    "JSON_OBJECTAGG" to OracleType.TEXT,
+                    "JSON_ARRAYAGG" to OracleType.TEXT,
+                    "XMLTYPE" to OracleType.TEXT,
+                    "XMLELEMENT" to OracleType.TEXT,
+                    "XMLFOREST" to OracleType.TEXT,
+                    "XMLAGG" to OracleType.TEXT,
+                    "LENGTH" to OracleType.LONG_NUMBER,
+                    "INSTR" to OracleType.LONG_NUMBER,
+                    "ROW_NUMBER" to OracleType.LONG_NUMBER,
+                    "RANK" to OracleType.LONG_NUMBER,
+                    "DENSE_RANK" to OracleType.LONG_NUMBER,
+                    "NTILE" to OracleType.LONG_NUMBER,
+                    "COUNT" to OracleType.LONG_NUMBER,
+                    "AVG" to OracleType.DECIMAL_NUMBER,
+                    "MEDIAN" to OracleType.DECIMAL_NUMBER,
+                    "STDDEV" to OracleType.DECIMAL_NUMBER,
+                    "VARIANCE" to OracleType.DECIMAL_NUMBER,
+                    "SIN" to OracleType.BINARY_DOUBLE,
+                    "COS" to OracleType.BINARY_DOUBLE,
+                    "TAN" to OracleType.BINARY_DOUBLE,
+                    "ASIN" to OracleType.BINARY_DOUBLE,
+                    "ACOS" to OracleType.BINARY_DOUBLE,
+                    "ATAN" to OracleType.BINARY_DOUBLE,
+                    "ATAN2" to OracleType.BINARY_DOUBLE,
+                    "EXP" to OracleType.BINARY_DOUBLE,
+                    "LN" to OracleType.BINARY_DOUBLE,
+                    "LOG" to OracleType.BINARY_DOUBLE,
+                    "SQRT" to OracleType.BINARY_DOUBLE,
+                )
+
+            mappings.map { (functionName, expectedType) -> functionName to OracleType.fromFunctionName(functionName) } shouldBe mappings
+        }
+
+        test("leaves unsupported Oracle function names to the parent resolver exactly") {
+            OracleType.fromFunctionName("UNSUPPORTED_FUNCTION") shouldBe null
+            OracleType.fromFunctionName("nvl") shouldBe null
+            OracleType.fromFunctionName("coalesce") shouldBe null
+        }
+
         test("generates binders and cursor getters exactly") {
             val generated =
                 OracleType.entries.map { type ->

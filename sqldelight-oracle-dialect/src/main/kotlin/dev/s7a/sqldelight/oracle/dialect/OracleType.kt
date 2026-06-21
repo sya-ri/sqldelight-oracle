@@ -126,6 +126,26 @@ public enum class OracleType(
             }
         }
 
+        public fun fromFunctionName(functionName: String): OracleType? =
+            when (functionName.trim().uppercase()) {
+                "CURRENT_DATE", "SYSDATE" -> DATE
+                "CURRENT_TIMESTAMP", "LOCALTIMESTAMP" -> TIMESTAMP
+                "SYSTIMESTAMP" -> TIMESTAMP_TIME_ZONE
+                "TO_CHAR", "RAWTOHEX", "JSON_QUERY", "JSON_SERIALIZE", "XMLSERIALIZE" -> TEXT
+                "TO_DATE" -> DATE
+                "TO_TIMESTAMP" -> TIMESTAMP
+                "TO_TIMESTAMP_TZ" -> TIMESTAMP_TIME_ZONE
+                "TO_NUMBER" -> DECIMAL_NUMBER
+                "HEXTORAW" -> BINARY
+                "JSON_OBJECT", "JSON_ARRAY", "JSON_OBJECTAGG", "JSON_ARRAYAGG" -> TEXT
+                "XMLTYPE", "XMLELEMENT", "XMLFOREST", "XMLAGG" -> TEXT
+                "LENGTH", "INSTR", "ROW_NUMBER", "RANK", "DENSE_RANK", "NTILE" -> LONG_NUMBER
+                "COUNT" -> LONG_NUMBER
+                "AVG", "MEDIAN", "STDDEV", "VARIANCE" -> DECIMAL_NUMBER
+                "SIN", "COS", "TAN", "ASIN", "ACOS", "ATAN", "ATAN2", "EXP", "LN", "LOG", "SQRT" -> BINARY_DOUBLE
+                else -> null
+            }
+
         private val textBaseNames: Set<String> =
             setOf(
                 "CHAR",

@@ -191,6 +191,39 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle create view statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE view_accounts (
+                  id NUMBER PRIMARY KEY,
+                  status VARCHAR2(32) NOT NULL,
+                  created_at TIMESTAMP
+                );
+
+                CREATE OR REPLACE FORCE EDITIONING VIEW account_status_view AS
+                SELECT id AS account_id, status AS account_status, created_at AS account_created_at
+                FROM view_accounts
+                WHERE status IS NOT NULL
+                BEQUEATH CURRENT_USER
+                WITH CHECK OPTION;
+
+                CREATE NO FORCE VIEW readonly_account_view AS
+                SELECT id, status
+                FROM view_accounts
+                WITH READ ONLY;
+
+                selectAll:
+                SELECT account_id, account_status, account_created_at
+                FROM account_status_view;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

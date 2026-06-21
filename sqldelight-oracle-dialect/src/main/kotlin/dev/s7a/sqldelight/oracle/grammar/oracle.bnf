@@ -18,7 +18,7 @@
   ]
 }
 
-overrides ::= type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt
+overrides ::= type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt
 
 type_name ::= oracle_type_name | core_type_name {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTypeNameImpl"
@@ -240,3 +240,14 @@ private oracle_index_attribute ::= (
   'NOCOMPRESS' |
   'INDEXING' ( 'FULL' | 'PARTIAL' )
 )
+
+create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ] [ 'EDITIONING' | 'EDITIONABLE' | 'NONEDITIONABLE' ] 'VIEW'
+  [ {database_name} DOT ] {view_name} [ LP {column_alias} ( COMMA {column_alias} ) * RP ] 'AS' {compound_select_stmt}
+  [ 'BEQUEATH' ( 'CURRENT_USER' | 'DEFINER' ) ] [ 'WITH' ( [ 'CASCADED' | 'LOCAL' ] 'CHECK' 'OPTION' | 'READ' 'ONLY' ) ] {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCreateViewStmtImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.TableElement"
+  elementTypeClass = "com.alecstrong.sql.psi.core.psi.mixins.CreateViewElementType"
+  stubClass = "com.alecstrong.sql.psi.core.psi.SchemaContributorStub"
+  override = true
+  pin = 6
+}

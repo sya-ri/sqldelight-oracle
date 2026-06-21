@@ -80,8 +80,8 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [`CREATE TABLE AS SELECT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html) parser support for SQLDelight query files
 - [x] [`CREATE INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-INDEX.html) parser support for `UNIQUE`, `BITMAP`, `IF NOT EXISTS`, ordinary/function-based indexed columns, visibility, `ONLINE`, `REVERSE`, logging, compression, and `INDEXING FULL/PARTIAL`
 - [ ] [`CREATE INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-INDEX.html) index variants: domain, cluster, bitmap join, XMLIndex, multivalue JSON, local/global partitioned indexes, ILM, storage, and advanced index attributes
-- [ ] [`CREATE VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-VIEW.html)
-- [ ] [`CREATE VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-VIEW.html) view variants: object views, XMLType views, editioning views, constraints, and `BEQUEATH`
+- [x] [`CREATE VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-VIEW.html) parser support for `OR REPLACE`, `FORCE` / `NO FORCE`, editioning keywords, `BEQUEATH`, `WITH CHECK OPTION`, and `WITH READ ONLY`
+- [ ] [`CREATE VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-VIEW.html) view variants: view column alias list semantic validation, object views, XMLType views, inline/out-of-line constraints, and advanced sharing clauses
 - [x] [`CREATE SEQUENCE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-SEQUENCE.html)
 - [x] [`CREATE MATERIALIZED VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-MATERIALIZED-VIEW.html)
 - [x] [`CREATE MATERIALIZED VIEW LOG`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-MATERIALIZED-VIEW-LOG.html)

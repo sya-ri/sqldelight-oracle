@@ -766,6 +766,32 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle boolean literals and test conditions exactly") {
+            val sql =
+                """
+                CREATE TABLE feature_flags (
+                  id NUMBER PRIMARY KEY,
+                  enabled BOOLEAN,
+                  validated BOOLEAN
+                );
+
+                SELECT id,
+                  TRUE AS literal_true,
+                  FALSE AS literal_false,
+                  UNKNOWN AS literal_unknown
+                FROM feature_flags
+                WHERE enabled IS TRUE
+                  AND validated IS NOT FALSE
+                  OR validated IS UNKNOWN;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle table constraints through SQLDelight environment exactly") {
             val sql =
                 """

@@ -268,6 +268,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [ ] [Expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Expressions.html): JSON object access, object access, type constructors, boolean expressions
 - [ ] [Analytic view and model expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Expressions.html): analytic view expressions, model expressions, cell references, and iteration expressions
 - [ ] [Conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Conditions.html): comparison, floating-point, logical, multiset, pattern matching, null, XML, SQL/JSON, compound, `BETWEEN`, `EXISTS`, `IN`, `IS OF`, boolean test
+- [x] [Boolean test conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Conditions.html) parser coverage for `IS TRUE`, `IS NOT FALSE`, `IS UNKNOWN`, and `TRUE`/`FALSE`/`UNKNOWN` literal expressions
 - [ ] [Regular expression syntax](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Oracle-Regular-Expression-Support.html): POSIX, Unicode multilingual enhancements, and Perl-influenced extensions used by `REGEXP_*`
 
 ## Functions

@@ -260,6 +260,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [`CASE` expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CASE-Expressions.html) parser support for simple and searched `CASE`
 - [x] [Scalar subquery expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Scalar-Subquery-Expressions.html) parser support
 - [x] [Placeholder expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Expressions.html) parser support for SQLDelight `?` bind parameters and Oracle `:name` / `:1` bind placeholders
+- [x] Type conversion expressions parser support for [`CAST`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CAST.html) and [`TREAT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TREAT.html)
 - [ ] [Expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Expressions.html): JSON object access, object access, type constructors, boolean expressions
 - [ ] [Analytic view and model expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Expressions.html): analytic view expressions, model expressions, cell references, and iteration expressions
 - [ ] [Conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Conditions.html): comparison, floating-point, logical, multiset, pattern matching, null, XML, SQL/JSON, compound, `BETWEEN`, `EXISTS`, `IN`, `IS OF`, boolean test

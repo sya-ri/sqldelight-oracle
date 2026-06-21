@@ -317,6 +317,30 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle type conversion expressions exactly") {
+            val sql =
+                """
+                CREATE TABLE employees (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(100),
+                  active BOOLEAN,
+                  payload JSON
+                );
+
+                SELECT CAST(name AS VARCHAR2(200)),
+                  CAST(id AS BINARY_DOUBLE),
+                  CAST(active AS NUMBER),
+                  TREAT(payload AS JSON)
+                FROM employees;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle inline column constraints through SQLDelight environment exactly") {
             val sql =
                 """

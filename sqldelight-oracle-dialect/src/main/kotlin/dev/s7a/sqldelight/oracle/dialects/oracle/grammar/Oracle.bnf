@@ -248,6 +248,12 @@ private oracle_simple_pseudocolumn ::= (
   'ORA_SHARDSPACE_NAME' |
   'ROWID' |
   'ROWNUM' |
+  'VERSIONS_ENDSCN' |
+  'VERSIONS_ENDTIME' |
+  'VERSIONS_OPERATION' |
+  'VERSIONS_STARTSCN' |
+  'VERSIONS_STARTTIME' |
+  'VERSIONS_XID' |
   'XMLDATA'
 )
 

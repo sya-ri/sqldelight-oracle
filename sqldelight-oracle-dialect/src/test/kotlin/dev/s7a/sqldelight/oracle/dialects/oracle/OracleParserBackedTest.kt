@@ -158,6 +158,30 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle version query pseudocolumns exactly") {
+            val sql =
+                """
+                CREATE TABLE employees (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(100)
+                );
+
+                SELECT VERSIONS_STARTSCN,
+                  VERSIONS_STARTTIME,
+                  VERSIONS_ENDSCN,
+                  VERSIONS_ENDTIME,
+                  VERSIONS_XID,
+                  VERSIONS_OPERATION
+                FROM employees;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle inline column constraints through SQLDelight environment exactly") {
             val sql =
                 """

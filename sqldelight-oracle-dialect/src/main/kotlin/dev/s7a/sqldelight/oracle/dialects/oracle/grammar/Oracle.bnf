@@ -16,11 +16,14 @@
     "static com.alecstrong.sql.psi.core.psi.SqlTypes.LP"
     "static com.alecstrong.sql.psi.core.psi.SqlTypes.RP"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.identifierExt"
+    "static com.alecstrong.sql.psi.core.SqlParserUtil.groupByExt"
+    "static com.alecstrong.sql.psi.core.SqlParserUtil.joinClauseExt"
+    "static com.alecstrong.sql.psi.core.SqlParserUtil.resultColumnExt"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.signedNumberExt"
   ]
 }
 
-overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | compound_select_stmt | with_clause | table_alias | group_by | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt
+overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | compound_select_stmt | select_stmt | with_clause | table_alias | group_by | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt
 
 stmt ::= explain_plan_stmt | oracle_core_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlStmtImpl"
@@ -370,6 +373,26 @@ compound_select_stmt ::= [ {with_clause} ] {select_stmt}
   implements = "com.alecstrong.sql.psi.core.psi.SqlCompoundSelectStmt"
   override = true
 }
+
+select_stmt ::= oracle_select_query | oracle_values_query {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlSelectStmtImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlSelectStmt"
+  override = true
+}
+
+private oracle_select_query ::= 'SELECT' [ 'DISTINCT' | 'ALL' ]
+  <<resultColumnExt <<result_column_real>>>> ( COMMA <<resultColumnExt <<result_column_real>>>> ) *
+  [ 'FROM' <<joinClauseExt <<join_clause_real>>>> ]
+  [ 'WHERE' <<expr '-1'>> ]
+  [ oracle_group_by_having_clause ]
+
+private oracle_values_query ::= 'VALUES' {values_expression} ( COMMA {values_expression} ) *
+
+private oracle_group_by_having_clause ::= (
+  'HAVING' <<expr '-1'>> {group_by} [ 'HAVING' <<expr '-1'>> ] |
+  <<groupByExt <<group_by_real>>>> [ 'HAVING' <<expr '-1'>> ] |
+  'HAVING' <<expr '-1'>>
+)
 
 private oracle_for_update_clause ::= 'FOR' 'UPDATE'
   [ 'OF' oracle_for_update_column ( COMMA oracle_for_update_column ) * ]

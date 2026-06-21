@@ -50,7 +50,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [ ] [`CONTAINERS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) and [`SHARDS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) query clauses
 - [ ] [`select_list`, aliases, and wildcard expansion](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html): `DISTINCT`, `UNIQUE`, `ALL`, object attributes, and column alias forms
 - [x] [`group_by_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/group_by_clause.html) aggregation parser support: `ROLLUP`, `CUBE`, `GROUPING SETS`, composite columns, `GROUP BY ALL`, and `HAVING` after `GROUP BY`
-- [ ] [`group_by_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/group_by_clause.html) leading `HAVING` form before `GROUP BY`
+- [x] [`group_by_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/group_by_clause.html) leading `HAVING` form before `GROUP BY`
 - [x] [`ORDER BY` and `order_by_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/order_by_clause.html): positional ordering, aliases, `NULLS FIRST/LAST`, and `SIBLINGS`
 - [x] [`for_update_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/for_update_clause.html): `FOR UPDATE`, `OF`, `NOWAIT`, `WAIT`, and `SKIP LOCKED`
 - [ ] [`GRAPHQL` table function](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graphql-table-function.html)

@@ -418,6 +418,12 @@ class OracleParserBackedTest :
                 SELECT region, SUM(amount) AS total_amount
                 FROM grouped_sales
                 GROUP BY ALL;
+
+                selectLeadingHaving:
+                SELECT region, SUM(amount) AS total_amount
+                FROM grouped_sales
+                HAVING SUM(amount) > 0
+                GROUP BY region;
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe

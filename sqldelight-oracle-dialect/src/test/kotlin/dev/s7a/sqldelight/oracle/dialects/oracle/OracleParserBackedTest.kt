@@ -559,6 +559,27 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle drop type statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                DROP TYPE person_t;
+
+                DROP TYPE IF EXISTS hr.person_t FORCE;
+
+                DROP TYPE employee_subtype VALIDATE;
+
+                DROP TYPE BODY data_typ1;
+
+                DROP TYPE BODY IF EXISTS hr.data_typ1;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

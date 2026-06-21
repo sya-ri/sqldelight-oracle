@@ -77,7 +77,7 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                     "REVOKE",
                     "ROLLBACK",
                     "SAVEPOINT",
-                    "SET CONSTRAINT",
+                    "SET CONSTRAINTS",
                     "SET TRANSACTION",
                     "TRUNCATE",
                     roles = setOf(StatementStart, SqlDelightStatementStart),

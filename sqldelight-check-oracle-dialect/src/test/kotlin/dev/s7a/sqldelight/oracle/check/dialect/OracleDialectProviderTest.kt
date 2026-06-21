@@ -149,7 +149,7 @@ private val oracleStatementStarts =
         Syntax("REVOKE"),
         Syntax("ROLLBACK"),
         Syntax("SAVEPOINT"),
-        Syntax("SET CONSTRAINT"),
+        Syntax("SET CONSTRAINTS"),
         Syntax("SET TRANSACTION"),
         Syntax("TRUNCATE"),
     )

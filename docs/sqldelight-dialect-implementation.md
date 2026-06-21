@@ -29,8 +29,8 @@ The SQLite dialect artifact includes:
 - [x] Argument-dependent function return type mapping
 - [x] Initial Oracle `type_name` parser override hook
 - [x] Oracle BNF source file
-- [ ] Generated Oracle parser and PSI classes
-- [x] Oracle parser utility object
+- [x] Generated Oracle parser and PSI classes via `app.cash.grammarkit-composer`
+- [x] Generated Oracle parser utility object
 - [x] `setup()` installs parser overrides
 - [ ] Parser-backed SQLDelight tests for Oracle `.sq` files
 
@@ -57,8 +57,8 @@ Oracle should add BNF overrides incrementally, with exact parser tests for each 
 
 ## Build Work
 
-- [ ] Add a Grammar-Kit based generation path or document the external generation command used to produce checked-in parser/PSI files
-- [ ] Include generated parser/PSI sources in the published artifact
-- [ ] Keep generated files deterministic and reproducible
+- [x] Add the official SQLDelight `app.cash.grammarkit-composer` generation path
+- [x] Include generated parser/PSI sources in the compiled and published artifact
+- [x] Keep generated files deterministic and reproducible from `src/main/kotlin/**/grammar/*.bnf`
 - [ ] Add tests that fail when `setup()` does not install Oracle parser overrides
 - [ ] Add parser tests using exact expected success/failure results for representative Oracle `.sq` files

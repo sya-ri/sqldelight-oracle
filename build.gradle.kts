@@ -15,6 +15,7 @@ plugins {
     alias(libs.plugins.kover)
     alias(libs.plugins.dokka)
     alias(libs.plugins.dokka.javadoc) apply false
+    alias(libs.plugins.grammar.kit.composer) apply false
     alias(libs.plugins.maven.publish) apply false
 }
 
@@ -64,6 +65,27 @@ tasks.register("releaseCheck") {
 subprojects {
     apply(plugin = "org.jmailen.kotlinter")
     apply(plugin = "org.jetbrains.kotlinx.kover")
+
+    repositories {
+        mavenCentral()
+        google()
+        maven("https://www.jetbrains.com/intellij-repository/releases")
+        maven("https://cache-redirector.jetbrains.com/intellij-dependencies")
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide-plugin-dependencies/")
+    }
+
+    configurations.configureEach {
+        exclude(group = "com.jetbrains.rd")
+        exclude(group = "com.github.jetbrains", module = "jetCheck")
+        exclude(group = "com.jetbrains.intellij.platform", module = "wsl-impl")
+        exclude(group = "org.roaringbitmap")
+        exclude(group = "com.jetbrains.infra")
+        exclude(group = "org.jetbrains.teamcity")
+        exclude(group = "ai.grazie.spell")
+        exclude(group = "ai.grazie.model")
+        exclude(group = "ai.grazie.utils")
+        exclude(group = "ai.grazie.nlp")
+    }
 
     group = rootProject.group
     version = rootProject.version

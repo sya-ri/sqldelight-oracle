@@ -1,5 +1,7 @@
 [versions]
 dokka = "2.2.0"
+grammarKitComposer = "0.2.0"
+intellijPlatform = "231.9392.1"
 kotlin = "2.4.0"
 kotest = "6.2.1"
 kotlinter = "5.5.0"
@@ -13,6 +15,7 @@ testcontainers = "1.21.4"
 [plugins]
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 dokka-javadoc = { id = "org.jetbrains.dokka-javadoc", version.ref = "dokka" }
+grammar-kit-composer = { id = "app.cash.grammarkit-composer", version.ref = "grammarKitComposer" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }

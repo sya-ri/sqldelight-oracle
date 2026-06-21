@@ -50,3 +50,87 @@ public final class dev/s7a/sqldelight/oracle/dialect/OracleTypeResolver : app/ca
 	public fun simplifyType (Lapp/cash/sqldelight/dialect/api/IntermediateType;)Lapp/cash/sqldelight/dialect/api/IntermediateType;
 }
 
+public class dev/s7a/sqldelight/oracle/dialect/grammar/OracleParser : com/intellij/lang/LightPsiParser, com/intellij/lang/PsiParser {
+	public fun <init> ()V
+	public static fun oracle_type_name_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun overrides_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public fun parse (Lcom/intellij/psi/tree/IElementType;Lcom/intellij/lang/PsiBuilder;)Lcom/intellij/lang/ASTNode;
+	public fun parseLight (Lcom/intellij/psi/tree/IElementType;Lcom/intellij/lang/PsiBuilder;)V
+	protected fun parse_root_ (Lcom/intellij/psi/tree/IElementType;Lcom/intellij/lang/PsiBuilder;)Z
+	public static fun type_name_real (Lcom/intellij/lang/PsiBuilder;I)Z
+}
+
+public final class dev/s7a/sqldelight/oracle/dialect/grammar/OracleParserUtil : com/intellij/lang/parser/GeneratedParserUtilBase {
+	public static final field INSTANCE Ldev/s7a/sqldelight/oracle/dialect/grammar/OracleParserUtil;
+	public final fun getCreateElement ()Lkotlin/jvm/functions/Function1;
+	public final fun getOracle_type_name ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getOverrides ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getType_name ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public static final fun oracleTypeNameExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public final fun overrideSqlParser ()V
+	public static final fun overridesExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public final fun reset ()V
+	public final fun setCreateElement (Lkotlin/jvm/functions/Function1;)V
+	public final fun setOracle_type_name (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setOverrides (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setType_name (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public static final fun typeNameExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialect/grammar/psi/OracleOracleTypeName : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialect/grammar/psi/OracleOverrides : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+	public abstract fun getTypeName ()Ldev/s7a/sqldelight/oracle/dialect/grammar/psi/OracleTypeName;
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialect/grammar/psi/OracleTypeName : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+	public abstract fun getOracleTypeName ()Ldev/s7a/sqldelight/oracle/dialect/grammar/psi/OracleOracleTypeName;
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialect/grammar/psi/OracleTypes {
+	public static final field COMMA Lcom/intellij/psi/tree/IElementType;
+	public static final field IDENTIFIER Lcom/intellij/psi/tree/IElementType;
+	public static final field IDENTIFIER_REAL Lcom/intellij/psi/tree/IElementType;
+	public static final field LP Lcom/intellij/psi/tree/IElementType;
+	public static final field ORACLE_TYPE_NAME Lcom/intellij/psi/tree/IElementType;
+	public static final field OVERRIDES Lcom/intellij/psi/tree/IElementType;
+	public static final field RP Lcom/intellij/psi/tree/IElementType;
+	public static final field SIGNED_NUMBER Lcom/intellij/psi/tree/IElementType;
+	public static final field SIGNED_NUMBER_REAL Lcom/intellij/psi/tree/IElementType;
+	public static final field TYPE_NAME Lcom/intellij/psi/tree/IElementType;
+}
+
+public class dev/s7a/sqldelight/oracle/dialect/grammar/psi/OracleTypes$Factory {
+	public fun <init> ()V
+	public static fun createElement (Lcom/intellij/lang/ASTNode;)Lcom/intellij/psi/PsiElement;
+}
+
+public class dev/s7a/sqldelight/oracle/dialect/grammar/psi/OracleVisitor : com/intellij/psi/PsiElementVisitor {
+	public fun <init> ()V
+	public fun visitOracleTypeName (Ldev/s7a/sqldelight/oracle/dialect/grammar/psi/OracleOracleTypeName;)V
+	public fun visitOverrides (Ldev/s7a/sqldelight/oracle/dialect/grammar/psi/OracleOverrides;)V
+	public fun visitSqlCompositeElement (Lcom/alecstrong/sql/psi/core/psi/SqlCompositeElement;)V
+	public fun visitTypeName (Ldev/s7a/sqldelight/oracle/dialect/grammar/psi/OracleTypeName;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialect/grammar/psi/impl/OracleOracleTypeNameImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialect/grammar/psi/OracleOracleTypeName {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialect/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialect/grammar/psi/impl/OracleOverridesImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialect/grammar/psi/OracleOverrides {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialect/grammar/psi/OracleVisitor;)V
+	public fun getTypeName ()Ldev/s7a/sqldelight/oracle/dialect/grammar/psi/OracleTypeName;
+}
+
+public class dev/s7a/sqldelight/oracle/dialect/grammar/psi/impl/OracleTypeNameImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialect/grammar/psi/OracleTypeName {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialect/grammar/psi/OracleVisitor;)V
+	public fun getOracleTypeName ()Ldev/s7a/sqldelight/oracle/dialect/grammar/psi/OracleOracleTypeName;
+}
+

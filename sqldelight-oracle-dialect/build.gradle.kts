@@ -1,6 +1,35 @@
 plugins {
     `java-library`
+    alias(libs.plugins.grammar.kit.composer)
     alias(libs.plugins.kotlin.jvm)
+}
+
+grammarKit {
+    intellijRelease.set(libs.versions.intellijPlatform)
+}
+
+tasks.matching { task -> task.name == "lintKotlinMain" }.configureEach {
+    dependsOn("createComposabledev_s7a_sqldelight_oracle_dialect_grammar_oracleGrammar")
+    dependsOn("generatedev_s7a_sqldelight_oracle_dialect_grammar_oracleParser")
+}
+
+afterEvaluate {
+    val mainKotlinSources =
+        fileTree("src/main/kotlin") {
+            include("**/*.kt")
+        }
+
+    tasks.withType<org.jmailen.gradle.kotlinter.tasks.LintTask>()
+        .matching { task -> task.name == "lintKotlinMain" }
+        .configureEach {
+            setSource(mainKotlinSources)
+        }
+
+    tasks.withType<org.jmailen.gradle.kotlinter.tasks.FormatTask>()
+        .matching { task -> task.name == "formatKotlinMain" }
+        .configureEach {
+            setSource(mainKotlinSources)
+        }
 }
 
 dependencies {

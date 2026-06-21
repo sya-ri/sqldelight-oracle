@@ -897,6 +897,24 @@ class OracleParserBackedTest :
 
                 ALTER USER app_user ENABLE DICTIONARY PROTECTION READ ONLY;
 
+                ALTER USER app_user SET CONTAINER_DATA = ALL;
+
+                ALTER USER app_user SET CONTAINER_DATA = DEFAULT FOR sys.cdb_users;
+
+                ALTER USER app_user ADD CONTAINER_DATA = (pdb1, pdb2) FOR sys.cdb_tables;
+
+                ALTER USER app_user REMOVE CONTAINER_DATA = (pdb3);
+
+                ALTER USER app_user GRANT CONNECT THROUGH sh WITH ROLE warehouse_user AUTHENTICATION REQUIRED;
+
+                ALTER USER app_user GRANT CONNECT THROUGH app_proxy WITH NO ROLES;
+
+                ALTER USER app_user GRANT CONNECT THROUGH ENTERPRISE USERS;
+
+                ALTER USER app_user REVOKE CONNECT THROUGH sh;
+
+                ALTER USER app_user, reporting_user REVOKE CONNECT THROUGH ENTERPRISE USERS;
+
                 CREATE ROLE IF NOT EXISTS app_reader NOT IDENTIFIED;
 
                 CREATE ROLE app_writer IDENTIFIED BY writer_password CONTAINER = CURRENT;

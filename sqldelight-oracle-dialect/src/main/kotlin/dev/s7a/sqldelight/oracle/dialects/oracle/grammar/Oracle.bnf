@@ -603,7 +603,10 @@ create_user_stmt ::= 'CREATE' 'USER' [ 'IF' 'NOT' 'EXISTS' ] oracle_object_name_
   pin = 2
 }
 
-alter_user_stmt ::= 'ALTER' 'USER' [ 'IF' 'EXISTS' ] oracle_object_name_part oracle_alter_user_clause + {
+alter_user_stmt ::= 'ALTER' 'USER' [ 'IF' 'EXISTS' ] (
+  oracle_object_name_part oracle_alter_user_clause + |
+  oracle_object_name_part ( COMMA oracle_object_name_part ) * oracle_proxy_clause
+) {
   pin = 2
 }
 
@@ -624,6 +627,7 @@ private oracle_alter_user_clause ::= (
   'DROP' 'FACTOR' {string_literal} |
   'DEFAULT' 'ROLE' oracle_default_role_clause |
   'EXPIRE' 'PASSWORD' 'ROLLOVER' 'PERIOD' |
+  oracle_container_data_clause |
   oracle_user_clause
 )
 
@@ -647,6 +651,28 @@ private oracle_default_role_clause ::= (
   'ALL' [ 'EXCEPT' oracle_object_name_part ( COMMA oracle_object_name_part ) * ] |
   'NONE'
 )
+
+private oracle_proxy_clause ::= (
+  'GRANT' 'CONNECT' 'THROUGH' ( 'ENTERPRISE' 'USERS' | oracle_object_name_part oracle_db_user_proxy_clauses ) |
+  'REVOKE' 'CONNECT' 'THROUGH' ( 'ENTERPRISE' 'USERS' | oracle_object_name_part )
+)
+
+private oracle_db_user_proxy_clauses ::= [ 'WITH' ( 'ROLE' oracle_proxy_role_clause | 'NO' 'ROLES' ) ] [ 'AUTHENTICATION' 'REQUIRED' ]
+
+private oracle_proxy_role_clause ::= (
+  oracle_object_name_part ( COMMA oracle_object_name_part ) * |
+  'ALL' 'EXCEPT' oracle_object_name_part ( COMMA oracle_object_name_part ) *
+)
+
+private oracle_container_data_clause ::= (
+  'SET' 'CONTAINER_DATA' EQ oracle_container_data_value |
+  'ADD' 'CONTAINER_DATA' EQ oracle_container_name_list |
+  'REMOVE' 'CONTAINER_DATA' EQ oracle_container_name_list
+) [ 'FOR' oracle_schema_object_name ]
+
+private oracle_container_data_value ::= 'ALL' | 'DEFAULT' | oracle_container_name_list
+
+private oracle_container_name_list ::= LP oracle_object_name_part ( COMMA oracle_object_name_part ) * RP
 
 private oracle_size_clause ::= {signed_number} [ oracle_object_name_part ]
 

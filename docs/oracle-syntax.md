@@ -8,6 +8,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 
 - [ ] [Lexical conventions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Lexical-Conventions.html): case sensitivity, whitespace, delimiters, comments, and statement terminators
 - [ ] [Database object names and qualifiers](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Database-Object-Names-and-Qualifiers.html): quoted identifiers, schema qualifiers, database links, and partition/subpartition qualifiers
+- [x] [Nonquoted and quoted identifier compatibility](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Database-Object-Names-and-Qualifiers.html) parser coverage for double-quoted table names in `CREATE TABLE`, `CREATE INDEX ... ON`, and `SELECT ... FROM`
 - [ ] [Schema object reference syntax](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Syntax-for-Schema-Objects-and-Parts-in-SQL-Statements.html): remote object names, object attributes/methods, and partitioned table/index references
 - [ ] [Oracle reserved words and keywords](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Oracle-SQL-Reserved-Words-and-Keywords.html)
 - [ ] [SQL comments and hints](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comments.html): `--`, `/* ... */`, optimizer hints, and hint placement in DML/queries

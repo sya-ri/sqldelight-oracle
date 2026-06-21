@@ -125,6 +125,30 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle quoted table identifiers through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE "CaseSensitiveAccounts" (
+                  account_id NUMBER NOT NULL,
+                  select_value VARCHAR2(64),
+                  CONSTRAINT case_sensitive_accounts_pk PRIMARY KEY (account_id)
+                );
+
+                CREATE INDEX case_sensitive_accounts_select_idx
+                ON "CaseSensitiveAccounts" (select_value);
+
+                selectAll:
+                SELECT account_id, select_value
+                FROM "CaseSensitiveAccounts";
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle alter table statements through SQLDelight environment exactly") {
             val sql =
                 """

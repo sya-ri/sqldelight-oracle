@@ -271,7 +271,9 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 ## Functions
 
 - [ ] [Aggregate functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Aggregate-Functions.html): ordinary aggregates, `DISTINCT`/`ALL`, approximate aggregates, bit/boolean aggregates, statistical aggregates, and `KEEP`
+- [x] [Aggregate functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Aggregate-Functions.html) parser coverage for `KEEP (DENSE_RANK FIRST/LAST ORDER BY ...)`
 - [ ] [Analytic functions and `analytic_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Analytic-Functions.html): `OVER`, `PARTITION BY`, `ORDER BY`, windowing, ranking, distribution, reporting, and lag/lead functions
+- [x] [Analytic functions and `analytic_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Analytic-Functions.html) parser coverage for `OVER`, `PARTITION BY`, analytic `ORDER BY`, and `ROWS`/`RANGE`/`GROUPS` window bounds
 - [ ] [Single-row function categories](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Single-Row-Functions.html): numeric, calendar, character, character set, collation, datetime, comparison, conversion, LOB, collection, hierarchical, encoding/decoding, null-related, environment and identifier
 - [ ] [Model, object reference, OLAP, and data cartridge functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Functions.html): `CV`, `ITERATION_NUMBER`, `PRESENT*`, `PREVIOUS`, `REF`, `DEREF`, `MAKE_REF`, and extensible index functions
 - [x] [SQL/JSON functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Single-Row-Functions.html#GUID-C13171B3-C070-4137-AC71-7A30BD26F380): `JSON_ARRAY`, `JSON_OBJECT`, `JSON_QUERY`, `JSON_VALUE`, `JSON_SERIALIZE`, `JSON_TRANSFORM`, `JSON_SCALAR`

@@ -229,7 +229,7 @@ type_name ::= oracle_type_name | core_type_name {
   override = true
 }
 
-extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_cursor_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_bind_placeholder_expr {
+extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_analytic_function_expr | oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_cursor_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_bind_placeholder_expr {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionExprImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionExpr"
   override = true
@@ -238,6 +238,26 @@ extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_
 private oracle_text_literal ::= ( 'N' | 'n' ) {string_literal}
 
 private oracle_floating_point_literal ::= 'BINARY_FLOAT_NAN' | 'BINARY_FLOAT_INFINITY' | 'BINARY_DOUBLE_NAN' | 'BINARY_DOUBLE_INFINITY'
+
+private oracle_analytic_function_expr ::= oracle_function_invocation ( oracle_keep_clause [ oracle_over_clause ] | oracle_over_clause )
+
+private oracle_function_invocation ::= oracle_object_name_part LP [ oracle_function_argument ( COMMA oracle_function_argument ) * ] RP
+
+private oracle_function_argument ::= '*' | 'DISTINCT' <<expr '-1'>> | 'ALL' <<expr '-1'>> | <<expr '-1'>>
+
+private oracle_keep_clause ::= 'KEEP' LP 'DENSE_RANK' ( 'FIRST' | 'LAST' ) 'ORDER' 'BY' <<orderingTermExt <<ordering_term_real>>>> ( COMMA <<orderingTermExt <<ordering_term_real>>>> ) * RP
+
+private oracle_over_clause ::= 'OVER' LP [ oracle_query_partition_clause ] [ oracle_analytic_order_by_clause ] [ oracle_windowing_clause ] RP
+
+private oracle_query_partition_clause ::= 'PARTITION' 'BY' <<expr '-1'>> ( COMMA <<expr '-1'>> ) *
+
+private oracle_analytic_order_by_clause ::= 'ORDER' 'BY' <<orderingTermExt <<ordering_term_real>>>> ( COMMA <<orderingTermExt <<ordering_term_real>>>> ) *
+
+private oracle_windowing_clause ::= ( 'ROWS' | 'RANGE' | 'GROUPS' ) ( oracle_window_between_clause | oracle_window_bound )
+
+private oracle_window_between_clause ::= 'BETWEEN' oracle_window_bound 'AND' oracle_window_bound
+
+private oracle_window_bound ::= 'UNBOUNDED' ( 'PRECEDING' | 'FOLLOWING' ) | 'CURRENT' 'ROW' | <<expr '-1'>> ( 'PRECEDING' | 'FOLLOWING' )
 
 private oracle_xml_expr ::= oracle_xmlelement_expr | oracle_xmlagg_expr | oracle_xmlcast_expr | oracle_xmlquery_expr | oracle_xmlserialize_expr | oracle_xmlexists_expr
 

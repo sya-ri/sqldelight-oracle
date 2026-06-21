@@ -612,6 +612,43 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle analytic and aggregate function clauses exactly") {
+            val sql =
+                """
+                CREATE TABLE sales (
+                  id NUMBER PRIMARY KEY,
+                  region VARCHAR2(20),
+                  department_id NUMBER,
+                  employee_id NUMBER,
+                  amount NUMBER,
+                  sold_at DATE
+                );
+
+                SELECT region,
+                  department_id,
+                  employee_id,
+                  SUM(amount) OVER (
+                    PARTITION BY region
+                    ORDER BY sold_at
+                    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+                  ) AS running_amount,
+                  ROW_NUMBER() OVER (
+                    PARTITION BY department_id
+                    ORDER BY amount DESC NULLS LAST
+                  ) AS amount_rank,
+                  MAX(employee_id) KEEP (
+                    DENSE_RANK LAST ORDER BY amount NULLS LAST
+                  ) AS top_employee_id
+                FROM sales;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle inline column constraints through SQLDelight environment exactly") {
             val sql =
                 """

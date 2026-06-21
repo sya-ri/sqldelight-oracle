@@ -31,7 +31,7 @@ internal abstract class AlterTableRenameColumnMixin(
                         (it.element as NamedElement).textMatches(sourceColumn)
                     }
                 lazyQuery.query.copy(
-                    columns = lazyQuery.query.columns.map { if (it == replace) it.copy(targetColumn) else it },
+                    columns = lazyQuery.query.columns.map { if (it == replace) it.copy(element = targetColumn) else it },
                 )
             },
         )

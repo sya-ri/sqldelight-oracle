@@ -991,6 +991,39 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle insert error logging clauses through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE import_orders (
+                  order_id NUMBER PRIMARY KEY,
+                  customer_name VARCHAR2(128) NOT NULL,
+                  order_total NUMBER(10, 2)
+                );
+
+                insertValuesWithErrorLogging:
+                INSERT INTO import_orders (order_id, customer_name, order_total)
+                VALUES (?, ?, ?)
+                LOG ERRORS INTO import_order_errors ('values-load') REJECT LIMIT 25;
+
+                insertSelectWithErrorLogging:
+                INSERT INTO import_orders (order_id, customer_name, order_total)
+                SELECT order_id, customer_name, order_total
+                FROM import_orders
+                WHERE order_total IS NOT NULL
+                LOG ERRORS REJECT LIMIT UNLIMITED;
+
+                insertDefaultWithErrorLogging:
+                INSERT INTO import_orders DEFAULT VALUES
+                LOG ERRORS INTO import_order_errors REJECT LIMIT 1;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle call statements through SQLDelight environment exactly") {
             val sql =
                 """

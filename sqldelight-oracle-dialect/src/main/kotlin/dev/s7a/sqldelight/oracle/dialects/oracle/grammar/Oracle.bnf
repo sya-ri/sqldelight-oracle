@@ -31,7 +31,7 @@
   ]
 }
 
-overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | compound_select_stmt | select_stmt | with_clause | table_alias | table_or_subquery | group_by | join_operator | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt
+overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | insert_stmt | compound_select_stmt | select_stmt | with_clause | table_alias | table_or_subquery | group_by | join_operator | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt
 
 stmt ::= explain_plan_stmt | oracle_core_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlStmtImpl"
@@ -504,6 +504,22 @@ private oracle_composite_grouping ::= LP oracle_grouping_expression_list RP
 private oracle_grouping_expression_list ::= oracle_grouping_expression ( COMMA oracle_grouping_expression ) *
 
 private oracle_grouping_expression ::= oracle_composite_grouping | <<expr '-1'>>
+
+insert_stmt ::= [ {with_clause} ]
+  ( 'INSERT' 'OR' 'REPLACE' | 'REPLACE' | 'INSERT' 'OR' 'ROLLBACK' | 'INSERT' 'OR' 'ABORT' | 'INSERT' 'OR' 'FAIL' | 'INSERT' 'OR' 'IGNORE' | 'INSERT' )
+  'INTO' [ <<databaseNameExt <<database_name_real>>>> DOT ] <<tableNameExt <<table_name_real>>>> [ 'AS' <<tableAliasExt <<table_alias_real>>>> ]
+  [ LP {column_name} ( COMMA {column_name} ) * RP ] oracle_insert_stmt_values {
+  mixin="dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleInsertStmtMixin"
+  implements="com.alecstrong.sql.psi.core.psi.SqlInsertStmt"
+  override = true
+  pin = 5
+}
+
+private oracle_insert_stmt_values ::= (
+  'VALUES' ( {bind_expr} | {values_expression} ( COMMA {values_expression} ) * ) |
+  {compound_select_stmt} |
+  'DEFAULT' 'VALUES'
+) [ oracle_error_logging_clause ]
 
 table_alias ::= !'MINUS' ( <<identifierExt <<identifier_real>>>> | string ) {
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleTableAliasMixin"

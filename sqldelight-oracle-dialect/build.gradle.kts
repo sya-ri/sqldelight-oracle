@@ -22,13 +22,13 @@ afterEvaluate {
     tasks.withType<org.jmailen.gradle.kotlinter.tasks.LintTask>()
         .matching { task -> task.name == "lintKotlinMain" }
         .configureEach {
-            setSource(mainKotlinSources)
+            source = mainKotlinSources
         }
 
     tasks.withType<org.jmailen.gradle.kotlinter.tasks.FormatTask>()
         .matching { task -> task.name == "formatKotlinMain" }
         .configureEach {
-            setSource(mainKotlinSources)
+            source = mainKotlinSources
         }
 }
 

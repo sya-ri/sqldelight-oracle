@@ -182,6 +182,31 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle hierarchical and shard operators exactly") {
+            val sql =
+                """
+                CREATE TABLE employees (
+                  id NUMBER PRIMARY KEY,
+                  manager_id NUMBER,
+                  name VARCHAR2(100),
+                  shard_class VARCHAR2(8)
+                );
+
+                SELECT CONNECT_BY_ROOT name, id
+                FROM employees
+                WHERE PRIOR id = manager_id;
+
+                SELECT SHARD_CHUNK_ID(NULL, shard_class, id)
+                FROM employees;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle inline column constraints through SQLDelight environment exactly") {
             val sql =
                 """

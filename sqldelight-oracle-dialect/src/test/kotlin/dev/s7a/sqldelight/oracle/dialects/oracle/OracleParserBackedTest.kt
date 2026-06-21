@@ -1050,6 +1050,37 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle create JSON relational duality view statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE OR REPLACE JSON RELATIONAL DUALITY VIEW orders_ov AS
+                SELECT JSON_OBJECT('_id' VALUE ord.order_id, 'OrderStatus' VALUE ord.order_status)
+                FROM orders ord;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create JSON duality view replication statement through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE NO FORCE EDITIONABLE JSON DUALITY VIEW IF NOT EXISTS orders_ov
+                  ENABLE LOGICAL REPLICATION AS
+                SELECT JSON_OBJECT('_id' VALUE order_id)
+                FROM orders;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle MLE alter statements through SQLDelight environment exactly") {
             val sql =
                 """

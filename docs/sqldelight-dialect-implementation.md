@@ -42,7 +42,7 @@ The sql-psi core grammar is SQLite-shaped and exposes parser hooks through `SqlP
 Oracle should add BNF overrides incrementally, with exact parser tests for each supported query.
 
 - [x] `type_name`: initial hook for Oracle multi-word and parameterized data types such as `TIMESTAMP WITH TIME ZONE`, `INTERVAL YEAR TO MONTH`, `DOUBLE PRECISION`, `LONG RAW`, `NATIONAL CHARACTER VARYING`
-- [ ] `column_constraint`: Oracle `identity_clause`, inline `ENABLE` / `DISABLE`, `DEFERRABLE`, `INITIALLY`, `RELY`, `NOVALIDATE`, `VISIBLE`, `INVISIBLE`
+- [x] `column_constraint`: Oracle `identity_clause`, inline `ENABLE` / `DISABLE`, `DEFERRABLE`, `INITIALLY`, `RELY`, `NOVALIDATE`, `VISIBLE`, `INVISIBLE`
 - [ ] `table_constraint`: Oracle constraint states and storage-related suffixes
 - [ ] `create_table_stmt`: Oracle relational table clauses, object table clauses, temporary tables, external tables, blockchain/immutable table clauses, and `CREATE TABLE AS SELECT`
 - [ ] `alter_table_stmt`: Oracle add/modify/drop/rename column and constraint operations

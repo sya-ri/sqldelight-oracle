@@ -18,7 +18,7 @@
   ]
 }
 
-overrides ::= type_name
+overrides ::= type_name | column_constraint
 
 type_name ::= oracle_type_name | core_type_name {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTypeNameImpl"
@@ -91,3 +91,39 @@ private oracle_type_parameters ::= LP oracle_type_parameter_token (oracle_type_p
 private oracle_type_parameter_token ::= <<identifierExt identifier_real>> | oracle_vector_format | DIGIT | {signed_number} | COMMA
 
 private oracle_vector_format ::= 'FLOAT32' | 'FLOAT64' | 'INT8' | 'BINARY'
+
+column_constraint ::= [ 'CONSTRAINT' {identifier} ] (
+  'PRIMARY' 'KEY' oracle_constraint_state * |
+  [ 'NOT' ] 'NULL' oracle_constraint_state * |
+  'UNIQUE' oracle_constraint_state * |
+  {check_constraint} oracle_constraint_state * |
+  {default_constraint} |
+  'COLLATE' {collation_name} |
+  {foreign_key_clause} oracle_constraint_state * |
+  oracle_identity_clause |
+  oracle_visibility
+) {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlColumnConstraintImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlColumnConstraint"
+  override = true
+}
+
+private oracle_identity_clause ::= 'GENERATED' ( 'ALWAYS' | 'BY' 'DEFAULT' [ 'ON' 'NULL' ] ) 'AS' 'IDENTITY' [ oracle_parenthesized_clause ]
+
+private oracle_constraint_state ::= (
+  oracle_visibility |
+  'ENABLE' |
+  'DISABLE' |
+  [ 'NOT' ] 'DEFERRABLE' |
+  'INITIALLY' ( 'IMMEDIATE' | 'DEFERRED' ) |
+  [ 'NOT' ] 'RELY' |
+  'NORELY' |
+  [ 'NO' ] 'VALIDATE' |
+  'NOVALIDATE'
+)
+
+private oracle_visibility ::= 'VISIBLE' | 'INVISIBLE'
+
+private oracle_parenthesized_clause ::= LP oracle_clause_token * RP
+
+private oracle_clause_token ::= <<identifierExt identifier_real>> | DIGIT | {signed_number} | COMMA | LP | RP

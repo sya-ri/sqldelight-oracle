@@ -486,6 +486,55 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle SQL XML functions exactly") {
+            val sql =
+                """
+                CREATE TABLE departments (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(100),
+                  warehouse_spec XMLTYPE
+                );
+
+                CREATE TABLE employees (
+                  id NUMBER PRIMARY KEY,
+                  department_id NUMBER,
+                  name VARCHAR2(100)
+                );
+
+                SELECT XMLELEMENT(
+                  "Department",
+                  XMLATTRIBUTES(d.id AS "ID", d.name),
+                  XMLAGG(XMLELEMENT("Employee", e.name) ORDER BY e.name)
+                ),
+                  XMLCAST(XMLQUERY('/Warehouse/Area' PASSING d.warehouse_spec RETURNING CONTENT) AS NUMBER),
+                  XMLSERIALIZE(CONTENT d.warehouse_spec AS CLOB INDENT SIZE = 2 HIDE DEFAULTS)
+                FROM departments d,
+                  employees e
+                WHERE e.department_id = d.id
+                  AND XMLEXISTS('/Warehouse[Area > 50000]' PASSING d.warehouse_spec)
+                GROUP BY d.id, d.name, d.warehouse_spec;
+
+                SELECT d.id
+                FROM departments d,
+                  XMLTABLE(
+                    XMLNAMESPACES(DEFAULT 'http://example.com/warehouse'),
+                    '/Warehouse'
+                    PASSING BY VALUE XMLTYPE('<Warehouse/>')
+                    RETURNING SEQUENCE BY REF
+                    COLUMNS
+                      line_number FOR ORDINALITY,
+                      "Water" VARCHAR2(6) PATH 'WaterAccess' DEFAULT 'N',
+                      "Rail" VARCHAR2(6) PATH 'RailAccess'
+                  ) warehouse;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle inline column constraints through SQLDelight environment exactly") {
             val sql =
                 """

@@ -229,11 +229,45 @@ type_name ::= oracle_type_name | core_type_name {
   override = true
 }
 
-extension_expr ::= oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_cursor_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_bind_placeholder_expr {
+extension_expr ::= oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_cursor_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_bind_placeholder_expr {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionExprImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionExpr"
   override = true
 }
+
+private oracle_xml_expr ::= oracle_xmlelement_expr | oracle_xmlagg_expr | oracle_xmlcast_expr | oracle_xmlquery_expr | oracle_xmlserialize_expr | oracle_xmlexists_expr
+
+private oracle_xmlelement_expr ::= 'XMLELEMENT' LP oracle_xml_name ( COMMA oracle_xml_element_content ) * RP
+
+private oracle_xml_element_content ::= oracle_xmlattributes_expr | <<expr '-1'>> [ 'AS' oracle_xml_name ]
+
+private oracle_xmlattributes_expr ::= 'XMLATTRIBUTES' LP oracle_xml_attribute ( COMMA oracle_xml_attribute ) * RP
+
+private oracle_xml_attribute ::= <<expr '-1'>> [ 'AS' oracle_xml_name ]
+
+private oracle_xmlagg_expr ::= 'XMLAGG' LP <<expr '-1'>> [ 'ORDER' 'BY' <<orderingTermExt <<ordering_term_real>>>> ( COMMA <<orderingTermExt <<ordering_term_real>>>> ) * ] RP
+
+private oracle_xmlcast_expr ::= 'XMLCAST' LP <<expr '-1'>> 'AS' oracle_type_name RP
+
+private oracle_xmlquery_expr ::= 'XMLQUERY' LP {string_literal} [ oracle_xml_passing_clause ] 'RETURNING' 'CONTENT' [ 'NULL' 'ON' 'EMPTY' ] RP
+
+private oracle_xmlexists_expr ::= 'XMLEXISTS' LP {string_literal} [ oracle_xml_passing_clause ] RP
+
+private oracle_xmlserialize_expr ::= 'XMLSERIALIZE' LP ( 'DOCUMENT' | 'CONTENT' ) <<expr '-1'>> [ 'AS' oracle_type_name ] oracle_xmlserialize_option * RP
+
+private oracle_xmlserialize_option ::= (
+  'VERSION' {string_literal} |
+  'ENCODING' {string_literal} |
+  'NO' 'INDENT' |
+  'INDENT' [ 'SIZE' EQ DIGIT ] |
+  ( 'HIDE' | 'SHOW' ) 'DEFAULTS'
+)
+
+private oracle_xml_passing_clause ::= 'PASSING' [ 'BY' 'VALUE' ] oracle_xml_passing_binding ( COMMA oracle_xml_passing_binding ) *
+
+private oracle_xml_passing_binding ::= <<expr '-1'>> [ 'AS' oracle_xml_name ]
+
+private oracle_xml_name ::= {string_literal} | string | oracle_object_name_part | 'EVALNAME' <<expr '-1'>>
 
 private oracle_sql_json_expr ::= oracle_sql_json_generation_expr | oracle_sql_json_query_expr
 
@@ -603,7 +637,7 @@ private oracle_group_by_having_clause ::= (
   'HAVING' <<expr '-1'>>
 )
 
-table_or_subquery ::= oracle_graphql_table_reference | oracle_containers_table_reference | oracle_collection_table_reference | oracle_values_table_reference | oracle_subquery_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
+table_or_subquery ::= oracle_graphql_table_reference | oracle_xmltable_reference | oracle_containers_table_reference | oracle_collection_table_reference | oracle_values_table_reference | oracle_subquery_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTableOrSubqueryImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlTableOrSubquery"
   override = true
@@ -615,6 +649,28 @@ private oracle_graphql_table_reference ::= 'GRAPHQL' LP {string_literal} [ oracl
 private oracle_graphql_passing_clause ::= 'PASSING' oracle_graphql_variable_binding ( COMMA oracle_graphql_variable_binding ) *
 
 private oracle_graphql_variable_binding ::= <<expr '-1'>> 'AS' oracle_object_name_part
+
+private oracle_xmltable_reference ::= 'XMLTABLE' LP [ oracle_xmlnamespaces_clause COMMA ] {string_literal}
+  [ oracle_xml_passing_clause ] [ 'RETURNING' 'SEQUENCE' 'BY' 'REF' ] [ oracle_xmltable_columns_clause ] RP
+  [ oracle_table_alias_clause ]
+
+private oracle_xmlnamespaces_clause ::= 'XMLNAMESPACES' LP oracle_xml_namespace ( COMMA oracle_xml_namespace ) * RP
+
+private oracle_xml_namespace ::= (
+  'DEFAULT' {string_literal} |
+  {string_literal} 'AS' oracle_xml_name
+)
+
+private oracle_xmltable_columns_clause ::= 'COLUMNS' oracle_xmltable_column ( COMMA oracle_xmltable_column ) *
+
+private oracle_xmltable_column ::= oracle_xml_name (
+  'FOR' 'ORDINALITY' |
+  oracle_xmltable_datatype [ oracle_xmltype_sequence_clause ] [ 'PATH' {string_literal} ] [ 'DEFAULT' <<expr '-1'>> ]
+)
+
+private oracle_xmltable_datatype ::= oracle_object_name_part [ oracle_type_parameters ]
+
+private oracle_xmltype_sequence_clause ::= [ 'SEQUENCE' ] 'BY' 'REF'
 
 private oracle_containers_table_reference ::= ( 'CONTAINERS' | 'SHARDS' ) LP [ <<databaseNameExt <<database_name_real>>>> DOT ]
   <<tableNameExt <<table_name_real>>>> RP [ oracle_table_alias_clause ]

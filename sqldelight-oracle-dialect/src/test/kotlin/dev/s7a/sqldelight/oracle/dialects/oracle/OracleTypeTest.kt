@@ -112,6 +112,7 @@ class OracleTypeTest :
                     "HEXTORAW" to OracleType.BINARY,
                     "UUID" to OracleType.BINARY,
                     "UUID_TO_RAW" to OracleType.BINARY,
+                    "JSON_ID" to OracleType.BINARY,
                     "JSON_OBJECT" to OracleType.TEXT,
                     "JSON_ARRAY" to OracleType.TEXT,
                     "JSON_OBJECTAGG" to OracleType.TEXT,

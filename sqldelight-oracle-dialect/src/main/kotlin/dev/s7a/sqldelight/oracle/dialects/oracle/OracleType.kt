@@ -235,6 +235,7 @@ public enum class OracleType(
                 "HEXTORAW" to BINARY,
                 "UUID" to BINARY,
                 "UUID_TO_RAW" to BINARY,
+                "JSON_ID" to BINARY,
                 "JSON_OBJECT" to TEXT,
                 "JSON_ARRAY" to TEXT,
                 "JSON_OBJECTAGG" to TEXT,

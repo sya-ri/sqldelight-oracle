@@ -457,6 +457,7 @@ private val oracleCommonFunctions =
         Syntax("JSON_ARRAY"),
         Syntax("JSON_ARRAYAGG"),
         Syntax("JSON_DATAGUIDE"),
+        Syntax("JSON_ID"),
         Syntax("JSON_MERGEPATCH"),
         Syntax("JSON_OBJECT"),
         Syntax("JSON_OBJECTAGG"),

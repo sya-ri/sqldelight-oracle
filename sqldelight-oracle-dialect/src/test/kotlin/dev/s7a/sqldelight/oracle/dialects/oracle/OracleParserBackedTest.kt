@@ -198,6 +198,9 @@ class OracleParserBackedTest :
 
                 SELECT SHARD_CHUNK_ID(NULL, shard_class, id)
                 FROM employees;
+
+                SELECT JSON_ID('OID'), JSON_ID('UUID')
+                FROM employees;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe

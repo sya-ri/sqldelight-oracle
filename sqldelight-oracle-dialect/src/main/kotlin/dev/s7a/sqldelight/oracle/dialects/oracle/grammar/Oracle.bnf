@@ -466,9 +466,11 @@ private oracle_bind_placeholder_expr ::= ':' ( oracle_object_name_part | {signed
 
 private oracle_cursor_expr ::= 'CURSOR' LP <<compoundSelectStmtExt <<compound_select_stmt_real>>>> RP
 
-private oracle_operator_expr ::= oracle_hierarchical_operator_expr | oracle_shard_chunk_id_operator
+private oracle_operator_expr ::= oracle_hierarchical_operator_expr | oracle_json_id_operator | oracle_shard_chunk_id_operator
 
 private oracle_hierarchical_operator_expr ::= ( 'PRIOR' | 'CONNECT_BY_ROOT' ) <<expr '-1'>>
+
+private oracle_json_id_operator ::= 'JSON_ID' LP ( 'OID' | 'UUID' | {string_literal} ) RP
 
 private oracle_shard_chunk_id_operator ::= 'SHARD_CHUNK_ID' LP <<expr '-1'>> COMMA <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP
 

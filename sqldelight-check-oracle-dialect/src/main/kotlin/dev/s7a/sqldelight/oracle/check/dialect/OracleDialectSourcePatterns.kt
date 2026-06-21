@@ -395,6 +395,7 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                     "JSON_ARRAY",
                     "JSON_ARRAYAGG",
                     "JSON_DATAGUIDE",
+                    "JSON_ID",
                     "JSON_MERGEPATCH",
                     "JSON_OBJECT",
                     "JSON_OBJECTAGG",

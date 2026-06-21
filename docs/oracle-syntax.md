@@ -260,7 +260,8 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [`SHARD_CHUNK_ID`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/shard_chunk_id-operator.html) operator parser support
 - [x] [`COLLATE` operator](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/COLLATE-Operator.html) parser coverage for postfix expression collation in select lists, predicates, and `ORDER BY`
 - [x] [Multiset operators](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Multiset-Operators.html) parser coverage for `MULTISET UNION`, `MULTISET EXCEPT`, `MULTISET INTERSECT`, and `ALL` / `DISTINCT`
-- [ ] [Operators](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Operators.html): remaining arithmetic, concatenation, set, user-defined, data quality, and `JSON_ID`
+- [x] [`JSON_ID` operator](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/json_id-operator.html) parser, type resolver, and sqldelight-check source pattern coverage for `'OID'` / `'UUID'` document identifiers returning `RAW`
+- [ ] [Operators](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Operators.html): remaining arithmetic, concatenation, set, user-defined, and data quality
 - [ ] [`GRAPH_TABLE` operator](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graph_table-operator.html): graph references, path patterns, element patterns, graph table shape, and graph value expressions
 - [x] [`CURSOR` expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CURSOR-Expressions.html) parser support for `CURSOR(subquery)`
 - [x] [`CASE` expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CASE-Expressions.html) parser support for simple and searched `CASE`

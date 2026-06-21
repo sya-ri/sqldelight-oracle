@@ -220,7 +220,8 @@ class OracleParserBackedTest :
                 CREATE TABLE view_accounts (
                   id NUMBER PRIMARY KEY,
                   status VARCHAR2(32) NOT NULL,
-                  created_at TIMESTAMP
+                  created_at TIMESTAMP,
+                  payload XMLTYPE
                 );
 
                 CREATE OR REPLACE FORCE EDITIONING VIEW account_status_view AS
@@ -234,6 +235,44 @@ class OracleParserBackedTest :
                 SELECT id, status
                 FROM view_accounts
                 WITH READ ONLY;
+
+                CREATE VIEW IF NOT EXISTS constrained_account_view
+                  SHARING = EXTENDED DATA
+                  (
+                    account_id VISIBLE UNIQUE RELY DISABLE NOVALIDATE,
+                    account_status INVISIBLE,
+                    CONSTRAINT account_view_pk PRIMARY KEY (account_id) RELY DISABLE NOVALIDATE
+                  )
+                  DEFAULT COLLATION BINARY
+                  BEQUEATH DEFINER
+                AS
+                SELECT id AS account_id, status AS account_status
+                FROM view_accounts
+                WITH CHECK OPTION CONSTRAINT account_view_check
+                CONTAINER_MAP;
+
+                CREATE OR REPLACE VIEW account_object_view
+                  OF account_object_type
+                  WITH OBJECT IDENTIFIER (id)
+                AS
+                SELECT id, status, created_at
+                FROM view_accounts;
+
+                CREATE VIEW account_xml_view
+                  OF XMLTYPE
+                  XMLSCHEMA 'http://example.com/account.xsd'
+                  ELEMENT 'Account'
+                  WITH OBJECT ID (id)
+                AS
+                SELECT payload
+                FROM view_accounts;
+
+                CREATE JSON COLLECTION VIEW account_json_collection_view
+                  SHARING = METADATA
+                AS
+                SELECT id AS DATA
+                FROM view_accounts
+                CONTAINERS_DEFAULT;
 
                 selectAll:
                 SELECT account_id, account_status, account_created_at

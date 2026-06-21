@@ -1042,6 +1042,110 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle unified audit statements exactly") {
+            val sql =
+                """
+                CREATE AUDIT POLICY table_pol
+                  PRIVILEGES CREATE ANY TABLE, DROP ANY TABLE;
+
+                CREATE AUDIT POLICY dml_pol
+                  ACTIONS DELETE ON hr.employees,
+                          INSERT ON hr.employees,
+                          UPDATE ON hr.employees,
+                          ALL ON hr.departments;
+
+                CREATE AUDIT POLICY read_dir_pol
+                  ACTIONS READ ON DIRECTORY bfile_dir;
+
+                CREATE AUDIT POLICY security_pol
+                  ACTIONS ADMINISTER KEY MANAGEMENT;
+
+                CREATE AUDIT POLICY dp_actions_pol
+                  ACTIONS COMPONENT = datapump IMPORT;
+
+                CREATE AUDIT POLICY java_pol
+                  ROLES java_admin, java_deploy;
+
+                CREATE AUDIT POLICY order_updates_pol
+                  ACTIONS UPDATE ON oe.orders
+                  WHEN 'SYS_CONTEXT(''USERENV'', ''IDENTIFICATION_TYPE'') = ''EXTERNAL'''
+                  EVALUATE PER SESSION;
+
+                CREATE AUDIT POLICY local_table_pol
+                  PRIVILEGES CREATE ANY TABLE, DROP ANY TABLE
+                  CONTAINER = CURRENT;
+
+                CREATE AUDIT POLICY c##common_role1_pol
+                  ROLES c##role1
+                  CONTAINER = ALL;
+
+                CREATE AUDIT POLICY column_pol
+                  ACTIONS GRANT(job) ON scott.emp;
+
+                ALTER AUDIT POLICY dml_pol
+                  ADD PRIVILEGES CREATE ANY TABLE, DROP ANY TABLE;
+
+                ALTER AUDIT POLICY security_pol
+                  ADD PRIVILEGES CREATE ANY LIBRARY, DROP ANY LIBRARY
+                      ACTIONS DELETE ON hr.employees,
+                              INSERT ON hr.employees,
+                              UPDATE ON hr.employees,
+                              ALL ON hr.departments
+                      ROLES dba, connect;
+
+                ALTER AUDIT POLICY dml_pol
+                  DROP ACTIONS INSERT ON hr.employees,
+                               UPDATE ON hr.employees;
+
+                ALTER AUDIT POLICY dp_actions_pol
+                  ADD ACTIONS COMPONENT = datapump EXPORT
+                  DROP ACTIONS COMPONENT = datapump IMPORT;
+
+                ALTER AUDIT POLICY order_updates_pol
+                  CONDITION DROP;
+
+                ALTER AUDIT POLICY emp_updates_pol
+                  CONDITION WHEN 'UID = 102'
+                  EVALUATE PER STATEMENT;
+
+                ALTER AUDIT POLICY hr_audit_policy ADD ONLY TOPLEVEL;
+
+                ALTER AUDIT POLICY hr_audit_policy DROP ONLY TOPLEVEL;
+
+                AUDIT POLICY table_pol;
+
+                AUDIT POLICY dml_pol BY hr, sh;
+
+                AUDIT POLICY read_dir_pol EXCEPT hr;
+
+                AUDIT POLICY security_pol BY hr WHENEVER NOT SUCCESSFUL;
+
+                AUDIT POLICY common_role1_pol BY USERS WITH GRANTED ROLES c##role1;
+
+                AUDIT CONTEXT NAMESPACE userenv
+                  ATTRIBUTES current_user, db_name
+                  BY hr;
+
+                NOAUDIT POLICY table_pol;
+
+                NOAUDIT POLICY dml_pol BY hr, sh;
+
+                NOAUDIT POLICY common_role1_pol BY USERS WITH GRANTED ROLES c##role1;
+
+                NOAUDIT CONTEXT NAMESPACE userenv
+                  ATTRIBUTES current_user, db_name
+                  BY hr WHENEVER NOT SUCCESSFUL;
+
+                DROP AUDIT POLICY table_pol;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle role and user security statements exactly") {
             val sql =
                 """

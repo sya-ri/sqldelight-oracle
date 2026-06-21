@@ -43,6 +43,11 @@ private oracle_core_stmt ::= (
   alter_session_stmt |
   alter_system_stmt |
   administer_key_management_stmt |
+  create_audit_policy_stmt |
+  alter_audit_policy_stmt |
+  drop_audit_policy_stmt |
+  audit_stmt |
+  noaudit_stmt |
   create_user_stmt |
   alter_user_stmt |
   create_role_stmt |
@@ -348,7 +353,7 @@ create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ] [ 'E
   pin = 6
 }
 
-extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | drop_synonym_stmt | drop_type_body_stmt | drop_type_stmt | drop_function_stmt | drop_procedure_stmt | drop_package_stmt | drop_library_stmt | drop_java_stmt | drop_analytic_view_stmt | drop_attribute_dimension_stmt | drop_hierarchy_stmt | drop_dimension_stmt | drop_cluster_stmt | drop_database_link_stmt | drop_directory_stmt | drop_indextype_stmt | drop_operator_stmt | drop_outline_stmt | drop_property_graph_stmt | drop_iceberg_table_stmt | drop_context_stmt | drop_mle_env_stmt | drop_mle_module_stmt | drop_assertion_stmt | drop_directive_stmt | drop_edition_stmt | drop_flashback_archive_stmt | drop_inmemory_join_group_stmt | drop_lockdown_profile_stmt | drop_pmem_filestore_stmt | drop_profile_stmt | drop_rollback_segment_stmt | drop_database_stmt | drop_pluggable_database_stmt | drop_tablespace_set_stmt | drop_tablespace_stmt | drop_diskgroup_stmt | drop_restore_point_stmt | set_transaction_stmt | set_constraints_stmt | set_role_stmt | set_use_data_grants_only_stmt | alter_session_stmt | alter_system_stmt | administer_key_management_stmt | create_user_stmt | alter_user_stmt | create_role_stmt | alter_role_stmt | grant_stmt | revoke_stmt | drop_role_stmt | drop_user_stmt | associate_statistics_stmt | disassociate_statistics_stmt | rename_stmt | comment_on_stmt | purge_stmt | flashback_table_stmt | flashback_database_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
+extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | drop_synonym_stmt | drop_type_body_stmt | drop_type_stmt | drop_function_stmt | drop_procedure_stmt | drop_package_stmt | drop_library_stmt | drop_java_stmt | drop_analytic_view_stmt | drop_attribute_dimension_stmt | drop_hierarchy_stmt | drop_dimension_stmt | drop_cluster_stmt | drop_database_link_stmt | drop_directory_stmt | drop_indextype_stmt | drop_operator_stmt | drop_outline_stmt | drop_property_graph_stmt | drop_iceberg_table_stmt | drop_context_stmt | drop_mle_env_stmt | drop_mle_module_stmt | drop_assertion_stmt | drop_directive_stmt | drop_edition_stmt | drop_flashback_archive_stmt | drop_inmemory_join_group_stmt | drop_lockdown_profile_stmt | drop_pmem_filestore_stmt | drop_profile_stmt | drop_rollback_segment_stmt | drop_database_stmt | drop_pluggable_database_stmt | drop_tablespace_set_stmt | drop_tablespace_stmt | drop_diskgroup_stmt | drop_restore_point_stmt | set_transaction_stmt | set_constraints_stmt | set_role_stmt | set_use_data_grants_only_stmt | alter_session_stmt | alter_system_stmt | administer_key_management_stmt | create_audit_policy_stmt | alter_audit_policy_stmt | drop_audit_policy_stmt | audit_stmt | noaudit_stmt | create_user_stmt | alter_user_stmt | create_role_stmt | alter_role_stmt | grant_stmt | revoke_stmt | drop_role_stmt | drop_user_stmt | associate_statistics_stmt | disassociate_statistics_stmt | rename_stmt | comment_on_stmt | purge_stmt | flashback_table_stmt | flashback_database_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionStmt"
   override = true
@@ -763,6 +768,105 @@ private oracle_key_identifier_value ::= {string_literal} | string
 
 private oracle_key_management_value ::= {string_literal} | string | oracle_object_name_part
 
+create_audit_policy_stmt ::= 'CREATE' 'AUDIT' 'POLICY' oracle_object_name_part
+  oracle_audit_policy_clause_set [ oracle_audit_condition_clause ] [ 'ONLY' 'TOPLEVEL' ] [ oracle_container_clause ] {
+  pin = 3
+}
+
+alter_audit_policy_stmt ::= 'ALTER' 'AUDIT' 'POLICY' oracle_object_name_part oracle_alter_audit_policy_clause + {
+  pin = 3
+}
+
+drop_audit_policy_stmt ::= 'DROP' 'AUDIT' 'POLICY' oracle_object_name_part {
+  pin = 3
+}
+
+audit_stmt ::= 'AUDIT' (
+  'POLICY' oracle_object_name_part oracle_unified_audit_policy_tail |
+  oracle_audit_context_clause
+) {
+  pin = 1
+}
+
+noaudit_stmt ::= 'NOAUDIT' (
+  'POLICY' oracle_object_name_part oracle_unified_noaudit_policy_tail |
+  oracle_audit_context_clause [ oracle_audit_success_clause ]
+) {
+  pin = 1
+}
+
+private oracle_alter_audit_policy_clause ::= (
+  ( 'ADD' | 'DROP' ) [ oracle_audit_policy_clause_set ] [ 'ONLY' 'TOPLEVEL' ] |
+  'CONDITION' ( 'DROP' | oracle_audit_condition_clause )
+)
+
+private oracle_audit_policy_clause_set ::= oracle_generic_audit_clause +
+
+private oracle_generic_audit_clause ::= oracle_audit_clause_header oracle_audit_action_item ( COMMA oracle_audit_action_item ) *
+
+private oracle_audit_clause_header ::= 'PRIVILEGES' | 'ACTIONS' | 'ROLES' | oracle_object_name_part
+
+private oracle_audit_action_item ::= oracle_audit_item [ EQ oracle_object_name_part oracle_audit_item ]
+  [ LP oracle_object_name_part ( COMMA oracle_object_name_part ) * RP ] [ 'ON' oracle_audit_object_target ]
+
+private oracle_audit_item ::= oracle_audit_word ( oracle_audit_word ) *
+
+private oracle_audit_word ::= (
+  'ADMINISTER' |
+  'ALL' |
+  'ALTER' |
+  'ANY' |
+  'CREATE' |
+  'DELETE' |
+  'DROP' |
+  'EXECUTE' |
+  'EXPORT' |
+  'GRANT' |
+  'IMPORT' |
+  'INSERT' |
+  'KEY' |
+  'LIBRARY' |
+  'LOCK' |
+  'MANAGEMENT' |
+  'READ' |
+  'SELECT' |
+  'TABLE' |
+  'UPDATE' |
+  'WRITE' |
+  EQ |
+  oracle_object_name_part
+)
+
+private oracle_audit_object_target ::= (
+  'DIRECTORY' oracle_object_name_part |
+  oracle_schema_object_name
+)
+
+private oracle_audit_condition_clause ::= 'WHEN' {string_literal} 'EVALUATE' 'PER' ( 'STATEMENT' | 'SESSION' | 'INSTANCE' )
+
+private oracle_unified_audit_policy_tail ::= [ oracle_audit_user_scope ] [ oracle_audit_success_clause ]
+
+private oracle_unified_noaudit_policy_tail ::= [ oracle_noaudit_user_scope ]
+
+private oracle_audit_user_scope ::= (
+  oracle_by_users_with_roles_clause |
+  ( 'BY' | 'EXCEPT' ) oracle_object_name_part ( COMMA oracle_object_name_part ) *
+)
+
+private oracle_noaudit_user_scope ::= (
+  oracle_by_users_with_roles_clause |
+  'BY' oracle_object_name_part ( COMMA oracle_object_name_part ) *
+)
+
+private oracle_by_users_with_roles_clause ::= 'BY' 'USERS' 'WITH' 'GRANTED' 'ROLES' oracle_object_name_part ( COMMA oracle_object_name_part ) *
+
+private oracle_audit_success_clause ::= 'WHENEVER' [ 'NOT' ] 'SUCCESSFUL'
+
+private oracle_audit_context_clause ::= oracle_audit_context_item ( COMMA oracle_audit_context_item ) * [ 'BY' oracle_object_name_part ( COMMA oracle_object_name_part ) * ]
+
+private oracle_audit_context_item ::= 'CONTEXT' 'NAMESPACE' oracle_object_name_part
+  'ATTRIBUTES' oracle_object_name_part ( COMMA oracle_object_name_part ) *
+
 create_user_stmt ::= 'CREATE' 'USER' [ 'IF' 'NOT' 'EXISTS' ] oracle_object_name_part
   ( oracle_user_authentication | 'NO' 'AUTHENTICATION' ) oracle_user_clause * {
   pin = 2
@@ -1110,7 +1214,9 @@ alter_sequence_stmt ::= 'ALTER' 'SEQUENCE' [ 'IF' 'EXISTS' ] oracle_schema_objec
 
 private oracle_schema_object_name ::= oracle_object_name_part [ DOT oracle_object_name_part ]
 
-private oracle_object_name_part ::= <<identifierExt <<identifier_real>>>> | string
+private oracle_object_name_part ::= oracle_common_object_name_part | <<identifierExt <<identifier_real>>>> | string
+
+private oracle_common_object_name_part ::= <<identifierExt <<identifier_real>>>> '#' '#' <<identifierExt <<identifier_real>>>>
 
 private oracle_sequence_clause ::= (
   'INCREMENT' 'BY' {signed_number} |

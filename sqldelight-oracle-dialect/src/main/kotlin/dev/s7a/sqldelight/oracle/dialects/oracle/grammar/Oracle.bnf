@@ -29,6 +29,10 @@ stmt ::= explain_plan_stmt | oracle_core_stmt {
 }
 
 private oracle_core_stmt ::= (
+  drop_analytic_view_stmt |
+  drop_attribute_dimension_stmt |
+  drop_hierarchy_stmt |
+  drop_dimension_stmt |
   drop_function_stmt |
   drop_procedure_stmt |
   drop_package_stmt |
@@ -296,7 +300,7 @@ create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ] [ 'E
   pin = 6
 }
 
-extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | drop_synonym_stmt | drop_type_body_stmt | drop_type_stmt | drop_function_stmt | drop_procedure_stmt | drop_package_stmt | drop_library_stmt | drop_java_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
+extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | drop_synonym_stmt | drop_type_body_stmt | drop_type_stmt | drop_function_stmt | drop_procedure_stmt | drop_package_stmt | drop_library_stmt | drop_java_stmt | drop_analytic_view_stmt | drop_attribute_dimension_stmt | drop_hierarchy_stmt | drop_dimension_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionStmt"
   override = true
@@ -348,6 +352,22 @@ drop_library_stmt ::= 'DROP' 'LIBRARY' [ 'IF' 'EXISTS' ] oracle_schema_object_na
 
 drop_java_stmt ::= 'DROP' 'JAVA' ( 'SOURCE' | 'CLASS' | 'RESOURCE' ) [ 'IF' 'EXISTS' ] oracle_schema_object_name {
   pin = 3
+}
+
+drop_analytic_view_stmt ::= 'DROP' 'ANALYTIC' 'VIEW' [ 'IF' 'EXISTS' ] oracle_schema_object_name {
+  pin = 3
+}
+
+drop_attribute_dimension_stmt ::= 'DROP' 'ATTRIBUTE' 'DIMENSION' [ 'IF' 'EXISTS' ] oracle_schema_object_name {
+  pin = 3
+}
+
+drop_hierarchy_stmt ::= 'DROP' 'HIERARCHY' [ 'IF' 'EXISTS' ] oracle_schema_object_name {
+  pin = 2
+}
+
+drop_dimension_stmt ::= 'DROP' 'DIMENSION' oracle_schema_object_name {
+  pin = 2
 }
 
 drop_trigger_stmt ::= 'DROP' 'TRIGGER' [ 'IF' 'EXISTS' ] oracle_schema_object_name {

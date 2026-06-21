@@ -613,6 +613,33 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle analytic drop statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                DROP ANALYTIC VIEW sales_av;
+
+                DROP ANALYTIC VIEW IF EXISTS sh.sales_av;
+
+                DROP ATTRIBUTE DIMENSION product_attr_dim;
+
+                DROP ATTRIBUTE DIMENSION IF EXISTS sh.product_attr_dim;
+
+                DROP HIERARCHY product_hier;
+
+                DROP HIERARCHY IF EXISTS sh.product_hier;
+
+                DROP DIMENSION customers_dim;
+
+                DROP DIMENSION sh.customers_dim;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

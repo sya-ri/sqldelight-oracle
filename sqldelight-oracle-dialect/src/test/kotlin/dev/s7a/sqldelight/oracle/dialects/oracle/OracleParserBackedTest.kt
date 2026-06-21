@@ -1035,7 +1035,18 @@ class OracleParserBackedTest :
                   MAX(amount) AS maximum_amount,
                   MEDIAN(amount) AS median_amount,
                   STDDEV(amount) AS amount_stddev,
-                  VARIANCE(amount) AS amount_variance
+                  STDDEV_POP(amount) AS population_stddev,
+                  STDDEV_SAMP(amount) AS sample_stddev,
+                  VARIANCE(amount) AS amount_variance,
+                  VAR_POP(amount) AS population_variance,
+                  VAR_SAMP(amount) AS sample_variance,
+                  CORR(amount, discount) AS amount_discount_correlation,
+                  COVAR_POP(amount, discount) AS population_covariance,
+                  COVAR_SAMP(amount, discount) AS sample_covariance,
+                  KURTOSIS_POP(amount) AS population_kurtosis,
+                  KURTOSIS_SAMP(amount) AS sample_kurtosis,
+                  SKEWNESS_POP(amount) AS population_skewness,
+                  SKEWNESS_SAMP(amount) AS sample_skewness
                 FROM sales
                 GROUP BY region;
                 """.trimIndent()

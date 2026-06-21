@@ -339,6 +339,50 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle for update clauses through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE lockable_accounts (
+                  id NUMBER PRIMARY KEY,
+                  owner_name VARCHAR2(128),
+                  balance NUMBER
+                );
+
+                selectForUpdate:
+                SELECT id, owner_name, balance
+                FROM lockable_accounts
+                WHERE id = 1
+                FOR UPDATE;
+
+                selectForUpdateOfNowait:
+                SELECT id, owner_name, balance
+                FROM lockable_accounts
+                WHERE owner_name IS NOT NULL
+                FOR UPDATE OF owner_name, balance NOWAIT;
+
+                selectForUpdateQualifiedWait:
+                SELECT account_alias.id, account_alias.balance
+                FROM lockable_accounts account_alias
+                FOR UPDATE OF account_alias.balance WAIT 5 SECONDS;
+
+                selectForUpdateSkipLocked:
+                SELECT id, owner_name
+                FROM lockable_accounts
+                FOR UPDATE SKIP LOCKED;
+
+                selectForUpdateWaitForever:
+                SELECT id
+                FROM lockable_accounts
+                FOR UPDATE WAIT FOREVER;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle alter table statements through SQLDelight environment exactly") {
             val sql =
                 """

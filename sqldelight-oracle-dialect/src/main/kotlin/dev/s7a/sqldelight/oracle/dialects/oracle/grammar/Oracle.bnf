@@ -364,11 +364,24 @@ compound_operator ::= (
 compound_select_stmt ::= [ {with_clause} ] {select_stmt}
   ( {compound_operator} {select_stmt} ) *
   [ 'ORDER' [ 'SIBLINGS' ] 'BY' {ordering_term} ( COMMA {ordering_term} ) * ]
-  [ {limit_stmt} ] {
+  [ {limit_stmt} ]
+  [ oracle_for_update_clause ] {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCompoundSelectStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlCompoundSelectStmt"
   override = true
 }
+
+private oracle_for_update_clause ::= 'FOR' 'UPDATE'
+  [ 'OF' oracle_for_update_column ( COMMA oracle_for_update_column ) * ]
+  [ oracle_for_update_wait_clause ]
+
+private oracle_for_update_column ::= [ oracle_object_name_part DOT [ oracle_object_name_part DOT ] ] oracle_object_name_part
+
+private oracle_for_update_wait_clause ::= (
+  'NOWAIT' |
+  'WAIT' ( {signed_number} | DIGIT | 'FOREVER' ) [ 'SECONDS' | 'MILLISECONDS' | 'MICROSECONDS' ] |
+  'SKIP' 'LOCKED'
+)
 
 ordering_term ::= <<expr '-1'>> [ 'COLLATE' {collation_name} ] [ 'ASC' | 'DESC' ] [ 'NULLS' ( 'FIRST' | 'LAST' ) ] {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlOrderingTermImpl"

@@ -377,6 +377,47 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle SQL JSON query functions exactly") {
+            val sql =
+                """
+                CREATE TABLE documents (
+                  id NUMBER PRIMARY KEY,
+                  payload JSON
+                );
+
+                SELECT JSON_VALUE(
+                  payload,
+                  '$.employee.id'
+                  RETURNING NUMBER
+                  ERROR ON ERROR
+                  DEFAULT 0 ON EMPTY
+                ),
+                  JSON_QUERY(
+                    payload FORMAT JSON,
+                    '$.items[*]'
+                    RETURNING JSON
+                    WITH CONDITIONAL WRAPPER
+                    DISALLOW SCALARS
+                    EMPTY ARRAY ON ERROR
+                    NULL ON EMPTY
+                  ),
+                  JSON_SERIALIZE(
+                    payload
+                    RETURNING VARCHAR2(4000)
+                    PRETTY ASCII ORDERED
+                    TRUNCATE
+                    ERROR ON ERROR
+                  )
+                FROM documents;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle inline column constraints through SQLDelight environment exactly") {
             val sql =
                 """

@@ -229,11 +229,13 @@ type_name ::= oracle_type_name | core_type_name {
   override = true
 }
 
-extension_expr ::= oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_cursor_expr | oracle_type_conversion_expr | oracle_sql_json_generation_expr | oracle_bind_placeholder_expr {
+extension_expr ::= oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_cursor_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_bind_placeholder_expr {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionExprImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionExpr"
   override = true
 }
+
+private oracle_sql_json_expr ::= oracle_sql_json_generation_expr | oracle_sql_json_query_expr
 
 private oracle_sql_json_generation_expr ::= oracle_json_object_expr | oracle_json_array_expr
 
@@ -262,6 +264,51 @@ private oracle_json_format_clause ::= 'FORMAT' 'JSON'
 private oracle_json_on_null_clause ::= ( 'NULL' | 'ABSENT' ) 'ON' 'NULL'
 
 private oracle_json_returning_clause ::= 'RETURNING' oracle_type_name
+
+private oracle_sql_json_query_expr ::= oracle_json_value_expr | oracle_json_query_expr | oracle_json_serialize_expr
+
+private oracle_json_value_expr ::= 'JSON_VALUE' LP <<expr '-1'>> [ oracle_json_format_clause ] COMMA oracle_json_path_expression oracle_json_value_clause * RP
+
+private oracle_json_value_clause ::= oracle_json_returning_clause | oracle_json_ascii_clause | oracle_json_value_on_error_clause | oracle_json_value_on_empty_clause | oracle_json_on_mismatch_clause
+
+private oracle_json_query_expr ::= 'JSON_QUERY' LP <<expr '-1'>> [ oracle_json_format_clause ] COMMA oracle_json_path_expression oracle_json_query_clause * RP
+
+private oracle_json_query_clause ::= oracle_json_returning_clause | oracle_json_ascii_clause | oracle_json_pretty_clause | oracle_json_query_wrapper_clause | oracle_json_disallow_scalars_clause | oracle_json_query_on_error_clause | oracle_json_query_on_empty_clause | oracle_json_on_mismatch_clause
+
+private oracle_json_serialize_expr ::= 'JSON_SERIALIZE' LP <<expr '-1'>> oracle_json_serialize_clause * RP
+
+private oracle_json_serialize_clause ::= oracle_json_returning_clause | oracle_json_ascii_clause | oracle_json_pretty_clause | 'ORDERED' | 'TRUNCATE' | oracle_json_serialize_on_error_clause
+
+private oracle_json_path_expression ::= {string_literal}
+
+private oracle_json_ascii_clause ::= 'ASCII'
+
+private oracle_json_pretty_clause ::= 'PRETTY'
+
+private oracle_json_query_wrapper_clause ::= (
+  'WITHOUT' [ 'ARRAY' ] 'WRAPPER' |
+  'WITH' [ 'UNCONDITIONAL' | 'CONDITIONAL' ] [ 'ARRAY' ] 'WRAPPER'
+)
+
+private oracle_json_disallow_scalars_clause ::= 'DISALLOW' 'SCALARS'
+
+private oracle_json_value_on_error_clause ::= oracle_json_scalar_error_behavior 'ON' 'ERROR'
+
+private oracle_json_value_on_empty_clause ::= oracle_json_scalar_error_behavior 'ON' 'EMPTY'
+
+private oracle_json_scalar_error_behavior ::= 'NULL' | 'ERROR' | 'DEFAULT' <<expr '-1'>>
+
+private oracle_json_query_on_error_clause ::= oracle_json_query_error_behavior 'ON' 'ERROR'
+
+private oracle_json_query_on_empty_clause ::= oracle_json_query_error_behavior 'ON' 'EMPTY'
+
+private oracle_json_query_error_behavior ::= 'NULL' | 'ERROR' | 'EMPTY' [ 'ARRAY' | 'OBJECT' ]
+
+private oracle_json_serialize_on_error_clause ::= ( 'NULL' | 'ERROR' ) 'ON' 'ERROR'
+
+private oracle_json_on_mismatch_clause ::= ( 'NULL' | 'ERROR' | 'IGNORE' ) 'ON' 'MISMATCH' [ LP oracle_json_mismatch_kind ( COMMA oracle_json_mismatch_kind ) * RP ]
+
+private oracle_json_mismatch_kind ::= 'MISSING' 'DATA' | 'EXTRA' 'DATA' | 'TYPE' 'ERROR'
 
 private oracle_type_conversion_expr ::= oracle_treat_expr
 

@@ -3085,6 +3085,8 @@ private oracle_schema_object_name ::= oracle_object_name_part [ DOT oracle_objec
 
 private oracle_object_name_part ::= oracle_common_object_name_part | <<identifierExt <<identifier_real>>>> | string
 
+private oracle_dblink_clause ::= '@' oracle_object_name_part
+
 private oracle_common_object_name_part ::= <<identifierExt <<identifier_real>>>> '#' '#' <<identifierExt <<identifier_real>>>>
 
 private oracle_sequence_clause ::= (
@@ -3146,7 +3148,7 @@ private oracle_where_clause ::= 'WHERE' <<expr '-1'>>
 private oracle_error_logging_clause ::= 'LOG' 'ERRORS' [ 'INTO' oracle_schema_object_name ] [ LP <<expr '-1'>> RP ]
   [ 'REJECT' 'LIMIT' ( {signed_number} | 'UNLIMITED' ) ]
 
-call_stmt ::= 'CALL' oracle_call_routine_name LP [ oracle_call_argument ( COMMA oracle_call_argument ) * ] RP {
+call_stmt ::= 'CALL' oracle_call_routine_name [ oracle_dblink_clause ] LP [ oracle_call_argument ( COMMA oracle_call_argument ) * ] RP {
   pin = 1
 }
 
@@ -3161,7 +3163,7 @@ lock_table_stmt ::= 'LOCK' 'TABLE' oracle_lock_table_reference ( COMMA oracle_lo
   pin = 2
 }
 
-private oracle_lock_table_reference ::= oracle_schema_object_name [ oracle_partition_extension_clause ]
+private oracle_lock_table_reference ::= oracle_schema_object_name [ oracle_dblink_clause ] [ oracle_partition_extension_clause ]
 
 private oracle_partition_extension_clause ::= (
   'PARTITION' LP oracle_partition_name RP |
@@ -3183,7 +3185,7 @@ private oracle_lock_mode ::= (
   'EXCLUSIVE'
 )
 
-explain_plan_stmt ::= 'EXPLAIN' 'PLAN' [ 'SET' 'STATEMENT_ID' EQ <<expr '-1'>> ] [ 'INTO' oracle_schema_object_name ] 'FOR'
+explain_plan_stmt ::= 'EXPLAIN' 'PLAN' [ 'SET' 'STATEMENT_ID' EQ <<expr '-1'>> ] [ 'INTO' oracle_schema_object_name [ oracle_dblink_clause ] ] 'FOR'
   oracle_explainable_stmt {
   pin = 2
 }

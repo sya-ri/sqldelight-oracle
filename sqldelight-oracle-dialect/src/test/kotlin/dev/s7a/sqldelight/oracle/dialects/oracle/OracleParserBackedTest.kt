@@ -1118,6 +1118,8 @@ class OracleParserBackedTest :
 
                 CALL hr.employee_api.adjust_salary(100, delta => 2500, effective_at => CURRENT_TIMESTAMP);
 
+                CALL hr.remote_api.refresh_cache@reporting_link(tenant_id => 42);
+
                 CALL refresh_cache();
                 """.trimIndent()
 
@@ -1139,6 +1141,8 @@ class OracleParserBackedTest :
 
                 LOCK TABLE sales PARTITION FOR (2026, 1), sales SUBPARTITION (sales_q1_north)
                 IN SHARE ROW EXCLUSIVE MODE;
+
+                LOCK TABLE hr.remote_sales@reporting_link IN ROW EXCLUSIVE MODE WAIT 5;
 
                 LOCK TABLE sales SUBPARTITION FOR ('NORTH') IN SHARE UPDATE MODE;
                 """.trimIndent()
@@ -1165,7 +1169,7 @@ class OracleParserBackedTest :
 
                 EXPLAIN PLAN
                   SET STATEMENT_ID = 'employee lookup'
-                  INTO plan_table
+                  INTO plan_table@reporting_link
                   FOR SELECT id, salary
                       FROM explain_employees
                       WHERE department_id = 10;

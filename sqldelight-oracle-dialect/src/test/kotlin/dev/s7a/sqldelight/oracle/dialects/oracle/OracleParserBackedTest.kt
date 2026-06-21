@@ -149,6 +149,42 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle row limiting clauses through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE ranked_accounts (
+                  id NUMBER PRIMARY KEY,
+                  status VARCHAR2(32) NOT NULL,
+                  score NUMBER,
+                  embedding VECTOR(3, FLOAT32)
+                );
+
+                selectOffsetFetch:
+                SELECT id, status
+                FROM ranked_accounts
+                ORDER BY score DESC
+                OFFSET 10 ROWS FETCH FIRST 5 ROWS ONLY;
+
+                selectApproximate:
+                SELECT id
+                FROM ranked_accounts
+                ORDER BY VECTOR_DISTANCE(embedding, VECTOR('[1,2,3]'))
+                FETCH APPROX FIRST 20 ROWS ONLY WITH TARGET 90 PERCENT PARAMETERS (efs = 80);
+
+                selectPartitioned:
+                SELECT id, status
+                FROM ranked_accounts
+                ORDER BY status, score DESC
+                FETCH FIRST 3 PARTITIONS BY status, 2 ROWS ONLY;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle alter table statements through SQLDelight environment exactly") {
             val sql =
                 """

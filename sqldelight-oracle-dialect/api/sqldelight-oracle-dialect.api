@@ -211,6 +211,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun flashback_database_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun flashback_table_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun grant_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun limit_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun lock_table_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun merge_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun noaudit_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -555,6 +556,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getFlashback_database_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getFlashback_table_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getGrant_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getLimit_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getLock_table_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getMerge_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getNoaudit_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -575,6 +577,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getTruncate_table_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getType_name ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public static final fun grantStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun limitStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun lockTableStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun mergeStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun noauditStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -748,6 +751,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setFlashback_database_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setFlashback_table_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setGrant_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setLimit_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setLock_table_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setMerge_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setNoaudit_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -1423,6 +1427,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleGrantStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleLimitStmt : com/alecstrong/sql/psi/core/psi/SqlLimitStmt {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleLockTableStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
@@ -1446,6 +1453,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreateViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateViewStmt;
 	public abstract fun getDropTriggerStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTriggerStmt;
 	public abstract fun getExtensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionStmt;
+	public abstract fun getLimitStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleLimitStmt;
 	public abstract fun getRollbackStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleRollbackStmt;
 	public abstract fun getSavepointStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSavepointStmt;
 	public abstract fun getStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleStmt;
@@ -1802,6 +1810,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field FLASHBACK_TABLE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field GRANT_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field IDENTIFIER_REAL Lcom/intellij/psi/tree/IElementType;
+	public static final field LIMIT_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field LOCK_TABLE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field LP Lcom/intellij/psi/tree/IElementType;
 	public static final field MERGE_STMT Lcom/intellij/psi/tree/IElementType;
@@ -1993,6 +2002,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitFlashbackDatabaseStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleFlashbackDatabaseStmt;)V
 	public fun visitFlashbackTableStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleFlashbackTableStmt;)V
 	public fun visitGrantStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleGrantStmt;)V
+	public fun visitLimitStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleLimitStmt;)V
 	public fun visitLockTableStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleLockTableStmt;)V
 	public fun visitMergeStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleMergeStmt;)V
 	public fun visitNoauditStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleNoauditStmt;)V
@@ -2018,6 +2028,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitSqlCreateTableStmt (Lcom/alecstrong/sql/psi/core/psi/SqlCreateTableStmt;)V
 	public fun visitSqlDropTriggerStmt (Lcom/alecstrong/sql/psi/core/psi/SqlDropTriggerStmt;)V
 	public fun visitSqlExtensionStmt (Lcom/alecstrong/sql/psi/core/psi/SqlExtensionStmt;)V
+	public fun visitSqlLimitStmt (Lcom/alecstrong/sql/psi/core/psi/SqlLimitStmt;)V
 	public fun visitSqlRollbackStmt (Lcom/alecstrong/sql/psi/core/psi/SqlRollbackStmt;)V
 	public fun visitSqlSavepointStmt (Lcom/alecstrong/sql/psi/core/psi/SqlSavepointStmt;)V
 	public fun visitSqlStmt (Lcom/alecstrong/sql/psi/core/psi/SqlStmt;)V
@@ -3158,6 +3169,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleGr
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleLimitStmtImpl : com/alecstrong/sql/psi/core/psi/impl/SqlLimitStmtImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleLimitStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleLockTableStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleLockTableStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
@@ -3196,6 +3213,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOv
 	public fun getCreateViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateViewStmt;
 	public fun getDropTriggerStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTriggerStmt;
 	public fun getExtensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionStmt;
+	public fun getLimitStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleLimitStmt;
 	public fun getRollbackStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleRollbackStmt;
 	public fun getSavepointStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSavepointStmt;
 	public fun getStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleStmt;

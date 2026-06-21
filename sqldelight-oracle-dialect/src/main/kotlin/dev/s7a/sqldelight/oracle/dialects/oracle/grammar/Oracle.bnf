@@ -455,11 +455,18 @@ private oracle_group_by_having_clause ::= (
   'HAVING' <<expr '-1'>>
 )
 
-table_or_subquery ::= oracle_containers_table_reference | oracle_collection_table_reference | oracle_values_table_reference | oracle_subquery_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
+table_or_subquery ::= oracle_graphql_table_reference | oracle_containers_table_reference | oracle_collection_table_reference | oracle_values_table_reference | oracle_subquery_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTableOrSubqueryImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlTableOrSubquery"
   override = true
 }
+
+private oracle_graphql_table_reference ::= 'GRAPHQL' LP {string_literal} [ oracle_graphql_passing_clause ] RP
+  [ oracle_table_alias_clause ]
+
+private oracle_graphql_passing_clause ::= 'PASSING' oracle_graphql_variable_binding ( COMMA oracle_graphql_variable_binding ) *
+
+private oracle_graphql_variable_binding ::= <<expr '-1'>> 'AS' oracle_object_name_part
 
 private oracle_containers_table_reference ::= ( 'CONTAINERS' | 'SHARDS' ) LP [ <<databaseNameExt <<database_name_real>>>> DOT ]
   <<tableNameExt <<table_name_real>>>> RP [ oracle_table_alias_clause ]

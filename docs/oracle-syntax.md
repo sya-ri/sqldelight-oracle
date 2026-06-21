@@ -61,7 +61,8 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [`group_by_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/group_by_clause.html) leading `HAVING` form before `GROUP BY`
 - [x] [`ORDER BY` and `order_by_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/order_by_clause.html): positional ordering, aliases, `NULLS FIRST/LAST`, and `SIBLINGS`
 - [x] [`for_update_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/for_update_clause.html): `FOR UPDATE`, `OF`, `NOWAIT`, `WAIT`, and `SKIP LOCKED`
-- [ ] [`GRAPHQL` table function](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graphql-table-function.html)
+- [x] [`GRAPHQL` table function](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graphql-table-function.html) parser support for `FROM GRAPHQL('...')`, table aliases, and `PASSING` variable bindings
+- [ ] [`GRAPHQL` table function](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graphql-table-function.html) semantic validation for embedded GraphQL query syntax, QBE clauses, directives, and GraphQL comments
 
 ## DML
 

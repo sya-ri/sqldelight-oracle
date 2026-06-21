@@ -612,6 +612,24 @@ class OracleParserBackedTest :
                 SELECT 1
                 FROM TABLE(ODCINUMBERLIST(1, 2)) numbers;
 
+                selectGraphqlTableFunction:
+                SELECT *
+                FROM GRAPHQL('
+                  employees {
+                    _id: employee_id
+                    Name: first_name
+                  }
+                ') employee_documents;
+
+                selectGraphqlTableFunctionWithPassing:
+                SELECT *
+                FROM GRAPHQL('
+                  employees(employee_id: ${'$'}employee_id) {
+                    _id: employee_id
+                    Name: first_name
+                  }
+                ' PASSING 174 AS employee_id) employee_documents;
+
                 selectOuterJoinedTableCollection:
                 SELECT 1
                 FROM partitioned_orders po,

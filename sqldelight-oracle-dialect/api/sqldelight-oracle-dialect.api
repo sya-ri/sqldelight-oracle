@@ -64,6 +64,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun alter_dimension_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_directive_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_diskgroup_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun alter_end_user_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_flashback_archive_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_function_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_hierarchy_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -118,6 +119,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun compound_operator_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun compound_select_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_analytic_view_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun create_application_identity_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_assertion_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_attribute_dimension_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_audit_policy_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -128,6 +130,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun create_directive_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_diskgroup_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_edition_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun create_end_user_context_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun create_end_user_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_flashback_archive_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_function_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_hierarchy_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -165,6 +169,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun create_view_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun disassociate_statistics_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_analytic_view_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun drop_application_identity_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_assertion_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_attribute_dimension_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_audit_policy_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -177,6 +182,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun drop_directory_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_diskgroup_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_edition_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun drop_end_user_context_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun drop_end_user_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_flashback_archive_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_function_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_hierarchy_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -245,6 +252,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun truncate_cluster_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun truncate_table_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun type_name_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun update_end_user_context_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun with_clause_real (Lcom/intellij/lang/PsiBuilder;I)Z
 }
 
@@ -262,6 +270,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun alterDimensionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterDirectiveStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterDiskgroupStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun alterEndUserStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterFlashbackArchiveStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterFunctionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterHierarchyStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -316,6 +325,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun compoundOperatorExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun compoundSelectStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createAnalyticViewStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun createApplicationIdentityStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createAssertionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createAttributeDimensionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createAuditPolicyStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -326,6 +336,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun createDirectiveStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createDiskgroupStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createEditionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun createEndUserContextStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun createEndUserStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createFlashbackArchiveStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createFunctionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createHierarchyStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -363,6 +375,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun createViewStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun disassociateStatisticsStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropAnalyticViewStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun dropApplicationIdentityStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropAssertionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropAttributeDimensionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropAuditPolicyStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -375,6 +388,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun dropDirectoryStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropDiskgroupStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropEditionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun dropEndUserContextStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun dropEndUserStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropFlashbackArchiveStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropFunctionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropHierarchyStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -423,6 +438,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getAlter_dimension_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_directive_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_diskgroup_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getAlter_end_user_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_flashback_archive_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_function_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_hierarchy_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -478,6 +494,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getCompound_select_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreateElement ()Lkotlin/jvm/functions/Function1;
 	public final fun getCreate_analytic_view_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getCreate_application_identity_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_assertion_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_attribute_dimension_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_audit_policy_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -488,6 +505,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getCreate_directive_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_diskgroup_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_edition_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getCreate_end_user_context_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getCreate_end_user_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_flashback_archive_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_function_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_hierarchy_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -525,6 +544,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getCreate_view_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDisassociate_statistics_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_analytic_view_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getDrop_application_identity_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_assertion_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_attribute_dimension_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_audit_policy_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -537,6 +557,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getDrop_directory_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_diskgroup_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_edition_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getDrop_end_user_context_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getDrop_end_user_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_flashback_archive_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_function_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_hierarchy_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -602,6 +624,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getTruncate_cluster_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getTruncate_table_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getType_name ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getUpdate_end_user_context_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getWith_clause ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public static final fun grantStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun groupByExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -635,6 +658,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setAlter_dimension_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_directive_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_diskgroup_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setAlter_end_user_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_flashback_archive_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_function_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_hierarchy_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -691,6 +715,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun setConstraintsStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public final fun setCreateElement (Lkotlin/jvm/functions/Function1;)V
 	public final fun setCreate_analytic_view_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setCreate_application_identity_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_assertion_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_attribute_dimension_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_audit_policy_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -701,6 +726,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setCreate_directive_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_diskgroup_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_edition_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setCreate_end_user_context_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setCreate_end_user_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_flashback_archive_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_function_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_hierarchy_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -738,6 +765,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setCreate_view_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDisassociate_statistics_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_analytic_view_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setDrop_application_identity_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_assertion_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_attribute_dimension_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_audit_policy_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -750,6 +778,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setDrop_directory_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_diskgroup_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_edition_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setDrop_end_user_context_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setDrop_end_user_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_flashback_archive_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_function_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_hierarchy_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -817,6 +847,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setTruncate_cluster_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setTruncate_table_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setType_name (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setUpdate_end_user_context_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public static final fun setUseDataGrantsOnlyStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public final fun setWith_clause (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public static final fun stmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -826,6 +857,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun truncateClusterStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun truncateTableStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun typeNameExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun updateEndUserContextStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun withClauseExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 }
 
@@ -874,6 +906,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDiskgroupStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterEndUserStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFlashbackArchiveStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -1049,6 +1084,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAnalyticViewStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateApplicationIdentityStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAssertionStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
@@ -1077,6 +1115,12 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEditionStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEndUserContextStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEndUserStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateFlashbackArchiveStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -1192,6 +1236,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAnalyticViewStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropApplicationIdentityStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAssertionStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
@@ -1226,6 +1273,12 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEditionStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEndUserContextStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEndUserStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropFlashbackArchiveStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -1344,6 +1397,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getAlterDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDimensionStmt;
 	public abstract fun getAlterDirectiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDirectiveStmt;
 	public abstract fun getAlterDiskgroupStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDiskgroupStmt;
+	public abstract fun getAlterEndUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterEndUserStmt;
 	public abstract fun getAlterFlashbackArchiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFlashbackArchiveStmt;
 	public abstract fun getAlterFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFunctionStmt;
 	public abstract fun getAlterHierarchyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterHierarchyStmt;
@@ -1383,6 +1437,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCallStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCallStmt;
 	public abstract fun getCommentOnStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCommentOnStmt;
 	public abstract fun getCreateAnalyticViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAnalyticViewStmt;
+	public abstract fun getCreateApplicationIdentityStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateApplicationIdentityStmt;
 	public abstract fun getCreateAssertionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAssertionStmt;
 	public abstract fun getCreateAttributeDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAttributeDimensionStmt;
 	public abstract fun getCreateAuditPolicyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAuditPolicyStmt;
@@ -1393,6 +1448,8 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreateDirectiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDirectiveStmt;
 	public abstract fun getCreateDiskgroupStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDiskgroupStmt;
 	public abstract fun getCreateEditionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEditionStmt;
+	public abstract fun getCreateEndUserContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEndUserContextStmt;
+	public abstract fun getCreateEndUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEndUserStmt;
 	public abstract fun getCreateFlashbackArchiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateFlashbackArchiveStmt;
 	public abstract fun getCreateFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateFunctionStmt;
 	public abstract fun getCreateHierarchyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateHierarchyStmt;
@@ -1427,6 +1484,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreateUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateUserStmt;
 	public abstract fun getDisassociateStatisticsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDisassociateStatisticsStmt;
 	public abstract fun getDropAnalyticViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAnalyticViewStmt;
+	public abstract fun getDropApplicationIdentityStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropApplicationIdentityStmt;
 	public abstract fun getDropAssertionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAssertionStmt;
 	public abstract fun getDropAttributeDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAttributeDimensionStmt;
 	public abstract fun getDropAuditPolicyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAuditPolicyStmt;
@@ -1439,6 +1497,8 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getDropDirectoryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDirectoryStmt;
 	public abstract fun getDropDiskgroupStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDiskgroupStmt;
 	public abstract fun getDropEditionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEditionStmt;
+	public abstract fun getDropEndUserContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEndUserContextStmt;
+	public abstract fun getDropEndUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEndUserStmt;
 	public abstract fun getDropFlashbackArchiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropFlashbackArchiveStmt;
 	public abstract fun getDropFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropFunctionStmt;
 	public abstract fun getDropHierarchyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropHierarchyStmt;
@@ -1486,6 +1546,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getSetUseDataGrantsOnlyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetUseDataGrantsOnlyStmt;
 	public abstract fun getTruncateClusterStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTruncateClusterStmt;
 	public abstract fun getTruncateTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTruncateTableStmt;
+	public abstract fun getUpdateEndUserContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleUpdateEndUserContextStmt;
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleFlashbackDatabaseStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -1600,6 +1661,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getAlterDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDimensionStmt;
 	public abstract fun getAlterDirectiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDirectiveStmt;
 	public abstract fun getAlterDiskgroupStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDiskgroupStmt;
+	public abstract fun getAlterEndUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterEndUserStmt;
 	public abstract fun getAlterFlashbackArchiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFlashbackArchiveStmt;
 	public abstract fun getAlterFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFunctionStmt;
 	public abstract fun getAlterHierarchyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterHierarchyStmt;
@@ -1634,6 +1696,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getAuditStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAuditStmt;
 	public abstract fun getCommentOnStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCommentOnStmt;
 	public abstract fun getCreateAnalyticViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAnalyticViewStmt;
+	public abstract fun getCreateApplicationIdentityStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateApplicationIdentityStmt;
 	public abstract fun getCreateAssertionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAssertionStmt;
 	public abstract fun getCreateAttributeDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAttributeDimensionStmt;
 	public abstract fun getCreateAuditPolicyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAuditPolicyStmt;
@@ -1644,6 +1707,8 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreateDirectiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDirectiveStmt;
 	public abstract fun getCreateDiskgroupStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDiskgroupStmt;
 	public abstract fun getCreateEditionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEditionStmt;
+	public abstract fun getCreateEndUserContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEndUserContextStmt;
+	public abstract fun getCreateEndUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEndUserStmt;
 	public abstract fun getCreateFlashbackArchiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateFlashbackArchiveStmt;
 	public abstract fun getCreateFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateFunctionStmt;
 	public abstract fun getCreateHierarchyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateHierarchyStmt;
@@ -1677,6 +1742,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreateUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateUserStmt;
 	public abstract fun getDisassociateStatisticsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDisassociateStatisticsStmt;
 	public abstract fun getDropAnalyticViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAnalyticViewStmt;
+	public abstract fun getDropApplicationIdentityStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropApplicationIdentityStmt;
 	public abstract fun getDropAssertionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAssertionStmt;
 	public abstract fun getDropAttributeDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAttributeDimensionStmt;
 	public abstract fun getDropAuditPolicyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAuditPolicyStmt;
@@ -1689,6 +1755,8 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getDropDirectoryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDirectoryStmt;
 	public abstract fun getDropDiskgroupStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDiskgroupStmt;
 	public abstract fun getDropEditionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEditionStmt;
+	public abstract fun getDropEndUserContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEndUserContextStmt;
+	public abstract fun getDropEndUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEndUserStmt;
 	public abstract fun getDropFlashbackArchiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropFlashbackArchiveStmt;
 	public abstract fun getDropFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropFunctionStmt;
 	public abstract fun getDropHierarchyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropHierarchyStmt;
@@ -1728,6 +1796,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getSetRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetRoleStmt;
 	public abstract fun getSetTransactionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetTransactionStmt;
 	public abstract fun getSetUseDataGrantsOnlyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetUseDataGrantsOnlyStmt;
+	public abstract fun getUpdateEndUserContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleUpdateEndUserContextStmt;
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTableAlias : com/alecstrong/sql/psi/core/psi/AliasElement, com/alecstrong/sql/psi/core/psi/NamedElement, com/alecstrong/sql/psi/core/psi/SqlCompositeElement, com/alecstrong/sql/psi/core/psi/SqlTableAlias {
@@ -1762,6 +1831,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field ALTER_DIMENSION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_DIRECTIVE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_DISKGROUP_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field ALTER_END_USER_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_FLASHBACK_ARCHIVE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_FUNCTION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_HIERARCHY_STMT Lcom/intellij/psi/tree/IElementType;
@@ -1818,6 +1888,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field COMPOUND_OPERATOR Lcom/intellij/psi/tree/IElementType;
 	public static final field COMPOUND_SELECT_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_ANALYTIC_VIEW_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field CREATE_APPLICATION_IDENTITY_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_ASSERTION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_ATTRIBUTE_DIMENSION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_AUDIT_POLICY_STMT Lcom/intellij/psi/tree/IElementType;
@@ -1828,6 +1899,8 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field CREATE_DIRECTIVE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_DISKGROUP_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_EDITION_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field CREATE_END_USER_CONTEXT_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field CREATE_END_USER_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_FLASHBACK_ARCHIVE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_FUNCTION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_HIERARCHY_STMT Lcom/intellij/psi/tree/IElementType;
@@ -1867,6 +1940,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field DISASSOCIATE_STATISTICS_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DOT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_ANALYTIC_VIEW_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field DROP_APPLICATION_IDENTITY_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_ASSERTION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_ATTRIBUTE_DIMENSION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_AUDIT_POLICY_STMT Lcom/intellij/psi/tree/IElementType;
@@ -1879,6 +1953,8 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field DROP_DIRECTORY_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_DISKGROUP_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_EDITION_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field DROP_END_USER_CONTEXT_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field DROP_END_USER_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_FLASHBACK_ARCHIVE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_FUNCTION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DROP_HIERARCHY_STMT Lcom/intellij/psi/tree/IElementType;
@@ -1951,12 +2027,16 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field TRUNCATE_CLUSTER_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field TRUNCATE_TABLE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field TYPE_NAME Lcom/intellij/psi/tree/IElementType;
+	public static final field UPDATE_END_USER_CONTEXT_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field WITH_CLAUSE Lcom/intellij/psi/tree/IElementType;
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTypes$Factory {
 	public fun <init> ()V
 	public static fun createElement (Lcom/intellij/lang/ASTNode;)Lcom/intellij/psi/PsiElement;
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleUpdateEndUserContextStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor : com/intellij/psi/PsiElementVisitor {
@@ -1973,6 +2053,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitAlterDimensionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDimensionStmt;)V
 	public fun visitAlterDirectiveStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDirectiveStmt;)V
 	public fun visitAlterDiskgroupStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDiskgroupStmt;)V
+	public fun visitAlterEndUserStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterEndUserStmt;)V
 	public fun visitAlterFlashbackArchiveStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFlashbackArchiveStmt;)V
 	public fun visitAlterFunctionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFunctionStmt;)V
 	public fun visitAlterHierarchyStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterHierarchyStmt;)V
@@ -2027,6 +2108,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitCompoundOperator (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCompoundOperator;)V
 	public fun visitCompoundSelectStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCompoundSelectStmt;)V
 	public fun visitCreateAnalyticViewStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAnalyticViewStmt;)V
+	public fun visitCreateApplicationIdentityStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateApplicationIdentityStmt;)V
 	public fun visitCreateAssertionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAssertionStmt;)V
 	public fun visitCreateAttributeDimensionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAttributeDimensionStmt;)V
 	public fun visitCreateAuditPolicyStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAuditPolicyStmt;)V
@@ -2037,6 +2119,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitCreateDirectiveStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDirectiveStmt;)V
 	public fun visitCreateDiskgroupStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDiskgroupStmt;)V
 	public fun visitCreateEditionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEditionStmt;)V
+	public fun visitCreateEndUserContextStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEndUserContextStmt;)V
+	public fun visitCreateEndUserStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEndUserStmt;)V
 	public fun visitCreateFlashbackArchiveStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateFlashbackArchiveStmt;)V
 	public fun visitCreateFunctionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateFunctionStmt;)V
 	public fun visitCreateHierarchyStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateHierarchyStmt;)V
@@ -2074,6 +2158,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitCreateViewStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateViewStmt;)V
 	public fun visitDisassociateStatisticsStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDisassociateStatisticsStmt;)V
 	public fun visitDropAnalyticViewStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAnalyticViewStmt;)V
+	public fun visitDropApplicationIdentityStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropApplicationIdentityStmt;)V
 	public fun visitDropAssertionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAssertionStmt;)V
 	public fun visitDropAttributeDimensionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAttributeDimensionStmt;)V
 	public fun visitDropAuditPolicyStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAuditPolicyStmt;)V
@@ -2086,6 +2171,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitDropDirectoryStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDirectoryStmt;)V
 	public fun visitDropDiskgroupStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDiskgroupStmt;)V
 	public fun visitDropEditionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEditionStmt;)V
+	public fun visitDropEndUserContextStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEndUserContextStmt;)V
+	public fun visitDropEndUserStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEndUserStmt;)V
 	public fun visitDropFlashbackArchiveStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropFlashbackArchiveStmt;)V
 	public fun visitDropFunctionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropFunctionStmt;)V
 	public fun visitDropHierarchyStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropHierarchyStmt;)V
@@ -2180,6 +2267,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitTruncateClusterStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTruncateClusterStmt;)V
 	public fun visitTruncateTableStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTruncateTableStmt;)V
 	public fun visitTypeName (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTypeName;)V
+	public fun visitUpdateEndUserContextStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleUpdateEndUserContextStmt;)V
 	public fun visitWithClause (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleWithClause;)V
 }
 
@@ -2253,6 +2341,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAl
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterDiskgroupStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDiskgroupStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterEndUserStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterEndUserStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
@@ -2594,6 +2688,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCr
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateApplicationIdentityStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateApplicationIdentityStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateAssertionStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAssertionStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
@@ -2649,6 +2749,18 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCr
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateEditionStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEditionStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateEndUserContextStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEndUserContextStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateEndUserStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEndUserStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
@@ -2881,6 +2993,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDr
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDropApplicationIdentityStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropApplicationIdentityStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDropAssertionStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAssertionStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
@@ -2948,6 +3066,18 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDr
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDropEditionStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEditionStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDropEndUserContextStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEndUserContextStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDropEndUserStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEndUserStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
@@ -3171,6 +3301,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getAlterDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDimensionStmt;
 	public fun getAlterDirectiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDirectiveStmt;
 	public fun getAlterDiskgroupStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDiskgroupStmt;
+	public fun getAlterEndUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterEndUserStmt;
 	public fun getAlterFlashbackArchiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFlashbackArchiveStmt;
 	public fun getAlterFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFunctionStmt;
 	public fun getAlterHierarchyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterHierarchyStmt;
@@ -3210,6 +3341,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getCallStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCallStmt;
 	public fun getCommentOnStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCommentOnStmt;
 	public fun getCreateAnalyticViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAnalyticViewStmt;
+	public fun getCreateApplicationIdentityStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateApplicationIdentityStmt;
 	public fun getCreateAssertionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAssertionStmt;
 	public fun getCreateAttributeDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAttributeDimensionStmt;
 	public fun getCreateAuditPolicyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAuditPolicyStmt;
@@ -3220,6 +3352,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getCreateDirectiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDirectiveStmt;
 	public fun getCreateDiskgroupStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDiskgroupStmt;
 	public fun getCreateEditionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEditionStmt;
+	public fun getCreateEndUserContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEndUserContextStmt;
+	public fun getCreateEndUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEndUserStmt;
 	public fun getCreateFlashbackArchiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateFlashbackArchiveStmt;
 	public fun getCreateFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateFunctionStmt;
 	public fun getCreateHierarchyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateHierarchyStmt;
@@ -3254,6 +3388,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getCreateUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateUserStmt;
 	public fun getDisassociateStatisticsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDisassociateStatisticsStmt;
 	public fun getDropAnalyticViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAnalyticViewStmt;
+	public fun getDropApplicationIdentityStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropApplicationIdentityStmt;
 	public fun getDropAssertionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAssertionStmt;
 	public fun getDropAttributeDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAttributeDimensionStmt;
 	public fun getDropAuditPolicyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAuditPolicyStmt;
@@ -3266,6 +3401,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getDropDirectoryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDirectoryStmt;
 	public fun getDropDiskgroupStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDiskgroupStmt;
 	public fun getDropEditionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEditionStmt;
+	public fun getDropEndUserContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEndUserContextStmt;
+	public fun getDropEndUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEndUserStmt;
 	public fun getDropFlashbackArchiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropFlashbackArchiveStmt;
 	public fun getDropFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropFunctionStmt;
 	public fun getDropHierarchyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropHierarchyStmt;
@@ -3313,6 +3450,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getSetUseDataGrantsOnlyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetUseDataGrantsOnlyStmt;
 	public fun getTruncateClusterStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTruncateClusterStmt;
 	public fun getTruncateTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTruncateTableStmt;
+	public fun getUpdateEndUserContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleUpdateEndUserContextStmt;
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleFlashbackDatabaseStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleFlashbackDatabaseStmt {
@@ -3502,6 +3640,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSt
 	public fun getAlterDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDimensionStmt;
 	public fun getAlterDirectiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDirectiveStmt;
 	public fun getAlterDiskgroupStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDiskgroupStmt;
+	public fun getAlterEndUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterEndUserStmt;
 	public fun getAlterFlashbackArchiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFlashbackArchiveStmt;
 	public fun getAlterFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFunctionStmt;
 	public fun getAlterHierarchyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterHierarchyStmt;
@@ -3536,6 +3675,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSt
 	public fun getAuditStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAuditStmt;
 	public fun getCommentOnStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCommentOnStmt;
 	public fun getCreateAnalyticViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAnalyticViewStmt;
+	public fun getCreateApplicationIdentityStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateApplicationIdentityStmt;
 	public fun getCreateAssertionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAssertionStmt;
 	public fun getCreateAttributeDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAttributeDimensionStmt;
 	public fun getCreateAuditPolicyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAuditPolicyStmt;
@@ -3546,6 +3686,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSt
 	public fun getCreateDirectiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDirectiveStmt;
 	public fun getCreateDiskgroupStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDiskgroupStmt;
 	public fun getCreateEditionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEditionStmt;
+	public fun getCreateEndUserContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEndUserContextStmt;
+	public fun getCreateEndUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEndUserStmt;
 	public fun getCreateFlashbackArchiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateFlashbackArchiveStmt;
 	public fun getCreateFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateFunctionStmt;
 	public fun getCreateHierarchyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateHierarchyStmt;
@@ -3579,6 +3721,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSt
 	public fun getCreateUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateUserStmt;
 	public fun getDisassociateStatisticsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDisassociateStatisticsStmt;
 	public fun getDropAnalyticViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAnalyticViewStmt;
+	public fun getDropApplicationIdentityStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropApplicationIdentityStmt;
 	public fun getDropAssertionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAssertionStmt;
 	public fun getDropAttributeDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAttributeDimensionStmt;
 	public fun getDropAuditPolicyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAuditPolicyStmt;
@@ -3591,6 +3734,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSt
 	public fun getDropDirectoryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDirectoryStmt;
 	public fun getDropDiskgroupStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropDiskgroupStmt;
 	public fun getDropEditionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEditionStmt;
+	public fun getDropEndUserContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEndUserContextStmt;
+	public fun getDropEndUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropEndUserStmt;
 	public fun getDropFlashbackArchiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropFlashbackArchiveStmt;
 	public fun getDropFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropFunctionStmt;
 	public fun getDropHierarchyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropHierarchyStmt;
@@ -3630,6 +3775,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSt
 	public fun getSetRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetRoleStmt;
 	public fun getSetTransactionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetTransactionStmt;
 	public fun getSetUseDataGrantsOnlyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSetUseDataGrantsOnlyStmt;
+	public fun getUpdateEndUserContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleUpdateEndUserContextStmt;
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleTableAliasImpl : dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTableAlias {
@@ -3667,6 +3813,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleTy
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 	public fun getOracleTypeName ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleTypeName;
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleUpdateEndUserContextStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleUpdateEndUserContextStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleWithClauseImpl : dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleWithClause {

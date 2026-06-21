@@ -3203,6 +3203,53 @@ class OracleParserBackedTest :
         test("parses Oracle role and user security statements exactly") {
             val sql =
                 """
+                CREATE APPLICATION IDENTITY hcm_app MAPPED TO 'AZURE_CLIENT_ID = f1fab37e-7aa2-4ff8-849c-7e731fea3b48';
+
+                CREATE OR REPLACE APPLICATION IDENTITY iam_app MAPPED TO 'IAM_OAUTH_CLIENT_ID = ocid1.oauthclient.oc1..example';
+
+                CREATE APPLICATION IDENTITY IF NOT EXISTS payroll_app MAPPED TO 'AZURE_CLIENT_ID = 384ff83f-4a20-46be-88a9-2d6d88a7d520';
+
+                DROP APPLICATION IDENTITY IF EXISTS old_hcm_app;
+
+                DROP APPLICATION IDENTITY old_payroll_app;
+
+                CREATE END USER IF NOT EXISTS emma
+                  IDENTIFIED BY password
+                  PROFILE app_profile
+                  PASSWORD EXPIRE
+                  ACCOUNT UNLOCK
+                  SCHEMA hr
+                  START TIME TO_TIMESTAMP_TZ('2025-03-01 19:30:00 +00:00', 'YYYY-MM-DD HH24:MI:SS TZH:TZM')
+                  END TIME TO_TIMESTAMP_TZ('2026-03-01 19:30:00 +00:00', 'YYYY-MM-DD HH24:MI:SS TZH:TZM');
+
+                CREATE END USER marvin SCHEMA hr ACCOUNT LOCK;
+
+                ALTER END USER IF EXISTS emma IDENTIFIED BY new_password REPLACE password
+                  PROFILE app_profile
+                  PASSWORD EXPIRE
+                  ACCOUNT LOCK
+                  SCHEMA reporting
+                  NO START TIME
+                  NO END TIME;
+
+                ALTER END USER marvin ACCOUNT UNLOCK SCHEMA hr;
+
+                DROP END USER IF EXISTS old_emma;
+
+                DROP END USER marvin;
+
+                CREATE END USER CONTEXT hr.hcm USING JSON SCHEMA '{"type":"object","properties":{"emp_id":{"type":"integer","default":1}}}';
+
+                CREATE OR REPLACE END USER CONTEXT IF NOT EXISTS hr.payroll
+                  USING JSON SCHEMA '{"type":"object","properties":{"region":{"type":"string","default":"US"}}}';
+
+                DROP END USER CONTEXT IF EXISTS hr.old_hcm;
+
+                DROP END USER CONTEXT hr.old_payroll;
+
+                UPDATE sys.end_user_context t SET t.context.emp_id = 3
+                  WHERE owner = 'HR' AND name = 'HCM';
+
                 CREATE USER IF NOT EXISTS app_user IDENTIFIED BY app_password
                   DEFAULT COLLATION binary_ci
                   DEFAULT TABLESPACE users

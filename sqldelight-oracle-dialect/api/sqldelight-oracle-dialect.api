@@ -58,7 +58,9 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun alter_attribute_dimension_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_audit_policy_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_cluster_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun alter_database_dictionary_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_database_link_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun alter_database_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_dimension_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_directive_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_flashback_archive_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -77,6 +79,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun alter_operator_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_outline_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_package_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun alter_pluggable_database_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_pmem_filestore_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_procedure_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_profile_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -202,7 +205,9 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun alterAttributeDimensionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterAuditPolicyStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterClusterStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun alterDatabaseDictionaryStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterDatabaseLinkStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun alterDatabaseStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterDimensionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterDirectiveStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterFlashbackArchiveStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -221,6 +226,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun alterOperatorStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterOutlineStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterPackageStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun alterPluggableDatabaseStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterPmemFilestoreStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterProcedureStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterProfileStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -319,7 +325,9 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getAlter_attribute_dimension_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_audit_policy_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_cluster_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getAlter_database_dictionary_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_database_link_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getAlter_database_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_dimension_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_directive_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_flashback_archive_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -338,6 +346,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getAlter_operator_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_outline_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_package_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getAlter_pluggable_database_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_pmem_filestore_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_procedure_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_profile_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -470,7 +479,9 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setAlter_attribute_dimension_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_audit_policy_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_cluster_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setAlter_database_dictionary_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_database_link_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setAlter_database_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_dimension_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_directive_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_flashback_archive_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -489,6 +500,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setAlter_operator_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_outline_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_package_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setAlter_pluggable_database_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_pmem_filestore_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_procedure_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_profile_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -631,7 +643,13 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterClusterStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseDictionaryStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseLinkStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDimensionStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -688,6 +706,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPackageStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPluggableDatabaseStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPmemFilestoreStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -976,7 +997,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getAlterAttributeDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterAttributeDimensionStmt;
 	public abstract fun getAlterAuditPolicyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterAuditPolicyStmt;
 	public abstract fun getAlterClusterStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterClusterStmt;
+	public abstract fun getAlterDatabaseDictionaryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseDictionaryStmt;
 	public abstract fun getAlterDatabaseLinkStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseLinkStmt;
+	public abstract fun getAlterDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseStmt;
 	public abstract fun getAlterDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDimensionStmt;
 	public abstract fun getAlterDirectiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDirectiveStmt;
 	public abstract fun getAlterFlashbackArchiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFlashbackArchiveStmt;
@@ -995,6 +1018,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getAlterOperatorStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterOperatorStmt;
 	public abstract fun getAlterOutlineStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterOutlineStmt;
 	public abstract fun getAlterPackageStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPackageStmt;
+	public abstract fun getAlterPluggableDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPluggableDatabaseStmt;
 	public abstract fun getAlterPmemFilestoreStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPmemFilestoreStmt;
 	public abstract fun getAlterProcedureStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterProcedureStmt;
 	public abstract fun getAlterProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterProfileStmt;
@@ -1157,7 +1181,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getAlterAttributeDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterAttributeDimensionStmt;
 	public abstract fun getAlterAuditPolicyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterAuditPolicyStmt;
 	public abstract fun getAlterClusterStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterClusterStmt;
+	public abstract fun getAlterDatabaseDictionaryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseDictionaryStmt;
 	public abstract fun getAlterDatabaseLinkStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseLinkStmt;
+	public abstract fun getAlterDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseStmt;
 	public abstract fun getAlterDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDimensionStmt;
 	public abstract fun getAlterDirectiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDirectiveStmt;
 	public abstract fun getAlterFlashbackArchiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFlashbackArchiveStmt;
@@ -1174,6 +1200,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getAlterOperatorStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterOperatorStmt;
 	public abstract fun getAlterOutlineStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterOutlineStmt;
 	public abstract fun getAlterPackageStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPackageStmt;
+	public abstract fun getAlterPluggableDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPluggableDatabaseStmt;
 	public abstract fun getAlterPmemFilestoreStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPmemFilestoreStmt;
 	public abstract fun getAlterProcedureStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterProcedureStmt;
 	public abstract fun getAlterProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterProfileStmt;
@@ -1272,7 +1299,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field ALTER_ATTRIBUTE_DIMENSION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_AUDIT_POLICY_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_CLUSTER_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field ALTER_DATABASE_DICTIONARY_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_DATABASE_LINK_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field ALTER_DATABASE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_DIMENSION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_DIRECTIVE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_FLASHBACK_ARCHIVE_STMT Lcom/intellij/psi/tree/IElementType;
@@ -1291,6 +1320,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field ALTER_OPERATOR_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_OUTLINE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_PACKAGE_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field ALTER_PLUGGABLE_DATABASE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_PMEM_FILESTORE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_PROCEDURE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_PROFILE_STMT Lcom/intellij/psi/tree/IElementType;
@@ -1428,7 +1458,9 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitAlterAttributeDimensionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterAttributeDimensionStmt;)V
 	public fun visitAlterAuditPolicyStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterAuditPolicyStmt;)V
 	public fun visitAlterClusterStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterClusterStmt;)V
+	public fun visitAlterDatabaseDictionaryStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseDictionaryStmt;)V
 	public fun visitAlterDatabaseLinkStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseLinkStmt;)V
+	public fun visitAlterDatabaseStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseStmt;)V
 	public fun visitAlterDimensionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDimensionStmt;)V
 	public fun visitAlterDirectiveStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDirectiveStmt;)V
 	public fun visitAlterFlashbackArchiveStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFlashbackArchiveStmt;)V
@@ -1447,6 +1479,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitAlterOperatorStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterOperatorStmt;)V
 	public fun visitAlterOutlineStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterOutlineStmt;)V
 	public fun visitAlterPackageStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPackageStmt;)V
+	public fun visitAlterPluggableDatabaseStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPluggableDatabaseStmt;)V
 	public fun visitAlterPmemFilestoreStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPmemFilestoreStmt;)V
 	public fun visitAlterProcedureStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterProcedureStmt;)V
 	public fun visitAlterProfileStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterProfileStmt;)V
@@ -1614,7 +1647,19 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAl
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterDatabaseDictionaryStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseDictionaryStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterDatabaseLinkStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseLinkStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterDatabaseStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
@@ -1725,6 +1770,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAl
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterPackageStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPackageStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterPluggableDatabaseStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPluggableDatabaseStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
@@ -2290,7 +2341,9 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getAlterAttributeDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterAttributeDimensionStmt;
 	public fun getAlterAuditPolicyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterAuditPolicyStmt;
 	public fun getAlterClusterStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterClusterStmt;
+	public fun getAlterDatabaseDictionaryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseDictionaryStmt;
 	public fun getAlterDatabaseLinkStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseLinkStmt;
+	public fun getAlterDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseStmt;
 	public fun getAlterDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDimensionStmt;
 	public fun getAlterDirectiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDirectiveStmt;
 	public fun getAlterFlashbackArchiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFlashbackArchiveStmt;
@@ -2309,6 +2362,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getAlterOperatorStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterOperatorStmt;
 	public fun getAlterOutlineStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterOutlineStmt;
 	public fun getAlterPackageStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPackageStmt;
+	public fun getAlterPluggableDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPluggableDatabaseStmt;
 	public fun getAlterPmemFilestoreStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPmemFilestoreStmt;
 	public fun getAlterProcedureStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterProcedureStmt;
 	public fun getAlterProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterProfileStmt;
@@ -2525,7 +2579,9 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSt
 	public fun getAlterAttributeDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterAttributeDimensionStmt;
 	public fun getAlterAuditPolicyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterAuditPolicyStmt;
 	public fun getAlterClusterStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterClusterStmt;
+	public fun getAlterDatabaseDictionaryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseDictionaryStmt;
 	public fun getAlterDatabaseLinkStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseLinkStmt;
+	public fun getAlterDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDatabaseStmt;
 	public fun getAlterDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDimensionStmt;
 	public fun getAlterDirectiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterDirectiveStmt;
 	public fun getAlterFlashbackArchiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterFlashbackArchiveStmt;
@@ -2542,6 +2598,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSt
 	public fun getAlterOperatorStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterOperatorStmt;
 	public fun getAlterOutlineStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterOutlineStmt;
 	public fun getAlterPackageStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPackageStmt;
+	public fun getAlterPluggableDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPluggableDatabaseStmt;
 	public fun getAlterPmemFilestoreStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterPmemFilestoreStmt;
 	public fun getAlterProcedureStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterProcedureStmt;
 	public fun getAlterProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterProfileStmt;

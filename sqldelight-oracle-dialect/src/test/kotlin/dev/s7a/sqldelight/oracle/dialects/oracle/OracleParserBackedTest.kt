@@ -1111,6 +1111,55 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle database and pluggable database alter statements exactly") {
+            val sql =
+                """
+                ALTER DATABASE MOUNT;
+
+                ALTER DATABASE MOUNT STANDBY DATABASE;
+
+                ALTER DATABASE OPEN READ ONLY;
+
+                ALTER DATABASE OPEN RESETLOGS;
+
+                ALTER DATABASE ARCHIVELOG;
+
+                ALTER DATABASE FLASHBACK ON;
+
+                ALTER DATABASE RENAME GLOBAL_NAME TO sales.us.example.com;
+
+                ALTER DATABASE DEFAULT TABLESPACE users;
+
+                ALTER DATABASE DATAFILE '/u01/oradata/users01.dbf' ONLINE;
+
+                ALTER DATABASE ADD LOGFILE GROUP 3 ('/u01/oradata/redo03.log') SIZE 100 M;
+
+                ALTER DATABASE DICTIONARY ENCRYPT CREDENTIALS;
+
+                ALTER DATABASE DICTIONARY REKEY CREDENTIALS;
+
+                ALTER DATABASE DICTIONARY DELETE CREDENTIALS KEY;
+
+                ALTER PLUGGABLE DATABASE pdb1 OPEN READ WRITE;
+
+                ALTER PLUGGABLE DATABASE pdb1 CLOSE IMMEDIATE;
+
+                ALTER PLUGGABLE DATABASE pdb1 SAVE STATE;
+
+                ALTER PLUGGABLE DATABASE pdb1 DISCARD STATE;
+
+                ALTER PLUGGABLE DATABASE pdb1 UNPLUG INTO '/tmp/pdb1.xml';
+
+                ALTER PLUGGABLE DATABASE ALL OPEN;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle transaction constraint statements exactly") {
             val sql =
                 """

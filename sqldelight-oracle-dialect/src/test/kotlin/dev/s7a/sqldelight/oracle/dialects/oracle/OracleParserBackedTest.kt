@@ -1002,6 +1002,26 @@ class OracleParserBackedTest :
                   RATIO_TO_REPORT(amount) OVER (
                     PARTITION BY region
                   ) AS regional_ratio,
+                  LAG(amount, 1, 0) OVER (
+                    PARTITION BY department_id
+                    ORDER BY sold_at
+                  ) AS previous_amount,
+                  LEAD(sold_at, 1) OVER (
+                    PARTITION BY department_id
+                    ORDER BY sold_at
+                  ) AS next_sold_at,
+                  FIRST_VALUE(region) OVER (
+                    PARTITION BY department_id
+                    ORDER BY amount ASC ROWS UNBOUNDED PRECEDING
+                  ) AS first_region,
+                  LAST_VALUE(sold_at) OVER (
+                    PARTITION BY department_id
+                    ORDER BY amount DESC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+                  ) AS last_sold_at,
+                  NTH_VALUE(amount, 2) OVER (
+                    PARTITION BY department_id
+                    ORDER BY sold_at ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+                  ) AS second_amount,
                   MAX(employee_id) KEEP (
                     DENSE_RANK LAST ORDER BY amount NULLS LAST
                   ) AS top_employee_id

@@ -124,6 +124,10 @@ public class OracleTypeResolver(
                 }
             }
 
+            "first_value", "lag", "last_value", "lead", "nth_value" -> {
+                functionExpr.exprList.firstOrNull()?.let { expression -> parentResolver.resolvedType(expression).asNullable() }
+            }
+
             else -> {
                 null
             }

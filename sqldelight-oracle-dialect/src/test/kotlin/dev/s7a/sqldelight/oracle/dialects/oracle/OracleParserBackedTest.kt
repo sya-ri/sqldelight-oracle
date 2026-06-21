@@ -942,6 +942,25 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle insert default values through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE default_value_orders (
+                  id NUMBER DEFAULT 1 PRIMARY KEY,
+                  status VARCHAR2(16) DEFAULT 'NEW'
+                );
+
+                insertDefaultValues:
+                INSERT INTO default_value_orders DEFAULT VALUES;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle call statements through SQLDelight environment exactly") {
             val sql =
                 """

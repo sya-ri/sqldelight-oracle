@@ -1060,6 +1060,10 @@ class OracleParserBackedTest :
                 INSERT INTO partitioned_orders SUBPARTITION FOR ('US') (order_id, region_code, order_total)
                 VALUES (?, ?, ?)
                 LOG ERRORS INTO partitioned_order_errors REJECT LIMIT 10;
+
+                insertOnlyTarget:
+                INSERT INTO ONLY (partitioned_orders) (order_id, region_code, order_total)
+                VALUES (?, ?, ?);
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe
@@ -1089,9 +1093,18 @@ class OracleParserBackedTest :
                 SET archived_at = CURRENT_TIMESTAMP
                 WHERE order_id = ?;
 
+                updateOnlyTarget:
+                UPDATE ONLY (partitioned_order_updates)
+                SET order_total = order_total + 1
+                WHERE region_code = ?;
+
                 deletePartitionForKey:
                 DELETE FROM partitioned_order_updates PARTITION FOR (2026, 1)
                 WHERE archived_at IS NOT NULL;
+
+                deleteOnlyTarget:
+                DELETE FROM ONLY (partitioned_order_updates)
+                WHERE order_total = 0;
 
                 deleteSubpartitionByName:
                 DELETE FROM partitioned_order_updates SUBPARTITION (orders_2026_q1_us)

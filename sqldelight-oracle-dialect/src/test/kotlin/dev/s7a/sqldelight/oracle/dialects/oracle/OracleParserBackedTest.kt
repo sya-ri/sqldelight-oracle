@@ -521,6 +521,10 @@ class OracleParserBackedTest :
                 selectSubpartitionFor:
                 SELECT id, region
                 FROM partitioned_orders SUBPARTITION FOR (2026, 'WEST') po;
+
+                selectSampleBlock:
+                SELECT id, region
+                FROM partitioned_orders SAMPLE BLOCK (10) SEED (42) po;
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe

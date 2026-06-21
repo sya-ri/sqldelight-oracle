@@ -124,6 +124,42 @@ class OracleTypeTest :
             OracleType.fromFunctionName("coalesce") shouldBe null
         }
 
+        test("maps Oracle comparable function argument types exactly") {
+            val mappings =
+                listOf(
+                    Triple("COALESCE", listOf(OracleType.INTEGER_NUMBER, OracleType.LONG_NUMBER), OracleType.LONG_NUMBER),
+                    Triple("NVL", listOf(OracleType.TEXT, OracleType.DECIMAL_NUMBER), OracleType.TEXT),
+                    Triple("NVL2", listOf(OracleType.BOOLEAN_TYPE, OracleType.DATE, OracleType.TIMESTAMP), OracleType.TIMESTAMP),
+                    Triple("GREATEST", listOf(OracleType.BINARY_FLOAT, OracleType.BINARY_DOUBLE), OracleType.BINARY_DOUBLE),
+                    Triple("LEAST", listOf(OracleType.DATE, OracleType.TIMESTAMP_TIME_ZONE), OracleType.TIMESTAMP_TIME_ZONE),
+                    Triple("MAX", listOf(OracleType.TEXT, OracleType.BINARY), OracleType.BINARY),
+                    Triple("MIN", listOf(OracleType.TIMESTAMP, OracleType.DATE), OracleType.DATE),
+                    Triple("UNSUPPORTED_FUNCTION", listOf(OracleType.INTEGER_NUMBER, OracleType.LONG_NUMBER), null),
+                    Triple("NVL2", listOf(OracleType.TEXT), null),
+                )
+
+            mappings.map { (functionName, argumentTypes, expectedType) ->
+                Triple(functionName, argumentTypes, OracleType.fromComparableFunctionTypes(functionName, argumentTypes))
+            } shouldBe mappings
+        }
+
+        test("maps Oracle aggregate function argument types exactly") {
+            val mappings =
+                listOf(
+                    Triple("SUM", OracleType.INTEGER_NUMBER, OracleType.LONG_NUMBER),
+                    Triple("SUM", OracleType.LONG_NUMBER, OracleType.LONG_NUMBER),
+                    Triple("SUM", OracleType.DECIMAL_NUMBER, OracleType.DECIMAL_NUMBER),
+                    Triple("SUM", OracleType.BINARY_FLOAT, OracleType.BINARY_FLOAT),
+                    Triple("SUM", OracleType.BINARY_DOUBLE, OracleType.BINARY_DOUBLE),
+                    Triple("SUM", OracleType.TEXT, null),
+                    Triple("COUNT", OracleType.LONG_NUMBER, null),
+                )
+
+            mappings.map { (functionName, argumentType, expectedType) ->
+                Triple(functionName, argumentType, OracleType.fromAggregateFunctionType(functionName, argumentType))
+            } shouldBe mappings
+        }
+
         test("generates binders and cursor getters exactly") {
             val generated =
                 OracleType.entries.map { type ->

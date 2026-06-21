@@ -146,6 +146,52 @@ public enum class OracleType(
                 else -> null
             }
 
+        internal fun fromComparableFunctionTypes(
+            functionName: String,
+            argumentTypes: List<OracleType>,
+        ): OracleType? =
+            when (functionName.trim().uppercase()) {
+                "COALESCE", "GREATEST", "LEAST", "NVL" -> argumentTypes.highestComparableType()
+                "NVL2" -> argumentTypes.drop(1).highestComparableType()
+                "MAX" -> argumentTypes.highestMaxType()
+                "MIN" -> argumentTypes.highestMinType()
+                else -> null
+            }
+
+        internal fun fromAggregateFunctionType(
+            functionName: String,
+            argumentType: OracleType,
+        ): OracleType? =
+            when (functionName.trim().uppercase()) {
+                "SUM" -> {
+                    when (argumentType) {
+                        INTEGER_NUMBER, LONG_NUMBER -> {
+                            LONG_NUMBER
+                        }
+
+                        DECIMAL_NUMBER -> {
+                            DECIMAL_NUMBER
+                        }
+
+                        BINARY_FLOAT -> {
+                            BINARY_FLOAT
+                        }
+
+                        BINARY_DOUBLE -> {
+                            BINARY_DOUBLE
+                        }
+
+                        else -> {
+                            null
+                        }
+                    }
+                }
+
+                else -> {
+                    null
+                }
+            }
+
         private val textBaseNames: Set<String> =
             setOf(
                 "CHAR",
@@ -196,6 +242,53 @@ public enum class OracleType(
             val parts = parameters.split(",").map { part -> part.trim() }
             return parts.getOrNull(0)?.toIntOrNull() to parts.getOrNull(1)?.toIntOrNull()
         }
+
+        private fun List<OracleType>.highestComparableType(): OracleType? =
+            highestType(
+                BOOLEAN_TYPE,
+                INTEGER_NUMBER,
+                LONG_NUMBER,
+                DECIMAL_NUMBER,
+                BINARY_FLOAT,
+                BINARY_DOUBLE,
+                TEXT,
+                BINARY,
+                DATE,
+                TIMESTAMP,
+                TIMESTAMP_TIME_ZONE,
+            )
+
+        private fun List<OracleType>.highestMaxType(): OracleType? =
+            highestType(
+                BOOLEAN_TYPE,
+                INTEGER_NUMBER,
+                LONG_NUMBER,
+                DECIMAL_NUMBER,
+                BINARY_FLOAT,
+                BINARY_DOUBLE,
+                TEXT,
+                BINARY,
+                DATE,
+                TIMESTAMP,
+                TIMESTAMP_TIME_ZONE,
+            )
+
+        private fun List<OracleType>.highestMinType(): OracleType? =
+            highestType(
+                BINARY,
+                TEXT,
+                BOOLEAN_TYPE,
+                INTEGER_NUMBER,
+                LONG_NUMBER,
+                DECIMAL_NUMBER,
+                BINARY_FLOAT,
+                BINARY_DOUBLE,
+                TIMESTAMP_TIME_ZONE,
+                TIMESTAMP,
+                DATE,
+            )
+
+        private fun List<OracleType>.highestType(vararg typeOrder: OracleType): OracleType? = typeOrder.lastOrNull { type -> type in this }
     }
 }
 

@@ -1896,6 +1896,44 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle administrative legacy create statements exactly") {
+            val sql =
+                """
+                CREATE LOCKDOWN PROFILE hr_prof;
+
+                CREATE LOCKDOWN PROFILE hr_prof_copy INCLUDING PRIVATE_DBAAS;
+
+                CREATE PMEM FILESTORE cloud_db_1
+                  MOUNTPOINT '/corp/db/cloud_db_1'
+                  BACKINGFILE '/var/pmem/foo_1' SIZE 2 T
+                  BLOCKSIZE 8 K
+                  AUTOEXTEND ON NEXT 10 G MAXSIZE 3 T;
+
+                CREATE RESTORE POINT good_data;
+
+                CREATE RESTORE POINT pdb_good_data
+                  FOR PLUGGABLE DATABASE pdb1
+                  AS OF SCN 123456
+                  PRESERVE;
+
+                CREATE CLEAN RESTORE POINT before_upgrade
+                  FOR PLUGGABLE DATABASE salespdb
+                  GUARANTEE FLASHBACK DATABASE;
+
+                CREATE ROLLBACK SEGMENT rbs_one
+                  TABLESPACE rbs_ts
+                  STORAGE (INITIAL 50 K NEXT 50 K OPTIMAL 100 K);
+
+                CREATE PUBLIC ROLLBACK SEGMENT public_rbs TABLESPACE rbs_ts;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle database and pluggable database alter statements exactly") {
             val sql =
                 """

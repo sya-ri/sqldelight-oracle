@@ -134,6 +134,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun create_java_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_json_relational_duality_view_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_library_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun create_lockdown_profile_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_logical_partition_tracking_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_materialized_zonemap_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_mle_env_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -143,9 +144,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun create_package_body_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_pfile_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_pluggable_database_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun create_pmem_filestore_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_profile_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_property_graph_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun create_restore_point_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_role_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun create_rollback_segment_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_schema_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_sequence_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_spfile_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -315,6 +319,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun createJavaStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createJsonRelationalDualityViewStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createLibraryStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun createLockdownProfileStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createLogicalPartitionTrackingStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createMaterializedZonemapStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createMleEnvStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -324,9 +329,12 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun createPackageBodyStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createPfileStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createPluggableDatabaseStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun createPmemFilestoreStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createProfileStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createPropertyGraphStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun createRestorePointStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createRoleStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun createRollbackSegmentStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createSchemaStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createSequenceStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createSpfileStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -470,6 +478,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getCreate_java_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_json_relational_duality_view_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_library_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getCreate_lockdown_profile_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_logical_partition_tracking_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_materialized_zonemap_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_mle_env_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -479,9 +488,12 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getCreate_package_body_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_pfile_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_pluggable_database_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getCreate_pmem_filestore_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_profile_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_property_graph_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getCreate_restore_point_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_role_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getCreate_rollback_segment_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_schema_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_sequence_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_spfile_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -659,6 +671,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setCreate_java_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_json_relational_duality_view_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_library_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setCreate_lockdown_profile_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_logical_partition_tracking_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_materialized_zonemap_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_mle_env_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -668,9 +681,12 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setCreate_package_body_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_pfile_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_pluggable_database_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setCreate_pmem_filestore_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_profile_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_property_graph_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setCreate_restore_point_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_role_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setCreate_rollback_segment_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_schema_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_sequence_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_spfile_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -1018,6 +1034,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLibraryStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLockdownProfileStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLogicalPartitionTrackingStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
@@ -1046,13 +1065,22 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePluggableDatabaseStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePmemFilestoreStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProfileStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePropertyGraphStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRestorePointStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRoleStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRollbackSegmentStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSchemaStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -1299,6 +1327,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreateJavaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJavaStmt;
 	public abstract fun getCreateJsonRelationalDualityViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJsonRelationalDualityViewStmt;
 	public abstract fun getCreateLibraryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLibraryStmt;
+	public abstract fun getCreateLockdownProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLockdownProfileStmt;
 	public abstract fun getCreateLogicalPartitionTrackingStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLogicalPartitionTrackingStmt;
 	public abstract fun getCreateMaterializedZonemapStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateMaterializedZonemapStmt;
 	public abstract fun getCreateMleEnvStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateMleEnvStmt;
@@ -1308,9 +1337,12 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreatePackageBodyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePackageBodyStmt;
 	public abstract fun getCreatePfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePfileStmt;
 	public abstract fun getCreatePluggableDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePluggableDatabaseStmt;
+	public abstract fun getCreatePmemFilestoreStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePmemFilestoreStmt;
 	public abstract fun getCreateProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProfileStmt;
 	public abstract fun getCreatePropertyGraphStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePropertyGraphStmt;
+	public abstract fun getCreateRestorePointStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRestorePointStmt;
 	public abstract fun getCreateRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRoleStmt;
+	public abstract fun getCreateRollbackSegmentStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRollbackSegmentStmt;
 	public abstract fun getCreateSchemaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSchemaStmt;
 	public abstract fun getCreateSequenceStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSequenceStmt;
 	public abstract fun getCreateSpfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSpfileStmt;
@@ -1513,6 +1545,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreateJavaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJavaStmt;
 	public abstract fun getCreateJsonRelationalDualityViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJsonRelationalDualityViewStmt;
 	public abstract fun getCreateLibraryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLibraryStmt;
+	public abstract fun getCreateLockdownProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLockdownProfileStmt;
 	public abstract fun getCreateLogicalPartitionTrackingStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLogicalPartitionTrackingStmt;
 	public abstract fun getCreateMaterializedZonemapStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateMaterializedZonemapStmt;
 	public abstract fun getCreateMleEnvStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateMleEnvStmt;
@@ -1522,9 +1555,12 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreatePackageBodyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePackageBodyStmt;
 	public abstract fun getCreatePfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePfileStmt;
 	public abstract fun getCreatePluggableDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePluggableDatabaseStmt;
+	public abstract fun getCreatePmemFilestoreStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePmemFilestoreStmt;
 	public abstract fun getCreateProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProfileStmt;
 	public abstract fun getCreatePropertyGraphStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePropertyGraphStmt;
+	public abstract fun getCreateRestorePointStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRestorePointStmt;
 	public abstract fun getCreateRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRoleStmt;
+	public abstract fun getCreateRollbackSegmentStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRollbackSegmentStmt;
 	public abstract fun getCreateSchemaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSchemaStmt;
 	public abstract fun getCreateSpfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSpfileStmt;
 	public abstract fun getCreateTablespaceSetStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTablespaceSetStmt;
@@ -1685,6 +1721,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field CREATE_JAVA_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_JSON_RELATIONAL_DUALITY_VIEW_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_LIBRARY_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field CREATE_LOCKDOWN_PROFILE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_LOGICAL_PARTITION_TRACKING_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_MATERIALIZED_ZONEMAP_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_MLE_ENV_STMT Lcom/intellij/psi/tree/IElementType;
@@ -1694,9 +1731,12 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field CREATE_PACKAGE_BODY_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_PFILE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_PLUGGABLE_DATABASE_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field CREATE_PMEM_FILESTORE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_PROFILE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_PROPERTY_GRAPH_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field CREATE_RESTORE_POINT_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_ROLE_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field CREATE_ROLLBACK_SEGMENT_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_SCHEMA_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_SEQUENCE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_SPFILE_STMT Lcom/intellij/psi/tree/IElementType;
@@ -1876,6 +1916,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitCreateJavaStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJavaStmt;)V
 	public fun visitCreateJsonRelationalDualityViewStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJsonRelationalDualityViewStmt;)V
 	public fun visitCreateLibraryStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLibraryStmt;)V
+	public fun visitCreateLockdownProfileStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLockdownProfileStmt;)V
 	public fun visitCreateLogicalPartitionTrackingStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLogicalPartitionTrackingStmt;)V
 	public fun visitCreateMaterializedZonemapStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateMaterializedZonemapStmt;)V
 	public fun visitCreateMleEnvStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateMleEnvStmt;)V
@@ -1885,9 +1926,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitCreatePackageBodyStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePackageBodyStmt;)V
 	public fun visitCreatePfileStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePfileStmt;)V
 	public fun visitCreatePluggableDatabaseStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePluggableDatabaseStmt;)V
+	public fun visitCreatePmemFilestoreStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePmemFilestoreStmt;)V
 	public fun visitCreateProfileStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProfileStmt;)V
 	public fun visitCreatePropertyGraphStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePropertyGraphStmt;)V
+	public fun visitCreateRestorePointStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRestorePointStmt;)V
 	public fun visitCreateRoleStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRoleStmt;)V
+	public fun visitCreateRollbackSegmentStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRollbackSegmentStmt;)V
 	public fun visitCreateSchemaStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSchemaStmt;)V
 	public fun visitCreateSequenceStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSequenceStmt;)V
 	public fun visitCreateSpfileStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSpfileStmt;)V
@@ -2492,6 +2536,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCr
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateLockdownProfileStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLockdownProfileStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateLogicalPartitionTrackingStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLogicalPartitionTrackingStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
@@ -2547,6 +2597,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCr
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreatePmemFilestoreStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePmemFilestoreStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateProfileStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProfileStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
@@ -2559,7 +2615,19 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCr
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateRestorePointStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRestorePointStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateRoleStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRoleStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateRollbackSegmentStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRollbackSegmentStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
@@ -2985,6 +3053,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getCreateJavaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJavaStmt;
 	public fun getCreateJsonRelationalDualityViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJsonRelationalDualityViewStmt;
 	public fun getCreateLibraryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLibraryStmt;
+	public fun getCreateLockdownProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLockdownProfileStmt;
 	public fun getCreateLogicalPartitionTrackingStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLogicalPartitionTrackingStmt;
 	public fun getCreateMaterializedZonemapStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateMaterializedZonemapStmt;
 	public fun getCreateMleEnvStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateMleEnvStmt;
@@ -2994,9 +3063,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getCreatePackageBodyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePackageBodyStmt;
 	public fun getCreatePfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePfileStmt;
 	public fun getCreatePluggableDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePluggableDatabaseStmt;
+	public fun getCreatePmemFilestoreStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePmemFilestoreStmt;
 	public fun getCreateProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProfileStmt;
 	public fun getCreatePropertyGraphStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePropertyGraphStmt;
+	public fun getCreateRestorePointStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRestorePointStmt;
 	public fun getCreateRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRoleStmt;
+	public fun getCreateRollbackSegmentStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRollbackSegmentStmt;
 	public fun getCreateSchemaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSchemaStmt;
 	public fun getCreateSequenceStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSequenceStmt;
 	public fun getCreateSpfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSpfileStmt;
@@ -3253,6 +3325,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSt
 	public fun getCreateJavaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJavaStmt;
 	public fun getCreateJsonRelationalDualityViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJsonRelationalDualityViewStmt;
 	public fun getCreateLibraryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLibraryStmt;
+	public fun getCreateLockdownProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLockdownProfileStmt;
 	public fun getCreateLogicalPartitionTrackingStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateLogicalPartitionTrackingStmt;
 	public fun getCreateMaterializedZonemapStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateMaterializedZonemapStmt;
 	public fun getCreateMleEnvStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateMleEnvStmt;
@@ -3262,9 +3335,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSt
 	public fun getCreatePackageBodyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePackageBodyStmt;
 	public fun getCreatePfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePfileStmt;
 	public fun getCreatePluggableDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePluggableDatabaseStmt;
+	public fun getCreatePmemFilestoreStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePmemFilestoreStmt;
 	public fun getCreateProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProfileStmt;
 	public fun getCreatePropertyGraphStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePropertyGraphStmt;
+	public fun getCreateRestorePointStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRestorePointStmt;
 	public fun getCreateRoleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRoleStmt;
+	public fun getCreateRollbackSegmentStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRollbackSegmentStmt;
 	public fun getCreateSchemaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSchemaStmt;
 	public fun getCreateSpfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSpfileStmt;
 	public fun getCreateTablespaceSetStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTablespaceSetStmt;

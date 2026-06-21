@@ -67,26 +67,62 @@ public enum class OracleType(
         public fun fromSqlTypeName(typeName: String): OracleType {
             val normalized = typeName.normalizedOracleTypeName()
             val baseName = normalized.baseOracleTypeName()
-            return when {
-                baseName == "BOOLEAN" -> BOOLEAN_TYPE
-                baseName == "NUMBER" -> normalized.numberType()
-                baseName == "NUMERIC" -> normalized.numberType()
-                baseName == "DECIMAL" -> normalized.numberType()
-                baseName == "DEC" -> normalized.numberType()
-                baseName == "INTEGER" -> LONG_NUMBER
-                baseName == "INT" -> LONG_NUMBER
-                baseName == "SMALLINT" -> INTEGER_NUMBER
-                baseName == "FLOAT" -> BINARY_DOUBLE
-                baseName == "BINARY_FLOAT" -> BINARY_FLOAT
-                baseName == "BINARY_DOUBLE" -> BINARY_DOUBLE
-                baseName in textBaseNames -> TEXT
-                baseName in binaryBaseNames -> BINARY
-                baseName == "DATE" -> DATE
-                baseName == "TIMESTAMP" && normalized.contains("WITH TIME ZONE") -> TIMESTAMP_TIME_ZONE
-                baseName == "TIMESTAMP" && normalized.contains("WITH LOCAL TIME ZONE") -> TIMESTAMP_TIME_ZONE
-                baseName == "TIMESTAMP" -> TIMESTAMP
-                baseName == "INTERVAL" -> TEXT
-                else -> throw IllegalArgumentException("Unknown Kotlin type for Oracle SQL type $typeName")
+            return when (baseName) {
+                "BOOLEAN" -> {
+                    BOOLEAN_TYPE
+                }
+
+                "NUMBER", "NUMERIC", "DECIMAL", "DEC" -> {
+                    normalized.numberType()
+                }
+
+                "INTEGER", "INT" -> {
+                    LONG_NUMBER
+                }
+
+                "SMALLINT" -> {
+                    INTEGER_NUMBER
+                }
+
+                "FLOAT" -> {
+                    BINARY_DOUBLE
+                }
+
+                "BINARY_FLOAT" -> {
+                    BINARY_FLOAT
+                }
+
+                "BINARY_DOUBLE" -> {
+                    BINARY_DOUBLE
+                }
+
+                in textBaseNames -> {
+                    TEXT
+                }
+
+                in binaryBaseNames -> {
+                    BINARY
+                }
+
+                "DATE" -> {
+                    DATE
+                }
+
+                "TIMESTAMP" -> {
+                    when {
+                        normalized.contains("WITH TIME ZONE") -> TIMESTAMP_TIME_ZONE
+                        normalized.contains("WITH LOCAL TIME ZONE") -> TIMESTAMP_TIME_ZONE
+                        else -> TIMESTAMP
+                    }
+                }
+
+                "INTERVAL" -> {
+                    TEXT
+                }
+
+                else -> {
+                    throw IllegalArgumentException("Unknown Kotlin type for Oracle SQL type $typeName")
+                }
             }
         }
 

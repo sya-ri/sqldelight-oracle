@@ -416,6 +416,58 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle explain plan statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE explain_employees (
+                  id NUMBER PRIMARY KEY,
+                  department_id NUMBER,
+                  salary NUMBER
+                );
+
+                CREATE TABLE explain_departments (
+                  id NUMBER PRIMARY KEY
+                );
+
+                EXPLAIN PLAN
+                  SET STATEMENT_ID = 'employee lookup'
+                  INTO plan_table
+                  FOR SELECT id, salary
+                      FROM explain_employees
+                      WHERE department_id = 10;
+
+                EXPLAIN PLAN FOR
+                  UPDATE explain_employees
+                  SET salary = salary + 100
+                  WHERE department_id = 10;
+
+                EXPLAIN PLAN FOR
+                  DELETE FROM explain_employees
+                  WHERE department_id = 20;
+
+                EXPLAIN PLAN FOR
+                  MERGE INTO explain_employees target
+                  USING explain_departments source
+                  ON (1 = 1)
+                  WHEN MATCHED THEN UPDATE SET salary = 100;
+
+                EXPLAIN PLAN FOR
+                  CREATE TABLE explain_snapshot AS
+                  SELECT id, salary
+                  FROM explain_employees;
+
+                EXPLAIN PLAN FOR
+                  CREATE INDEX explain_employees_department_idx
+                  ON explain_employees (department_id);
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """
@@ -429,7 +481,7 @@ class OracleParserBackedTest :
                     fileNames = listOf("Test.sq"),
                     errors =
                         listOf(
-                            "Test.sq: (3, 20): ')', ',', <column constraint real> or AS expected",
+                            "Test.sq: (1, 19): '(', '.', ';' or AS expected, got '('",
                         ),
                 )
         }

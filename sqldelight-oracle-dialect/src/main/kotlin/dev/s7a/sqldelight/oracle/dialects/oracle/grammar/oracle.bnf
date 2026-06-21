@@ -20,7 +20,42 @@
   ]
 }
 
-overrides ::= type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | extension_stmt
+overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | extension_stmt
+
+stmt ::= explain_plan_stmt | oracle_core_stmt {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlStmtImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlStmt"
+  override = true
+}
+
+private oracle_core_stmt ::= (
+  {extension_stmt} |
+  {alter_table_stmt} |
+  {analyze_stmt} |
+  {attach_stmt} |
+  {begin_stmt} |
+  {commit_stmt} |
+  {create_index_stmt} |
+  {create_table_stmt} |
+  {create_trigger_stmt} |
+  {create_view_stmt} |
+  {create_virtual_table_stmt} |
+  {delete_stmt_limited} |
+  {detach_stmt} |
+  {drop_index_stmt} |
+  {drop_table_stmt} |
+  {drop_trigger_stmt} |
+  {drop_view_stmt} |
+  {insert_stmt} |
+  {pragma_stmt} |
+  {reindex_stmt} |
+  {release_stmt} |
+  {rollback_stmt} |
+  {savepoint_stmt} |
+  {compound_select_stmt} |
+  {update_stmt_limited} |
+  {vacuum_stmt}
+)
 
 type_name ::= oracle_type_name | core_type_name {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTypeNameImpl"
@@ -254,7 +289,7 @@ create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ] [ 'E
   pin = 6
 }
 
-extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | merge_stmt | call_stmt | lock_table_stmt {
+extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionStmt"
   override = true
@@ -365,4 +400,19 @@ private oracle_lock_mode ::= (
   'SHARE' 'ROW' 'EXCLUSIVE' |
   'SHARE' |
   'EXCLUSIVE'
+)
+
+explain_plan_stmt ::= 'EXPLAIN' 'PLAN' [ 'SET' 'STATEMENT_ID' EQ <<expr '-1'>> ] [ 'INTO' oracle_schema_object_name ] 'FOR'
+  oracle_explainable_stmt {
+  pin = 2
+}
+
+private oracle_explainable_stmt ::= (
+  {compound_select_stmt} |
+  {insert_stmt} |
+  {update_stmt} |
+  {delete_stmt} |
+  merge_stmt |
+  create_table_stmt |
+  create_index_stmt
 )

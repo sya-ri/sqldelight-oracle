@@ -299,7 +299,8 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 
 ## Functions
 
-- [ ] [Aggregate functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Aggregate-Functions.html): ordinary aggregates, `DISTINCT`/`ALL`, approximate aggregates, bit/boolean aggregates, statistical aggregates, and `KEEP`
+- [x] [Aggregate functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Aggregate-Functions.html) parser, type resolver, and sqldelight-check source pattern coverage for ordinary `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `MEDIAN`, `STDDEV`, and `VARIANCE`
+- [ ] [Aggregate functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Aggregate-Functions.html): aggregate argument modifiers such as `DISTINCT` / `ALL`, approximate aggregates, bit/boolean aggregates, statistical aggregates, and ordered-set syntax beyond covered `KEEP`
 - [x] [Aggregate functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Aggregate-Functions.html) parser coverage for `KEEP (DENSE_RANK FIRST/LAST ORDER BY ...)`
 - [ ] [Analytic functions and `analytic_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Analytic-Functions.html): `OVER`, `PARTITION BY`, `ORDER BY`, windowing, ranking, distribution, reporting, and lag/lead functions
 - [x] [Analytic functions and `analytic_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Analytic-Functions.html) parser coverage for `OVER`, `PARTITION BY`, analytic `ORDER BY`, and `ROWS`/`RANGE`/`GROUPS` window bounds

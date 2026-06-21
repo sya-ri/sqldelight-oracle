@@ -1004,6 +1004,38 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses representative Oracle aggregate functions exactly") {
+            val sql =
+                """
+                CREATE TABLE sales (
+                  id NUMBER PRIMARY KEY,
+                  region VARCHAR2(20),
+                  employee_id NUMBER,
+                  amount NUMBER,
+                  discount NUMBER
+                );
+
+                SELECT region,
+                  COUNT(*) AS total_rows,
+                  COUNT(employee_id) AS employee_count,
+                  SUM(amount) AS total_amount,
+                  AVG(discount) AS average_discount,
+                  MIN(amount) AS minimum_amount,
+                  MAX(amount) AS maximum_amount,
+                  MEDIAN(amount) AS median_amount,
+                  STDDEV(amount) AS amount_stddev,
+                  VARIANCE(amount) AS amount_variance
+                FROM sales
+                GROUP BY region;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle named window clauses exactly") {
             val sql =
                 """

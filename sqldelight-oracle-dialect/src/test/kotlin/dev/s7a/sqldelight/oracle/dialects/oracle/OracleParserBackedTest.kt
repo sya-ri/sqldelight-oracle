@@ -1024,6 +1024,40 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle insert partition extension clauses through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE partitioned_orders (
+                  order_id NUMBER PRIMARY KEY,
+                  region_code VARCHAR2(16) NOT NULL,
+                  order_total NUMBER(10, 2)
+                );
+
+                insertPartitionByName:
+                INSERT INTO partitioned_orders PARTITION (orders_2026_q1) (order_id, region_code, order_total)
+                VALUES (?, ?, ?);
+
+                insertPartitionForKey:
+                INSERT INTO partitioned_orders PARTITION FOR (2026, 1) (order_id, region_code, order_total)
+                VALUES (?, ?, ?);
+
+                insertSubpartitionByName:
+                INSERT INTO partitioned_orders SUBPARTITION (orders_2026_q1_us) (order_id, region_code, order_total)
+                VALUES (?, ?, ?);
+
+                insertSubpartitionForKey:
+                INSERT INTO partitioned_orders SUBPARTITION FOR ('US') (order_id, region_code, order_total)
+                VALUES (?, ?, ?)
+                LOG ERRORS INTO partitioned_order_errors REJECT LIMIT 10;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle call statements through SQLDelight environment exactly") {
             val sql =
                 """

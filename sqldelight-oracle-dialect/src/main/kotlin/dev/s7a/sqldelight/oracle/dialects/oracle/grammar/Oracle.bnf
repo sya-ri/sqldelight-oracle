@@ -507,7 +507,8 @@ private oracle_grouping_expression ::= oracle_composite_grouping | <<expr '-1'>>
 
 insert_stmt ::= [ {with_clause} ]
   ( 'INSERT' 'OR' 'REPLACE' | 'REPLACE' | 'INSERT' 'OR' 'ROLLBACK' | 'INSERT' 'OR' 'ABORT' | 'INSERT' 'OR' 'FAIL' | 'INSERT' 'OR' 'IGNORE' | 'INSERT' )
-  'INTO' [ <<databaseNameExt <<database_name_real>>>> DOT ] <<tableNameExt <<table_name_real>>>> [ 'AS' <<tableAliasExt <<table_alias_real>>>> ]
+  'INTO' [ <<databaseNameExt <<database_name_real>>>> DOT ] <<tableNameExt <<table_name_real>>>>
+  [ oracle_partition_extension_clause ] [ 'AS' <<tableAliasExt <<table_alias_real>>>> ]
   [ LP {column_name} ( COMMA {column_name} ) * RP ] oracle_insert_stmt_values {
   mixin="dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleInsertStmtMixin"
   implements="com.alecstrong.sql.psi.core.psi.SqlInsertStmt"

@@ -316,6 +316,65 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle merge statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE account_balance (
+                  account_id NUMBER PRIMARY KEY,
+                  balance NUMBER,
+                  updated_at TIMESTAMP
+                );
+
+                CREATE TABLE account_delta (
+                  account_id NUMBER PRIMARY KEY,
+                  delta NUMBER
+                );
+
+                CREATE TABLE merge_error_log (
+                  message VARCHAR2(100)
+                );
+
+                CREATE TABLE audit_target (
+                  id NUMBER PRIMARY KEY,
+                  payload VARCHAR2(100)
+                );
+
+                CREATE TABLE audit_source (
+                  id NUMBER PRIMARY KEY,
+                  payload VARCHAR2(100)
+                );
+
+                MERGE INTO account_balance target
+                USING (
+                  SELECT account_id, delta
+                  FROM account_delta
+                ) source
+                ON (1 = 1)
+                WHEN MATCHED THEN UPDATE SET
+                  balance = 100,
+                  updated_at = CURRENT_TIMESTAMP
+                  WHERE 1 <> 0
+                  DELETE WHERE 0 = 1
+                WHEN NOT MATCHED THEN INSERT (account_id, balance, updated_at)
+                  VALUES (1, DEFAULT, CURRENT_TIMESTAMP)
+                  WHERE 1 <> 0
+                LOG ERRORS INTO merge_error_log ('account-balance') REJECT LIMIT UNLIMITED;
+
+                MERGE INTO audit_target
+                USING audit_source source
+                ON (1 = 0)
+                WHEN NOT MATCHED THEN INSERT
+                  SET id = 1,
+                      payload = DEFAULT;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

@@ -51,7 +51,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 
 ## DML
 
-- [x] [`MERGE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/MERGE.html) statement start
+- [x] [`MERGE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/MERGE.html) parser support for `INTO`, table/subquery/`VALUES` `USING` sources, `ON`, [`merge_update_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/merge_update_clause.html), [`merge_insert_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/merge_insert_clause.html), `DELETE WHERE`, and [`error_logging_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/error_logging_clause.html)
 - [x] [`RETURNING`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html) clause boundary
 - [x] [`INSERT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html)
 - [x] [Multi-table `INSERT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html)
@@ -63,7 +63,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [ ] [`INSERT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html) error logging, direct-path, partition extension, and `DEFAULT VALUES` forms
 - [ ] [`UPDATE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/UPDATE.html) partition extension, correlated subquery, object table, and update set clause forms
 - [ ] [`DELETE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DELETE.html) partition extension, correlated subquery, and object table forms
-- [ ] [`MERGE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/MERGE.html) `DELETE WHERE`, insert/update branch omission, and error logging clauses
+- [ ] [`MERGE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/MERGE.html) full semantic integration for target/source aliases, DML table expression variants, optimizer hints, `wait_clause`, and `returning_clause`
 - [ ] [DML table expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html): subquery, collection, partition/subpartition, remote object, and `ONLY` target forms
 - [ ] [DML optimizer hints](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comments.html): statement-level and query-block hints in `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `MERGE`
 - [ ] [DML error logging clause](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html): `LOG ERRORS INTO`, `REJECT LIMIT`, and reusable DML clause parsing

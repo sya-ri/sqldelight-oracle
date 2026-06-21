@@ -12,6 +12,7 @@
     "static com.alecstrong.sql.psi.core.psi.SqlTypes.COMMA"
     "static com.alecstrong.sql.psi.core.psi.SqlTypes.DIGIT"
     "static com.alecstrong.sql.psi.core.psi.SqlTypes.DOT"
+    "static com.alecstrong.sql.psi.core.psi.SqlTypes.EQ"
     "static com.alecstrong.sql.psi.core.psi.SqlTypes.LP"
     "static com.alecstrong.sql.psi.core.psi.SqlTypes.RP"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.identifierExt"
@@ -253,7 +254,7 @@ create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ] [ 'E
   pin = 6
 }
 
-extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt {
+extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | merge_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionStmt"
   override = true
@@ -296,3 +297,37 @@ private oracle_sequence_clause ::= (
   'SESSION' |
   'GLOBAL'
 )
+
+merge_stmt ::= 'MERGE' [ oracle_hint ] 'INTO' oracle_merge_table_reference [ oracle_merge_using_clause ] 'ON' LP <<expr '-1'>> RP
+  ( oracle_merge_update_clause | oracle_merge_insert_clause ) + [ oracle_error_logging_clause ] {
+  pin = 1
+}
+
+private oracle_hint ::= comment
+
+private oracle_merge_using_clause ::= 'USING' (
+  oracle_merge_table_reference |
+  LP {compound_select_stmt} RP [ {table_alias} ] |
+  oracle_merge_values_clause [ {table_alias} ]
+)
+
+private oracle_merge_table_reference ::= oracle_schema_object_name [ {table_alias} ]
+
+private oracle_merge_values_clause ::= 'VALUES' LP oracle_merge_value ( COMMA oracle_merge_value ) * RP
+
+private oracle_merge_update_clause ::= 'WHEN' 'MATCHED' 'THEN' 'UPDATE' 'SET'
+  oracle_merge_assignment ( COMMA oracle_merge_assignment ) * [ oracle_where_clause ] [ 'DELETE' oracle_where_clause ]
+
+private oracle_merge_insert_clause ::= 'WHEN' 'NOT' 'MATCHED' 'THEN' 'INSERT' (
+  [ LP oracle_schema_object_name ( COMMA oracle_schema_object_name ) * RP ] 'VALUES' LP oracle_merge_value ( COMMA oracle_merge_value ) * RP |
+  'SET' oracle_merge_assignment ( COMMA oracle_merge_assignment ) *
+) [ oracle_where_clause ]
+
+private oracle_merge_assignment ::= oracle_schema_object_name EQ oracle_merge_value
+
+private oracle_merge_value ::= 'DEFAULT' | <<expr '-1'>>
+
+private oracle_where_clause ::= 'WHERE' <<expr '-1'>>
+
+private oracle_error_logging_clause ::= 'LOG' 'ERRORS' [ 'INTO' oracle_schema_object_name ] [ LP <<expr '-1'>> RP ]
+  [ 'REJECT' 'LIMIT' ( {signed_number} | 'UNLIMITED' ) ]

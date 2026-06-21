@@ -53,7 +53,7 @@ Oracle should add BNF overrides incrementally, with exact parser tests for each 
 - [ ] `create_index_stmt`: Oracle bitmap, unique, function-based, domain, reverse, invisible, partial, and local/global index clauses
 - [x] `create_index_stmt` baseline: Oracle `UNIQUE`, `BITMAP`, `IF NOT EXISTS`, ordinary/function-based indexed columns, visibility, `ONLINE`, `REVERSE`, logging, compression, and `INDEXING FULL/PARTIAL`
 - [x] `create_view_stmt` baseline: Oracle `OR REPLACE`, `FORCE` / `NO FORCE`, editioning keywords, `BEQUEATH`, `WITH CHECK OPTION`, and `WITH READ ONLY`
-- [x] `extension_stmt` baseline: Oracle `CREATE SEQUENCE`, `ALTER SEQUENCE`, and `DROP SEQUENCE` parser support for sequence DDL that is not represented by core schema contributor statements
+- [x] `extension_stmt` baseline: Oracle `CREATE SEQUENCE`, `ALTER SEQUENCE`, `DROP SEQUENCE`, and `MERGE` parser support for statements that are not represented by core schema contributor/query statements
 - [ ] `select_stmt`: Oracle `hierarchical_query_clause`, `flashback_query_clause`, `pivot_clause`, `unpivot_clause`, `model_clause`, `row_pattern_clause`, `qualify_clause`, and row limiting
 - [ ] `table_or_subquery`: Oracle `JSON_TABLE`, `XMLTABLE`, `GRAPH_TABLE`, `NESTED`, `LATERAL`, flashback table syntax, and partition extension syntax
 - [ ] `result_column`: Oracle aliases, `JSON`/`XML` returning clauses where expressions expose column names
@@ -61,7 +61,7 @@ Oracle should add BNF overrides incrementally, with exact parser tests for each 
 - [ ] `insert_stmt`: Oracle single-table insert, multi-table insert, direct-path hints, subquery insert, and `RETURNING`
 - [ ] `update_stmt`: Oracle update extensions including subquery assignment, `RETURNING`, partition extension clauses, and DML error logging
 - [ ] `delete_stmt`: Oracle delete extensions including `RETURNING`, partition extension clauses, and DML error logging
-- [ ] `extension_stmt`: Oracle statements not represented by the core grammar, including `MERGE`, `CALL`, transaction/session/security statements, and non-table DDL
+- [ ] `extension_stmt`: Oracle statements not represented by the core grammar, including `CALL`, transaction/session/security statements, and non-table DDL
 - [ ] `extension_expr`: Oracle expression extensions such as `PRIOR`, `CURSOR`, `TREAT`, `XMLQUERY`, `JSON_EXISTS`, `JSON_VALUE`, vector operators, and legacy outer join `(+)`
 
 ## Build Work

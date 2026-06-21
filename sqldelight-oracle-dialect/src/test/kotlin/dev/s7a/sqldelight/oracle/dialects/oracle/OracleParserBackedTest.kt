@@ -236,6 +236,35 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle domain and UUID functions exactly") {
+            val sql =
+                """
+                CREATE TABLE domain_uuid_samples (
+                  id NUMBER PRIMARY KEY,
+                  sample_domain VARCHAR2(100),
+                  domain_value VARCHAR2(100),
+                  uuid_text VARCHAR2(36),
+                  uuid_raw RAW(16)
+                );
+
+                SELECT DOMAIN_CHECK(sample_domain, domain_value),
+                  DOMAIN_CHECK_TYPE(sample_domain, domain_value),
+                  DOMAIN_NAME(domain_value),
+                  UUID(),
+                  UUID(4),
+                  IS_UUID(uuid_text),
+                  UUID_TO_RAW(uuid_text),
+                  RAW_TO_UUID(uuid_raw)
+                FROM domain_uuid_samples;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle COLLATE operator exactly") {
             val sql =
                 """

@@ -560,6 +560,29 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle text and national literals exactly") {
+            val sql =
+                """
+                CREATE TABLE messages (
+                  id NUMBER PRIMARY KEY,
+                  body VARCHAR2(4000),
+                  national_body NVARCHAR2(4000)
+                );
+
+                SELECT 'Jackie''s raincoat',
+                  N'nchar literal',
+                  n'national lowercase literal'
+                FROM messages
+                WHERE body = 'plain literal';
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle inline column constraints through SQLDelight environment exactly") {
             val sql =
                 """

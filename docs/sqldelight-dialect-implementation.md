@@ -28,7 +28,7 @@ The SQLite dialect artifact includes:
 - [x] Oracle function return type mapping
 - [x] Argument-dependent function return type mapping
 - [x] Initial Oracle `type_name` parser override hook
-- [ ] Oracle BNF source file
+- [x] Oracle BNF source file
 - [ ] Generated Oracle parser and PSI classes
 - [x] Oracle parser utility object
 - [x] `setup()` installs parser overrides

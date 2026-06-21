@@ -1,4 +1,4 @@
-package dev.s7a.sqldelight.oracle.dialect
+package dev.s7a.sqldelight.oracle.dialect.grammar
 
 import com.alecstrong.sql.psi.core.SqlParserUtil
 import com.alecstrong.sql.psi.core.psi.SqlTypes
@@ -7,7 +7,7 @@ import com.intellij.lang.parser.GeneratedParserUtilBase
 import com.intellij.lang.parser.GeneratedParserUtilBase.Parser
 
 /**
- * Parser hooks installed by [OracleDialect.setup].
+ * Parser hooks installed by [dev.s7a.sqldelight.oracle.dialect.OracleDialect.setup].
  */
 internal object OracleParserUtil : GeneratedParserUtilBase() {
     internal var typeName: Parser? = null

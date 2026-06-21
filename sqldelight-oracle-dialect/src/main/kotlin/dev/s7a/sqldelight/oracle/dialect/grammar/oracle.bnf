@@ -1,0 +1,31 @@
+{
+  // Specify the parent parser.
+  overrides = "com.alecstrong.sql.psi.core.SqlParser"
+  elementTypeClass = "com.alecstrong.sql.psi.core.SqlElementType"
+
+  implements = "com.alecstrong.sql.psi.core.psi.SqlCompositeElement"
+  extends = "com.alecstrong.sql.psi.core.psi.SqlCompositeElementImpl"
+  psiClassPrefix = "Oracle"
+
+  parserImports = [
+    "static com.alecstrong.sql.psi.core.SqlParser.*"
+    "static com.alecstrong.sql.psi.core.SqlParserUtil.identifierExt"
+    "static com.alecstrong.sql.psi.core.SqlParserUtil.signedNumberExt"
+  ]
+}
+
+overrides ::= type_name
+
+type_name ::= oracle_type_name | core_type_name {
+  override = true
+}
+
+oracle_type_name ::= oracle_type_word (oracle_type_word) * [ oracle_type_parameters ]
+
+private core_type_name ::= <<identifierExt identifier_real>> [ LP <<signedNumberExt signed_number_real>> RP | LP <<signedNumberExt signed_number_real>> COMMA <<signedNumberExt signed_number_real>> RP ]
+
+private oracle_type_word ::= identifier
+
+private oracle_type_parameters ::= LP oracle_type_parameter_token (oracle_type_parameter_token) * RP
+
+private oracle_type_parameter_token ::= identifier | signed_number | COMMA

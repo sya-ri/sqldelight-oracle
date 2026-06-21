@@ -1,12 +1,48 @@
 package dev.s7a.sqldelight.oracle.dialect
 
+import app.cash.sqldelight.dialect.api.ConnectionManager
+import app.cash.sqldelight.dialect.api.RuntimeTypes
 import app.cash.sqldelight.dialect.api.SqlDelightDialect
-import app.cash.sqldelight.dialects.postgresql.PostgreSqlDialect
+import app.cash.sqldelight.dialect.api.TypeResolver
+import com.squareup.kotlinpoet.ClassName
+import java.awt.Component
+import java.awt.Graphics
+import javax.swing.Icon
 
 /**
  * SQLDelight dialect entry point for Oracle Database.
- *
- * The first implementation delegates parser setup to SQLDelight's JDBC-backed PostgreSQL dialect while Oracle grammar
- * support is expanded. Oracle-specific sqldelight-check metadata lives in `sqldelight-check-oracle-dialect`.
  */
-public class OracleDialect : SqlDelightDialect by PostgreSqlDialect()
+public class OracleDialect : SqlDelightDialect {
+    override val runtimeTypes: RuntimeTypes =
+        RuntimeTypes(
+            ClassName("app.cash.sqldelight.driver.jdbc", "JdbcCursor"),
+            ClassName("app.cash.sqldelight.driver.jdbc", "JdbcPreparedStatement"),
+        )
+
+    override val allowsReferenceCycles: Boolean = false
+
+    override val icon: Icon = OracleIcon
+
+    override val connectionManager: ConnectionManager? = null
+
+    override fun typeResolver(parentResolver: TypeResolver): TypeResolver = parentResolver
+
+    override fun setup() {
+        // Oracle grammar hooks are added incrementally as the dialect parser is implemented.
+    }
+}
+
+private data object OracleIcon : Icon {
+    override fun getIconHeight(): Int = 16
+
+    override fun getIconWidth(): Int = 16
+
+    override fun paintIcon(
+        component: Component?,
+        graphics: Graphics?,
+        x: Int,
+        y: Int,
+    ) {
+        // The compiler only requires an Icon instance; IDE-specific artwork is intentionally avoided.
+    }
+}

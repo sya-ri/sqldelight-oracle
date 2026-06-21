@@ -5,9 +5,7 @@ plugins {
 
 dependencies {
     api(libs.sqldelight.dialect.api)
-    implementation(libs.sqldelight.postgresql.dialect)
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.kotest.framework.engine)
     testImplementation(libs.kotest.runner.junit5)
-    testRuntimeOnly(libs.sqldelight.compiler.env)
 }

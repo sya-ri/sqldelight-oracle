@@ -42,6 +42,7 @@ private oracle_core_stmt ::= (
   set_use_data_grants_only_stmt |
   alter_session_stmt |
   alter_system_stmt |
+  administer_key_management_stmt |
   create_user_stmt |
   alter_user_stmt |
   create_role_stmt |
@@ -347,7 +348,7 @@ create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ] [ 'E
   pin = 6
 }
 
-extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | drop_synonym_stmt | drop_type_body_stmt | drop_type_stmt | drop_function_stmt | drop_procedure_stmt | drop_package_stmt | drop_library_stmt | drop_java_stmt | drop_analytic_view_stmt | drop_attribute_dimension_stmt | drop_hierarchy_stmt | drop_dimension_stmt | drop_cluster_stmt | drop_database_link_stmt | drop_directory_stmt | drop_indextype_stmt | drop_operator_stmt | drop_outline_stmt | drop_property_graph_stmt | drop_iceberg_table_stmt | drop_context_stmt | drop_mle_env_stmt | drop_mle_module_stmt | drop_assertion_stmt | drop_directive_stmt | drop_edition_stmt | drop_flashback_archive_stmt | drop_inmemory_join_group_stmt | drop_lockdown_profile_stmt | drop_pmem_filestore_stmt | drop_profile_stmt | drop_rollback_segment_stmt | drop_database_stmt | drop_pluggable_database_stmt | drop_tablespace_set_stmt | drop_tablespace_stmt | drop_diskgroup_stmt | drop_restore_point_stmt | set_transaction_stmt | set_constraints_stmt | set_role_stmt | set_use_data_grants_only_stmt | alter_session_stmt | alter_system_stmt | create_user_stmt | alter_user_stmt | create_role_stmt | alter_role_stmt | grant_stmt | revoke_stmt | drop_role_stmt | drop_user_stmt | associate_statistics_stmt | disassociate_statistics_stmt | rename_stmt | comment_on_stmt | purge_stmt | flashback_table_stmt | flashback_database_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
+extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | drop_synonym_stmt | drop_type_body_stmt | drop_type_stmt | drop_function_stmt | drop_procedure_stmt | drop_package_stmt | drop_library_stmt | drop_java_stmt | drop_analytic_view_stmt | drop_attribute_dimension_stmt | drop_hierarchy_stmt | drop_dimension_stmt | drop_cluster_stmt | drop_database_link_stmt | drop_directory_stmt | drop_indextype_stmt | drop_operator_stmt | drop_outline_stmt | drop_property_graph_stmt | drop_iceberg_table_stmt | drop_context_stmt | drop_mle_env_stmt | drop_mle_module_stmt | drop_assertion_stmt | drop_directive_stmt | drop_edition_stmt | drop_flashback_archive_stmt | drop_inmemory_join_group_stmt | drop_lockdown_profile_stmt | drop_pmem_filestore_stmt | drop_profile_stmt | drop_rollback_segment_stmt | drop_database_stmt | drop_pluggable_database_stmt | drop_tablespace_set_stmt | drop_tablespace_stmt | drop_diskgroup_stmt | drop_restore_point_stmt | set_transaction_stmt | set_constraints_stmt | set_role_stmt | set_use_data_grants_only_stmt | alter_session_stmt | alter_system_stmt | administer_key_management_stmt | create_user_stmt | alter_user_stmt | create_role_stmt | alter_role_stmt | grant_stmt | revoke_stmt | drop_role_stmt | drop_user_stmt | associate_statistics_stmt | disassociate_statistics_stmt | rename_stmt | comment_on_stmt | purge_stmt | flashback_table_stmt | flashback_database_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionStmt"
   override = true
@@ -694,6 +695,73 @@ private oracle_parameter_scope_clause ::= (
 )
 
 private oracle_parameter_value ::= {string_literal} | {signed_number} | oracle_object_name_part | 'TRUE' | 'FALSE' | 'LOCAL' | 'DBTIMEZONE'
+
+administer_key_management_stmt ::= 'ADMINISTER' 'KEY' 'MANAGEMENT' (
+  oracle_administer_key_management_set_clause |
+  oracle_keystore_management_clause |
+  oracle_key_management_clause |
+  oracle_secret_management_clause |
+  oracle_zero_downtime_software_patching_clause
+) {
+  pin = 3
+}
+
+private oracle_keystore_management_clause ::= (
+  'CREATE' [ 'LOCAL' ] [ 'AUTO_LOGIN' ] 'KEYSTORE' [ oracle_key_management_value ] [ 'FROM' 'KEYSTORE' oracle_key_management_value ] oracle_identified_by |
+  'BACKUP' 'KEYSTORE' [ 'USING' oracle_key_management_value ] [ oracle_identified_by ] [ 'TO' oracle_key_management_value ] |
+  'ALTER' 'KEYSTORE' 'PASSWORD' oracle_identified_by 'SET' oracle_key_management_password oracle_with_backup_clause |
+  'MERGE' 'KEYSTORE' oracle_key_management_value 'AND' 'KEYSTORE' oracle_key_management_value oracle_identified_by
+    'INTO' 'NEW' 'KEYSTORE' oracle_key_management_value oracle_identified_by |
+  'MERGE' 'KEYSTORE' oracle_key_management_value 'INTO' 'EXISTING' 'KEYSTORE' oracle_key_management_value oracle_identified_by
+    [ oracle_with_backup_clause ] |
+  'ISOLATE' 'KEYSTORE' oracle_identified_by 'FROM' 'ROOT' 'KEYSTORE' [ 'FORCE' 'KEYSTORE' ] oracle_identified_by oracle_with_backup_clause |
+  'UNITE' 'KEYSTORE' oracle_identified_by 'WITH' 'ROOT' 'KEYSTORE' [ 'FORCE' 'KEYSTORE' ] oracle_identified_by oracle_with_backup_clause
+)
+
+private oracle_administer_key_management_set_clause ::= 'SET' (
+  'KEYSTORE' ( 'OPEN' | 'CLOSE' ) [ oracle_identified_by ] [ oracle_container_clause ] |
+  [ 'ENCRYPTION' ] 'KEY' [ oracle_key_identifier_value ] [ 'USING' 'TAG' oracle_key_management_value ]
+    [ oracle_using_algorithm_clause ] [ 'FORCE' 'KEYSTORE' ] oracle_identified_by
+    [ ( 'MIGRATE' | 'REVERSE' 'MIGRATE' ) 'USING' oracle_key_management_password ] [ oracle_with_backup_clause ] [ oracle_container_clause ] |
+  'TAG' oracle_key_management_value 'FOR' oracle_key_management_value [ 'FORCE' 'KEYSTORE' ] oracle_identified_by [ oracle_with_backup_clause ]
+)
+
+private oracle_key_management_clause ::= (
+  'CREATE' 'KEY' [ 'USING' 'TAG' oracle_key_management_value ] oracle_identified_by [ oracle_with_backup_clause ] [ oracle_container_clause ] |
+  'USE' 'KEY' oracle_key_management_value oracle_identified_by [ oracle_with_backup_clause ] [ oracle_container_clause ] |
+  'EXPORT' 'KEYS' [ 'WITH' 'SECRET' oracle_key_management_value ] 'TO' oracle_key_management_value oracle_identified_by
+    [ oracle_with_identifier_clause ] [ oracle_container_clause ] |
+  'IMPORT' 'KEYS' [ 'WITH' 'SECRET' oracle_key_management_value ] 'FROM' oracle_key_management_value oracle_identified_by
+    [ oracle_with_backup_clause ] [ oracle_container_clause ] |
+  ( 'MOVE' | 'UPLOAD' | 'DOWNLOAD' ) 'KEYS' [ 'WITH' 'IDENTIFIER' oracle_identifier_list ] [ oracle_identified_by ] [ oracle_container_clause ]
+)
+
+private oracle_secret_management_clause ::= (
+  ( 'ADD' | 'UPDATE' ) 'SECRET' oracle_key_management_value 'FOR' 'CLIENT' oracle_key_management_value
+    [ 'USING' 'TAG' oracle_key_management_value ] oracle_identified_by [ oracle_with_backup_clause ] |
+  'DELETE' 'SECRET' 'FOR' 'CLIENT' oracle_key_management_value oracle_identified_by [ oracle_with_backup_clause ] |
+  ( 'ADD' | 'UPDATE' ) 'SECRET' 'SEPS' oracle_key_management_value 'FOR' 'CLIENT' oracle_key_management_value
+    [ 'USING' 'TAG' oracle_key_management_value ] oracle_identified_by [ oracle_with_backup_clause ] |
+  'DELETE' 'SECRET' 'SEPS' 'FOR' 'CLIENT' oracle_key_management_value oracle_identified_by [ oracle_with_backup_clause ]
+)
+
+private oracle_zero_downtime_software_patching_clause ::= 'SWITCHOVER' [ 'TO' ] 'LIBRARY' oracle_key_management_value 'FOR' 'ALL' 'CONTAINERS'
+
+private oracle_identified_by ::= 'IDENTIFIED' 'BY' ( 'EXTERNAL' 'STORE' | oracle_key_management_password )
+
+private oracle_with_backup_clause ::= 'WITH' 'BACKUP' [ 'USING' oracle_key_management_value ]
+
+private oracle_using_algorithm_clause ::= 'USING' 'ALGORITHM' oracle_key_management_value
+
+private oracle_with_identifier_clause ::= 'WITH' 'IDENTIFIER' ( 'IN' oracle_identifier_list | oracle_key_management_value )
+
+private oracle_identifier_list ::= oracle_key_management_value ( COMMA oracle_key_management_value ) *
+
+private oracle_key_management_password ::= oracle_key_management_value
+
+private oracle_key_identifier_value ::= {string_literal} | string
+
+private oracle_key_management_value ::= {string_literal} | string | oracle_object_name_part
 
 create_user_stmt ::= 'CREATE' 'USER' [ 'IF' 'NOT' 'EXISTS' ] oracle_object_name_part
   ( oracle_user_authentication | 'NO' 'AUTHENTICATION' ) oracle_user_clause * {

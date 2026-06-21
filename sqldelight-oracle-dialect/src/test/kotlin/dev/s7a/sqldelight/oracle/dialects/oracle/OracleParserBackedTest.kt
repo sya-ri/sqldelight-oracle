@@ -908,6 +908,140 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle administer key management statements exactly") {
+            val sql =
+                """
+                ADMINISTER KEY MANAGEMENT
+                  CREATE KEYSTORE '/etc/ORACLE/WALLETS/orcl'
+                  IDENTIFIED BY password;
+
+                ADMINISTER KEY MANAGEMENT
+                  CREATE AUTO_LOGIN KEYSTORE FROM KEYSTORE '/etc/ORACLE/WALLETS/orcl'
+                  IDENTIFIED BY password;
+
+                ADMINISTER KEY MANAGEMENT
+                  SET KEYSTORE OPEN
+                  IDENTIFIED BY password
+                  CONTAINER = CURRENT;
+
+                ADMINISTER KEY MANAGEMENT
+                  SET KEYSTORE CLOSE;
+
+                ADMINISTER KEY MANAGEMENT
+                  SET KEYSTORE OPEN
+                  IDENTIFIED BY EXTERNAL STORE;
+
+                ADMINISTER KEY MANAGEMENT
+                  BACKUP KEYSTORE USING 'hr.emp_keystore'
+                  IDENTIFIED BY password
+                  TO '/etc/ORACLE/KEYSTORE/DB1/';
+
+                ADMINISTER KEY MANAGEMENT
+                  ALTER KEYSTORE PASSWORD IDENTIFIED BY old_password
+                  SET new_password WITH BACKUP USING 'pwd_change';
+
+                ADMINISTER KEY MANAGEMENT
+                  MERGE KEYSTORE '/etc/ORACLE/KEYSTORE/DB1'
+                  AND KEYSTORE '/etc/ORACLE/KEYSTORE/DB2'
+                  IDENTIFIED BY existing_keystore_password
+                  INTO NEW KEYSTORE '/etc/ORACLE/KEYSTORE/DB3'
+                  IDENTIFIED BY new_keystore_password;
+
+                ADMINISTER KEY MANAGEMENT
+                  MERGE KEYSTORE '/etc/ORACLE/KEYSTORE/DB1'
+                  INTO EXISTING KEYSTORE '/etc/ORACLE/KEYSTORE/DB2'
+                  IDENTIFIED BY existing_keystore_password
+                  WITH BACKUP;
+
+                ADMINISTER KEY MANAGEMENT
+                  ISOLATE KEYSTORE IDENTIFIED BY isolated_keystore_password
+                  FROM ROOT KEYSTORE FORCE KEYSTORE
+                  IDENTIFIED BY united_keystore_password
+                  WITH BACKUP USING 'isolate_backup';
+
+                ADMINISTER KEY MANAGEMENT
+                  UNITE KEYSTORE IDENTIFIED BY isolated_keystore_password
+                  WITH ROOT KEYSTORE
+                  IDENTIFIED BY EXTERNAL STORE
+                  WITH BACKUP USING 'unite_backup';
+
+                ADMINISTER KEY MANAGEMENT
+                  SET KEY USING ALGORITHM 'AES256'
+                  IDENTIFIED BY password
+                  WITH BACKUP;
+
+                ADMINISTER KEY MANAGEMENT
+                  SET ENCRYPTION KEY 'mkid:mk' USING TAG 'rotation-2026' USING ALGORITHM 'AES256'
+                  FORCE KEYSTORE
+                  IDENTIFIED BY EXTERNAL STORE
+                  WITH BACKUP
+                  CONTAINER = ALL;
+
+                ADMINISTER KEY MANAGEMENT
+                  CREATE KEY USING TAG 'mykey1'
+                  IDENTIFIED BY password
+                  WITH BACKUP;
+
+                ADMINISTER KEY MANAGEMENT
+                  USE KEY 'ARgEtzPxpE'
+                  IDENTIFIED BY password
+                  WITH BACKUP;
+
+                ADMINISTER KEY MANAGEMENT
+                  SET TAG 'mykey2' FOR 'ARgEtzPxpE'
+                  FORCE KEYSTORE
+                  IDENTIFIED BY password
+                  WITH BACKUP;
+
+                ADMINISTER KEY MANAGEMENT
+                  EXPORT KEYS WITH SECRET 'my_secret'
+                  TO '/etc/TDE/export.exp'
+                  IDENTIFIED BY password
+                  WITH IDENTIFIER IN 'AdoxnJ0uH08', 'AW5z3CoyKE';
+
+                ADMINISTER KEY MANAGEMENT
+                  IMPORT KEYS WITH SECRET 'my_secret'
+                  FROM '/etc/TDE/export.exp'
+                  IDENTIFIED BY password
+                  WITH BACKUP;
+
+                ADMINISTER KEY MANAGEMENT
+                  SET ENCRYPTION KEY IDENTIFIED BY user_password
+                  MIGRATE USING software_keystore_password
+                  WITH BACKUP;
+
+                ADMINISTER KEY MANAGEMENT
+                  SET ENCRYPTION KEY IDENTIFIED BY software_keystore_password
+                  REVERSE MIGRATE USING user_password;
+
+                ADMINISTER KEY MANAGEMENT
+                  ADD SECRET 'secret1' FOR CLIENT 'client1'
+                  USING TAG 'My first secret'
+                  IDENTIFIED BY password
+                  WITH BACKUP;
+
+                ADMINISTER KEY MANAGEMENT
+                  UPDATE SECRET 'secret1' FOR CLIENT 'client1'
+                  USING TAG 'New Tag 1'
+                  IDENTIFIED BY password
+                  WITH BACKUP;
+
+                ADMINISTER KEY MANAGEMENT
+                  DELETE SECRET FOR CLIENT 'client1'
+                  IDENTIFIED BY password
+                  WITH BACKUP;
+
+                ADMINISTER KEY MANAGEMENT
+                  SWITCHOVER TO LIBRARY 'updated_pkcs11.so' FOR ALL CONTAINERS;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle role and user security statements exactly") {
             val sql =
                 """

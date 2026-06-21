@@ -649,6 +649,41 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle Machine Learning SQL functions exactly") {
+            val sql =
+                """
+                CREATE TABLE mining_data (
+                  cust_id NUMBER PRIMARY KEY,
+                  cust_gender VARCHAR2(1),
+                  age NUMBER,
+                  cust_marital_status VARCHAR2(20),
+                  education VARCHAR2(40),
+                  household_size NUMBER,
+                  text_doc VARCHAR2(4000)
+                );
+
+                SELECT cust_id,
+                  PREDICTION(dt_sh_clas_sample COST MODEL USING cust_marital_status, education, household_size) AS affinity_prediction,
+                  PREDICTION(FOR age USING *) OVER () AS predicted_age,
+                  PREDICTION_DETAILS(FOR age ABS USING *) OVER () AS prediction_details,
+                  PREDICTION_PROBABILITY(OF ANOMALY, 0 USING *) OVER (PARTITION BY cust_marital_status) AS anomaly_probability,
+                  CLUSTER_ID(km_sh_clus_sample USING *) AS cluster_id,
+                  CLUSTER_DETAILS(em_sh_clus_sample, 14, 5 USING *) AS cluster_details,
+                  CLUSTER_PROBABILITY(km_sh_clus_sample, 2 USING *) AS cluster_probability,
+                  CLUSTER_ID(INTO 4 USING *) OVER () AS analytic_cluster_id,
+                  FEATURE_ID(nmf_sh_sample USING *) AS feature_id,
+                  FEATURE_VALUE(nmf_sh_sample, 3 USING *) AS feature_value,
+                  ORA_DM_PARTITION_NAME(dt_sh_clas_sample USING *) AS partition_name
+                FROM mining_data;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle inline column constraints through SQLDelight environment exactly") {
             val sql =
                 """

@@ -20,7 +20,7 @@
   ]
 }
 
-overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | limit_stmt | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt
+overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | table_alias | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt
 
 stmt ::= explain_plan_stmt | oracle_core_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlStmtImpl"
@@ -349,6 +349,28 @@ private oracle_row_limiting_fetch_token ::= (
   'TO' |
   'WITH'
 )
+
+compound_operator ::= (
+  'UNION' [ 'ALL' ] |
+  'INTERSECT' [ 'ALL' ] |
+  'EXCEPT' [ 'ALL' ] |
+  'MINUS' [ 'ALL' ]
+) {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCompoundOperatorImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlCompoundOperator"
+  override = true
+}
+
+table_alias ::= !'MINUS' ( <<identifierExt <<identifier_real>>>> | string ) {
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleTableAliasMixin"
+  implements = [
+    "com.alecstrong.sql.psi.core.psi.SqlTableAlias";
+    "com.alecstrong.sql.psi.core.psi.NamedElement";
+    "com.alecstrong.sql.psi.core.psi.AliasElement";
+    "com.alecstrong.sql.psi.core.psi.SqlCompositeElement"
+  ]
+  override = true
+}
 
 table_constraint ::= [ 'CONSTRAINT' {identifier} ] (
   ( 'PRIMARY' 'KEY' | 'UNIQUE' ) [ {index_name} ] LP {indexed_column} ( COMMA {indexed_column} ) * RP oracle_constraint_state * |

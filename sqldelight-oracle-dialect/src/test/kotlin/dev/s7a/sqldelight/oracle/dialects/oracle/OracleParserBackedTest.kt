@@ -185,6 +185,68 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle set operators through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE inventory_products (
+                  product_id NUMBER PRIMARY KEY,
+                  product_name VARCHAR2(128)
+                );
+
+                CREATE TABLE order_products (
+                  product_id NUMBER PRIMARY KEY,
+                  product_name VARCHAR2(128)
+                );
+
+                selectMinus:
+                SELECT product_id FROM inventory_products
+                MINUS
+                SELECT product_id FROM order_products
+                ORDER BY product_id;
+
+                selectUnion:
+                SELECT product_id FROM inventory_products
+                UNION
+                SELECT product_id FROM order_products;
+
+                selectUnionAll:
+                SELECT product_id FROM inventory_products
+                UNION ALL
+                SELECT product_id FROM order_products;
+
+                selectIntersect:
+                SELECT product_id FROM inventory_products
+                INTERSECT
+                SELECT product_id FROM order_products;
+
+                selectMinusAll:
+                SELECT product_id FROM inventory_products
+                MINUS ALL
+                SELECT product_id FROM order_products;
+
+                selectExcept:
+                SELECT product_id FROM inventory_products
+                EXCEPT
+                SELECT product_id FROM order_products;
+
+                selectExceptAll:
+                SELECT product_id FROM inventory_products
+                EXCEPT ALL
+                SELECT product_id FROM order_products;
+
+                selectIntersectAll:
+                SELECT product_id FROM inventory_products
+                INTERSECT ALL
+                SELECT product_id FROM order_products;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle alter table statements through SQLDelight environment exactly") {
             val sql =
                 """

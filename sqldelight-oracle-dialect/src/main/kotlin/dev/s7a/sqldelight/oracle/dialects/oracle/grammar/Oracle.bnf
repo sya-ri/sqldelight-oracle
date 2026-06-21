@@ -15,15 +15,21 @@
     "static com.alecstrong.sql.psi.core.psi.SqlTypes.EQ"
     "static com.alecstrong.sql.psi.core.psi.SqlTypes.LP"
     "static com.alecstrong.sql.psi.core.psi.SqlTypes.RP"
+    "static com.alecstrong.sql.psi.core.SqlParserUtil.compoundSelectStmtExt"
+    "static com.alecstrong.sql.psi.core.SqlParserUtil.databaseNameExt"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.identifierExt"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.groupByExt"
+    "static com.alecstrong.sql.psi.core.SqlParserUtil.indexNameExt"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.joinClauseExt"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.resultColumnExt"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.signedNumberExt"
+    "static com.alecstrong.sql.psi.core.SqlParserUtil.tableAliasExt"
+    "static com.alecstrong.sql.psi.core.SqlParserUtil.tableNameExt"
+    "static com.alecstrong.sql.psi.core.SqlParserUtil.tableOrSubqueryExt"
   ]
 }
 
-overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | compound_select_stmt | select_stmt | with_clause | table_alias | group_by | join_operator | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt
+overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | compound_select_stmt | select_stmt | with_clause | table_alias | table_or_subquery | group_by | join_operator | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt
 
 stmt ::= explain_plan_stmt | oracle_core_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlStmtImpl"
@@ -393,6 +399,34 @@ private oracle_group_by_having_clause ::= (
   <<groupByExt <<group_by_real>>>> [ 'HAVING' <<expr '-1'>> ] |
   'HAVING' <<expr '-1'>>
 )
+
+table_or_subquery ::= oracle_table_reference | oracle_parenthesized_table_reference | oracle_subquery_table_reference {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTableOrSubqueryImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlTableOrSubquery"
+  override = true
+}
+
+private oracle_table_reference ::= oracle_only_table_reference | oracle_plain_table_reference
+
+private oracle_plain_table_reference ::= [ <<databaseNameExt <<database_name_real>>>> DOT ]
+  <<tableNameExt <<table_name_real>>>> [ oracle_partition_extension_clause ] [ oracle_table_alias_clause ] [ oracle_indexed_by_clause ]
+
+private oracle_only_table_reference ::= 'ONLY' LP [ <<databaseNameExt <<database_name_real>>>> DOT ]
+  <<tableNameExt <<table_name_real>>>> RP [ oracle_table_alias_clause ]
+
+private oracle_table_alias_clause ::= [ 'AS' ] <<tableAliasExt <<table_alias_real>>>>
+
+private oracle_indexed_by_clause ::= (
+  'INDEXED' 'BY' <<indexNameExt <<index_name_real>>>> |
+  'NOT' 'INDEXED'
+)
+
+private oracle_parenthesized_table_reference ::= LP (
+  <<joinClauseExt <<join_clause_real>>>> |
+  <<tableOrSubqueryExt <<table_or_subquery_real>>>> ( COMMA <<tableOrSubqueryExt <<table_or_subquery_real>>>> ) *
+) RP
+
+private oracle_subquery_table_reference ::= LP <<compoundSelectStmtExt <<compound_select_stmt_real>>>> RP [ oracle_table_alias_clause ]
 
 join_operator ::= (
   COMMA |

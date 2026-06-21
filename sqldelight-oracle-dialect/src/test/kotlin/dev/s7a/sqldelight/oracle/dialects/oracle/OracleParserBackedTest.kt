@@ -501,6 +501,35 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle query table expressions through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE partitioned_orders (
+                  id NUMBER PRIMARY KEY,
+                  region VARCHAR2(64),
+                  created_year NUMBER
+                );
+
+                selectOnlyTable:
+                SELECT id, region
+                FROM ONLY (partitioned_orders) po;
+
+                selectPartition:
+                SELECT id, region
+                FROM partitioned_orders PARTITION (p_2026) po;
+
+                selectSubpartitionFor:
+                SELECT id, region
+                FROM partitioned_orders SUBPARTITION FOR (2026, 'WEST') po;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle alter table statements through SQLDelight environment exactly") {
             val sql =
                 """

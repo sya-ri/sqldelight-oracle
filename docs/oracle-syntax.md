@@ -98,7 +98,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] `oracle:no-empty-string-comparison`
 - [x] Prefer Oracle [`identity_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html) columns over sequence-trigger pairs
 - [x] Flag nullable [`NOT IN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/IN-Condition.html) predicates where [Oracle null semantics](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Nulls.html) are likely unintended
-- [ ] Flag unsafe DDL in migrations that rewrites or locks large tables
+- [x] Flag unsafe [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html) / [`TRUNCATE TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TRUNCATE-TABLE.html) migration DDL that rewrites, locks, or destructively changes large tables
 - [x] Require explicit precision for `NUMBER` where generated Kotlin type would be ambiguous
 
 ## Database Verification

@@ -7,6 +7,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.NoEmptyStringComparisonRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NullableNotInPredicateRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.PreferIdentityColumnRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.RequireNumberPrecisionRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.UnsafeDdlMigrationRule
 
 /**
  * Provides Oracle-specific sqldelight-check rules.
@@ -20,5 +21,6 @@ public class OracleRuleSetProvider : RuleSetProvider {
             RuleProvider(::NoEmptyStringComparisonRule),
             RuleProvider(::PreferIdentityColumnRule),
             RuleProvider(::RequireNumberPrecisionRule),
+            RuleProvider(::UnsafeDdlMigrationRule),
         )
 }

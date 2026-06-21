@@ -5,6 +5,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.NoEmptyStringComparisonRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NullableNotInPredicateRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.PreferIdentityColumnRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.RequireNumberPrecisionRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.UnsafeDdlMigrationRule
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.util.ServiceLoader
@@ -21,6 +22,7 @@ class OracleRuleSetProviderTest :
                     NoEmptyStringComparisonRule::class,
                     PreferIdentityColumnRule::class,
                     RequireNumberPrecisionRule::class,
+                    UnsafeDdlMigrationRule::class,
                 )
         }
 

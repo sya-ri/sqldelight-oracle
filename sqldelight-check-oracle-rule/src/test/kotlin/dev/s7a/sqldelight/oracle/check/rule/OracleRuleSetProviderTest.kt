@@ -31,4 +31,14 @@ class OracleRuleSetProviderTest :
 
             providers.map { provider -> provider::class } shouldBe listOf(OracleRuleSetProvider::class)
         }
+
+        test("publishes rule set provider ServiceLoader resource exactly") {
+            serviceResource("META-INF/services/dev.s7a.sqldelight.check.rule.api.RuleSetProvider") shouldBe
+                "dev.s7a.sqldelight.oracle.check.rule.OracleRuleSetProvider\n"
+        }
     })
+
+private fun serviceResource(path: String): String =
+    requireNotNull(OracleRuleSetProviderTest::class.java.classLoader.getResource(path)) {
+        "Missing test resource $path"
+    }.readText()

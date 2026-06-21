@@ -33,6 +33,11 @@ class OracleDialectProviderTest :
             providers.map { provider -> provider::class } shouldBe listOf(OracleDialectProvider::class)
         }
 
+        test("publishes SQL dialect provider ServiceLoader resource exactly") {
+            serviceResource("META-INF/services/dev.s7a.sqldelight.check.api.SqlDialectProvider") shouldBe
+                "dev.s7a.sqldelight.oracle.check.dialect.OracleDialectProvider\n"
+        }
+
         oracleStatementStarts.forEach { syntax ->
             test("recognizes Oracle statement start: ${syntax.expression}") {
                 OracleDialectSourcePatterns.shouldMatchExactly(StatementStart, syntax)
@@ -328,3 +333,8 @@ private data class Syntax(
 ) {
     val terms: List<String> = expression.split(' ').map { term -> term.lowercase() }
 }
+
+private fun serviceResource(path: String): String =
+    requireNotNull(OracleDialectProviderTest::class.java.classLoader.getResource(path)) {
+        "Missing test resource $path"
+    }.readText()

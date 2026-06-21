@@ -31,47 +31,35 @@ sqldelight {
 }
 ```
 
-Add sqldelight-check Oracle metadata and rules to the checked project:
+Apply sqldelight-check and add Oracle metadata and rules to the checked project:
 
 ```kotlin
+plugins {
+    id("dev.s7a.sqldelight.check") version "0.3.0"
+}
+
 dependencies {
     sqldelightCheckDialects("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-dialect:0.1.0")
     sqldelightCheckRuleSet("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-rule:0.1.0")
 }
 ```
 
+Run the sqldelight-check tasks from the SQLDelight project:
+
+```shell
+./gradlew sqldelightCheck
+./gradlew sqldelightFix
+```
+
 ## Oracle Syntax Coverage
 
 Oracle syntax coverage is tracked in [docs/oracle-syntax.md](docs/oracle-syntax.md).
-
-The baseline reference is Oracle AI Database 26ai SQL Language Reference:
-
-- https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/index.html
-- https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html
-- https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html
-- https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/MERGE.html
-
-## Verification
-
-Unit tests use Kotest `FunSpec`.
-
-```shell
-./gradlew check
-./gradlew publishToMavenLocal
-./gradlew releaseCheck
-```
-
-Oracle read/write verification uses Testcontainers with the Oracle XE module when a real database is required:
-
-```shell
-ORACLE_TESTCONTAINERS=true ./gradlew :sqldelight-oracle-dialect:test
-```
-
-Set `ORACLE_TESTCONTAINERS_IMAGE` to override the default `gvenzl/oracle-xe:21-slim-faststart` image.
-For example, `ORACLE_TESTCONTAINERS_IMAGE=gvenzl/oracle-free:23-slim-faststart ORACLE_TESTCONTAINERS_SERVICE_NAME=FREEPDB1` runs the same gated tests against Oracle Free 23.
-Set `ORACLE_TESTCONTAINERS_SERVICE_NAME` when the image exposes a different JDBC service name from Testcontainers' Oracle XE default.
-The container uses a 2 GiB `/dev/shm` by default; set `ORACLE_TESTCONTAINERS_SHM_BYTES` to override it.
+The baseline reference is [Oracle AI Database 26ai SQL Language Reference](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/index.html).
 
 ## License
 
 MIT License. See [LICENSE](LICENSE).
+
+## Contributing
+
+Development checks and Testcontainers notes are in [CONTRIBUTION.md](CONTRIBUTION.md).

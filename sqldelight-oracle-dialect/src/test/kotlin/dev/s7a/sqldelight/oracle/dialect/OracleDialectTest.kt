@@ -21,6 +21,11 @@ class OracleDialectTest :
             dialects.map { dialect -> dialect::class } shouldBe listOf(OracleDialect::class)
         }
 
+        test("publishes SQLDelight dialect ServiceLoader resource exactly") {
+            serviceResource("META-INF/services/app.cash.sqldelight.dialect.api.SqlDelightDialect") shouldBe
+                "dev.s7a.sqldelight.oracle.dialect.OracleDialect\n"
+        }
+
         test("uses JDBC runtime types") {
             val dialect = OracleDialect()
 
@@ -62,3 +67,8 @@ private data object ParentTypeResolver : TypeResolver {
 
     override fun queryWithResults(sqlStmt: SqlStmt): QueryWithResults? = error("queryWithResults is not used by this test")
 }
+
+private fun serviceResource(path: String): String =
+    requireNotNull(OracleDialectTest::class.java.classLoader.getResource(path)) {
+        "Missing test resource $path"
+    }.readText()

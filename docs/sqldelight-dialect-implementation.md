@@ -1,0 +1,65 @@
+# SQLDelight Dialect Implementation Notes
+
+Baseline: SQLDelight `2.3.2` and sql-psi `0.7.3`.
+
+This document tracks what `sqldelight-oracle-dialect` needs in order to behave like a real SQLDelight dialect artifact, not only a type resolver.
+
+## Reference Implementation
+
+- [SQLDelight SQLite 3.38 dialect source](https://github.com/sqldelight/sqldelight/tree/2.3.2/dialects/sqlite-3-38-dialect)
+- [SQLDelight dialect API source](https://github.com/sqldelight/sqldelight/tree/2.3.2/dialect-api)
+- [SQLDelight core grammar](https://github.com/sqldelight/sqldelight/blob/2.3.2/sqldelight-compiler/src/main/kotlin/app/cash/sqldelight/core/sqldelight.bnf)
+
+The SQLite dialect artifact includes:
+
+- generated parser and PSI classes
+- a source BNF file
+- a generated `*_gen.bnf` file
+- a parser utility object that resets and installs parser overrides
+- a `SqlDelightDialect.setup()` implementation that installs those overrides
+- a dialect-specific `TypeResolver`
+- a `META-INF/services/app.cash.sqldelight.dialect.api.SqlDelightDialect` provider
+
+## Current Oracle State
+
+- [x] ServiceLoader provider for `SqlDelightDialect`
+- [x] JDBC runtime type mapping
+- [x] Oracle scalar type mapping
+- [x] Oracle function return type mapping
+- [x] Argument-dependent function return type mapping
+- [ ] Oracle parser overrides
+- [ ] Oracle BNF source file
+- [ ] Generated Oracle parser and PSI classes
+- [ ] Oracle parser utility object
+- [ ] `setup()` installs parser overrides
+- [ ] Parser-backed SQLDelight tests for Oracle `.sq` files
+
+## Parser Override Targets
+
+The sql-psi core grammar is SQLite-shaped and exposes parser hooks through `SqlParserUtil`.
+Oracle should add BNF overrides incrementally, with exact parser tests for each supported query.
+
+- [ ] `type_name`: Oracle multi-word and parameterized data types such as `TIMESTAMP WITH TIME ZONE`, `INTERVAL YEAR TO MONTH`, `DOUBLE PRECISION`, `LONG RAW`, `NATIONAL CHARACTER VARYING`
+- [ ] `column_constraint`: Oracle `identity_clause`, inline `ENABLE` / `DISABLE`, `DEFERRABLE`, `INITIALLY`, `RELY`, `NOVALIDATE`, `VISIBLE`, `INVISIBLE`
+- [ ] `table_constraint`: Oracle constraint states and storage-related suffixes
+- [ ] `create_table_stmt`: Oracle relational table clauses, object table clauses, temporary tables, external tables, blockchain/immutable table clauses, and `CREATE TABLE AS SELECT`
+- [ ] `alter_table_stmt`: Oracle add/modify/drop/rename column and constraint operations
+- [ ] `create_index_stmt`: Oracle bitmap, unique, function-based, domain, reverse, invisible, partial, and local/global index clauses
+- [ ] `select_stmt`: Oracle `hierarchical_query_clause`, `flashback_query_clause`, `pivot_clause`, `unpivot_clause`, `model_clause`, `row_pattern_clause`, `qualify_clause`, and row limiting
+- [ ] `table_or_subquery`: Oracle `JSON_TABLE`, `XMLTABLE`, `GRAPH_TABLE`, `NESTED`, `LATERAL`, flashback table syntax, and partition extension syntax
+- [ ] `result_column`: Oracle aliases, `JSON`/`XML` returning clauses where expressions expose column names
+- [ ] `function_expr`: Oracle aggregate, analytic, `WITHIN GROUP`, `KEEP`, `OVER`, `FILTER`, `RETURNING`, and special argument separators
+- [ ] `insert_stmt`: Oracle single-table insert, multi-table insert, direct-path hints, subquery insert, and `RETURNING`
+- [ ] `update_stmt`: Oracle update extensions including subquery assignment, `RETURNING`, partition extension clauses, and DML error logging
+- [ ] `delete_stmt`: Oracle delete extensions including `RETURNING`, partition extension clauses, and DML error logging
+- [ ] `extension_stmt`: Oracle statements not represented by the core grammar, including `MERGE`, `CALL`, transaction/session/security statements, and non-table DDL
+- [ ] `extension_expr`: Oracle expression extensions such as `PRIOR`, `CURSOR`, `TREAT`, `XMLQUERY`, `JSON_EXISTS`, `JSON_VALUE`, vector operators, and legacy outer join `(+)`
+
+## Build Work
+
+- [ ] Add a Grammar-Kit based generation path or document the external generation command used to produce checked-in parser/PSI files
+- [ ] Include generated parser/PSI sources in the published artifact
+- [ ] Keep generated files deterministic and reproducible
+- [ ] Add tests that fail when `setup()` does not install Oracle parser overrides
+- [ ] Add parser tests using exact expected success/failure results for representative Oracle `.sq` files
+

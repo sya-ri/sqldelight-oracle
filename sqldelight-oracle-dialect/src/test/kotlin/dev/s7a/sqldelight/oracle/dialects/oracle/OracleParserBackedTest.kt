@@ -1115,6 +1115,34 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle bit and boolean aggregate functions exactly") {
+            val sql =
+                """
+                CREATE TABLE feature_flags (
+                  id NUMBER PRIMARY KEY,
+                  region VARCHAR2(20),
+                  flag_bits NUMBER,
+                  enabled BOOLEAN
+                );
+
+                SELECT region,
+                  BIT_AND_AGG(flag_bits) AS common_bits,
+                  BIT_OR_AGG(flag_bits) AS combined_bits,
+                  BIT_XOR_AGG(flag_bits) AS parity_bits,
+                  BOOLEAN_AND_AGG(enabled) AS all_enabled,
+                  BOOLEAN_OR_AGG(enabled) AS any_enabled,
+                  CHECKSUM(flag_bits) AS flag_checksum
+                FROM feature_flags
+                GROUP BY region;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle named window clauses exactly") {
             val sql =
                 """

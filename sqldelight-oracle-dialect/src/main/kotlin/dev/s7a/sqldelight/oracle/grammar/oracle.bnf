@@ -18,7 +18,7 @@
   ]
 }
 
-overrides ::= type_name | column_constraint
+overrides ::= type_name | column_constraint | table_constraint
 
 type_name ::= oracle_type_name | core_type_name {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTypeNameImpl"
@@ -127,3 +127,13 @@ private oracle_visibility ::= 'VISIBLE' | 'INVISIBLE'
 private oracle_parenthesized_clause ::= LP oracle_clause_token * RP
 
 private oracle_clause_token ::= <<identifierExt identifier_real>> | DIGIT | {signed_number} | COMMA | LP | RP
+
+table_constraint ::= [ 'CONSTRAINT' {identifier} ] (
+  ( 'PRIMARY' 'KEY' | 'UNIQUE' ) [ {index_name} ] LP {indexed_column} ( COMMA {indexed_column} ) * RP oracle_constraint_state * |
+  {check_constraint} oracle_constraint_state * |
+  'FOREIGN' 'KEY' LP {column_name} ( COMMA {column_name} ) * RP {foreign_key_clause} oracle_constraint_state *
+) {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTableConstraintImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlTableConstraint"
+  override = true
+}

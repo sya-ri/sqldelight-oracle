@@ -43,7 +43,7 @@ Oracle should add BNF overrides incrementally, with exact parser tests for each 
 
 - [x] `type_name`: initial hook for Oracle multi-word and parameterized data types such as `TIMESTAMP WITH TIME ZONE`, `INTERVAL YEAR TO MONTH`, `DOUBLE PRECISION`, `LONG RAW`, `NATIONAL CHARACTER VARYING`
 - [x] `column_constraint`: Oracle `identity_clause`, inline `ENABLE` / `DISABLE`, `DEFERRABLE`, `INITIALLY`, `RELY`, `NOVALIDATE`, `VISIBLE`, `INVISIBLE`
-- [ ] `table_constraint`: Oracle constraint states and storage-related suffixes
+- [x] `table_constraint`: Oracle constraint states for table-level `PRIMARY KEY`, `UNIQUE`, `CHECK`, and `FOREIGN KEY`
 - [ ] `create_table_stmt`: Oracle relational table clauses, object table clauses, temporary tables, external tables, blockchain/immutable table clauses, and `CREATE TABLE AS SELECT`
 - [ ] `alter_table_stmt`: Oracle add/modify/drop/rename column and constraint operations
 - [ ] `create_index_stmt`: Oracle bitmap, unique, function-based, domain, reverse, invisible, partial, and local/global index clauses

@@ -68,6 +68,33 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle table constraints through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE account_events (
+                  account_id NUMBER NOT NULL,
+                  event_id NUMBER NOT NULL,
+                  parent_event_id NUMBER,
+                  event_type VARCHAR2(64) NOT NULL,
+                  event_payload JSON,
+                  CONSTRAINT account_events_pk PRIMARY KEY (account_id, event_id) ENABLE,
+                  CONSTRAINT account_events_type_unique UNIQUE (account_id, event_type) DEFERRABLE INITIALLY IMMEDIATE,
+                  CONSTRAINT account_events_payload_check CHECK (event_payload IS NOT NULL) NOVALIDATE,
+                  CONSTRAINT account_events_parent_fk FOREIGN KEY (account_id, parent_event_id) REFERENCES account_events(account_id, event_id) DEFERRABLE INITIALLY DEFERRED
+                );
+
+                selectAll:
+                SELECT account_id, event_id, parent_event_id, event_type, event_payload
+                FROM account_events;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

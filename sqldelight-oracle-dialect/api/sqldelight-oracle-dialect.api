@@ -58,6 +58,7 @@ public class dev/s7a/sqldelight/oracle/grammar/OracleParser : com/intellij/lang/
 	public fun parse (Lcom/intellij/psi/tree/IElementType;Lcom/intellij/lang/PsiBuilder;)Lcom/intellij/lang/ASTNode;
 	public fun parseLight (Lcom/intellij/psi/tree/IElementType;Lcom/intellij/lang/PsiBuilder;)V
 	protected fun parse_root_ (Lcom/intellij/psi/tree/IElementType;Lcom/intellij/lang/PsiBuilder;)Z
+	public static fun table_constraint_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun type_name_real (Lcom/intellij/lang/PsiBuilder;I)Z
 }
 
@@ -68,6 +69,7 @@ public final class dev/s7a/sqldelight/oracle/grammar/OracleParserUtil : com/inte
 	public final fun getCreateElement ()Lkotlin/jvm/functions/Function1;
 	public final fun getOracle_type_name ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOverrides ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getTable_constraint ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getType_name ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public static final fun oracleTypeNameExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public final fun overrideSqlParser ()V
@@ -77,7 +79,9 @@ public final class dev/s7a/sqldelight/oracle/grammar/OracleParserUtil : com/inte
 	public final fun setCreateElement (Lkotlin/jvm/functions/Function1;)V
 	public final fun setOracle_type_name (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOverrides (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setTable_constraint (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setType_name (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public static final fun tableConstraintExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun typeNameExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 }
 
@@ -89,7 +93,11 @@ public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleOrac
 
 public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleOverrides : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 	public abstract fun getColumnConstraint ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleColumnConstraint;
+	public abstract fun getTableConstraint ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleTableConstraint;
 	public abstract fun getTypeName ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleTypeName;
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleTableConstraint : com/alecstrong/sql/psi/core/psi/SqlTableConstraint {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleTypeName : com/alecstrong/sql/psi/core/psi/SqlTypeName {
@@ -106,6 +114,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/grammar/psi/OracleType
 	public static final field OVERRIDES Lcom/intellij/psi/tree/IElementType;
 	public static final field RP Lcom/intellij/psi/tree/IElementType;
 	public static final field SIGNED_NUMBER_REAL Lcom/intellij/psi/tree/IElementType;
+	public static final field TABLE_CONSTRAINT Lcom/intellij/psi/tree/IElementType;
 	public static final field TYPE_NAME Lcom/intellij/psi/tree/IElementType;
 }
 
@@ -121,7 +130,9 @@ public class dev/s7a/sqldelight/oracle/grammar/psi/OracleVisitor : com/intellij/
 	public fun visitOverrides (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleOverrides;)V
 	public fun visitSqlColumnConstraint (Lcom/alecstrong/sql/psi/core/psi/SqlColumnConstraint;)V
 	public fun visitSqlCompositeElement (Lcom/alecstrong/sql/psi/core/psi/SqlCompositeElement;)V
+	public fun visitSqlTableConstraint (Lcom/alecstrong/sql/psi/core/psi/SqlTableConstraint;)V
 	public fun visitSqlTypeName (Lcom/alecstrong/sql/psi/core/psi/SqlTypeName;)V
+	public fun visitTableConstraint (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleTableConstraint;)V
 	public fun visitTypeName (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleTypeName;)V
 }
 
@@ -142,7 +153,14 @@ public class dev/s7a/sqldelight/oracle/grammar/psi/impl/OracleOverridesImpl : co
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleVisitor;)V
 	public fun getColumnConstraint ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleColumnConstraint;
+	public fun getTableConstraint ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleTableConstraint;
 	public fun getTypeName ()Ldev/s7a/sqldelight/oracle/grammar/psi/OracleTypeName;
+}
+
+public class dev/s7a/sqldelight/oracle/grammar/psi/impl/OracleTableConstraintImpl : com/alecstrong/sql/psi/core/psi/impl/SqlTableConstraintImpl, dev/s7a/sqldelight/oracle/grammar/psi/OracleTableConstraint {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/grammar/psi/OracleVisitor;)V
 }
 
 public class dev/s7a/sqldelight/oracle/grammar/psi/impl/OracleTypeNameImpl : com/alecstrong/sql/psi/core/psi/impl/SqlTypeNameImpl, dev/s7a/sqldelight/oracle/grammar/psi/OracleTypeName {

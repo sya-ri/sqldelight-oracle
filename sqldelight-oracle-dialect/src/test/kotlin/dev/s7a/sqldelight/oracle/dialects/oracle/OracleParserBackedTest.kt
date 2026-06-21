@@ -583,6 +583,35 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle numeric literals exactly") {
+            val sql =
+                """
+                CREATE TABLE numeric_values (
+                  id NUMBER PRIMARY KEY,
+                  amount NUMBER,
+                  single_value BINARY_FLOAT,
+                  double_value BINARY_DOUBLE
+                );
+
+                SELECT 25,
+                  +6.34,
+                  0.5,
+                  -1,
+                  BINARY_FLOAT_NAN,
+                  BINARY_FLOAT_INFINITY,
+                  BINARY_DOUBLE_NAN,
+                  BINARY_DOUBLE_INFINITY
+                FROM numeric_values
+                WHERE amount < 125.0;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle inline column constraints through SQLDelight environment exactly") {
             val sql =
                 """

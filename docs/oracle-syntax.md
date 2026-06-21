@@ -23,6 +23,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [ ] [Text literals](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html): ordinary strings, national character strings, alternative quoting `q'...'`, and `nq'...'`
 - [x] [Text literals](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html) parser coverage for ordinary strings and national character strings with `N'...'` / `n'...'`
 - [ ] [Numeric literals](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html): signed numbers, exponent notation, `BINARY_FLOAT`/`BINARY_DOUBLE` suffixes, NaN, and infinity literals
+- [x] [Numeric literals](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html) parser coverage for `BINARY_FLOAT_NAN`, `BINARY_FLOAT_INFINITY`, `BINARY_DOUBLE_NAN`, and `BINARY_DOUBLE_INFINITY`
 - [x] [Datetime literals](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html): `DATE`, `TIMESTAMP`, timestamp time-zone strings, and `AT TIME ZONE`
 - [x] [Interval literals](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html): `INTERVAL YEAR TO MONTH` and `INTERVAL DAY TO SECOND`
 - [ ] Datetime and interval literal semantic validation for precision ranges, time-zone ambiguity, and field-order restrictions

@@ -29,6 +29,12 @@ stmt ::= explain_plan_stmt | oracle_core_stmt {
 }
 
 private oracle_core_stmt ::= (
+  drop_cluster_stmt |
+  drop_database_link_stmt |
+  drop_directory_stmt |
+  drop_indextype_stmt |
+  drop_operator_stmt |
+  drop_outline_stmt |
   drop_analytic_view_stmt |
   drop_attribute_dimension_stmt |
   drop_hierarchy_stmt |
@@ -300,7 +306,7 @@ create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ] [ 'E
   pin = 6
 }
 
-extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | drop_synonym_stmt | drop_type_body_stmt | drop_type_stmt | drop_function_stmt | drop_procedure_stmt | drop_package_stmt | drop_library_stmt | drop_java_stmt | drop_analytic_view_stmt | drop_attribute_dimension_stmt | drop_hierarchy_stmt | drop_dimension_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
+extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | drop_synonym_stmt | drop_type_body_stmt | drop_type_stmt | drop_function_stmt | drop_procedure_stmt | drop_package_stmt | drop_library_stmt | drop_java_stmt | drop_analytic_view_stmt | drop_attribute_dimension_stmt | drop_hierarchy_stmt | drop_dimension_stmt | drop_cluster_stmt | drop_database_link_stmt | drop_directory_stmt | drop_indextype_stmt | drop_operator_stmt | drop_outline_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionStmt"
   override = true
@@ -367,6 +373,32 @@ drop_hierarchy_stmt ::= 'DROP' 'HIERARCHY' [ 'IF' 'EXISTS' ] oracle_schema_objec
 }
 
 drop_dimension_stmt ::= 'DROP' 'DIMENSION' oracle_schema_object_name {
+  pin = 2
+}
+
+drop_cluster_stmt ::= 'DROP' 'CLUSTER' [ 'IF' 'EXISTS' ] oracle_schema_object_name [ 'INCLUDING' 'TABLES' ] [ 'CASCADE' 'CONSTRAINTS' ] {
+  pin = 2
+}
+
+drop_database_link_stmt ::= 'DROP' [ 'PUBLIC' ] 'DATABASE' 'LINK' [ 'IF' 'EXISTS' ] oracle_database_link_name {
+  pin = 3
+}
+
+private oracle_database_link_name ::= oracle_schema_object_name [ DOT ( <<identifierExt <<identifier_real>>>> | string ) ]
+
+drop_directory_stmt ::= 'DROP' 'DIRECTORY' [ 'IF' 'EXISTS' ] oracle_schema_object_name {
+  pin = 2
+}
+
+drop_indextype_stmt ::= 'DROP' 'INDEXTYPE' [ 'IF' 'EXISTS' ] oracle_schema_object_name [ 'FORCE' ] {
+  pin = 2
+}
+
+drop_operator_stmt ::= 'DROP' 'OPERATOR' [ 'IF' 'EXISTS' ] oracle_schema_object_name [ 'FORCE' ] {
+  pin = 2
+}
+
+drop_outline_stmt ::= 'DROP' 'OUTLINE' oracle_schema_object_name {
   pin = 2
 }
 

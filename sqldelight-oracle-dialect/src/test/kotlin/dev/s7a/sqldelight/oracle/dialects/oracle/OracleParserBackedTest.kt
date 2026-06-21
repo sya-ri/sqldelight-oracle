@@ -640,6 +640,35 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle schema object drop statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                DROP CLUSTER language;
+
+                DROP CLUSTER IF EXISTS hr.personnel INCLUDING TABLES CASCADE CONSTRAINTS;
+
+                DROP PUBLIC DATABASE LINK remote;
+
+                DROP DATABASE LINK IF EXISTS ralph.linktosales;
+
+                DROP DIRECTORY IF EXISTS bfile_dir;
+
+                DROP INDEXTYPE IF EXISTS hr.position_indextype FORCE;
+
+                DROP OPERATOR eq_op;
+
+                DROP OPERATOR IF EXISTS hr.eq_op FORCE;
+
+                DROP OUTLINE salaries;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

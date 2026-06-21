@@ -784,6 +784,26 @@ class OracleParserBackedTest :
         test("parses Oracle transaction constraint statements exactly") {
             val sql =
                 """
+                COMMIT;
+
+                COMMIT WORK;
+
+                COMMIT COMMENT 'monthly close';
+
+                COMMIT WORK WRITE NOWAIT BATCH;
+
+                COMMIT FORCE '22.57.53', 1;
+
+                SAVEPOINT before_batch;
+
+                ROLLBACK;
+
+                ROLLBACK WORK TO before_batch;
+
+                ROLLBACK TO SAVEPOINT before_batch;
+
+                ROLLBACK FORCE '25.32.87';
+
                 SET TRANSACTION READ ONLY;
 
                 SET TRANSACTION READ WRITE NAME 'bulk load';

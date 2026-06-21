@@ -170,9 +170,9 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 
 - [x] [`ALTER SESSION`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-SESSION.html)
 - [x] [`ALTER SYSTEM`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-SYSTEM.html)
-- [x] [`COMMIT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/COMMIT.html)
-- [x] [`ROLLBACK`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ROLLBACK.html)
-- [x] [`SAVEPOINT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SAVEPOINT.html)
+- [x] [`COMMIT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/COMMIT.html) parser support for [`commit`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/commit.html): `WORK`, `COMMENT`, `WRITE`, and `FORCE`
+- [x] [`ROLLBACK`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ROLLBACK.html) parser support for [`rollback`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/rollback.html): `WORK`, `TO SAVEPOINT`, and `FORCE`
+- [x] [`SAVEPOINT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SAVEPOINT.html) parser support for [`savepoint`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/savepoint.html)
 - [x] [`SET TRANSACTION`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SET-TRANSACTION.html) parser support for [`set_transaction`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/set_transaction.html): `READ ONLY`, `READ WRITE`, isolation levels, rollback segments, and transaction names
 - [x] [`SET CONSTRAINTS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SET-CONSTRAINTS.html) parser support for [`set_constraints`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/set_constraints.html): `CONSTRAINT` / `CONSTRAINTS`, `ALL`, constraint lists, `IMMEDIATE`, and `DEFERRED`
 - [x] [`SET ROLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SET-ROLE.html) parser support for role lists, `IDENTIFIED BY`, `ALL EXCEPT`, and `NONE`

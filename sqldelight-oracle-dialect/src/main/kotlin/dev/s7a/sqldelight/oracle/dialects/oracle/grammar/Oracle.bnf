@@ -1638,6 +1638,7 @@ private oracle_default_collation_clause ::= 'DEFAULT' 'COLLATION' {collation_nam
 
 private oracle_table_partitioning_clause ::= 'PARTITION' 'BY' (
   oracle_consistent_hash_partitions |
+  oracle_directory_based_partitions |
   oracle_composite_range_partitions |
   oracle_composite_list_partitions |
   oracle_composite_hash_partitions |
@@ -1665,6 +1666,11 @@ private oracle_hash_partitions ::= 'HASH' LP oracle_partition_key ( COMMA oracle
 
 private oracle_consistent_hash_partitions ::= 'CONSISTENT' 'HASH' LP oracle_partition_key ( COMMA oracle_partition_key ) * RP
   [ 'PARTITIONS' 'AUTO' ] 'TABLESPACE' 'SET' oracle_object_name_part
+
+private oracle_directory_based_partitions ::= 'DIRECTORY' LP oracle_partition_key ( COMMA oracle_partition_key ) * RP
+  LP oracle_directory_partition_definition ( COMMA oracle_directory_partition_definition ) * RP
+
+private oracle_directory_partition_definition ::= 'PARTITION' [ oracle_object_name_part ] oracle_partition_table_description *
 
 private oracle_composite_range_partitions ::= 'RANGE' LP oracle_partition_key ( COMMA oracle_partition_key ) * RP
   oracle_subpartition_by_clause

@@ -2419,6 +2419,16 @@ class OracleParserBackedTest :
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 
+                CREATE SHARDED TABLE directory_partitioned_account_snapshot (
+                  account_id NUMBER PRIMARY KEY,
+                  directory_key NUMBER,
+                  external_id VARCHAR2(128)
+                )
+                PARTITION BY DIRECTORY (directory_key) (
+                  PARTITION p_accounts TABLESPACE users,
+                  PARTITION p_archived_accounts TABLESPACE archive_ts
+                );
+
                 selectAll:
                 SELECT account_id, external_id
                 FROM account_snapshot;

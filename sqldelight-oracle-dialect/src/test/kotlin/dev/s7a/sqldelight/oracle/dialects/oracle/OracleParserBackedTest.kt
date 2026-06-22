@@ -2449,6 +2449,26 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle REF column and table constraints exactly") {
+            val sql =
+                """
+                CREATE TABLE employee_ref_constraints (
+                  employee_id NUMBER PRIMARY KEY,
+                  manager_ref REF SCOPE IS employee_objects,
+                  mentor_ref REF WITH ROWID,
+                  audit_ref REF,
+                  SCOPE FOR (audit_ref) IS account_objects,
+                  REF (mentor_ref) WITH ROWID
+                );
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses representative Oracle XMLType table statements exactly") {
             val sql =
                 """

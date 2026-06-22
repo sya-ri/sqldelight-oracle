@@ -796,6 +796,7 @@ column_constraint ::= [ 'CONSTRAINT' {identifier} ] (
   {check_constraint} oracle_constraint_state * |
   {default_constraint} |
   'COLLATE' {collation_name} |
+  oracle_inline_ref_constraint |
   {foreign_key_clause} oracle_constraint_state * |
   <<generatedClauseExt <<generated_clause_real>>>> |
   oracle_encryption_spec |
@@ -822,6 +823,11 @@ private oracle_encryption_spec ::= (
 )
 
 private oracle_encryption_password ::= oracle_object_name_part | {string_literal}
+
+private oracle_inline_ref_constraint ::= (
+  'SCOPE' 'IS' oracle_schema_object_name |
+  'WITH' 'ROWID'
+)
 
 private oracle_constraint_state ::= (
   oracle_visibility |
@@ -1442,12 +1448,18 @@ private oracle_cycle_value ::= oracle_object_name_part | {string_literal} | stri
 table_constraint ::= [ 'CONSTRAINT' {identifier} ] (
   ( 'PRIMARY' 'KEY' | 'UNIQUE' ) [ {index_name} ] LP {indexed_column} ( COMMA {indexed_column} ) * RP oracle_constraint_state * |
   {check_constraint} oracle_constraint_state * |
+  oracle_out_of_line_ref_constraint |
   'FOREIGN' 'KEY' LP {column_name} ( COMMA {column_name} ) * RP {foreign_key_clause} oracle_constraint_state *
 ) {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTableConstraintImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlTableConstraint"
   override = true
 }
+
+private oracle_out_of_line_ref_constraint ::= (
+  'SCOPE' 'FOR' LP oracle_schema_object_name RP 'IS' oracle_schema_object_name |
+  'REF' LP oracle_schema_object_name RP 'WITH' 'ROWID'
+)
 
 create_table_stmt ::= 'CREATE' (
   [ oracle_table_kind ] 'TABLE' [ 'IF' 'NOT' 'EXISTS' ] [ {database_name} DOT ] {table_name} [ oracle_create_table_sharing_clause ] oracle_create_relational_table |

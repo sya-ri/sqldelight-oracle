@@ -798,6 +798,7 @@ column_constraint ::= [ 'CONSTRAINT' {identifier} ] (
   'COLLATE' {collation_name} |
   {foreign_key_clause} oracle_constraint_state * |
   <<generatedClauseExt <<generated_clause_real>>>> |
+  oracle_encryption_spec |
   oracle_identity_clause |
   oracle_annotations_clause |
   oracle_visibility
@@ -814,6 +815,13 @@ generated_clause ::= [ 'GENERATED' 'ALWAYS' ] 'AS' LP <<expr '-1'>> RP [ 'VIRTUA
 }
 
 private oracle_identity_clause ::= 'GENERATED' ( 'ALWAYS' | 'BY' 'DEFAULT' [ 'ON' 'NULL' ] ) 'AS' 'IDENTITY' [ oracle_parenthesized_clause ]
+
+private oracle_encryption_spec ::= (
+  'ENCRYPT' [ 'USING' {string_literal} ] [ 'IDENTIFIED' 'BY' oracle_encryption_password ] [ 'SALT' | 'NO' 'SALT' ] |
+  'DECRYPT'
+)
+
+private oracle_encryption_password ::= oracle_object_name_part | {string_literal}
 
 private oracle_constraint_state ::= (
   oracle_visibility |

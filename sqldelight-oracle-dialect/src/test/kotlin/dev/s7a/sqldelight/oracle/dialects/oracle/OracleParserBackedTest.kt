@@ -2015,6 +2015,13 @@ class OracleParserBackedTest :
                   account_search_name VARCHAR2(129) AS (first_name || last_name) INVISIBLE
                 );
 
+                CREATE TABLE encrypted_accounts (
+                  account_id NUMBER NOT NULL,
+                  tax_identifier VARCHAR2(32) ENCRYPT USING 'AES256' IDENTIFIED BY column_key SALT,
+                  card_number VARCHAR2(32) ENCRYPT NO SALT,
+                  legacy_identifier VARCHAR2(32) DECRYPT
+                );
+
                 CREATE TABLE compressed_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)

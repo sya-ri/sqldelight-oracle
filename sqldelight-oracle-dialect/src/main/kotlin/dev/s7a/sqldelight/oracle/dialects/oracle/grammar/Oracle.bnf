@@ -1370,7 +1370,7 @@ private oracle_storage_parameter ::= (
   'ENCRYPT'
 )
 
-private oracle_size_value ::= {signed_number} | DIGIT | oracle_object_name_part
+private oracle_size_value ::= oracle_size_clause
 
 private oracle_table_compression ::= (
   'COMPRESS' [ 'ADVANCED' [ 'LOW' | 'HIGH' ] | {signed_number} ] |
@@ -1922,8 +1922,6 @@ private oracle_zonemap_query_token ::= (
   'SYS_OP_ZONE_ID' |
   'WHERE'
 )
-
-private oracle_size_value ::= DIGIT oracle_object_name_part
 
 private oracle_mv_log_boundary_token ::= oracle_plsql_source_token | 'AT' | 'NEXT' | 'START' | 'WITH' | 'TABLESPACE'
 

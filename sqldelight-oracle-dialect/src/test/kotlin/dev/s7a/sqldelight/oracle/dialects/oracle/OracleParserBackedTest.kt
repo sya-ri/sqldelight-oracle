@@ -1969,18 +1969,19 @@ class OracleParserBackedTest :
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)
                 ) STORAGE (
-                  INITIAL 8M
-                  NEXT 1M
+                  INITIAL 8 M
+                  NEXT 1 M
                   MINEXTENTS 1
                   MAXEXTENTS UNLIMITED
-                  MAXSIZE 1G
+                  MAXSIZE 1 G
                   PCTINCREASE 0
                   FREELISTS 2
                   FREELIST GROUPS 1
-                  OPTIMAL NULL
+                  OPTIMAL 128 K
                   BUFFER_POOL KEEP
                   FLASH_CACHE DEFAULT
                   CELL_FLASH_CACHE NONE
+                  ENCRYPT
                 );
 
                 CREATE TABLE result_cache_accounts (

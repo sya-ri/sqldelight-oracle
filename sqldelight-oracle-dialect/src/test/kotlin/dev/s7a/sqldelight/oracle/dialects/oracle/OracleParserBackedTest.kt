@@ -3260,6 +3260,13 @@ class OracleParserBackedTest :
                   DEFINE start_row AS 1 = 1, rising AS 1 > 0, falling AS 0 < 1
                 ) reluctant_matches;
 
+                selectMatchRecognizePermutePattern:
+                SELECT *
+                FROM partitioned_orders MATCH_RECOGNIZE (
+                  PATTERN (start_row PERMUTE(rising, falling+) steady?)
+                  DEFINE start_row AS 1 = 1, rising AS 1 > 0, falling AS 0 < 1, steady AS 1 = 1
+                ) permute_matches;
+
                 selectQualify:
                 SELECT id, region, ROW_NUMBER() OVER (PARTITION BY region ORDER BY id) AS row_number
                 FROM partitioned_orders

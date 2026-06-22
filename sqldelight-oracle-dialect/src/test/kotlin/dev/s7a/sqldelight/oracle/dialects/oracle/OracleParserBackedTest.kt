@@ -4784,7 +4784,13 @@ class OracleParserBackedTest :
                 CREATE NONEDITIONABLE FUNCTION IF NOT EXISTS reporting.calculate_bonus
                   RETURN NUMBER
                   AS LANGUAGE JAVASCRIPT
-                  NAME 'bonus.calculate';
+                NAME 'bonus.calculate';
+
+                CREATE OR REPLACE PROCEDURE hr.remove_emp
+                  AS BEGIN NULL END remove_emp;
+
+                CREATE NONEDITIONABLE PROCEDURE IF NOT EXISTS reporting.refresh_bonus
+                  IS BEGIN NULL END refresh_bonus;
 
                 CREATE OR REPLACE PACKAGE BODY emp_mgmt
                   AS END emp_mgmt;

@@ -161,6 +161,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun create_pfile_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_pluggable_database_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_pmem_filestore_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun create_procedure_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_profile_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_property_graph_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_restore_point_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -387,6 +388,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun createPfileStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createPluggableDatabaseStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createPmemFilestoreStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun createProcedureStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createProfileStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createPropertyGraphStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createRestorePointStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -572,6 +574,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getCreate_pfile_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_pluggable_database_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_pmem_filestore_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getCreate_procedure_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_profile_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_property_graph_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_restore_point_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -815,6 +818,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setCreate_pfile_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_pluggable_database_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_pmem_filestore_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setCreate_procedure_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_profile_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_property_graph_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_restore_point_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -1282,6 +1286,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePmemFilestoreStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProcedureStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProfileStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
@@ -1596,6 +1603,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreatePfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePfileStmt;
 	public abstract fun getCreatePluggableDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePluggableDatabaseStmt;
 	public abstract fun getCreatePmemFilestoreStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePmemFilestoreStmt;
+	public abstract fun getCreateProcedureStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProcedureStmt;
 	public abstract fun getCreateProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProfileStmt;
 	public abstract fun getCreatePropertyGraphStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePropertyGraphStmt;
 	public abstract fun getCreateRestorePointStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRestorePointStmt;
@@ -1881,6 +1889,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreatePfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePfileStmt;
 	public abstract fun getCreatePluggableDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePluggableDatabaseStmt;
 	public abstract fun getCreatePmemFilestoreStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePmemFilestoreStmt;
+	public abstract fun getCreateProcedureStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProcedureStmt;
 	public abstract fun getCreateProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProfileStmt;
 	public abstract fun getCreatePropertyGraphStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePropertyGraphStmt;
 	public abstract fun getCreateRestorePointStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRestorePointStmt;
@@ -2086,6 +2095,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field CREATE_PFILE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_PLUGGABLE_DATABASE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_PMEM_FILESTORE_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field CREATE_PROCEDURE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_PROFILE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_PROPERTY_GRAPH_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_RESTORE_POINT_STMT Lcom/intellij/psi/tree/IElementType;
@@ -2332,6 +2342,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitCreatePfileStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePfileStmt;)V
 	public fun visitCreatePluggableDatabaseStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePluggableDatabaseStmt;)V
 	public fun visitCreatePmemFilestoreStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePmemFilestoreStmt;)V
+	public fun visitCreateProcedureStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProcedureStmt;)V
 	public fun visitCreateProfileStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProfileStmt;)V
 	public fun visitCreatePropertyGraphStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePropertyGraphStmt;)V
 	public fun visitCreateRestorePointStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRestorePointStmt;)V
@@ -3152,6 +3163,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCr
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateProcedureStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProcedureStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateProfileStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProfileStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
@@ -3684,6 +3701,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getCreatePfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePfileStmt;
 	public fun getCreatePluggableDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePluggableDatabaseStmt;
 	public fun getCreatePmemFilestoreStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePmemFilestoreStmt;
+	public fun getCreateProcedureStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProcedureStmt;
 	public fun getCreateProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProfileStmt;
 	public fun getCreatePropertyGraphStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePropertyGraphStmt;
 	public fun getCreateRestorePointStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRestorePointStmt;
@@ -4053,6 +4071,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSt
 	public fun getCreatePfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePfileStmt;
 	public fun getCreatePluggableDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePluggableDatabaseStmt;
 	public fun getCreatePmemFilestoreStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePmemFilestoreStmt;
+	public fun getCreateProcedureStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProcedureStmt;
 	public fun getCreateProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateProfileStmt;
 	public fun getCreatePropertyGraphStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreatePropertyGraphStmt;
 	public fun getCreateRestorePointStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateRestorePointStmt;

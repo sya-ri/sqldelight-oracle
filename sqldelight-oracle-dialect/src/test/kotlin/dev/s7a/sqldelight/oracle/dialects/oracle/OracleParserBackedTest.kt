@@ -1913,6 +1913,16 @@ class OracleParserBackedTest :
                   external_id VARCHAR2(64)
                 ) COMPRESS ADVANCED HIGH ROW ARCHIVAL INDEXING ON;
 
+                CREATE TABLE row_store_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) ROW STORE COMPRESS ADVANCED;
+
+                CREATE TABLE column_store_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) COLUMN STORE COMPRESS FOR QUERY HIGH NO ROW LEVEL LOCKING;
+
                 CREATE TABLE inmemory_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)
@@ -1924,6 +1934,11 @@ class OracleParserBackedTest :
 
                 CREATE GLOBAL TEMPORARY TABLE staged_account_snapshot
                 ON COMMIT PRESERVE ROWS
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
+                CREATE TABLE compressed_account_snapshot
+                COLUMN STORE COMPRESS FOR ARCHIVE LOW
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 
@@ -5383,7 +5398,7 @@ class OracleParserBackedTest :
                     fileNames = listOf("Test.sq"),
                     errors =
                         listOf(
-                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS or ON expected, got '('",
+                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, COLUMN, COMPRESS, INDEXING, INMEMORY, NO, NOCOMPRESS, ON or ROW expected, got '('",
                         ),
                 )
         }

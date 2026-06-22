@@ -5202,7 +5202,7 @@ private oracle_merge_using_clause ::= 'USING' (
 
 private oracle_merge_table_reference ::= oracle_schema_object_name [ {table_alias} ]
 
-private oracle_merge_values_clause ::= 'VALUES' LP oracle_merge_value ( COMMA oracle_merge_value ) * RP
+private oracle_merge_values_clause ::= 'VALUES' {values_expression} ( COMMA {values_expression} ) *
 
 private oracle_merge_update_clause ::= 'WHEN' 'MATCHED' 'THEN' 'UPDATE' 'SET'
   oracle_merge_assignment ( COMMA oracle_merge_assignment ) * [ oracle_where_clause ] [ 'DELETE' oracle_where_clause ]

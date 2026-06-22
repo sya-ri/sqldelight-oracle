@@ -3994,6 +3994,12 @@ class OracleParserBackedTest :
                   SET id = 1,
                       payload = DEFAULT;
 
+                MERGE INTO audit_target target
+                USING VALUES (1, 'CREATED'), (2, 'UPDATED') source
+                ON (1 = 0)
+                WHEN NOT MATCHED THEN INSERT (id, payload)
+                  VALUES (1, 'CREATED');
+
                 MERGE INTO account_balance target
                 USING account_delta source
                 ON (1 = 0)

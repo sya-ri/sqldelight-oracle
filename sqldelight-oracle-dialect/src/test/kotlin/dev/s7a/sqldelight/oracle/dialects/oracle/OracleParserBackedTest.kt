@@ -3021,6 +3021,15 @@ class OracleParserBackedTest :
                          (2, 'SMITH')
                 ) value_employees (employee_id, first_name);
 
+                selectInlineExternalTable:
+                SELECT *
+                FROM EXTERNAL ((
+                  employee_id NUMBER,
+                  first_name VARCHAR2(100) NOT NULL
+                ) TYPE ORACLE_LOADER
+                  DEFAULT DIRECTORY data_dir
+                ) external_employees;
+
                 selectGraphqlTableFunction:
                 SELECT *
                 FROM GRAPHQL('

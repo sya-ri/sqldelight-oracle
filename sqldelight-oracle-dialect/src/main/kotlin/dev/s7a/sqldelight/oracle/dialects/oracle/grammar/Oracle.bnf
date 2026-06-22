@@ -937,7 +937,7 @@ private oracle_group_by_having_clause ::= (
   'HAVING' <<expr '-1'>>
 )
 
-table_or_subquery ::= oracle_graphql_table_reference | oracle_xmltable_reference | oracle_containers_table_reference | oracle_collection_table_reference | oracle_values_table_reference | oracle_subquery_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
+table_or_subquery ::= oracle_graphql_table_reference | oracle_xmltable_reference | oracle_inline_external_table_reference | oracle_containers_table_reference | oracle_collection_table_reference | oracle_values_table_reference | oracle_subquery_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTableOrSubqueryImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlTableOrSubquery"
   override = true
@@ -977,7 +977,7 @@ private oracle_inline_external_table_reference ::= 'EXTERNAL' LP LP oracle_inlin
 
 private oracle_inline_external_column_definition ::= oracle_object_name_part oracle_inline_external_column_type [ 'NOT' 'NULL' ]
 
-private oracle_inline_external_column_type ::= oracle_type_name | core_type_name
+private oracle_inline_external_column_type ::= oracle_object_name_part [ oracle_type_parameters ] ( oracle_object_name_part [ oracle_type_parameters ] ) *
 
 private oracle_inline_external_table_properties ::= 'TYPE' [ oracle_object_name_part ]
   oracle_external_table_token *

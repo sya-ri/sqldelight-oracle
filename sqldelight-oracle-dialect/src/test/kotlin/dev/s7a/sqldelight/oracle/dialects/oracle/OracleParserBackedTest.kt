@@ -3386,6 +3386,15 @@ class OracleParserBackedTest :
                 DROP SUBPARTITION sp_2024 UPDATE GLOBAL INDEXES;
 
                 ALTER TABLE alter_advanced_targets
+                SET SUBPARTITION TEMPLATE (
+                  SUBPARTITION sp_h1 VALUES LESS THAN (DATE '2026-07-01') TABLESPACE users,
+                  SUBPARTITION sp_future VALUES LESS THAN (MAXVALUE)
+                );
+
+                ALTER TABLE alter_advanced_targets
+                SET SUBPARTITION TEMPLATE ();
+
+                ALTER TABLE alter_advanced_targets
                 EXCHANGE PARTITION p_2025 WITH TABLE alter_exchange_stage INCLUDING INDEXES WITHOUT VALIDATION;
 
                 ALTER TABLE alter_advanced_targets

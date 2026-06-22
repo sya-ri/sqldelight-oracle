@@ -752,6 +752,29 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle object method invocation expressions exactly") {
+            val sql =
+                """
+                CREATE TABLE object_method_samples (
+                  id NUMBER PRIMARY KEY,
+                  warehouse_id NUMBER,
+                  warehouse_name VARCHAR2(100)
+                );
+
+                SELECT warehouse_typ(warehouse_id, warehouse_name).ret_name() AS constructed_name,
+                  hr.warehouse_api.lookup_warehouse(warehouse_id).ret_name() AS lookup_name,
+                  hr.warehouse_api.lookup_warehouse(warehouse_id).set_name(new_name => warehouse_name) AS renamed_warehouse,
+                  (warehouse_typ(warehouse_id, warehouse_name)).ret_name() AS parenthesized_name
+                FROM object_method_samples;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle placeholder expressions exactly") {
             val sql =
                 """

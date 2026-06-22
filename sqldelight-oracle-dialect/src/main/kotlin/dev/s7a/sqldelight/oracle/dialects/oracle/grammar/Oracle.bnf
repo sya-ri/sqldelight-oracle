@@ -237,7 +237,13 @@ extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_
 
 private oracle_text_literal ::= ( 'N' | 'n' ) {string_literal}
 
-private oracle_floating_point_literal ::= 'BINARY_FLOAT_NAN' | 'BINARY_FLOAT_INFINITY' | 'BINARY_DOUBLE_NAN' | 'BINARY_DOUBLE_INFINITY'
+private oracle_floating_point_literal ::= (
+  'BINARY_FLOAT_NAN' |
+  'BINARY_FLOAT_INFINITY' |
+  'BINARY_DOUBLE_NAN' |
+  'BINARY_DOUBLE_INFINITY' |
+  {signed_number} ( 'f' | 'F' | 'd' | 'D' )
+)
 
 private oracle_boolean_literal_expr ::= 'TRUE' | 'FALSE' | 'UNKNOWN'
 

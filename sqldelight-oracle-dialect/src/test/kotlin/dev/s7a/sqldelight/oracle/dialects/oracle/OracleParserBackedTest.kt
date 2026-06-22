@@ -920,13 +920,29 @@ class OracleParserBackedTest :
                 """
                 CREATE TABLE employees (
                   id NUMBER PRIMARY KEY,
-                  hire_date DATE
+                  hire_date DATE,
+                  shift_time TIMESTAMP,
+                  shift_time_tz TIMESTAMP WITH TIME ZONE
                 );
 
                 SELECT id,
                   ADD_MONTHS(hire_date, 1) AS next_month,
+                  EXTRACT(YEAR FROM hire_date) AS hire_year,
+                  EXTRACT(TIMEZONE_REGION FROM shift_time_tz) AS shift_timezone_region,
+                  FROM_TZ(shift_time, '3:00') AS shift_timestamp_tz,
                   LAST_DAY(hire_date) AS month_end,
+                  NEW_TIME(hire_date, 'PST', 'EST') AS eastern_hire_time,
                   NEXT_DAY(hire_date, 'TUESDAY') AS next_tuesday,
+                  NUMTODSINTERVAL(100, 'DAY') AS one_hundred_days,
+                  NUMTOYMINTERVAL(1, 'YEAR') AS one_year,
+                  ORA_DST_AFFECTED(shift_time_tz) AS dst_affected,
+                  ORA_DST_CONVERT(shift_time_tz) AS dst_converted,
+                  ORA_DST_ERROR(shift_time_tz) AS dst_error,
+                  SYS_EXTRACT_UTC(shift_time_tz) AS utc_shift_time,
+                  TO_DSINTERVAL('100 10:00:00') AS day_second_interval,
+                  TO_TIMESTAMP_TZ('1999-12-01 10:00:00 -8:00', 'YYYY-MM-DD HH:MI:SS TZH:TZM') AS parsed_timestamp_tz,
+                  TO_YMINTERVAL('01-02') AS year_month_interval,
+                  TZ_OFFSET('US/Eastern') AS eastern_offset,
                   MONTHS_BETWEEN(CURRENT_DATE, hire_date) AS tenure_months
                 FROM employees;
                 """.trimIndent()

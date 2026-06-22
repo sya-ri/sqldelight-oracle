@@ -3600,10 +3600,17 @@ class OracleParserBackedTest :
                 ALTER TABLE alter_advanced_targets ILM DELETE_ALL;
 
                 ALTER TABLE alter_advanced_targets
+                ADD CLUSTERING BY INTERLEAVED ORDER ((id, status), created_at)
+                  YES ON LOAD
+                  NO ON DATA MOVEMENT;
+
+                ALTER TABLE alter_advanced_targets
                 MODIFY CLUSTERING BY LINEAR ORDER (id, created_at)
                   YES ON LOAD
                   YES ON DATA MOVEMENT
                   WITH MATERIALIZED ZONEMAP;
+
+                ALTER TABLE alter_advanced_targets DROP CLUSTERING;
 
                 ALTER TABLE alter_advanced_targets
                 ADD PARTITION p_2026 VALUES LESS THAN (DATE '2027-01-01') TABLESPACE users;

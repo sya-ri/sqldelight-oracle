@@ -2101,6 +2101,7 @@ alter_table_rules ::= (
   alter_table_set_subpartition_template |
   alter_table_partition_maintenance |
   alter_table_iot_clause |
+  alter_table_add_clustering |
   alter_table_add_hashing |
   alter_table_add_columns |
   alter_table_add_constraint |
@@ -2118,6 +2119,7 @@ alter_table_rules ::= (
   alter_table_upgrade |
   alter_table_for_staging |
   alter_table_modify_clustering |
+  alter_table_drop_clustering |
   alter_table_external_properties |
   alter_table_modify_xmltype_storage |
   alter_table_modify_lob_storage |
@@ -2190,7 +2192,11 @@ private alter_table_upgrade ::= 'UPGRADE' [ [ 'NOT' ] 'INCLUDING' 'DATA' ]
 
 private alter_table_for_staging ::= oracle_for_staging_clause
 
+private alter_table_add_clustering ::= 'ADD' oracle_attribute_clustering_clause
+
 private alter_table_modify_clustering ::= 'MODIFY' oracle_attribute_clustering_clause
+
+private alter_table_drop_clustering ::= 'DROP' 'CLUSTERING'
 
 private alter_table_external_properties ::= oracle_external_table_property +
 

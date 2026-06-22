@@ -3372,6 +3372,9 @@ class OracleParserBackedTest :
                   TABLESPACE users
                 );
 
+                ALTER TABLE alter_advanced_targets UPGRADE INCLUDING DATA;
+                ALTER TABLE alter_advanced_targets UPGRADE NOT INCLUDING DATA;
+
                 ALTER TABLE alter_advanced_targets
                 ADD PARTITION p_2026 VALUES LESS THAN (DATE '2027-01-01') TABLESPACE users;
 

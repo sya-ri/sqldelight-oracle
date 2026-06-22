@@ -3367,6 +3367,12 @@ class OracleParserBackedTest :
                 MODIFY LOB (payload) (RETENTION COMPRESS HIGH ENCRYPT);
 
                 ALTER TABLE alter_advanced_targets
+                MODIFY VARRAY attachments STORE AS SECUREFILE LOB attachments_lob (
+                  CACHE
+                  TABLESPACE users
+                );
+
+                ALTER TABLE alter_advanced_targets
                 ADD PARTITION p_2026 VALUES LESS THAN (DATE '2027-01-01') TABLESPACE users;
 
                 ALTER TABLE alter_advanced_targets

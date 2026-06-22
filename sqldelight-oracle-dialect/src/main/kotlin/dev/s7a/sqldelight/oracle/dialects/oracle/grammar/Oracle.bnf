@@ -1062,8 +1062,15 @@ private oracle_inline_external_column_definition ::= oracle_object_name_part ora
 private oracle_inline_external_column_type ::= oracle_object_name_part [ oracle_type_parameters ] ( oracle_object_name_part [ oracle_type_parameters ] ) *
 
 private oracle_inline_external_table_properties ::= 'TYPE' [ oracle_object_name_part ]
-  oracle_external_table_token *
-  [ oracle_external_table_reject_limit_clause ]
+  oracle_inline_external_table_property *
+
+private oracle_inline_external_table_property ::= (
+  'DEFAULT' 'DIRECTORY' oracle_object_name_part |
+  'ACCESS' 'PARAMETERS' oracle_external_table_boundary |
+  'LOCATION' oracle_external_table_boundary |
+  oracle_external_table_reject_limit_clause |
+  oracle_external_table_token
+)
 
 private oracle_containers_table_reference ::= ( 'CONTAINERS' | 'SHARDS' ) LP [ <<databaseNameExt <<database_name_real>>>> DOT ]
   <<tableNameExt <<table_name_real>>>> RP [ oracle_table_alias_clause ]

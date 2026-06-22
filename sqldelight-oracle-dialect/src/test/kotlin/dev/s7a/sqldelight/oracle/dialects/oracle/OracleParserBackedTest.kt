@@ -3192,6 +3192,9 @@ class OracleParserBackedTest :
                   source_name VARCHAR2(100) NOT NULL
                 ) TYPE ORACLE_LOADER
                   DEFAULT DIRECTORY data_dir
+                  ACCESS PARAMETERS (RECORDS DELIMITED BY NEWLINE)
+                  LOCATION ('orders.csv')
+                  REJECT LIMIT UNLIMITED
                 ) external_orders;
 
                 selectGraphTable:

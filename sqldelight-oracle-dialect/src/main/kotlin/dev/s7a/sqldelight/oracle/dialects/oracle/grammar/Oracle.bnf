@@ -286,7 +286,7 @@ private oracle_oml_detail_ordering ::= 'DESC' | 'ASC' | 'ABS'
 
 private oracle_mining_attribute_clause ::= 'USING' ( '*' | oracle_mining_attribute ( COMMA oracle_mining_attribute ) * )
 
-private oracle_mining_attribute ::= ( oracle_object_name_part DOT '*' | <<expr '-1'>> ) [ oracle_object_name_part ]
+private oracle_mining_attribute ::= ( oracle_object_name_part DOT '*' | <<expr '-1'>> ) [ [ 'AS' ] oracle_object_name_part ]
 
 private oracle_analytic_function_expr ::= oracle_function_invocation ( oracle_keep_clause [ oracle_over_clause ] | oracle_over_clause )
 

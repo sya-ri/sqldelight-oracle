@@ -1792,6 +1792,7 @@ class OracleParserBackedTest :
                   CLUSTER_SET(em_sh_clus_sample, NULL, 0.2 USING *) AS cluster_set,
                   CLUSTER_ID(INTO 4 USING *) OVER () AS analytic_cluster_id,
                   FEATURE_ID(nmf_sh_sample USING *) AS feature_id,
+                  FEATURE_COMPARE(esa_wiki_mod USING 'There are several PGA tour golfers from South Africa' AS text AND USING text_doc text) AS feature_distance,
                   FEATURE_DETAILS(nmf_sh_sample, 3 USING *) AS feature_details,
                   FEATURE_SET(nmf_sh_sample, 10 USING *) AS feature_set,
                   FEATURE_VALUE(nmf_sh_sample, 3 USING *) AS feature_value,

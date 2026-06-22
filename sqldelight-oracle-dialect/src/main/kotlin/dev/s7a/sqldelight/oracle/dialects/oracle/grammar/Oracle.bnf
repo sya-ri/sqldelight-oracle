@@ -1105,7 +1105,7 @@ table_constraint ::= [ 'CONSTRAINT' {identifier} ] (
 }
 
 create_table_stmt ::= 'CREATE' [ oracle_table_scope ] 'TABLE' [ 'IF' 'NOT' 'EXISTS' ] [ {database_name} DOT ] {table_name} (
-  LP {column_def} ( COMMA {column_def} ) * ( COMMA {table_constraint} ) * RP [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_property * |
+  LP {column_def} ( COMMA {column_def} ) * ( COMMA oracle_create_table_element ) * RP [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_property * |
   [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_as_property * 'AS' {compound_select_stmt}
 ) {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCreateTableStmtImpl"
@@ -1115,6 +1115,17 @@ create_table_stmt ::= 'CREATE' [ oracle_table_scope ] 'TABLE' [ 'IF' 'NOT' 'EXIS
   override = true
   pin = 6
 }
+
+private oracle_create_table_element ::= {table_constraint} | oracle_supplemental_logging_props
+
+private oracle_supplemental_logging_props ::= 'SUPPLEMENTAL' 'LOG' (
+  'GROUP' oracle_object_name_part LP oracle_supplemental_log_column ( COMMA oracle_supplemental_log_column ) * RP [ 'ALWAYS' ] |
+  'DATA' LP oracle_supplemental_id_key ( COMMA oracle_supplemental_id_key ) * RP 'COLUMNS'
+)
+
+private oracle_supplemental_log_column ::= {column_name} [ 'NO' 'LOG' ]
+
+private oracle_supplemental_id_key ::= 'ALL' | 'PRIMARY' 'KEY' | 'UNIQUE' | 'FOREIGN' 'KEY'
 
 private oracle_table_scope ::= ( 'GLOBAL' | 'PRIVATE' ) 'TEMPORARY' | 'TEMP' | 'TEMPORARY'
 

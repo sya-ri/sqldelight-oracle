@@ -2009,6 +2009,20 @@ class OracleParserBackedTest :
                   external_id VARCHAR2(64)
                 ) ILM DISABLE POLICY cold_accounts_policy;
 
+                CREATE TABLE supplemental_group_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64),
+                  status VARCHAR2(16),
+                  SUPPLEMENTAL LOG GROUP supplemental_group_accounts_log (external_id, status NO LOG) ALWAYS
+                );
+
+                CREATE TABLE supplemental_key_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64),
+                  parent_account_id NUMBER,
+                  SUPPLEMENTAL LOG DATA (PRIMARY KEY, UNIQUE, FOREIGN KEY) COLUMNS
+                );
+
                 CREATE TABLE row_store_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)

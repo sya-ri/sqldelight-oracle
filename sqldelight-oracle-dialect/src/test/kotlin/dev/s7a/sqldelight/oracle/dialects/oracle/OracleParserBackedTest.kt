@@ -2446,6 +2446,8 @@ class OracleParserBackedTest :
                 ALTER TABLE alter_targets ENABLE ROW MOVEMENT;
                 ALTER TABLE alter_targets READ ONLY;
                 ALTER TABLE alter_targets READ WRITE;
+                ALTER TABLE alter_targets INDEXING OFF;
+                ALTER TABLE alter_targets INDEXING ON;
                 ALTER TABLE alter_targets MOVE TABLESPACE users COMPRESS ADVANCED;
                 ALTER TABLE alter_targets SHRINK SPACE CASCADE;
                 ALTER TABLE alter_targets INMEMORY MEMCOMPRESS FOR QUERY LOW;

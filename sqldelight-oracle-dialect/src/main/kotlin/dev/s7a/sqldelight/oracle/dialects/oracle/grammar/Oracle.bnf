@@ -1227,6 +1227,7 @@ private oracle_alter_table_property_token ::= (
   'DUPLICATE' |
   'ENABLE' |
   'FOR' |
+  'INDEXING' |
   'INMEMORY' |
   'LOW' |
   'MEMCOMPRESS' |
@@ -1235,6 +1236,8 @@ private oracle_alter_table_property_token ::= (
   'NOLOGGING' |
   'NOLOGICAL' |
   'NO' |
+  'OFF' |
+  'ON' |
   'PARALLEL' |
   'QUERY' |
   'ROW' |

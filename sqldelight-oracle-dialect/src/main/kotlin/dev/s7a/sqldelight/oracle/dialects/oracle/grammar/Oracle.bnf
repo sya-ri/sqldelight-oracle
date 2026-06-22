@@ -730,14 +730,18 @@ private oracle_interval_hour_to_second_trailing_field ::= (
 
 private oracle_interval_minute_to_second_trailing_field ::= 'SECOND' oracle_type_parameters | 'SECOND'
 
-oracle_type_name ::= (
+oracle_type_name ::= 'DOMAIN' oracle_domain_name | (
   oracle_numeric_type |
   oracle_character_type |
   oracle_binary_type |
   oracle_datetime_type |
   oracle_interval_type |
   oracle_named_type
-)
+) [ oracle_column_domain_clause ]
+
+private oracle_column_domain_clause ::= 'DOMAIN' oracle_domain_name
+
+private oracle_domain_name ::= oracle_object_name_part [ DOT oracle_object_name_part ]
 
 private core_type_name ::= <<identifierExt identifier_real>> [ LP <<signedNumberExt signed_number_real>> RP | LP <<signedNumberExt signed_number_real>> COMMA <<signedNumberExt signed_number_real>> RP ]
 

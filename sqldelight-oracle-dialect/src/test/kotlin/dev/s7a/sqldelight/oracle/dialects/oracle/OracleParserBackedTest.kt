@@ -2007,6 +2007,12 @@ class OracleParserBackedTest :
                   external_id VARCHAR2(64)
                 ) ON COMMIT DROP DEFINITION DEFAULT COLLATION BINARY_CI;
 
+                CREATE TABLE domain_definition_accounts (
+                  account_id NUMBER DOMAIN hr.account_id_domain,
+                  external_id DOMAIN hr.external_id_domain,
+                  status_code DOMAIN account_status_domain
+                );
+
                 CREATE TABLE virtual_column_accounts (
                   account_id NUMBER NOT NULL,
                   first_name VARCHAR2(64),
@@ -6591,7 +6597,7 @@ class OracleParserBackedTest :
                     fileNames = listOf("Test.sq"),
                     errors =
                         listOf(
-                            "Test.sq: (3, 20): ')', ',', <column constraint real> or AS expected",
+                            "Test.sq: (3, 20): ')', ',', <column constraint real>, AS or DOMAIN expected",
                         ),
                 )
         }

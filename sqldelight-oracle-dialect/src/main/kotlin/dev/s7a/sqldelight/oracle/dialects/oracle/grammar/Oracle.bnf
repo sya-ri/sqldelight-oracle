@@ -592,11 +592,19 @@ private oracle_shard_chunk_id_operator ::= 'SHARD_CHUNK_ID' LP <<expr '-1'>> COM
 private oracle_condition_expr ::= oracle_sql_json_condition_expr | oracle_xml_condition_expr | oracle_pattern_matching_condition_expr | oracle_comparison_condition_expr | oracle_in_condition_expr | oracle_floating_point_condition_expr | oracle_is_of_type_condition_expr
 
 private oracle_comparison_condition_expr ::= (
+  oracle_outer_join_condition |
   oracle_condition_operand '^=' oracle_condition_operand |
   oracle_row_value_constructor oracle_group_comparison_operator oracle_row_comparison_rhs |
   oracle_row_value_constructor oracle_group_comparison_operator ( 'ANY' | 'SOME' | 'ALL' ) oracle_row_group_comparison_rhs |
   oracle_condition_operand oracle_group_comparison_operator ( 'ANY' | 'SOME' | 'ALL' ) oracle_group_comparison_rhs
 )
+
+private oracle_outer_join_condition ::= (
+  oracle_outer_join_marked_operand oracle_group_comparison_operator oracle_condition_operand |
+  oracle_condition_operand oracle_group_comparison_operator oracle_outer_join_marked_operand
+)
+
+private oracle_outer_join_marked_operand ::= oracle_condition_operand LP '+' RP
 
 private oracle_group_comparison_operator ::= EQ | '!=' | '<>' | '>' | '<' | '<=' | '>='
 

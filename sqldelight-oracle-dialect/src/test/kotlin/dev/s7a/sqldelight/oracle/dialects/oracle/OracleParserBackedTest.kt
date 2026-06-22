@@ -2943,6 +2943,11 @@ class OracleParserBackedTest :
                   FROM join_employees e
                   WHERE e.department_id IS NOT NULL
                 ) employee_matches;
+
+                selectLegacyOuterJoin:
+                SELECT employee_name, department_name
+                FROM join_employees e, join_departments d
+                WHERE e.department_id = d.id(+);
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe

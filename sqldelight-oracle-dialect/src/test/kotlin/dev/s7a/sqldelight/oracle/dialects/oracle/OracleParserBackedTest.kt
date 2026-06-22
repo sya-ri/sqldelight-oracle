@@ -1073,6 +1073,32 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle collection and hierarchical functions exactly") {
+            val sql =
+                """
+                CREATE TABLE collection_samples (
+                  id NUMBER PRIMARY KEY,
+                  parent_id NUMBER,
+                  tag VARCHAR2(100),
+                  tags VARRAY(10)
+                );
+
+                SELECT CARDINALITY(tags) AS tag_count,
+                  COLLECT(tag ORDER BY tag) AS collected_tags,
+                  POWERMULTISET(tags) AS tag_power_set,
+                  POWERMULTISET_BY_CARDINALITY(tags, 2) AS tag_pairs,
+                  SET(tags) AS distinct_tags,
+                  SYS_CONNECT_BY_PATH(tag, '/') AS tag_path
+                FROM collection_samples;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle conversion functions exactly") {
             val sql =
                 """

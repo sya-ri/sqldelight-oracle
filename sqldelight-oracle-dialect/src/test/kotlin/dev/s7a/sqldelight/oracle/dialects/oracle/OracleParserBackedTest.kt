@@ -1534,7 +1534,10 @@ class OracleParserBackedTest :
                   KURTOSIS_POP(amount) AS population_kurtosis,
                   KURTOSIS_SAMP(amount) AS sample_kurtosis,
                   SKEWNESS_POP(amount) AS population_skewness,
-                  SKEWNESS_SAMP(amount) AS sample_skewness
+                  SKEWNESS_SAMP(amount) AS sample_skewness,
+                  COUNT(*) FILTER (WHERE amount > 0) AS positive_count,
+                  SUM(amount) FILTER (WHERE discount IS NOT NULL) AS discounted_total,
+                  SUM(amount) FILTER (WHERE amount > 0) OVER (PARTITION BY region) AS regional_positive_total
                 FROM sales
                 GROUP BY region;
                 """.trimIndent()

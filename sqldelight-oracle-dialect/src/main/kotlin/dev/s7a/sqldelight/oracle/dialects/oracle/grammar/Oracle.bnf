@@ -1996,6 +1996,9 @@ alter_table_rules ::= (
   alter_table_add_column |
   alter_table_annotations |
   alter_table_enable_disable |
+  alter_table_result_cache |
+  alter_table_flashback_archive |
+  alter_table_logical_replication |
   alter_table_memoptimize |
   alter_table_records_per_block |
   alter_table_upgrade |
@@ -2049,6 +2052,12 @@ private alter_table_annotations ::= oracle_annotations_clause
 private alter_table_modify_column_annotations ::= 'MODIFY' [ 'COLUMN' ] {column_name} oracle_annotations_clause
 
 private alter_table_enable_disable ::= oracle_table_enable_disable_clause
+
+private alter_table_result_cache ::= oracle_result_cache_clause
+
+private alter_table_flashback_archive ::= oracle_table_flashback_archive_clause
+
+private alter_table_logical_replication ::= oracle_logical_replication_clause
 
 private alter_table_memoptimize ::= [ 'NO' ] 'MEMOPTIMIZE' 'FOR' ( 'READ' | 'WRITE' )
 

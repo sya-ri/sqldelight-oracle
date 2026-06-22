@@ -3387,6 +3387,12 @@ class OracleParserBackedTest :
                 ALTER TABLE alter_advanced_targets DISABLE NOVALIDATE CONSTRAINT alter_targets_status_check CASCADE KEEP INDEX;
                 ALTER TABLE alter_advanced_targets ENABLE UNIQUE (id) DROP INDEX;
 
+                ALTER TABLE alter_advanced_targets RESULT_CACHE (MODE FORCE, STANDBY ENABLE);
+                ALTER TABLE alter_advanced_targets FLASHBACK ARCHIVE account_archive;
+                ALTER TABLE alter_advanced_targets NO FLASHBACK ARCHIVE;
+                ALTER TABLE alter_advanced_targets ENABLE LOGICAL REPLICATION ALL KEYS;
+                ALTER TABLE alter_advanced_targets DISABLE LOGICAL REPLICATION;
+
                 ALTER TABLE alter_advanced_targets
                 ADD PARTITION p_2026 VALUES LESS THAN (DATE '2027-01-01') TABLESPACE users;
 

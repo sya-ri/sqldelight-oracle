@@ -991,9 +991,13 @@ private oracle_modified_external_table_token ::= (
 
 private oracle_external_table_reject_limit_clause ::= 'REJECT' 'LIMIT' ( {signed_number} | 'UNLIMITED' )
 
-private oracle_only_table_reference ::= 'ONLY' LP [ <<databaseNameExt <<database_name_real>>>> DOT ]
-  <<tableNameExt <<table_name_real>>>> [ oracle_dblink_clause ] [ oracle_partition_extension_clause ] RP
+private oracle_only_table_reference ::= 'ONLY' LP ( oracle_only_named_table_reference | oracle_only_subquery_table_reference ) RP
   [ oracle_sample_clause ] [ oracle_flashback_query_clause ] [ oracle_table_transform_clause ] [ oracle_table_alias_clause ]
+
+private oracle_only_named_table_reference ::= [ <<databaseNameExt <<database_name_real>>>> DOT ]
+  <<tableNameExt <<table_name_real>>>> [ oracle_dblink_clause ] [ oracle_partition_extension_clause ]
+
+private oracle_only_subquery_table_reference ::= LP <<compoundSelectStmtExt <<compound_select_stmt_real>>>> RP
 
 private oracle_flashback_query_clause ::= (
   oracle_flashback_versions_clause |

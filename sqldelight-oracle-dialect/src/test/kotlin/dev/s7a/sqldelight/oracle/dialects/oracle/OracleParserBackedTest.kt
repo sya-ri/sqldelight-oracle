@@ -2823,6 +2823,13 @@ class OracleParserBackedTest :
                 SELECT id, region
                 FROM ONLY (partitioned_orders@orders_link) po;
 
+                selectOnlySubquery:
+                SELECT id, region
+                FROM ONLY ((
+                  SELECT id, region
+                  FROM partitioned_orders
+                )) only_orders;
+
                 selectPartition:
                 SELECT id, region
                 FROM partitioned_orders PARTITION (p_2026) po;

@@ -1876,9 +1876,10 @@ class OracleParserBackedTest :
                   parent_event_id NUMBER,
                   event_type VARCHAR2(64) NOT NULL,
                   event_payload JSON,
-                  CONSTRAINT account_events_pk PRIMARY KEY (account_id, event_id) ENABLE,
+                  CONSTRAINT account_events_pk PRIMARY KEY (account_id, event_id) USING INDEX TABLESPACE users ENABLE VALIDATE EXCEPTIONS INTO constraint_exceptions,
                   CONSTRAINT account_events_type_unique UNIQUE (account_id, event_type) DEFERRABLE INITIALLY IMMEDIATE,
-                  CONSTRAINT account_events_payload_check CHECK (event_payload IS NOT NULL) NOVALIDATE,
+                  CONSTRAINT account_events_payload_check CHECK (event_payload IS NOT NULL) PRECHECK NOVALIDATE,
+                  CONSTRAINT account_events_type_check CHECK (event_type IS NOT NULL) NOPRECHECK ENABLE,
                   CONSTRAINT account_events_parent_fk FOREIGN KEY (account_id, parent_event_id) REFERENCES account_events(account_id, event_id) DEFERRABLE INITIALLY DEFERRED
                 );
 

@@ -775,6 +775,8 @@ private oracle_identity_clause ::= 'GENERATED' ( 'ALWAYS' | 'BY' 'DEFAULT' [ 'ON
 
 private oracle_constraint_state ::= (
   oracle_visibility |
+  oracle_table_using_index_clause |
+  oracle_exceptions_clause |
   'ENABLE' |
   'DISABLE' |
   [ 'NOT' ] 'DEFERRABLE' |
@@ -782,8 +784,12 @@ private oracle_constraint_state ::= (
   [ 'NOT' ] 'RELY' |
   'NORELY' |
   [ 'NO' ] 'VALIDATE' |
-  'NOVALIDATE'
+  'NOVALIDATE' |
+  'PRECHECK' |
+  'NOPRECHECK'
 )
+
+private oracle_exceptions_clause ::= 'EXCEPTIONS' 'INTO' oracle_schema_object_name
 
 private oracle_visibility ::= 'VISIBLE' | 'INVISIBLE'
 
@@ -1284,8 +1290,8 @@ private oracle_table_enable_disable_clause ::= ( 'ENABLE' | 'DISABLE' ) [ 'VALID
 ) [ oracle_table_using_index_clause ] [ 'CASCADE' ] [ ( 'KEEP' | 'DROP' ) 'INDEX' ]
 
 private oracle_table_using_index_clause ::= 'USING' 'INDEX' (
-  oracle_schema_object_name |
-  oracle_index_attribute +
+  oracle_index_attribute + |
+  oracle_schema_object_name
 )
 
 private oracle_ilm_clause ::= 'ILM' (

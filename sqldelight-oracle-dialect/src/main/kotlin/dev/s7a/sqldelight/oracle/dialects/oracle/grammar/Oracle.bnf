@@ -2069,11 +2069,13 @@ alter_table_rules ::= (
   alter_table_modify_xmltype_storage |
   alter_table_modify_lob_storage |
   alter_table_modify_varray_storage |
+  alter_table_modify_constraint |
   alter_table_modify_column_annotations |
   alter_table_modify_collection_retrieval |
   alter_table_modify_columns |
   alter_table_modify_column |
   alter_table_drop_period |
+  alter_table_rename_constraint |
   alter_table_drop_constraint |
   alter_table_drop_column |
   alter_table_set_unused_column |
@@ -2160,7 +2162,15 @@ private alter_table_become_immutable ::= 'MODIFY' 'IMMUTABLE'
 
 private alter_table_drop_period ::= 'DROP' 'PERIOD' 'FOR' oracle_object_name_part
 
-alter_table_drop_constraint ::= 'DROP' 'CONSTRAINT' {identifier} {
+private alter_table_modify_constraint ::= 'MODIFY' 'CONSTRAINT' oracle_object_name_part oracle_constraint_state * [ 'CASCADE' ]
+
+private alter_table_rename_constraint ::= 'RENAME' 'CONSTRAINT' oracle_object_name_part 'TO' oracle_object_name_part
+
+alter_table_drop_constraint ::= 'DROP' (
+  'CONSTRAINT' {identifier} |
+  'PRIMARY' 'KEY' |
+  'UNIQUE' LP {column_name} ( COMMA {column_name} ) * RP
+) [ 'CASCADE' ] [ ( 'KEEP' | 'DROP' ) 'INDEX' ] [ 'ONLINE' ] {
   pin = 2
 }
 

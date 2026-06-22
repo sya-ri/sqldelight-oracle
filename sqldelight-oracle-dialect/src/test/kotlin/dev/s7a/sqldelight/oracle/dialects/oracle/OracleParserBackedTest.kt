@@ -3395,7 +3395,11 @@ class OracleParserBackedTest :
                 ALTER TABLE alter_targets SET UNUSED COLUMN updated_at ONLINE;
                 ALTER TABLE alter_targets SET UNUSED (account_status) CASCADE CONSTRAINTS;
                 ALTER TABLE alter_targets DROP PERIOD FOR valid_time;
-                ALTER TABLE alter_targets DROP CONSTRAINT alter_targets_status_check;
+                ALTER TABLE alter_targets MODIFY CONSTRAINT alter_targets_status_check ENABLE NOVALIDATE;
+                ALTER TABLE alter_targets RENAME CONSTRAINT alter_targets_status_check TO alter_targets_status_nn;
+                ALTER TABLE alter_targets DROP CONSTRAINT alter_targets_status_nn CASCADE DROP INDEX ONLINE;
+                ALTER TABLE alter_targets DROP PRIMARY KEY KEEP INDEX;
+                ALTER TABLE alter_targets DROP UNIQUE (id) CASCADE;
                 ALTER TABLE alter_targets ENABLE ROW MOVEMENT;
                 ALTER TABLE alter_targets READ ONLY;
                 ALTER TABLE alter_targets READ WRITE;

@@ -882,14 +882,26 @@ private oracle_window_clause ::= 'WINDOW' oracle_window_definition ( COMMA oracl
 
 private oracle_window_definition ::= oracle_window_name 'AS' oracle_window_specification
 
-private oracle_qualify_clause ::= 'QUALIFY' <<expr '-1'>>
+private oracle_qualify_clause ::= 'QUALIFY' oracle_clause_condition
 
 private oracle_values_query ::= 'VALUES' {values_expression} ( COMMA {values_expression} ) *
 
 private oracle_hierarchical_query_clause ::= (
-  'CONNECT' 'BY' [ 'NOCYCLE' ] <<expr '-1'>> [ 'START' 'WITH' <<expr '-1'>> ] |
-  'START' 'WITH' <<expr '-1'>> 'CONNECT' 'BY' [ 'NOCYCLE' ] <<expr '-1'>>
+  'CONNECT' 'BY' [ 'NOCYCLE' ] oracle_clause_condition [ 'START' 'WITH' oracle_clause_condition ] |
+  'START' 'WITH' oracle_clause_condition 'CONNECT' 'BY' [ 'NOCYCLE' ] oracle_clause_condition
 )
+
+private oracle_clause_condition ::= oracle_clause_condition_operand [ oracle_clause_comparison_operator oracle_clause_condition_operand ]
+
+private oracle_clause_condition_operand ::= [ 'PRIOR' | 'CONNECT_BY_ROOT' ] (
+  oracle_qualified_object_name |
+  {string_literal} |
+  DIGIT |
+  {signed_number} |
+  LP oracle_clause_condition RP
+)
+
+private oracle_clause_comparison_operator ::= EQ | '^=' | '!=' | '<>' | '>' | '<'
 
 private oracle_group_by_having_clause ::= (
   'HAVING' <<expr '-1'>> {group_by} [ 'HAVING' <<expr '-1'>> ] |
@@ -1277,7 +1289,7 @@ qualified_table_name ::= (
   override = true
 }
 
-table_alias ::= !'MINUS' ( <<identifierExt <<identifier_real>>>> | string ) {
+table_alias ::= !oracle_table_alias_stop_keyword ( <<identifierExt <<identifier_real>>>> | string ) {
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleTableAliasMixin"
   implements = [
     "com.alecstrong.sql.psi.core.psi.SqlTableAlias";
@@ -1287,6 +1299,21 @@ table_alias ::= !'MINUS' ( <<identifierExt <<identifier_real>>>> | string ) {
   ]
   override = true
 }
+
+private oracle_table_alias_stop_keyword ::= (
+  'CONNECT' |
+  'FOR' |
+  'GROUP' |
+  'HAVING' |
+  'INDEXED' |
+  'MINUS' |
+  'NOT' |
+  'ORDER' |
+  'QUALIFY' |
+  'START' |
+  'WHERE' |
+  'WINDOW'
+)
 
 with_clause ::= 'WITH' oracle_subquery_factoring_clause ( COMMA oracle_subquery_factoring_clause ) * {
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleWithClauseMixin"

@@ -2892,6 +2892,23 @@ class OracleParserBackedTest :
                   DEFINE rising AS 1 > 0
                 ) matched_orders;
 
+                selectQualify:
+                SELECT id, region, ROW_NUMBER() OVER (PARTITION BY region ORDER BY id) AS row_number
+                FROM partitioned_orders
+                QUALIFY id > 0;
+
+                selectHierarchicalStartFirst:
+                SELECT id, region
+                FROM partitioned_orders
+                START WITH id = 1
+                CONNECT BY PRIOR id = created_year;
+
+                selectHierarchicalConnectFirst:
+                SELECT id, region
+                FROM partitioned_orders
+                CONNECT BY NOCYCLE PRIOR id = created_year
+                START WITH id = 1;
+
                 selectTableCollection:
                 SELECT 1
                 FROM TABLE(ODCINUMBERLIST(1, 2)) numbers;

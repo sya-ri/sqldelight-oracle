@@ -4283,6 +4283,10 @@ class OracleParserBackedTest :
                   order_total NUMBER(10, 2)
                 );
 
+                CREATE VIEW partitioned_order_view AS
+                SELECT order_id, region_code, order_total
+                FROM partitioned_orders;
+
                 insertPartitionByName:
                 INSERT INTO partitioned_orders PARTITION (orders_2026_q1) (order_id, region_code, order_total)
                 VALUES (?, ?, ?);
@@ -4302,6 +4306,10 @@ class OracleParserBackedTest :
 
                 insertOnlyTarget:
                 INSERT INTO ONLY (partitioned_orders) (order_id, region_code, order_total)
+                VALUES (?, ?, ?);
+
+                insertRemoteViewTarget:
+                INSERT INTO partitioned_order_view@orders.remote.example (order_id, region_code, order_total)
                 VALUES (?, ?, ?);
                 """.trimIndent()
 

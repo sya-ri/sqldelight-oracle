@@ -2999,6 +2999,17 @@ class OracleParserBackedTest :
                   DEFINE rising AS 1 > 0
                 ) matched_orders;
 
+                selectMatchRecognizeAdvancedPattern:
+                SELECT *
+                FROM partitioned_orders MATCH_RECOGNIZE (
+                  MEASURES RUNNING 1 AS running_id, FINAL 2 AS final_id
+                  ALL ROWS PER MATCH WITH UNMATCHED ROWS
+                  AFTER MATCH SKIP PAST LAST ROW
+                  PATTERN (start_row (rising falling*)+)
+                  SUBSET trend = (rising, falling)
+                  DEFINE rising AS 1 > 0, falling AS 0 < 1
+                ) advanced_matches;
+
                 selectQualify:
                 SELECT id, region, ROW_NUMBER() OVER (PARTITION BY region ORDER BY id) AS row_number
                 FROM partitioned_orders

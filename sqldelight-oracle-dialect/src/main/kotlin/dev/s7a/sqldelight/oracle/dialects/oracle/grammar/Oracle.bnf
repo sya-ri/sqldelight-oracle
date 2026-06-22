@@ -1099,11 +1099,11 @@ private oracle_row_pattern_order_by_clause ::= 'ORDER' 'BY' <<orderingTermExt <<
 
 private oracle_row_pattern_measures_clause ::= 'MEASURES' oracle_row_pattern_measure_column ( COMMA oracle_row_pattern_measure_column ) *
 
-private oracle_row_pattern_measure_column ::= oracle_row_pattern_operand [ [ 'AS' ] <<columnAliasExt <<column_alias_real>>>> ]
+private oracle_row_pattern_measure_column ::= [ 'RUNNING' | 'FINAL' ] oracle_row_pattern_operand [ [ 'AS' ] <<columnAliasExt <<column_alias_real>>>> ]
 
 private oracle_row_pattern_rows_per_match_clause ::= (
   'ONE' 'ROW' 'PER' 'MATCH' |
-  'ALL' 'ROWS' 'PER' 'MATCH'
+  'ALL' 'ROWS' 'PER' 'MATCH' [ 'SHOW' 'EMPTY' 'MATCHES' | 'OMIT' 'EMPTY' 'MATCHES' | 'WITH' 'UNMATCHED' 'ROWS' ]
 )
 
 private oracle_row_pattern_skip_to_clause ::= 'AFTER' 'MATCH' 'SKIP' (

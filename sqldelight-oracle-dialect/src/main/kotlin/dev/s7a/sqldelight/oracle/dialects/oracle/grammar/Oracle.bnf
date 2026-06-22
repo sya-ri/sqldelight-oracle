@@ -1003,7 +1003,7 @@ private oracle_group_by_having_clause ::= (
   'HAVING' <<expr '-1'>>
 )
 
-table_or_subquery ::= oracle_graph_table_reference | oracle_graphql_table_reference | oracle_xmltable_reference | oracle_inline_external_table_reference | oracle_containers_table_reference | oracle_collection_table_reference | oracle_values_table_reference | oracle_subquery_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
+table_or_subquery ::= oracle_graph_table_reference | oracle_graphql_table_reference | oracle_xmltable_reference | oracle_inline_external_table_reference | oracle_containers_table_reference | oracle_collection_table_reference | oracle_values_table_reference | oracle_subquery_table_reference | oracle_join_to_one_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTableOrSubqueryImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlTableOrSubquery"
   override = true
@@ -1117,6 +1117,16 @@ private oracle_values_table_reference ::= LP 'VALUES'
 private oracle_table_alias_with_columns_clause ::= oracle_table_alias_clause [ LP <<columnAliasExt <<column_alias_real>>>> ( COMMA <<columnAliasExt <<column_alias_real>>>> ) * RP ]
 
 private oracle_table_reference ::= oracle_only_table_reference | oracle_plain_table_reference
+
+private oracle_join_to_one_table_reference ::= oracle_table_reference 'JOIN' 'TO' 'ONE' LP oracle_jto_join_list RP
+
+private oracle_jto_join_list ::= oracle_jto_join_entry ( COMMA? oracle_jto_join_entry ) *
+
+private oracle_jto_join_entry ::= [ oracle_jto_join_spec ] oracle_jto_table_with_optional_on_clause
+
+private oracle_jto_join_spec ::= ( 'INNER' | 'LEFT' [ 'OUTER' ] | 'OUTER' ) 'JOIN'
+
+private oracle_jto_table_with_optional_on_clause ::= oracle_plain_table_reference [ 'ON' <<expr '-1'>> ]
 
 private oracle_plain_table_reference ::= [ <<databaseNameExt <<database_name_real>>>> DOT ]
   <<tableNameExt <<table_name_real>>>> [ oracle_dblink_clause ] [ oracle_partition_extension_clause ] [ oracle_hierarchies_clause ] [ oracle_sample_clause ] [ oracle_modified_external_table_clause ] [ oracle_flashback_query_clause ] [ oracle_table_transform_clause ] [ oracle_table_alias_clause ] [ oracle_indexed_by_clause ]

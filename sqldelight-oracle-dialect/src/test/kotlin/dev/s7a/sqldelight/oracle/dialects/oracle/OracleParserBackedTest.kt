@@ -3022,6 +3022,7 @@ class OracleParserBackedTest :
                 """
                 CREATE TABLE join_departments (
                   id NUMBER PRIMARY KEY,
+                  manager_id NUMBER,
                   department_name VARCHAR2(128)
                 );
 
@@ -3029,6 +3030,10 @@ class OracleParserBackedTest :
                   id NUMBER PRIMARY KEY,
                   department_id NUMBER,
                   employee_name VARCHAR2(128)
+                );
+
+                CREATE TABLE join_managers (
+                  id NUMBER PRIMARY KEY
                 );
 
                 selectRightOuterJoin:
@@ -3061,6 +3066,20 @@ class OracleParserBackedTest :
                   FROM join_employees e
                   WHERE e.department_id IS NOT NULL
                 ) employee_matches;
+
+                selectJoinToOne:
+                SELECT *
+                FROM join_employees e JOIN TO ONE (
+                  join_departments d ON 1 = 1,
+                  join_managers m ON 1 = 1
+                );
+
+                selectJoinToOneWithExplicitJoinSpecs:
+                SELECT *
+                FROM join_employees e JOIN TO ONE (
+                  LEFT OUTER JOIN join_departments d ON 1 = 1
+                  INNER JOIN join_managers m ON 1 = 1
+                );
 
                 selectLegacyOuterJoin:
                 SELECT employee_name, department_name

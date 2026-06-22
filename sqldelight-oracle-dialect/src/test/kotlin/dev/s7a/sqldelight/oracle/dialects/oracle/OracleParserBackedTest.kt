@@ -5081,6 +5081,37 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle create database link statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE PUBLIC DATABASE LINK remote
+                  USING 'remote';
+
+                CREATE DATABASE LINK local
+                  CONNECT TO hr IDENTIFIED BY password
+                  USING 'local';
+
+                CREATE DATABASE LINK IF NOT EXISTS remote.us.example.com
+                  CONNECT TO CURRENT_USER
+                  USING 'remote';
+
+                CREATE DATABASE LINK credential_link
+                  CONNECT WITH hr_credential
+                  USING remote_service;
+
+                CREATE SHARED PUBLIC DATABASE LINK shared_remote
+                  CONNECT TO scott IDENTIFIED BY tiger
+                  AUTHENTICATED BY hr IDENTIFIED BY secret
+                  USING 'remote';
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle schema object alter statements through SQLDelight environment exactly") {
             val sql =
                 """

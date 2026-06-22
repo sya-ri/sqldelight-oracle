@@ -2126,6 +2126,18 @@ class OracleParserBackedTest :
                   PARTITION p_other VALUES (DEFAULT)
                 );
 
+                CREATE TABLE hash_list_partitioned_accounts (
+                  account_id NUMBER NOT NULL,
+                  region_code VARCHAR2(8)
+                ) PARTITION BY HASH (account_id)
+                SUBPARTITION BY LIST (region_code) (
+                  PARTITION p_hash_1 (
+                    SUBPARTITION sp_us VALUES ('US', 'CA'),
+                    SUBPARTITION sp_other VALUES (DEFAULT)
+                  ),
+                  PARTITION p_hash_2 TABLESPACE archive_ts
+                );
+
                 CREATE TABLE referenced_parent_accounts (
                   account_id NUMBER PRIMARY KEY,
                   created_at DATE

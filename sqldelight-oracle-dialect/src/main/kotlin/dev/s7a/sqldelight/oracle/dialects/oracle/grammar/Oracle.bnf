@@ -2916,8 +2916,8 @@ private oracle_indextype_clause ::= (
 
 private oracle_operator_clause ::= (
   'COMPILE' |
-  'ADD' 'BINDING' oracle_operator_boundary_token + |
-  'DROP' 'BINDING' oracle_operator_boundary_token + [ 'FORCE' ]
+  'ADD' oracle_operator_binding |
+  'DROP' oracle_operator_binding_signature [ 'FORCE' ]
 )
 
 private oracle_outline_clause ::= (
@@ -2929,9 +2929,13 @@ private oracle_outline_clause ::= (
 )
 
 private oracle_create_operator_clause ::= (
-  'BINDING' LP oracle_type_name ( COMMA oracle_type_name ) * RP 'RETURN' oracle_type_name oracle_operator_binding_clause * |
+  oracle_operator_binding |
   oracle_operator_binding_clause
 )
+
+private oracle_operator_binding ::= oracle_operator_binding_signature 'RETURN' oracle_type_name oracle_operator_binding_clause *
+
+private oracle_operator_binding_signature ::= 'BINDING' LP oracle_type_name ( COMMA oracle_type_name ) * RP
 
 private oracle_operator_binding_clause ::= (
   'ANCILLARY' 'TO' oracle_schema_object_name [ LP oracle_type_name ( COMMA oracle_type_name ) * RP ] |

@@ -4870,6 +4870,18 @@ class OracleParserBackedTest :
 
                 ALTER OPERATOR eq_op COMPILE;
 
+                ALTER OPERATOR eq_op
+                  ADD BINDING (VARCHAR2, VARCHAR2)
+                  RETURN NUMBER
+                  USING eq_f;
+
+                ALTER OPERATOR eq_op
+                  ADD BINDING (NUMBER)
+                  RETURN NUMBER
+                  ANCILLARY TO eq_op(NUMBER, NUMBER)
+                  WITH COLUMN CONTEXT
+                  USING eq_f;
+
                 ALTER OPERATOR IF EXISTS hr.eq_op
                   DROP BINDING (NUMBER, NUMBER) FORCE;
 

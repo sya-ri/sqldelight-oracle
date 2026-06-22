@@ -2579,6 +2579,16 @@ class OracleParserBackedTest :
                   DEDUPLICATE
                   ENCRYPT
                 )
+                LOB (document_blob) STORE AS SECUREFILE account_document_blob_lob (
+                  RETENTION MAX
+                  STORAGE (MAXSIZE 1G)
+                )
+                LOB (document_text) STORE AS SECUREFILE account_document_text_lob (
+                  RETENTION MIN 3600
+                  RETENTION AUTO
+                  RETENTION NONE
+                  RETENTION DEFAULT
+                )
                 XMLTYPE COLUMN document_xml XMLSCHEMA 'http://example.com/document.xsd' ELEMENT 'Document' STORE AS BINARY XML
                 NESTED TABLE line_items STORE AS account_line_items RETURN AS LOCATOR
                 VARRAY attachments STORE AS BASICFILE LOB account_attachments_lob

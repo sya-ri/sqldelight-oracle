@@ -1862,6 +1862,7 @@ private oracle_column_property_token ::= (
   DOT |
   EQ |
   'ALLOW' |
+  'AUTO' |
   'BASICFILE' |
   'CACHE' |
   'CHUNK' |
@@ -1869,6 +1870,7 @@ private oracle_column_property_token ::= (
   'COMPRESS' |
   'DEDUPLICATE' |
   'DECRYPT' |
+  'DEFAULT' |
   'DISABLE' |
   'DISALLOW' |
   'DUPLICATE' |
@@ -1881,7 +1883,9 @@ private oracle_column_property_token ::= (
   'KEEP_DUPLICATES' |
   'LOB' |
   'LOW' |
+  'MAX' |
   'MEDIUM' |
+  'MIN' |
   'NOCACHE' |
   'NOCOMPRESS' |
   'NODEDUPLICATE' |

@@ -1123,9 +1123,27 @@ create_table_stmt ::= 'CREATE' (
 }
 
 private oracle_create_relational_table ::= (
+  oracle_create_object_table |
   LP {column_def} ( COMMA {column_def} ) * ( COMMA oracle_create_table_element ) * RP [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_property * |
   [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_as_property * 'AS' {compound_select_stmt}
 )
+
+private oracle_create_object_table ::= 'OF' oracle_schema_object_name
+  [ oracle_object_table_substitution ]
+  oracle_object_table_property *
+  oracle_create_table_property *
+
+private oracle_object_table_substitution ::= ( 'NOT' )? 'SUBSTITUTABLE' 'AT' 'ALL' 'LEVELS'
+
+private oracle_object_table_property ::= (
+  oracle_object_identifier_clause |
+  oracle_oid_index_clause |
+  oracle_create_table_element
+)
+
+private oracle_object_identifier_clause ::= 'OBJECT' 'IDENTIFIER' 'IS' ( 'PRIMARY' 'KEY' | 'SYSTEM' 'GENERATED' )
+
+private oracle_oid_index_clause ::= 'OIDINDEX' [ oracle_object_name_part ] [ LP oracle_segment_attribute_clause * RP ]
 
 private oracle_create_json_collection_table ::= [ 'WITH' 'ETAG' ] oracle_create_table_property *
 

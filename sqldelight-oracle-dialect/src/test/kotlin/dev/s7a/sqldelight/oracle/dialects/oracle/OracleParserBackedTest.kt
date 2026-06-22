@@ -2338,6 +2338,29 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses representative Oracle object table statements exactly") {
+            val sql =
+                """
+                CREATE TABLE account_objects
+                OF account_object_type
+                OBJECT IDENTIFIER IS PRIMARY KEY
+                OIDINDEX account_objects_oid_idx (TABLESPACE users)
+                TABLESPACE users;
+
+                CREATE TABLE final_account_objects
+                OF hr.account_object_type
+                NOT SUBSTITUTABLE AT ALL LEVELS
+                OBJECT IDENTIFIER IS SYSTEM GENERATED
+                READ ONLY;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle quoted table identifiers through SQLDelight environment exactly") {
             val sql =
                 """

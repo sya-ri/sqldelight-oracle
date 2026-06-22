@@ -4472,6 +4472,32 @@ class OracleParserBackedTest :
         test("parses Oracle create materialized zonemap on table statement exactly") {
             val sql =
                 """
+                CREATE TABLE sales (
+                  cust_id NUMBER,
+                  prod_id NUMBER,
+                  amount_sold NUMBER
+                );
+
+                CREATE MATERIALIZED VIEW sales_summary
+                  BUILD IMMEDIATE
+                  REFRESH FAST ON DEMAND
+                  ENABLE QUERY REWRITE
+                  ANNOTATIONS(ADD Display 'Sales Summary')
+                  AS SELECT cust_id, SUM(amount_sold) amount_sold
+                       FROM sales
+                      GROUP BY cust_id;
+
+                CREATE MATERIALIZED VIEW IF NOT EXISTS reporting.sales_by_product (prod_id, amount_sold)
+                  REFRESH COMPLETE ON COMMIT
+                  AS SELECT prod_id, SUM(amount_sold)
+                       FROM sales
+                      GROUP BY prod_id
+                  ANNOTATIONS(ADD IF NOT EXISTS Refresh_Mode 'On Commit');
+
+                CREATE MATERIALIZED VIEW LOG IF NOT EXISTS ON sales
+                  WITH ROWID, SEQUENCE (cust_id, prod_id)
+                  INCLUDING NEW VALUES;
+
                 CREATE MATERIALIZED ZONEMAP sales_zmap
                   ON sales(cust_id, prod_id);
                 """.trimIndent()

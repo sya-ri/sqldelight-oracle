@@ -1136,6 +1136,7 @@ alter_table_rules ::= (
   alter_table_add_column |
   alter_table_annotations |
   alter_table_modify_column_annotations |
+  alter_table_modify_collection_retrieval |
   alter_table_modify_columns |
   alter_table_modify_column |
   alter_table_drop_period |
@@ -1179,6 +1180,8 @@ alter_table_modify_column ::= 'MODIFY' [ 'COLUMN' ] {column_def} {
 private alter_table_annotations ::= oracle_annotations_clause
 
 private alter_table_modify_column_annotations ::= 'MODIFY' [ 'COLUMN' ] {column_name} oracle_annotations_clause
+
+private alter_table_modify_collection_retrieval ::= 'MODIFY' 'NESTED' 'TABLE' oracle_object_name_part 'RETURN' 'AS' ( 'LOCATOR' | 'VALUE' )
 
 private alter_table_drop_period ::= 'DROP' 'PERIOD' 'FOR' oracle_object_name_part
 

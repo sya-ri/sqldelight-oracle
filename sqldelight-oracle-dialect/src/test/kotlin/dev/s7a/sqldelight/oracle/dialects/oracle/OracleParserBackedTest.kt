@@ -2434,6 +2434,8 @@ class OracleParserBackedTest :
                   updated_at TIMESTAMP NOT NULL
                 );
                 ALTER TABLE alter_targets MODIFY status VARCHAR2(32) NOT NULL;
+                ALTER TABLE alter_targets MODIFY NESTED TABLE line_items RETURN AS LOCATOR;
+                ALTER TABLE alter_targets MODIFY NESTED TABLE line_items RETURN AS VALUE;
                 ALTER TABLE alter_targets RENAME COLUMN status TO account_status;
                 ALTER TABLE alter_targets DROP COLUMN archived_at CASCADE CONSTRAINTS;
                 ALTER TABLE alter_targets DROP COLUMN created_at CASCADE CONSTRAINTS;

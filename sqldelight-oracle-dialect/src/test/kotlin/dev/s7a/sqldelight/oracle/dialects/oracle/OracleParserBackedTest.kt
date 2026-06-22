@@ -2809,6 +2809,10 @@ class OracleParserBackedTest :
                 SELECT id, region
                 FROM partitioned_orders@orders_link po;
 
+                selectRemoteOnlyTable:
+                SELECT id, region
+                FROM ONLY (partitioned_orders@orders_link) po;
+
                 selectPartition:
                 SELECT id, region
                 FROM partitioned_orders PARTITION (p_2026) po;
@@ -2879,6 +2883,20 @@ class OracleParserBackedTest :
                   COUNT(*)
                   FOR (region, created_year) IN (('WEST', 2026) AS west_2026)
                 ) pivoted_orders;
+
+                selectUnpivot:
+                SELECT *
+                FROM partitioned_orders UNPIVOT INCLUDE NULLS (
+                  metric_value
+                  FOR metric_name IN (id AS 'ID', created_year AS 'CREATED_YEAR')
+                ) unpivoted_orders;
+
+                selectUnpivotCompositeColumns:
+                SELECT *
+                FROM partitioned_orders UNPIVOT EXCLUDE NULLS (
+                  (metric_id, metric_year)
+                  FOR metric_name IN ((id, created_year) AS ('ID', 'CREATED_YEAR'))
+                ) unpivoted_orders;
 
                 selectMatchRecognize:
                 SELECT *

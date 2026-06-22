@@ -2067,6 +2067,7 @@ alter_table_rules ::= (
   alter_table_records_per_block |
   alter_table_upgrade |
   alter_table_modify_clustering |
+  alter_table_external_properties |
   alter_table_modify_xmltype_storage |
   alter_table_modify_lob_storage |
   alter_table_modify_varray_storage |
@@ -2136,6 +2137,15 @@ private alter_table_records_per_block ::= ( 'MINIMIZE' | 'NOMINIMIZE' ) 'RECORDS
 private alter_table_upgrade ::= 'UPGRADE' [ [ 'NOT' ] 'INCLUDING' 'DATA' ]
 
 private alter_table_modify_clustering ::= 'MODIFY' oracle_attribute_clustering_clause
+
+private alter_table_external_properties ::= oracle_external_table_property +
+
+private oracle_external_table_property ::= (
+  'DEFAULT' 'DIRECTORY' oracle_object_name_part |
+  'ACCESS' 'PARAMETERS' oracle_external_table_boundary |
+  'LOCATION' oracle_external_table_boundary |
+  oracle_external_table_reject_limit_clause
+)
 
 private alter_table_modify_collection_retrieval ::= 'MODIFY' 'NESTED' 'TABLE' oracle_object_name_part 'RETURN' 'AS' ( 'LOCATOR' | 'VALUE' )
 

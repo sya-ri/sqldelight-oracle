@@ -1399,7 +1399,7 @@ private oracle_from_using_source ::= <<tableOrSubqueryExt <<table_or_subquery_re
 
 private oracle_wait_clause ::= 'NOWAIT' | 'WAIT' ( 'FOREVER' | {signed_number} [ 'SECONDS' | 'MILLISECONDS' | 'MICROSECONDS' ] )
 
-private oracle_returning_clause ::= 'RETURNING' oracle_returning_expr ( COMMA oracle_returning_expr ) * 'INTO' oracle_returning_target ( COMMA oracle_returning_target ) *
+private oracle_returning_clause ::= ( 'RETURN' | 'RETURNING' ) oracle_returning_expr ( COMMA oracle_returning_expr ) * 'INTO' oracle_returning_target ( COMMA oracle_returning_target ) *
 
 private oracle_returning_expr ::= [ 'OLD' | 'NEW' ] <<expr '-1'>>
 

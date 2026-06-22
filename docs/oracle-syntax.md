@@ -356,9 +356,11 @@ Items marked as targeted coverage staged must stay unchecked until the local ver
 - [ ] [Analytic view and model expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Expressions.html): analytic view expressions, model expressions, bracketed model cell references, and iteration expressions
 - [ ] [Conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Conditions.html): comparison group conditions, logical, null, XML, SQL/JSON function conditions, compound, `BETWEEN`, `EXISTS`, and `IN`
 - [x] [Comparison conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comparison-Conditions.html) parser coverage for Oracle `^=` inequality
-- [ ] [Row-value comparison expression lists](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comparison-Conditions.html): `(a, b) = (c, d)` row constructor comparisons and subquery arity/type validation
+- [x] [Row-value comparison expression lists](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comparison-Conditions.html): parser coverage for `(a, b) = (c, d)` row constructor comparisons and subquery RHS comparisons
+- [ ] [Row-value comparison expression lists](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comparison-Conditions.html): subquery arity/type validation
 - [x] [Group comparison conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comparison-Conditions.html) parser coverage for scalar `op ANY`, `op SOME`, and `op ALL` with lists and subqueries
-- [ ] [Group comparison conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comparison-Conditions.html): row-value `op ANY` / `op SOME` / `op ALL` and arity/type validation
+- [x] [Group comparison conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comparison-Conditions.html): parser coverage for row-value `op ANY` / `op SOME` / `op ALL` with row-value lists and subqueries
+- [ ] [Group comparison conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comparison-Conditions.html): row-value `op ANY` / `op SOME` / `op ALL` arity/type validation
 - [x] [Null conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Null-Conditions.html) parser coverage for `IS NULL` and `IS NOT NULL`
 - [x] [BETWEEN condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/BETWEEN-Condition.html) parser coverage for `BETWEEN` and `NOT BETWEEN`
 - [x] [EXISTS condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/EXISTS-Condition.html) parser coverage for subquery existence predicates

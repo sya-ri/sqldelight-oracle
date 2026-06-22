@@ -593,7 +593,20 @@ class OracleParserBackedTest :
                     FROM employees e
                     WHERE e.department_id = employees.department_id
                   )
-                  AND department_id != SOME (10, 20);
+                  AND department_id != SOME (10, 20)
+                  AND (department_id, salary) = (10, 75000)
+                  AND (department_id, salary) <> (
+                    SELECT id, 0
+                    FROM departments
+                    WHERE name = 'HR'
+                  )
+                  AND (department_id, salary) >= ALL (
+                    SELECT department_id, salary
+                    FROM employees e
+                    WHERE e.status = employees.status
+                  )
+                  AND (department_id, status) = ANY ((10, 'ACTIVE'), (20, 'PENDING'))
+                  AND (department_id, status) != SOME ((30, 'INACTIVE'), (40, 'SUSPENDED'));
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe

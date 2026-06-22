@@ -586,12 +586,18 @@ private oracle_condition_expr ::= oracle_sql_json_condition_expr | oracle_xml_co
 
 private oracle_comparison_condition_expr ::= (
   oracle_condition_operand '^=' oracle_condition_operand |
+  oracle_row_value_constructor oracle_group_comparison_operator oracle_row_comparison_rhs |
+  oracle_row_value_constructor oracle_group_comparison_operator ( 'ANY' | 'SOME' | 'ALL' ) oracle_row_group_comparison_rhs |
   oracle_condition_operand oracle_group_comparison_operator ( 'ANY' | 'SOME' | 'ALL' ) oracle_group_comparison_rhs
 )
 
 private oracle_group_comparison_operator ::= EQ | '!=' | '<>' | '>' | '<' | '<=' | '>='
 
 private oracle_group_comparison_rhs ::= LP ( <<compoundSelectStmtExt <<compound_select_stmt_real>>>> | <<expr '-1'>> ( COMMA <<expr '-1'>> ) * ) RP
+
+private oracle_row_group_comparison_rhs ::= LP ( <<compoundSelectStmtExt <<compound_select_stmt_real>>>> | oracle_row_value_constructor ( COMMA oracle_row_value_constructor ) * ) RP
+
+private oracle_row_comparison_rhs ::= oracle_row_value_constructor | LP <<compoundSelectStmtExt <<compound_select_stmt_real>>>> RP
 
 private oracle_in_condition_expr ::= oracle_row_value_constructor [ 'NOT' ] 'IN' LP ( <<compoundSelectStmtExt <<compound_select_stmt_real>>>> | oracle_row_value_constructor ( COMMA oracle_row_value_constructor ) * ) RP
 

@@ -2417,7 +2417,9 @@ class OracleParserBackedTest :
                 """
                 CREATE TABLE alter_targets (
                   id NUMBER PRIMARY KEY,
-                  status VARCHAR2(16)
+                  status VARCHAR2(16),
+                  valid_from DATE,
+                  valid_to DATE
                 );
 
                 ALTER TABLE alter_targets ADD created_at TIMESTAMP;
@@ -2426,6 +2428,7 @@ class OracleParserBackedTest :
                   archived_at TIMESTAMP INVISIBLE
                 );
                 ALTER TABLE alter_targets ADD CONSTRAINT alter_targets_status_check CHECK (status IS NOT NULL) ENABLE;
+                ALTER TABLE alter_targets ADD PERIOD FOR valid_time (valid_from, valid_to);
                 ALTER TABLE alter_targets MODIFY (
                   created_at TIMESTAMP NOT NULL,
                   updated_at TIMESTAMP NOT NULL
@@ -2436,6 +2439,7 @@ class OracleParserBackedTest :
                 ALTER TABLE alter_targets DROP COLUMN created_at CASCADE CONSTRAINTS;
                 ALTER TABLE alter_targets SET UNUSED COLUMN updated_at ONLINE;
                 ALTER TABLE alter_targets SET UNUSED (account_status) CASCADE CONSTRAINTS;
+                ALTER TABLE alter_targets DROP PERIOD FOR valid_time;
                 ALTER TABLE alter_targets DROP CONSTRAINT alter_targets_status_check;
                 ALTER TABLE alter_targets ENABLE ROW MOVEMENT;
                 ALTER TABLE alter_targets READ ONLY;

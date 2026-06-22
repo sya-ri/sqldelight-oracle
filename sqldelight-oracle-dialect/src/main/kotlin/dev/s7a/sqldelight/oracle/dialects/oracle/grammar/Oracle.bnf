@@ -1132,11 +1132,13 @@ alter_table_stmt ::= 'ALTER' 'TABLE' [ {database_name} DOT ] {table_name} {alter
 alter_table_rules ::= (
   alter_table_add_columns |
   alter_table_add_constraint |
+  alter_table_add_period |
   alter_table_add_column |
   alter_table_annotations |
   alter_table_modify_column_annotations |
   alter_table_modify_columns |
   alter_table_modify_column |
+  alter_table_drop_period |
   alter_table_drop_constraint |
   alter_table_drop_column |
   alter_table_set_unused_column |
@@ -1163,6 +1165,8 @@ alter_table_add_constraint ::= 'ADD' {table_constraint} {
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.AlterTableAddConstraintMixin"
 }
 
+private alter_table_add_period ::= 'ADD' 'PERIOD' 'FOR' oracle_object_name_part LP {column_name} COMMA {column_name} RP
+
 alter_table_modify_columns ::= 'MODIFY' [ 'COLUMN' ] LP {column_def} ( COMMA {column_def} ) * RP {
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.AlterTableModifyColumnsMixin"
 }
@@ -1175,6 +1179,8 @@ alter_table_modify_column ::= 'MODIFY' [ 'COLUMN' ] {column_def} {
 private alter_table_annotations ::= oracle_annotations_clause
 
 private alter_table_modify_column_annotations ::= 'MODIFY' [ 'COLUMN' ] {column_name} oracle_annotations_clause
+
+private alter_table_drop_period ::= 'DROP' 'PERIOD' 'FOR' oracle_object_name_part
 
 alter_table_drop_constraint ::= 'DROP' 'CONSTRAINT' {identifier} {
   pin = 2

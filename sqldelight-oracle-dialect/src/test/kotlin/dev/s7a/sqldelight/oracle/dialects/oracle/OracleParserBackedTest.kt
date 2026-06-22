@@ -1982,6 +1982,18 @@ class OracleParserBackedTest :
                   CONSTRAINT index_organized_accounts_pk PRIMARY KEY (account_id)
                 ) ORGANIZATION INDEX TABLESPACE users PCTTHRESHOLD 50 MAPPING TABLE COMPRESS 1 INCLUDING external_id OVERFLOW TABLESPACE users;
 
+                CREATE TABLE enabled_constraint_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64),
+                  CONSTRAINT enabled_constraint_accounts_pk PRIMARY KEY (account_id) DISABLE
+                ) ENABLE VALIDATE PRIMARY KEY USING INDEX enabled_constraint_accounts_pk_idx CASCADE KEEP INDEX;
+
+                CREATE TABLE disabled_unique_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64),
+                  CONSTRAINT disabled_unique_accounts_unique UNIQUE (external_id) ENABLE
+                ) DISABLE NOVALIDATE UNIQUE (external_id) DROP INDEX;
+
                 CREATE TABLE row_store_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)
@@ -2068,6 +2080,11 @@ class OracleParserBackedTest :
 
                 CREATE TABLE heap_account_snapshot
                 ORGANIZATION HEAP TABLESPACE users
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
+                CREATE TABLE disabled_account_snapshot
+                DISABLE CONSTRAINT disabled_account_snapshot_pk
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 

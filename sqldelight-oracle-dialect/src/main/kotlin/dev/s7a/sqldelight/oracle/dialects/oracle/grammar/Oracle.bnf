@@ -1130,6 +1130,7 @@ private oracle_create_table_property ::= (
   oracle_logical_replication_clause |
   oracle_table_flashback_archive_clause |
   oracle_table_organization_clause |
+  oracle_table_enable_disable_clause |
   'CACHE' |
   'NOCACHE' |
   oracle_parallel_clause |
@@ -1150,7 +1151,8 @@ private oracle_create_table_as_property ::= (
   oracle_row_movement_clause |
   oracle_logical_replication_clause |
   oracle_table_flashback_archive_clause |
-  oracle_table_organization_clause
+  oracle_table_organization_clause |
+  oracle_table_enable_disable_clause
 )
 
 private oracle_deferred_segment_creation ::= 'SEGMENT' 'CREATION' ( 'IMMEDIATE' | 'DEFERRED' )
@@ -1190,6 +1192,17 @@ private oracle_index_organization_property ::= (
 private oracle_index_organized_compression ::= (
   'COMPRESS' [ 'ADVANCED' [ 'LOW' ] | {signed_number} ] |
   'NOCOMPRESS'
+)
+
+private oracle_table_enable_disable_clause ::= ( 'ENABLE' | 'DISABLE' ) [ 'VALIDATE' | 'NOVALIDATE' ] (
+  'UNIQUE' LP {column_name} ( COMMA {column_name} ) * RP |
+  'PRIMARY' 'KEY' |
+  'CONSTRAINT' oracle_object_name_part
+) [ oracle_table_using_index_clause ] [ 'CASCADE' ] [ ( 'KEEP' | 'DROP' ) 'INDEX' ]
+
+private oracle_table_using_index_clause ::= 'USING' 'INDEX' (
+  oracle_schema_object_name |
+  oracle_index_attribute +
 )
 
 private oracle_result_cache_clause ::= 'RESULT_CACHE' LP (

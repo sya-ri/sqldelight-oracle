@@ -995,6 +995,114 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle calendar functions exactly") {
+            val sql =
+                """
+                CREATE TABLE calendar_dates (
+                  id NUMBER PRIMARY KEY,
+                  d DATE,
+                  fiscal_start DATE,
+                  periods NUMBER,
+                  fmt VARCHAR2(100),
+                  nls VARCHAR2(100),
+                  restated VARCHAR2(20)
+                );
+
+                SELECT CALENDAR_YEAR(d) AS calendar_year,
+                  CALENDAR_QUARTER(d, fmt, nls) AS calendar_quarter,
+                  CALENDAR_MONTH(d, fmt, nls) AS calendar_month,
+                  CALENDAR_WEEK(d, fmt, nls) AS calendar_week,
+                  CALENDAR_DAY(d, fmt, nls) AS calendar_day,
+                  FISCAL_YEAR(d, fiscal_start, fmt, nls) AS fiscal_year,
+                  FISCAL_QUARTER(d, fiscal_start, fmt, nls) AS fiscal_quarter,
+                  FISCAL_MONTH(d, fiscal_start, fmt, nls) AS fiscal_month,
+                  FISCAL_WEEK(d, fiscal_start, fmt, nls) AS fiscal_week,
+                  FISCAL_DAY(d, fiscal_start, fmt, nls) AS fiscal_day,
+                  RETAIL_YEAR(d, fmt, restated, nls) AS retail_year,
+                  RETAIL_QUARTER(d, fmt, restated, nls) AS retail_quarter,
+                  RETAIL_MONTH(d, fmt, restated, nls) AS retail_month,
+                  RETAIL_WEEK(d, fmt, restated, nls) AS retail_week,
+                  RETAIL_DAY(d, fmt, restated, nls) AS retail_day,
+                  CALENDAR_YEAR_START_DATE(d, nls) AS calendar_year_start,
+                  CALENDAR_YEAR_END_DATE(d, nls) AS calendar_year_end,
+                  CALENDAR_QUARTER_START_DATE(d, nls) AS calendar_quarter_start,
+                  CALENDAR_QUARTER_END_DATE(d, nls) AS calendar_quarter_end,
+                  CALENDAR_MONTH_START_DATE(d, nls) AS calendar_month_start,
+                  CALENDAR_MONTH_END_DATE(d, nls) AS calendar_month_end,
+                  CALENDAR_WEEK_START_DATE(d, nls) AS calendar_week_start,
+                  CALENDAR_WEEK_END_DATE(d, nls) AS calendar_week_end,
+                  FISCAL_YEAR_START_DATE(d, fiscal_start, nls) AS fiscal_year_start_date,
+                  FISCAL_YEAR_END_DATE(d, fiscal_start, nls) AS fiscal_year_end_date,
+                  FISCAL_QUARTER_START_DATE(d, fiscal_start, nls) AS fiscal_quarter_start,
+                  FISCAL_QUARTER_END_DATE(d, fiscal_start, nls) AS fiscal_quarter_end,
+                  FISCAL_MONTH_START_DATE(d, fiscal_start, nls) AS fiscal_month_start,
+                  FISCAL_MONTH_END_DATE(d, fiscal_start, nls) AS fiscal_month_end,
+                  FISCAL_WEEK_START_DATE(d, fiscal_start, nls) AS fiscal_week_start,
+                  FISCAL_WEEK_END_DATE(d, fiscal_start, nls) AS fiscal_week_end,
+                  RETAIL_YEAR_START_DATE(d, restated) AS retail_year_start,
+                  RETAIL_YEAR_END_DATE(d, restated) AS retail_year_end,
+                  RETAIL_QUARTER_START_DATE(d, restated) AS retail_quarter_start,
+                  RETAIL_QUARTER_END_DATE(d, restated) AS retail_quarter_end,
+                  RETAIL_MONTH_START_DATE(d, restated) AS retail_month_start,
+                  RETAIL_MONTH_END_DATE(d, restated) AS retail_month_end,
+                  RETAIL_WEEK_START_DATE(d, restated) AS retail_week_start,
+                  RETAIL_WEEK_END_DATE(d, restated) AS retail_week_end,
+                  CALENDAR_YEAR_NUMBER(d, nls) AS calendar_year_number,
+                  CALENDAR_QUARTER_OF_YEAR(d, nls) AS calendar_quarter_of_year,
+                  CALENDAR_MONTH_OF_YEAR(d, nls) AS calendar_month_of_year,
+                  CALENDAR_MONTH_OF_QUARTER(d, nls) AS calendar_month_of_quarter,
+                  CALENDAR_WEEK_OF_YEAR(d, nls) AS calendar_week_of_year,
+                  CALENDAR_DAY_OF_YEAR(d, nls) AS calendar_day_of_year,
+                  CALENDAR_DAY_OF_QUARTER(d, nls) AS calendar_day_of_quarter,
+                  CALENDAR_DAY_OF_MONTH(d, nls) AS calendar_day_of_month,
+                  CALENDAR_DAY_OF_WEEK(d, 'DATE', nls) AS calendar_day_of_week,
+                  FISCAL_YEAR_NUMBER(d, fiscal_start, nls) AS fiscal_year_number,
+                  FISCAL_QUARTER_OF_YEAR(d, fiscal_start, nls) AS fiscal_quarter_of_year,
+                  FISCAL_MONTH_OF_YEAR(d, fiscal_start, 'DATE', nls) AS fiscal_month_of_year,
+                  FISCAL_MONTH_OF_QUARTER(d, fiscal_start, nls) AS fiscal_month_of_quarter,
+                  FISCAL_WEEK_OF_YEAR(d, fiscal_start, nls) AS fiscal_week_of_year,
+                  FISCAL_DAY_OF_YEAR(d, fiscal_start, nls) AS fiscal_day_of_year,
+                  FISCAL_DAY_OF_QUARTER(d, fiscal_start, nls) AS fiscal_day_of_quarter,
+                  FISCAL_DAY_OF_MONTH(d, fiscal_start, nls) AS fiscal_day_of_month,
+                  FISCAL_DAY_OF_WEEK(d, fiscal_start, 'POSITION', nls) AS fiscal_day_of_week,
+                  RETAIL_YEAR_NUMBER(d, restated) AS retail_year_number,
+                  RETAIL_QUARTER_OF_YEAR(d, restated) AS retail_quarter_of_year,
+                  RETAIL_MONTH_OF_YEAR(d, restated, 'DATE') AS retail_month_of_year,
+                  RETAIL_MONTH_OF_QUARTER(d, restated) AS retail_month_of_quarter,
+                  RETAIL_WEEK_OF_YEAR(d, restated) AS retail_week_of_year,
+                  RETAIL_WEEK_OF_QUARTER(d, restated) AS retail_week_of_quarter,
+                  RETAIL_WEEK_OF_MONTH(d, restated) AS retail_week_of_month,
+                  RETAIL_DAY_OF_YEAR(d, restated) AS retail_day_of_year,
+                  RETAIL_DAY_OF_QUARTER(d, restated) AS retail_day_of_quarter,
+                  RETAIL_DAY_OF_MONTH(d, restated) AS retail_day_of_month,
+                  RETAIL_DAY_OF_WEEK(d, restated, 'POSITION') AS retail_day_of_week,
+                  CALENDAR_ADD_YEARS(d, periods, nls) AS calendar_add_years,
+                  CALENDAR_ADD_QUARTERS(d, periods, nls) AS calendar_add_quarters,
+                  CALENDAR_ADD_MONTHS(d, periods, nls) AS calendar_add_months,
+                  CALENDAR_ADD_WEEKS(d, periods, nls) AS calendar_add_weeks,
+                  CALENDAR_ADD_DAYS(d, periods, nls) AS calendar_add_days,
+                  FISCAL_ADD_YEARS(d, periods, fiscal_start, nls) AS fiscal_add_years,
+                  FISCAL_ADD_QUARTERS(d, periods, fiscal_start, nls) AS fiscal_add_quarters,
+                  FISCAL_ADD_MONTHS(d, periods, fiscal_start, nls) AS fiscal_add_months,
+                  FISCAL_ADD_WEEKS(d, periods, fiscal_start, nls) AS fiscal_add_weeks,
+                  FISCAL_ADD_DAYS(d, periods, fiscal_start, nls) AS fiscal_add_days,
+                  RETAIL_ADD_YEARS(d, periods, restated) AS retail_add_years,
+                  RETAIL_ADD_QUARTERS(d, periods, restated) AS retail_add_quarters,
+                  RETAIL_ADD_MONTHS(d, periods, restated) AS retail_add_months,
+                  RETAIL_ADD_WEEKS(d, periods, restated) AS retail_add_weeks,
+                  RETAIL_ADD_DAYS(d, periods, restated) AS retail_add_days,
+                  CALENDAR_SINCE(d, fmt, nls) AS calendar_since,
+                  RETAIL_DAY_EXISTS(d, restated) AS retail_day_exists
+                FROM calendar_dates;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle numeric single-row functions exactly") {
             val sql =
                 """

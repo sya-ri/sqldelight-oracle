@@ -5,6 +5,24 @@ Baseline: [Oracle AI Database 26ai SQL Language Reference](https://docs.oracle.c
 This checklist tracks parser/source-scanner/rule support. Check an item only after it has targeted FunSpec tests.
 Items marked as targeted coverage staged must stay unchecked until the local verification command succeeds.
 
+## Remaining Work Classification
+
+Unchecked items are intentionally split by the work needed to finish them:
+
+- `parser/source/type`: implementable in this repository with BNF, mixins, source-scanner patterns, type resolver entries, and exact FunSpec coverage.
+- `semantic validation`: requires SQLDelight PSI/schema/type analysis beyond accepting Oracle syntax; keep unchecked until a validator proves the rule.
+- `core-blocked`: requires SQLDelight core lexer/parser/compiler behavior before this dialect can support the syntax correctly.
+- `post-release validation`: useful strictness for a mature dialect, but not a first-publish parser/source-scanner blocker when syntax is already accepted.
+
+Current high-risk remaining parser/source/type work:
+
+- [ ] `core-blocked`: [`/* ... */` and `/*+ ... */` block comments and hints](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comments.html); SQLDelight currently constructs the core lexer/parser definition before dialect setup hooks can add block-comment tokens.
+- [ ] `core-blocked`: [alternative quoted literals](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html) `q'...'` and `nq'...'`; these need lexer-level literal tokens before BNF can safely match delimiter variants.
+- [ ] `core-blocked`: [`MODEL` clause](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/model_clause.html), [`GRAPH_TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graph_table-operator.html) edge patterns, JSON array-step access, and vector shorthand operators where Oracle syntax depends on bracket or operator tokenization that core SQLDelight currently consumes differently.
+- [ ] `core-blocked`: non-named DML targets in [`DML_table_expression_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html); SQLDelight compiler paths such as mutator handling and optimistic-lock validation currently assume named table PSI.
+- [ ] `parser/source/type`: remaining object and JSON object access expression coverage that can be accepted without schema-aware generated-column or object-field resolution.
+- [ ] `semantic validation`: `JSON_TABLE`, pivot/unpivot, row pattern output columns, object/REF rules, domain function return types, and row-value arity/type validation.
+
 ## Lexical Syntax And Names
 
 - [ ] [Lexical conventions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Lexical-Conventions.html): case sensitivity, whitespace, delimiters, comments, and statement terminators

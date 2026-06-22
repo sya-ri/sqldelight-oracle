@@ -806,8 +806,11 @@ column_constraint ::= [ 'CONSTRAINT' {identifier} ] (
   [ 'NOT' ] 'NULL' oracle_constraint_state * |
   'UNIQUE' oracle_constraint_state * |
   {check_constraint} oracle_constraint_state * |
+  oracle_default_on_null_clause |
   {default_constraint} |
   'COLLATE' {collation_name} |
+  'RESERVABLE' |
+  'SORT' |
   oracle_inline_ref_constraint |
   {foreign_key_clause} oracle_constraint_state * |
   <<generatedClauseExt <<generated_clause_real>>>> |
@@ -820,6 +823,9 @@ column_constraint ::= [ 'CONSTRAINT' {identifier} ] (
   implements = "com.alecstrong.sql.psi.core.psi.SqlColumnConstraint"
   override = true
 }
+
+private oracle_default_on_null_clause ::= 'DEFAULT' 'ON' 'NULL'
+  [ 'FOR' LP 'INSERT' ( 'ONLY' | 'AND' 'UPDATE' ) RP ] <<expr '-1'>>
 
 generated_clause ::= [ 'GENERATED' 'ALWAYS' ] 'AS' LP <<expr '-1'>> RP [ 'VIRTUAL' | 'MATERIALIZED' ]
   [ oracle_evaluation_edition_clause ] [ oracle_unusable_editions_clause ] {

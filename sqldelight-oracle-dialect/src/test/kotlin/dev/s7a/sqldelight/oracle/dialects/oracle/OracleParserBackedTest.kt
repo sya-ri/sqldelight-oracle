@@ -2013,6 +2013,12 @@ class OracleParserBackedTest :
                   status_code DOMAIN account_status_domain
                 );
 
+                CREATE TABLE reservable_default_accounts (
+                  account_id NUMBER SORT PRIMARY KEY,
+                  reserved_amount NUMBER RESERVABLE DEFAULT ON NULL FOR (INSERT ONLY) 0,
+                  audit_counter NUMBER DEFAULT ON NULL FOR (INSERT AND UPDATE) 1
+                );
+
                 CREATE TABLE virtual_column_accounts (
                   account_id NUMBER NOT NULL,
                   first_name VARCHAR2(64),

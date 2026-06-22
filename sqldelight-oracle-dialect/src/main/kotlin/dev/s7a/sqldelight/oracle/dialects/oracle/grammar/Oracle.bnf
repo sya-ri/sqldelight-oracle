@@ -1124,6 +1124,7 @@ private oracle_create_table_property ::= (
   oracle_table_compression |
   oracle_deferred_segment_creation |
   oracle_segment_attribute_clause |
+  oracle_result_cache_clause |
   'CACHE' |
   'NOCACHE' |
   oracle_parallel_clause |
@@ -1135,9 +1136,19 @@ private oracle_create_table_property ::= (
   'INDEXING' ( 'ON' | 'OFF' )
 )
 
-private oracle_create_table_as_property ::= oracle_table_compression | oracle_deferred_segment_creation | oracle_segment_attribute_clause
+private oracle_create_table_as_property ::= (
+  oracle_table_compression |
+  oracle_deferred_segment_creation |
+  oracle_segment_attribute_clause |
+  oracle_result_cache_clause
+)
 
 private oracle_deferred_segment_creation ::= 'SEGMENT' 'CREATION' ( 'IMMEDIATE' | 'DEFERRED' )
+
+private oracle_result_cache_clause ::= 'RESULT_CACHE' LP (
+  'MODE' ( 'DEFAULT' | 'FORCE' ) [ COMMA 'STANDBY' ( 'ENABLE' | 'DISABLE' ) ] |
+  'STANDBY' ( 'ENABLE' | 'DISABLE' ) [ COMMA 'MODE' ( 'DEFAULT' | 'FORCE' ) ]
+) RP
 
 private oracle_segment_attribute_clause ::= (
   ( 'TABLESPACE' [ 'SET' ] oracle_object_name_part ) |

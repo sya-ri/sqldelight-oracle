@@ -1946,6 +1946,11 @@ class OracleParserBackedTest :
                   CELL_FLASH_CACHE NONE
                 );
 
+                CREATE TABLE result_cache_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) RESULT_CACHE (MODE FORCE, STANDBY ENABLE);
+
                 CREATE TABLE row_store_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)
@@ -2002,6 +2007,11 @@ class OracleParserBackedTest :
 
                 CREATE TABLE stored_account_snapshot
                 STORAGE (INITIAL 64K NEXT 1M MAXEXTENTS 10 BUFFER_POOL DEFAULT)
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
+                CREATE TABLE cached_account_snapshot
+                RESULT_CACHE (STANDBY DISABLE, MODE DEFAULT)
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 
@@ -5461,7 +5471,7 @@ class OracleParserBackedTest :
                     fileNames = listOf("Test.sq"),
                     errors =
                         listOf(
-                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, COLUMN, COMPRESS, FILESYSTEM_LIKE_LOGGING, INITRANS, LOGGING, NOCOMPRESS, NOLOGGING, ON, PCTFREE, PCTUSED, ROW, SEGMENT, STORAGE or TABLESPACE expected, got '('",
+                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, COLUMN, COMPRESS, FILESYSTEM_LIKE_LOGGING, INITRANS, LOGGING, NOCOMPRESS, NOLOGGING, ON, PCTFREE, PCTUSED, RESULT_CACHE, ROW, SEGMENT, STORAGE or TABLESPACE expected, got '('",
                         ),
                 )
         }

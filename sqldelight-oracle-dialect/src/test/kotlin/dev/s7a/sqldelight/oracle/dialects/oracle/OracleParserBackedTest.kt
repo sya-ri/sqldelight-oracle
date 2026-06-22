@@ -5776,21 +5776,33 @@ class OracleParserBackedTest :
                 """
                 CREATE TABLESPACE app_data
                   DATAFILE '/u01/app_data01.dbf' SIZE 100 M
-                  AUTOEXTEND ON NEXT 10 M MAXSIZE 1 G
+                  AUTOEXTEND ON NEXT 10 M MAXSIZE UNLIMITED
                   LOGGING
                   EXTENT MANAGEMENT LOCAL
                   SEGMENT SPACE MANAGEMENT AUTO;
 
+                CREATE TABLESPACE encrypted_data
+                  DATAFILE '+DATA' SIZE 1 G
+                  AUTOEXTEND ON NEXT 128 M MAXSIZE 10 G
+                  ENCRYPTION USING 'AES256'
+                  ENCRYPT;
+
                 CREATE BIGFILE TABLESPACE big_data
                   DATAFILE '/u01/big_data01.dbf' SIZE 1 G
                   NOLOGGING;
+
+                CREATE UNDO TABLESPACE undo_app
+                  DATAFILE '+DATA/undo_app01.dbf' SIZE 2 G
+                  AUTOEXTEND ON NEXT 256 M MAXSIZE UNLIMITED
+                  RETENTION GUARANTEE;
 
                 CREATE TABLESPACE reusable_data
                   DATAFILE '/u01/reusable_data01.dbf' SIZE 500 M REUSE
                   AUTOEXTEND OFF;
 
                 CREATE TEMPORARY TABLESPACE temp_ts
-                  TEMPFILE '/u01/temp_ts01.dbf' SIZE 100 M;
+                  TEMPFILE '/u01/temp_ts01.dbf' SIZE 100 M
+                  AUTOEXTEND ON NEXT 10 M MAXSIZE UNLIMITED;
 
                 CREATE TABLESPACE SET ts1
                   IN SHARDSPACE sgr1

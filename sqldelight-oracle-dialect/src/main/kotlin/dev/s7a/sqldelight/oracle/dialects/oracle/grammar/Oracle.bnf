@@ -3965,9 +3965,11 @@ private oracle_storage_admin_boundary_token ::= (
   'COMPATIBLE' |
   'CONTENTS' |
   'DATAFILE' |
+  'DECRYPT' |
   'DISK' |
   'DISKS' |
   'DISMOUNT' |
+  'ENCRYPT' |
   'EXTENT' |
   'ENCRYPTION' |
   'FILE' |
@@ -3998,6 +4000,7 @@ private oracle_storage_admin_boundary_token ::= (
   'SPACE' |
   'TEMPLATE' |
   'TO' |
+  'UNLIMITED' |
   'USING'
 )
 

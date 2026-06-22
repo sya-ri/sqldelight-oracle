@@ -2164,6 +2164,16 @@ class OracleParserBackedTest :
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 
+                CREATE TABLE parallel_account_snapshot
+                PARALLEL 8
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
+                CREATE TABLE serial_account_snapshot
+                NOPARALLEL
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
                 CREATE TABLE cached_account_snapshot
                 RESULT_CACHE (STANDBY DISABLE, MODE DEFAULT)
                 AS SELECT account_id, external_id

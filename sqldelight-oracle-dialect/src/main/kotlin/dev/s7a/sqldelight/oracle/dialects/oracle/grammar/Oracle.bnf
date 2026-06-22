@@ -1200,7 +1200,8 @@ private oracle_create_table_as_property ::= (
   oracle_table_enable_disable_clause |
   oracle_ilm_clause |
   oracle_ledger_table_clause |
-  oracle_table_partitioning_clause
+  oracle_table_partitioning_clause |
+  oracle_parallel_clause
 )
 
 private oracle_default_collation_clause ::= 'DEFAULT' 'COLLATION' {collation_name}

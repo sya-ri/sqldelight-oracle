@@ -2847,6 +2847,16 @@ class OracleParserBackedTest :
                   region VARCHAR2(64)
                 );
 
+                CREATE TABLE reporting_orders_view (
+                  id NUMBER,
+                  region VARCHAR2(64)
+                );
+
+                CREATE TABLE reporting_orders_mv (
+                  id NUMBER,
+                  region VARCHAR2(64)
+                );
+
                 CREATE TABLE sales_av (
                   id NUMBER,
                   region VARCHAR2(64)
@@ -2864,6 +2874,14 @@ class OracleParserBackedTest :
                 selectRemoteTable:
                 SELECT id, region
                 FROM partitioned_orders@orders_link po;
+
+                selectRemoteView:
+                SELECT id, region
+                FROM reporting_orders_view@orders_link rov;
+
+                selectRemoteMaterializedView:
+                SELECT id, region
+                FROM reporting_orders_mv@orders_link romv;
 
                 selectRemoteOnlyTable:
                 SELECT id, region

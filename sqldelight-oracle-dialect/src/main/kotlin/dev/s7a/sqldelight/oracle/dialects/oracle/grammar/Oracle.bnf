@@ -1999,6 +1999,7 @@ alter_table_rules ::= (
   alter_table_result_cache |
   alter_table_flashback_archive |
   alter_table_logical_replication |
+  alter_table_ilm |
   alter_table_memoptimize |
   alter_table_records_per_block |
   alter_table_upgrade |
@@ -2058,6 +2059,8 @@ private alter_table_result_cache ::= oracle_result_cache_clause
 private alter_table_flashback_archive ::= oracle_table_flashback_archive_clause
 
 private alter_table_logical_replication ::= oracle_logical_replication_clause
+
+private alter_table_ilm ::= oracle_ilm_clause
 
 private alter_table_memoptimize ::= [ 'NO' ] 'MEMOPTIMIZE' 'FOR' ( 'READ' | 'WRITE' )
 

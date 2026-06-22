@@ -3394,6 +3394,12 @@ class OracleParserBackedTest :
                 ALTER TABLE alter_advanced_targets DISABLE LOGICAL REPLICATION;
 
                 ALTER TABLE alter_advanced_targets
+                ILM ADD POLICY ROW STORE COMPRESS ADVANCED SEGMENT AFTER 30 DAYS OF NO MODIFICATION;
+
+                ALTER TABLE alter_advanced_targets ILM DISABLE POLICY cold_targets_policy;
+                ALTER TABLE alter_advanced_targets ILM DELETE_ALL;
+
+                ALTER TABLE alter_advanced_targets
                 ADD PARTITION p_2026 VALUES LESS THAN (DATE '2027-01-01') TABLESPACE users;
 
                 ALTER TABLE alter_advanced_targets

@@ -1529,6 +1529,7 @@ private oracle_create_xmltype_table ::= 'OF' 'XMLTYPE'
 private oracle_xmltype_table_property ::= (
   oracle_xmlschema_spec |
   oracle_xmltype_storage |
+  oracle_xmltype_virtual_columns |
   oracle_object_id_clause |
   oracle_oid_index_clause
 )
@@ -1536,6 +1537,11 @@ private oracle_xmltype_table_property ::= (
 private oracle_xmlschema_spec ::= 'XMLSCHEMA' ( string | {string_literal} ) [ 'ELEMENT' ( string | {string_literal} ) ]
 
 private oracle_xmltype_storage ::= 'STORE' 'AS' ( 'CLOB' | 'BINARY' 'XML' )
+
+private oracle_xmltype_virtual_columns ::= 'VIRTUAL' 'COLUMNS' LP
+  oracle_xmltype_virtual_column ( COMMA oracle_xmltype_virtual_column ) * RP
+
+private oracle_xmltype_virtual_column ::= oracle_object_name_part 'AS' LP <<expr '-1'>> RP
 
 private oracle_object_id_clause ::= 'WITH' 'OBJECT' 'ID' LP oracle_object_name_part ( COMMA oracle_object_name_part ) * RP
 

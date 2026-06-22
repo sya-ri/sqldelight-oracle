@@ -2513,6 +2513,10 @@ class OracleParserBackedTest :
                 OF XMLTYPE
                 XMLSCHEMA 'http://example.com/account.xsd' ELEMENT 'Account'
                 STORE AS BINARY XML
+                VIRTUAL COLUMNS (
+                  account_number AS ('A-100'),
+                  account_status AS (UPPER('active'))
+                )
                 WITH OBJECT ID (account_id)
                 OIDINDEX account_xml_documents_oid_idx (TABLESPACE users)
                 TABLESPACE users;

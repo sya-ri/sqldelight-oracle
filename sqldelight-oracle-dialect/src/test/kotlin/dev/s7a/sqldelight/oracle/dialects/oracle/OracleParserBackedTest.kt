@@ -606,7 +606,11 @@ class OracleParserBackedTest :
                     WHERE e.status = employees.status
                   )
                   AND (department_id, status) = ANY ((10, 'ACTIVE'), (20, 'PENDING'))
-                  AND (department_id, status) != SOME ((30, 'INACTIVE'), (40, 'SUSPENDED'));
+                  AND (department_id, status) != SOME ((30, 'INACTIVE'), (40, 'SUSPENDED'))
+                  AND ((department_id, status) (
+                    VALUES (10, 'ACTIVE'),
+                           (20, 'PENDING')
+                  ) AS allowed_departments (department_id, status));
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe

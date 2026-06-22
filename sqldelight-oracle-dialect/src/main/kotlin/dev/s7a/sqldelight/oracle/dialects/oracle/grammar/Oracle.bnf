@@ -599,9 +599,16 @@ private oracle_row_group_comparison_rhs ::= LP ( <<compoundSelectStmtExt <<compo
 
 private oracle_row_comparison_rhs ::= oracle_row_value_constructor | LP <<compoundSelectStmtExt <<compound_select_stmt_real>>>> RP
 
-private oracle_in_condition_expr ::= oracle_row_value_constructor [ 'NOT' ] 'IN' LP ( <<compoundSelectStmtExt <<compound_select_stmt_real>>>> | oracle_row_value_constructor ( COMMA oracle_row_value_constructor ) * ) RP
+private oracle_in_condition_expr ::= (
+  oracle_row_value_constructor [ 'NOT' ] 'IN' LP ( <<compoundSelectStmtExt <<compound_select_stmt_real>>>> | oracle_row_value_constructor ( COMMA oracle_row_value_constructor ) * ) RP |
+  LP oracle_row_value_constructor oracle_values_clause RP
+)
 
 private oracle_row_value_constructor ::= LP <<expr '-1'>> COMMA <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP
+
+private oracle_values_clause ::= LP 'VALUES'
+  <<valuesExpressionExt <<values_expression_real>>>> ( COMMA <<valuesExpressionExt <<values_expression_real>>>> ) *
+  RP [ oracle_table_alias_with_columns_clause ]
 
 private oracle_floating_point_condition_expr ::= oracle_condition_operand 'IS' [ 'NOT' ] ( 'NAN' | 'INFINITE' )
 

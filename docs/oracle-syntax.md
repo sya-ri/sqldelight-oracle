@@ -366,7 +366,8 @@ Items marked as targeted coverage staged must stay unchecked until the local ver
 - [x] [EXISTS condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/EXISTS-Condition.html) parser coverage for subquery existence predicates
 - [x] [IN condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/IN-Condition.html) parser coverage for single-column `IN`, expression lists, and subqueries
 - [x] [IN condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/IN-Condition.html) parser coverage for multi-column `IN` / `NOT IN` row-value lists and subqueries
-- [ ] [IN condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/IN-Condition.html): multi-column `values_clause` forms and row-value arity/type validation
+- [x] [IN condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/IN-Condition.html): parser coverage for multi-column [`values_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/values_clause.html) forms
+- [ ] [IN condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/IN-Condition.html): row-value arity/type validation for expression lists, subqueries, and `values_clause` forms
 - [x] [Boolean test conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Conditions.html) parser coverage for `IS TRUE`, `IS NOT FALSE`, `IS UNKNOWN`, and `TRUE`/`FALSE`/`UNKNOWN` literal expressions
 - [x] [Floating-point conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Floating-Point-Conditions.html) parser coverage for `IS [NOT] NAN` and `IS [NOT] INFINITE`
 - [x] [`IS OF type` condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/IS-OF-type-Condition.html) parser coverage for `IS [NOT] OF [TYPE] (...)` and `ONLY` type entries

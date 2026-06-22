@@ -1687,8 +1687,10 @@ private oracle_composite_hash_partitions ::= 'HASH' LP oracle_partition_key ( CO
 private oracle_reference_partitioning ::= 'REFERENCE' LP oracle_object_name_part RP
   [ LP oracle_reference_partition_definition ( COMMA oracle_reference_partition_definition ) * RP ]
 
-private oracle_system_partitioning ::= 'SYSTEM'
+private oracle_system_partitioning ::= 'SYSTEM' (
+  'PARTITIONS' {signed_number} |
   [ LP oracle_reference_partition_definition ( COMMA oracle_reference_partition_definition ) * RP ]
+)
 
 private oracle_subpartition_by_clause ::= oracle_subpartition_by_range_clause | oracle_subpartition_by_list_clause | oracle_subpartition_by_hash_clause
 

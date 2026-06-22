@@ -2429,6 +2429,12 @@ class OracleParserBackedTest :
                   PARTITION p_archived_accounts TABLESPACE archive_ts
                 );
 
+                CREATE TABLE system_partitioned_account_snapshot (
+                  account_id NUMBER PRIMARY KEY,
+                  external_id VARCHAR2(128)
+                )
+                PARTITION BY SYSTEM PARTITIONS 4;
+
                 selectAll:
                 SELECT account_id, external_id
                 FROM account_snapshot;

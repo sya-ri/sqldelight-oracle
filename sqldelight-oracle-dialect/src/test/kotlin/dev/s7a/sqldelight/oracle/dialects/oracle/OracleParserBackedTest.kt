@@ -3435,6 +3435,17 @@ class OracleParserBackedTest :
                 WHEN NOT MATCHED THEN INSERT
                   SET id = 1,
                       payload = DEFAULT;
+
+                MERGE INTO account_balance target
+                USING account_delta source
+                ON (1 = 0)
+                WHEN MATCHED THEN UPDATE SET
+                  balance = 1,
+                  updated_at = CURRENT_TIMESTAMP
+                WHEN NOT MATCHED THEN INSERT (account_id, balance, updated_at)
+                  VALUES (1, 1, CURRENT_TIMESTAMP)
+                WAIT 10 SECONDS
+                RETURNING 1 INTO ?;
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe

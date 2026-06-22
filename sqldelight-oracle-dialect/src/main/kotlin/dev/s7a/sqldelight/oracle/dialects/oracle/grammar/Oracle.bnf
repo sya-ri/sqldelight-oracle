@@ -4602,7 +4602,8 @@ private oracle_sequence_clause ::= (
 )
 
 merge_stmt ::= 'MERGE' 'INTO' oracle_merge_table_reference [ oracle_merge_using_clause ] 'ON' LP <<expr '-1'>> RP
-  ( oracle_merge_update_clause | oracle_merge_insert_clause ) + [ oracle_error_logging_clause ] {
+  ( oracle_merge_update_clause | oracle_merge_insert_clause ) +
+  [ oracle_wait_clause ] [ oracle_error_logging_clause ] [ oracle_returning_clause ] {
   pin = 1
 }
 

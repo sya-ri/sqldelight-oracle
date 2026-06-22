@@ -2385,6 +2385,25 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle JSON collection table expression columns exactly") {
+            val sql =
+                """
+                CREATE JSON COLLECTION TABLE account_collection_documents
+                WITH ETAG (
+                  account_id NUMBER GENERATED ALWAYS AS (1) VIRTUAL INVISIBLE,
+                  status VARCHAR2(16) AS ('ACTIVE') VIRTUAL,
+                  CONSTRAINT account_collection_status_check CHECK (1 = 1)
+                )
+                TABLESPACE users;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle quoted table identifiers through SQLDelight environment exactly") {
             val sql =
                 """

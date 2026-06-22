@@ -1163,7 +1163,27 @@ private oracle_object_identifier_clause ::= 'OBJECT' 'IDENTIFIER' 'IS' ( 'PRIMAR
 
 private oracle_oid_index_clause ::= 'OIDINDEX' [ oracle_object_name_part ] [ LP oracle_segment_attribute_clause * RP ]
 
-private oracle_create_json_collection_table ::= [ 'WITH' 'ETAG' ] oracle_create_table_property *
+private oracle_create_json_collection_table ::= [ 'WITH' 'ETAG' ]
+  [ LP oracle_json_collection_table_element ( COMMA oracle_json_collection_table_element ) * RP ]
+  oracle_create_table_property *
+
+private oracle_json_collection_table_element ::= oracle_json_collection_expression_column | {table_constraint}
+
+private oracle_json_collection_expression_column ::= oracle_object_name_part
+  [ oracle_json_collection_expression_type ]
+  [ 'GENERATED' 'ALWAYS' ]
+  'AS' LP <<expr '-1'>> RP
+  [ 'VIRTUAL' ]
+  [ oracle_visibility ]
+
+private oracle_json_collection_expression_type ::= (
+  oracle_numeric_type |
+  oracle_character_type |
+  oracle_binary_type |
+  oracle_datetime_type |
+  oracle_interval_type |
+  oracle_named_type
+)
 
 private oracle_create_table_element ::= {table_constraint} | oracle_supplemental_logging_props | oracle_period_definition
 

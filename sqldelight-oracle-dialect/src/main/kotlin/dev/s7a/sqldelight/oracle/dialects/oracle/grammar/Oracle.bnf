@@ -2003,6 +2003,7 @@ alter_table_rules ::= (
   alter_table_memoptimize |
   alter_table_records_per_block |
   alter_table_upgrade |
+  alter_table_modify_clustering |
   alter_table_modify_xmltype_storage |
   alter_table_modify_lob_storage |
   alter_table_modify_varray_storage |
@@ -2067,6 +2068,8 @@ private alter_table_memoptimize ::= [ 'NO' ] 'MEMOPTIMIZE' 'FOR' ( 'READ' | 'WRI
 private alter_table_records_per_block ::= ( 'MINIMIZE' | 'NOMINIMIZE' ) 'RECORDS_PER_BLOCK'
 
 private alter_table_upgrade ::= 'UPGRADE' [ [ 'NOT' ] 'INCLUDING' 'DATA' ]
+
+private alter_table_modify_clustering ::= 'MODIFY' oracle_attribute_clustering_clause
 
 private alter_table_modify_collection_retrieval ::= 'MODIFY' 'NESTED' 'TABLE' oracle_object_name_part 'RETURN' 'AS' ( 'LOCATOR' | 'VALUE' )
 

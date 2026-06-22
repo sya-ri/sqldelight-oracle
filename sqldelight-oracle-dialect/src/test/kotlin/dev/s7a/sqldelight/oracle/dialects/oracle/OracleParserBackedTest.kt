@@ -2518,6 +2518,27 @@ class OracleParserBackedTest :
                 NESTED TABLE line_items STORE AS account_line_items RETURN AS LOCATOR
                 VARRAY attachments STORE AS BASICFILE LOB account_attachments_lob
                 COLUMN contact NOT SUBSTITUTABLE AT ALL LEVELS;
+
+                CREATE TABLE partitioned_document_storage (
+                  account_id NUMBER PRIMARY KEY,
+                  created_at DATE,
+                  document_text CLOB,
+                  document_xml XMLTYPE
+                )
+                PARTITION BY RANGE (created_at) (
+                  PARTITION p_2025 VALUES LESS THAN (DATE '2026-01-01'),
+                  PARTITION p_max VALUES LESS THAN (MAXVALUE)
+                )
+                LOB (document_text) STORE AS PARTITION p_2025 (
+                  TABLESPACE users
+                  COMPRESS MEDIUM
+                  KEEP_DUPLICATES
+                )
+                LOB (document_text) STORE AS SUBPARTITION sp_2025 (
+                  TABLESPACE archive_ts
+                  NOCACHE
+                )
+                XMLTYPE COLUMN document_xml STORE AS CLOB (CACHE);
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe

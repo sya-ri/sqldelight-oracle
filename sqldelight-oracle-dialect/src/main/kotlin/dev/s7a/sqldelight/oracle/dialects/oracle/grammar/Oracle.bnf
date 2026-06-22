@@ -1743,8 +1743,8 @@ private oracle_column_properties ::= (
   oracle_object_type_col_properties |
   oracle_nested_table_col_properties |
   oracle_varray_col_properties |
-  oracle_lob_storage_clause |
   oracle_lob_partition_storage |
+  oracle_lob_storage_clause |
   oracle_xmltype_column_properties |
   oracle_json_storage_clause
 )

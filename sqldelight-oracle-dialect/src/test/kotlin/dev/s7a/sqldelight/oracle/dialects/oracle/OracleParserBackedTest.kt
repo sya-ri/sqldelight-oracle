@@ -2033,6 +2033,13 @@ class OracleParserBackedTest :
                   SUPPLEMENTAL LOG DATA (PRIMARY KEY, UNIQUE, FOREIGN KEY) COLUMNS
                 );
 
+                CREATE TABLE temporal_accounts (
+                  account_id NUMBER NOT NULL,
+                  valid_from TIMESTAMP,
+                  valid_to TIMESTAMP,
+                  PERIOD FOR valid_time (valid_from, valid_to)
+                );
+
                 CREATE TABLE row_store_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)

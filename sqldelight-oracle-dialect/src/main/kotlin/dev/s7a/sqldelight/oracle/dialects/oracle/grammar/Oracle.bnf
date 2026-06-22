@@ -1116,7 +1116,9 @@ create_table_stmt ::= 'CREATE' [ oracle_table_kind ] 'TABLE' [ 'IF' 'NOT' 'EXIST
   pin = 6
 }
 
-private oracle_create_table_element ::= {table_constraint} | oracle_supplemental_logging_props
+private oracle_create_table_element ::= {table_constraint} | oracle_supplemental_logging_props | oracle_period_definition
+
+private oracle_period_definition ::= 'PERIOD' 'FOR' oracle_object_name_part LP {column_name} COMMA {column_name} RP
 
 private oracle_supplemental_logging_props ::= 'SUPPLEMENTAL' 'LOG' (
   'GROUP' oracle_object_name_part LP oracle_supplemental_log_column ( COMMA oracle_supplemental_log_column ) * RP [ 'ALWAYS' ] |

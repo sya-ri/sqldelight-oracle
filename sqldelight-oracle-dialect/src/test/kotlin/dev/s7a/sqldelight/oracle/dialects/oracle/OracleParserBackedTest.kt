@@ -439,6 +439,27 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle XML path conditions exactly") {
+            val sql =
+                """
+                CREATE TABLE xml_path_samples (
+                  id NUMBER PRIMARY KEY,
+                  res XMLTYPE
+                );
+
+                SELECT id
+                FROM xml_path_samples
+                WHERE EQUALS_PATH(res, '/sys/schemas/OE/www.example.com') = 1
+                  AND UNDER_PATH(res, '/sys/schemas/OE/www.example.com', 1, 2) = 1;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle Unicode LIKE conditions exactly") {
             val sql =
                 """

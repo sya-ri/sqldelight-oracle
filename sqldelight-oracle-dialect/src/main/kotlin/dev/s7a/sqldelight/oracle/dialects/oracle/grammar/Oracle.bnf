@@ -578,7 +578,7 @@ private oracle_json_id_operator ::= 'JSON_ID' LP ( 'OID' | 'UUID' | {string_lite
 
 private oracle_shard_chunk_id_operator ::= 'SHARD_CHUNK_ID' LP <<expr '-1'>> COMMA <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP
 
-private oracle_condition_expr ::= oracle_sql_json_condition_expr | oracle_pattern_matching_condition_expr | oracle_comparison_condition_expr | oracle_floating_point_condition_expr | oracle_is_of_type_condition_expr
+private oracle_condition_expr ::= oracle_sql_json_condition_expr | oracle_xml_condition_expr | oracle_pattern_matching_condition_expr | oracle_comparison_condition_expr | oracle_floating_point_condition_expr | oracle_is_of_type_condition_expr
 
 private oracle_comparison_condition_expr ::= oracle_condition_operand '^=' oracle_condition_operand
 
@@ -604,6 +604,8 @@ private oracle_is_json_modifier ::= (
   'SCALAR' |
   'VALIDATE' [ 'CAST' ] [ 'USING' ] {string_literal}
 )
+
+private oracle_xml_condition_expr ::= ( 'EQUALS_PATH' | 'UNDER_PATH' ) LP oracle_condition_operand COMMA <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP
 
 private oracle_multiset_expr ::= oracle_multiset_operator_expr | oracle_multiset_condition_expr
 

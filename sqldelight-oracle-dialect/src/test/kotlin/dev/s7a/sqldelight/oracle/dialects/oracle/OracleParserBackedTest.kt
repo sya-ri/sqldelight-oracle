@@ -2012,7 +2012,11 @@ class OracleParserBackedTest :
                   first_name VARCHAR2(64),
                   last_name VARCHAR2(64),
                   account_display_name VARCHAR2(129) GENERATED ALWAYS AS (first_name || ' ' || last_name) VIRTUAL,
-                  account_search_name VARCHAR2(129) AS (first_name || last_name) INVISIBLE
+                  account_search_name VARCHAR2(129) AS (first_name || last_name) INVISIBLE,
+                  account_materialized_name VARCHAR2(129) AS (first_name || last_name) MATERIALIZED
+                    EVALUATE USING EDITION account_edition
+                    UNUSABLE BEFORE CURRENT EDITION
+                    UNUSABLE BEGINNING WITH NULL EDITION
                 );
 
                 CREATE TABLE encrypted_accounts (

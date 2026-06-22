@@ -817,11 +817,24 @@ column_constraint ::= [ 'CONSTRAINT' {identifier} ] (
   override = true
 }
 
-generated_clause ::= [ 'GENERATED' 'ALWAYS' ] 'AS' LP <<expr '-1'>> RP [ 'VIRTUAL' ] {
+generated_clause ::= [ 'GENERATED' 'ALWAYS' ] 'AS' LP <<expr '-1'>> RP [ 'VIRTUAL' | 'MATERIALIZED' ]
+  [ oracle_evaluation_edition_clause ] [ oracle_unusable_editions_clause ] {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlGeneratedClauseImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlGeneratedClause"
   override = true
 }
+
+private oracle_evaluation_edition_clause ::= 'EVALUATE' 'USING' (
+  'CURRENT' 'EDITION' |
+  'EDITION' oracle_object_name_part |
+  'NULL' 'EDITION'
+)
+
+private oracle_unusable_editions_clause ::= (
+  'UNUSABLE' 'BEFORE' ( 'CURRENT' 'EDITION' | 'EDITION' oracle_object_name_part )
+) [ 'UNUSABLE' 'BEGINNING' 'WITH' ( 'CURRENT' 'EDITION' | 'EDITION' oracle_object_name_part | 'NULL' 'EDITION' ) ] | (
+  'UNUSABLE' 'BEGINNING' 'WITH' ( 'CURRENT' 'EDITION' | 'EDITION' oracle_object_name_part | 'NULL' 'EDITION' )
+)
 
 private oracle_identity_clause ::= 'GENERATED' ( 'ALWAYS' | 'BY' 'DEFAULT' [ 'ON' 'NULL' ] ) 'AS' 'IDENTITY' [ oracle_parenthesized_clause ]
 

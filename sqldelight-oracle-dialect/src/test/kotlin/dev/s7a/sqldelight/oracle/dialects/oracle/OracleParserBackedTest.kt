@@ -3364,6 +3364,28 @@ class OracleParserBackedTest :
                 TRUNCATE PARTITION p_2025 UPDATE GLOBAL INDEXES;
 
                 ALTER TABLE alter_advanced_targets
+                MOVE PARTITION p_2025 TABLESPACE users UPDATE INDEXES;
+
+                ALTER TABLE alter_advanced_targets
+                SPLIT PARTITION p_max AT (DATE '2028-01-01')
+                INTO (PARTITION p_2027, PARTITION p_future) UPDATE GLOBAL INDEXES;
+
+                ALTER TABLE alter_advanced_targets
+                MERGE PARTITIONS p_2025, p_2026 INTO PARTITION p_2025_2026 UPDATE INDEXES;
+
+                ALTER TABLE alter_advanced_targets
+                COALESCE PARTITION UPDATE GLOBAL INDEXES;
+
+                ALTER TABLE alter_advanced_targets
+                MODIFY PARTITION p_2025 READ ONLY;
+
+                ALTER TABLE alter_advanced_targets
+                RENAME PARTITION p_2025 TO p_2025_archived;
+
+                ALTER TABLE alter_advanced_targets
+                DROP SUBPARTITION sp_2024 UPDATE GLOBAL INDEXES;
+
+                ALTER TABLE alter_advanced_targets
                 EXCHANGE PARTITION p_2025 WITH TABLE alter_exchange_stage INCLUDING INDEXES WITHOUT VALIDATION;
 
                 ALTER TABLE alter_advanced_targets

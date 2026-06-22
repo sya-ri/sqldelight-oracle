@@ -2046,7 +2046,7 @@ private alter_table_modify_collection_retrieval ::= 'MODIFY' 'NESTED' 'TABLE' or
 private alter_table_modify_xmltype_storage ::= 'MODIFY' 'XMLTYPE' 'COLUMN' oracle_object_name_part oracle_alter_table_property_token *
 
 private alter_table_partition_maintenance ::= (
-  ( 'ADD' | 'DROP' | 'TRUNCATE' | 'MOVE' | 'SPLIT' | 'MERGE' | 'EXCHANGE' | 'COALESCE' | 'MODIFY' )
+  ( 'ADD' | 'DROP' | 'TRUNCATE' | 'MOVE' | 'SPLIT' | 'MERGE' | 'EXCHANGE' | 'COALESCE' | 'MODIFY' | 'RENAME' )
   ( 'PARTITION' | 'SUBPARTITION' )
   oracle_alter_table_property_token *
 )

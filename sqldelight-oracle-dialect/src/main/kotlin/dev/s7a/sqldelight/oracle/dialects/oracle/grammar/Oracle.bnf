@@ -293,13 +293,15 @@ private oracle_user_function_argument ::= oracle_user_function_named_argument | 
 
 private oracle_user_function_named_argument ::= oracle_schema_object_name EQ GT <<expr '-1'>>
 
-private oracle_object_method_expr ::= oracle_object_method_receiver DOT oracle_object_method_invocation
+private oracle_object_method_expr ::= oracle_object_access_method_receiver DOT oracle_object_method_invocation
 
-private oracle_object_method_receiver ::= oracle_type_constructor_expr | oracle_user_function_expr | LP <<expr '-1'>> RP
+private oracle_object_access_method_receiver ::= oracle_type_constructor_expr | oracle_user_function_expr | LP <<expr '-1'>> RP
+
+private oracle_object_attribute_receiver ::= oracle_object_access_method_receiver | oracle_sql_json_expr
 
 private oracle_object_method_invocation ::= oracle_object_name_part LP [ oracle_user_function_argument ( COMMA oracle_user_function_argument ) * ] RP
 
-private oracle_object_attribute_expr ::= oracle_object_method_receiver DOT oracle_object_attribute_part ( DOT oracle_object_attribute_part ) *
+private oracle_object_attribute_expr ::= oracle_object_attribute_receiver DOT oracle_object_attribute_part ( DOT oracle_object_attribute_part ) *
 
 private oracle_object_attribute_part ::= oracle_object_name_part
 
@@ -5539,7 +5541,7 @@ private oracle_call_routine_clause ::= oracle_call_routine_name [ oracle_dblink_
 
 private oracle_call_routine_name ::= oracle_schema_object_name [ DOT ( <<identifierExt <<identifier_real>>>> | string ) ]
 
-private oracle_call_object_access_expression ::= oracle_object_method_receiver DOT oracle_call_method_invocation
+private oracle_call_object_access_expression ::= oracle_object_access_method_receiver DOT oracle_call_method_invocation
 
 private oracle_call_method_invocation ::= ( <<identifierExt <<identifier_real>>>> | string ) LP [ oracle_call_argument ( COMMA oracle_call_argument ) * ] RP
 

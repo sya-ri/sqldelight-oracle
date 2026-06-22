@@ -1000,7 +1000,9 @@ class OracleParserBackedTest :
                     PRETTY ASCII
                     TRUNCATE
                     ERROR ON ERROR
-                  )
+                  ),
+                  JSON_OBJECT(KEY 'name' VALUE name RETURNING JSON).name AS generated_json_name,
+                  JSON_OBJECT(KEY 'details' VALUE details FORMAT JSON RETURNING JSON).details.status AS generated_json_status
                 FROM employees
                 GROUP BY department_id;
                 """.trimIndent()

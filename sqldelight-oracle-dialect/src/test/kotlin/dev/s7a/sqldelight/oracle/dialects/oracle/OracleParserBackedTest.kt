@@ -1034,6 +1034,29 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle large object functions exactly") {
+            val sql =
+                """
+                CREATE TABLE media_assets (
+                  id NUMBER PRIMARY KEY,
+                  binary_file BFILE,
+                  image_data BLOB,
+                  text_data CLOB
+                );
+
+                SELECT BFILENAME('MEDIA_DIR', 'asset.bin') AS file_locator,
+                  EMPTY_BLOB() AS empty_blob_value,
+                  EMPTY_CLOB() AS empty_clob_value
+                FROM media_assets;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle text and national literals exactly") {
             val sql =
                 """

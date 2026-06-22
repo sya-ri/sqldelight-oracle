@@ -3183,6 +3183,17 @@ class OracleParserBackedTest :
                   DEFAULT DIRECTORY data_dir
                 ) external_employees;
 
+                selectInlineExternalTableColumnDefinitions:
+                SELECT *
+                FROM EXTERNAL ((
+                  order_id NUMBER(12) NOT NULL,
+                  order_total NUMBER(12, 2),
+                  ordered_at TIMESTAMP(6),
+                  source_name VARCHAR2(100) NOT NULL
+                ) TYPE ORACLE_LOADER
+                  DEFAULT DIRECTORY data_dir
+                ) external_orders;
+
                 selectGraphTable:
                 SELECT *
                 FROM GRAPH_TABLE (

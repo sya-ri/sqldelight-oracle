@@ -1057,7 +1057,7 @@ private oracle_xmltype_sequence_clause ::= [ 'SEQUENCE' ] 'BY' 'REF'
 private oracle_inline_external_table_reference ::= 'EXTERNAL' LP LP oracle_inline_external_column_definition ( COMMA oracle_inline_external_column_definition ) * RP oracle_inline_external_table_properties RP
   [ oracle_table_alias_clause ]
 
-private oracle_inline_external_column_definition ::= oracle_object_name_part oracle_inline_external_column_type [ 'NOT' 'NULL' ]
+private oracle_inline_external_column_definition ::= oracle_object_name_part oracle_inline_external_column_type {column_constraint} *
 
 private oracle_inline_external_column_type ::= oracle_object_name_part [ oracle_type_parameters ] ( oracle_object_name_part [ oracle_type_parameters ] ) *
 

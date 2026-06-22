@@ -1951,6 +1951,16 @@ class OracleParserBackedTest :
                   external_id VARCHAR2(64)
                 ) RESULT_CACHE (MODE FORCE, STANDBY ENABLE);
 
+                CREATE TABLE read_only_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) READ ONLY;
+
+                CREATE TABLE movable_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) ENABLE ROW MOVEMENT READ WRITE;
+
                 CREATE TABLE row_store_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)
@@ -2012,6 +2022,16 @@ class OracleParserBackedTest :
 
                 CREATE TABLE cached_account_snapshot
                 RESULT_CACHE (STANDBY DISABLE, MODE DEFAULT)
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
+                CREATE TABLE read_only_account_snapshot
+                READ ONLY
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
+                CREATE TABLE movable_account_snapshot
+                DISABLE ROW MOVEMENT READ WRITE
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 
@@ -5471,7 +5491,7 @@ class OracleParserBackedTest :
                     fileNames = listOf("Test.sq"),
                     errors =
                         listOf(
-                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, COLUMN, COMPRESS, FILESYSTEM_LIKE_LOGGING, INITRANS, LOGGING, NOCOMPRESS, NOLOGGING, ON, PCTFREE, PCTUSED, RESULT_CACHE, ROW, SEGMENT, STORAGE or TABLESPACE expected, got '('",
+                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, COLUMN, COMPRESS, DISABLE, ENABLE, FILESYSTEM_LIKE_LOGGING, INITRANS, LOGGING, NOCOMPRESS, NOLOGGING, ON, PCTFREE, PCTUSED, READ, RESULT_CACHE, ROW, SEGMENT, STORAGE or TABLESPACE expected, got '('",
                         ),
                 )
         }

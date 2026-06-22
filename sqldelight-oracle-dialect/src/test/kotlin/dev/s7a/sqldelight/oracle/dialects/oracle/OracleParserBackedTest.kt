@@ -4031,6 +4031,36 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle insert set clauses through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE set_value_orders (
+                  id NUMBER DEFAULT 1 PRIMARY KEY,
+                  status VARCHAR2(16) DEFAULT 'NEW',
+                  amount NUMBER DEFAULT 0
+                );
+
+                insertSetValues:
+                INSERT INTO set_value_orders
+                SET id = ?, status = ?, amount = DEFAULT;
+
+                insertParenthesizedSetValues:
+                INSERT INTO set_value_orders
+                SET (id = ?, status = ?, amount = DEFAULT);
+
+                insertMultipleSetRows:
+                INSERT INTO set_value_orders
+                SET (id = ?, status = ?, amount = ?),
+                    (id = ?, status = DEFAULT, amount = ?);
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle insert error logging clauses through SQLDelight environment exactly") {
             val sql =
                 """
@@ -4598,6 +4628,34 @@ class OracleParserBackedTest :
                             MIN(prod_id), MAX(prod_id)
                      FROM sales
                      GROUP BY SYS_OP_ZONE_ID(rowid);
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle create synonym statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE SYNONYM offices
+                  FOR hr.locations;
+
+                CREATE OR REPLACE SYNONYM office_locations
+                  SHARING = METADATA
+                  FOR hr.locations;
+
+                CREATE EDITIONABLE SYNONYM IF NOT EXISTS app.customers
+                  SHARING = NONE
+                  FOR oe.customers;
+
+                CREATE NONEDITIONABLE PUBLIC SYNONYM emp_table
+                  FOR hr.employees@remote.us.example.com;
+
+                CREATE PUBLIC SYNONYM customers
+                  FOR oe.customers;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe

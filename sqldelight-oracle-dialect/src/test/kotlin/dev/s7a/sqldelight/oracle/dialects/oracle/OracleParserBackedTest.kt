@@ -305,6 +305,8 @@ class OracleParserBackedTest :
                 SELECT DOMAIN_CHECK(sample_domain, domain_value),
                   DOMAIN_CHECK_TYPE(sample_domain, domain_value),
                   DOMAIN_NAME(domain_value),
+                  DOMAIN_DISPLAY(sample_domain, domain_value),
+                  DOMAIN_ORDER(sample_domain, domain_value),
                   UUID(),
                   UUID(4),
                   IS_UUID(uuid_text),

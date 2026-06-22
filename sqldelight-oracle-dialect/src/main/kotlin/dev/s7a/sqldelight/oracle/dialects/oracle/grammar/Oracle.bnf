@@ -1131,6 +1131,7 @@ private oracle_create_table_property ::= (
   oracle_table_flashback_archive_clause |
   oracle_table_organization_clause |
   oracle_table_enable_disable_clause |
+  oracle_ilm_clause |
   'CACHE' |
   'NOCACHE' |
   oracle_parallel_clause |
@@ -1152,7 +1153,8 @@ private oracle_create_table_as_property ::= (
   oracle_logical_replication_clause |
   oracle_table_flashback_archive_clause |
   oracle_table_organization_clause |
-  oracle_table_enable_disable_clause
+  oracle_table_enable_disable_clause |
+  oracle_ilm_clause
 )
 
 private oracle_deferred_segment_creation ::= 'SEGMENT' 'CREATION' ( 'IMMEDIATE' | 'DEFERRED' )
@@ -1204,6 +1206,41 @@ private oracle_table_using_index_clause ::= 'USING' 'INDEX' (
   oracle_schema_object_name |
   oracle_index_attribute +
 )
+
+private oracle_ilm_clause ::= 'ILM' (
+  'ADD' 'POLICY' oracle_ilm_policy_clause |
+  ( 'DELETE' | 'ENABLE' | 'DISABLE' ) 'POLICY' oracle_object_name_part |
+  'DELETE_ALL' |
+  'ENABLE_ALL' |
+  'DISABLE_ALL'
+)
+
+private oracle_ilm_policy_clause ::= (
+  oracle_ilm_compression_policy |
+  oracle_ilm_tiering_policy |
+  oracle_ilm_inmemory_policy
+)
+
+private oracle_ilm_compression_policy ::= (
+  oracle_table_compression ( 'SEGMENT' | 'GROUP' ) oracle_ilm_policy_condition |
+  ( 'ROW' 'STORE' 'COMPRESS' 'ADVANCED' | 'COLUMN' 'STORE' 'COMPRESS' 'FOR' 'QUERY' ) 'ROW' 'AFTER' oracle_ilm_time_period 'OF' 'NO' 'MODIFICATION'
+)
+
+private oracle_ilm_tiering_policy ::= 'TIER' 'TO' oracle_object_name_part
+  [ 'READ' 'ONLY' ] [ 'SEGMENT' | 'GROUP' ] [ oracle_ilm_policy_condition ]
+
+private oracle_ilm_inmemory_policy ::= (
+  'SET' 'INMEMORY' oracle_alter_table_property_token * |
+  'MODIFY' 'INMEMORY' oracle_alter_table_property_token + |
+  'NO' 'INMEMORY'
+) [ 'SEGMENT' ] oracle_ilm_policy_condition
+
+private oracle_ilm_policy_condition ::= (
+  'AFTER' oracle_ilm_time_period 'OF' ( 'NO' 'ACCESS' | 'NO' 'MODIFICATION' | 'CREATION' ) |
+  'ON' oracle_schema_object_name
+)
+
+private oracle_ilm_time_period ::= {signed_number} ( 'DAY' | 'DAYS' | 'MONTH' | 'MONTHS' | 'YEAR' | 'YEARS' )
 
 private oracle_result_cache_clause ::= 'RESULT_CACHE' LP (
   'MODE' ( 'DEFAULT' | 'FORCE' ) [ COMMA 'STANDBY' ( 'ENABLE' | 'DISABLE' ) ] |

@@ -1994,6 +1994,21 @@ class OracleParserBackedTest :
                   CONSTRAINT disabled_unique_accounts_unique UNIQUE (external_id) ENABLE
                 ) DISABLE NOVALIDATE UNIQUE (external_id) DROP INDEX;
 
+                CREATE TABLE ilm_compressed_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) ILM ADD POLICY ROW STORE COMPRESS ADVANCED SEGMENT AFTER 30 DAYS OF NO MODIFICATION;
+
+                CREATE TABLE ilm_tiered_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) ILM ADD POLICY TIER TO archive_ts READ ONLY SEGMENT AFTER 90 DAYS OF NO ACCESS;
+
+                CREATE TABLE ilm_disabled_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) ILM DISABLE POLICY cold_accounts_policy;
+
                 CREATE TABLE row_store_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)
@@ -2085,6 +2100,16 @@ class OracleParserBackedTest :
 
                 CREATE TABLE disabled_account_snapshot
                 DISABLE CONSTRAINT disabled_account_snapshot_pk
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
+                CREATE TABLE ilm_account_snapshot
+                ILM ADD POLICY NO INMEMORY SEGMENT ON heat_map_policy
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
+                CREATE TABLE ilm_delete_account_snapshot
+                ILM DELETE_ALL
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 
@@ -5544,7 +5569,7 @@ class OracleParserBackedTest :
                     fileNames = listOf("Test.sq"),
                     errors =
                         listOf(
-                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, BLOCKCHAIN, COLUMN, COMPRESS, DISABLE, ENABLE, FILESYSTEM_LIKE_LOGGING, FLASHBACK, INITRANS, LOGGING, NO, NOCOMPRESS, NOLOGGING, ON, ORGANIZATION, PCTFREE, PCTUSED, READ, RESULT_CACHE, ROW, SEGMENT, STORAGE or TABLESPACE expected, got '('",
+                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, BLOCKCHAIN, COLUMN, COMPRESS, DISABLE, ENABLE, FILESYSTEM_LIKE_LOGGING, FLASHBACK, ILM, INITRANS, LOGGING, NO, NOCOMPRESS, NOLOGGING, ON, ORGANIZATION, PCTFREE, PCTUSED, READ, RESULT_CACHE, ROW, SEGMENT, STORAGE or TABLESPACE expected, got '('",
                         ),
                 )
         }

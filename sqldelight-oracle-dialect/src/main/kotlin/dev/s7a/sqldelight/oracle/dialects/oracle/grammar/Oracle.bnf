@@ -1209,6 +1209,8 @@ private oracle_default_collation_clause ::= 'DEFAULT' 'COLLATION' {collation_nam
 private oracle_table_partitioning_clause ::= 'PARTITION' 'BY' (
   oracle_composite_range_partitions |
   oracle_composite_list_partitions |
+  oracle_reference_partitioning |
+  oracle_system_partitioning |
   oracle_range_partitions |
   oracle_list_partitions |
   oracle_hash_partitions
@@ -1237,6 +1239,12 @@ private oracle_composite_list_partitions ::= 'LIST' LP oracle_partition_key ( CO
   oracle_subpartition_by_hash_clause
   LP oracle_list_partition_with_subpartitions ( COMMA oracle_list_partition_with_subpartitions ) * RP
 
+private oracle_reference_partitioning ::= 'REFERENCE' LP oracle_object_name_part RP
+  [ LP oracle_reference_partition_definition ( COMMA oracle_reference_partition_definition ) * RP ]
+
+private oracle_system_partitioning ::= 'SYSTEM'
+  [ LP oracle_reference_partition_definition ( COMMA oracle_reference_partition_definition ) * RP ]
+
 private oracle_subpartition_by_list_clause ::= 'SUBPARTITION' 'BY' 'LIST' LP oracle_partition_key ( COMMA oracle_partition_key ) * RP
   [ 'SUBPARTITION' 'TEMPLATE' LP oracle_list_subpartition_definition ( COMMA oracle_list_subpartition_definition ) * RP ]
 
@@ -1262,6 +1270,8 @@ private oracle_list_partition_values ::= oracle_list_partition_value ( COMMA ora
 private oracle_list_partition_value ::= <<expr '-1'>>
 
 private oracle_hash_partition_definition ::= 'PARTITION' [ oracle_object_name_part ] oracle_partition_table_description *
+
+private oracle_reference_partition_definition ::= 'PARTITION' [ oracle_object_name_part ] oracle_partition_table_description *
 
 private oracle_list_subpartition_definition ::= 'SUBPARTITION' [ oracle_object_name_part ] 'VALUES' LP ( oracle_list_partition_values | 'DEFAULT' ) RP oracle_partition_table_description *
 

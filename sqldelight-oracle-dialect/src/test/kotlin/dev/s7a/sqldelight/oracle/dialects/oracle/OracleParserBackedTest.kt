@@ -2126,6 +2126,28 @@ class OracleParserBackedTest :
                   PARTITION p_other VALUES (DEFAULT)
                 );
 
+                CREATE TABLE referenced_parent_accounts (
+                  account_id NUMBER PRIMARY KEY,
+                  created_at DATE
+                ) PARTITION BY RANGE (created_at) (
+                  PARTITION p_2025 VALUES LESS THAN (DATE '2026-01-01'),
+                  PARTITION p_max VALUES LESS THAN (MAXVALUE)
+                );
+
+                CREATE TABLE reference_partitioned_events (
+                  event_id NUMBER PRIMARY KEY,
+                  account_id NUMBER NOT NULL,
+                  CONSTRAINT reference_partitioned_events_account_fk FOREIGN KEY (account_id) REFERENCES referenced_parent_accounts(account_id)
+                ) PARTITION BY REFERENCE (reference_partitioned_events_account_fk);
+
+                CREATE TABLE system_partitioned_events (
+                  event_id NUMBER PRIMARY KEY,
+                  payload JSON
+                ) PARTITION BY SYSTEM (
+                  PARTITION p_system_1 TABLESPACE users,
+                  PARTITION p_system_2 TABLESPACE archive_ts
+                );
+
                 CREATE TABLE row_store_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)

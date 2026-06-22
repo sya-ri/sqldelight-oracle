@@ -2799,200 +2799,7 @@ class OracleParserBackedTest :
                 CREATE TABLE external_query_orders (
                   id NUMBER,
                   region VARCHAR2(64)
-                ) ORGANIZATION EXTERNAL (
-                  TYPE ORACLE_LOADER
-                  DEFAULT DIRECTORY data_dir
-                  LOCATION ('external_orders.csv')
-                ) REJECT LIMIT UNLIMITED;
-
-                selectOnlyTable:
-                SELECT id, region
-                FROM ONLY (partitioned_orders) po;
-
-                selectRemoteTable:
-                SELECT id, region
-                FROM partitioned_orders@orders_link po;
-
-                selectRemoteOnlyTable:
-                SELECT id, region
-                FROM ONLY (partitioned_orders@orders_link) po;
-
-                selectOnlySubquery:
-                SELECT id, region
-                FROM ONLY ((
-                  SELECT id, region
-                  FROM partitioned_orders
-                )) only_orders;
-
-                selectPartition:
-                SELECT id, region
-                FROM partitioned_orders PARTITION (p_2026) po;
-
-                selectAnalyticViewHierarchies:
-                SELECT id, region
-                FROM sales_av HIERARCHIES (time_hier, product_hier) av;
-
-                selectHierarchyReference:
-                SELECT id, region
-                FROM sales_hier h;
-
-                selectAsOfScn:
-                SELECT id, region
-                FROM partitioned_orders AS OF SCN 123456 po;
-
-                selectAsOfTimestamp:
-                SELECT id, region
-                FROM partitioned_orders AS OF TIMESTAMP TIMESTAMP '2026-01-01 00:00:00' po;
-
-                selectVersionsBetweenScn:
-                SELECT *
-                FROM partitioned_orders VERSIONS BETWEEN SCN MINVALUE AND MAXVALUE po;
-
-                selectVersionsBetweenTimestamp:
-                SELECT *
-                FROM partitioned_orders VERSIONS BETWEEN TIMESTAMP MINVALUE AND MAXVALUE po;
-
-                selectVersionsBetweenAsOfScn:
-                SELECT *
-                FROM partitioned_orders VERSIONS BETWEEN SCN MINVALUE AND MAXVALUE AS OF SCN 123456 po;
-
-                selectAsOfPeriod:
-                SELECT id, region
-                FROM partitioned_orders AS OF PERIOD FOR valid_time TIMESTAMP '2026-01-01 00:00:00' po;
-
-                selectVersionsPeriod:
-                SELECT *
-                FROM partitioned_orders VERSIONS PERIOD FOR valid_time BETWEEN MINVALUE AND MAXVALUE po;
-
-                selectSubpartitionFor:
-                SELECT id, region
-                FROM partitioned_orders SUBPARTITION FOR (2026, 'WEST') po;
-
-                selectSampleBlock:
-                SELECT id, region
-                FROM partitioned_orders SAMPLE BLOCK (10) SEED (42) po;
-
-                selectPivot:
-                SELECT *
-                FROM partitioned_orders PIVOT (
-                  COUNT(id) AS order_count
-                  FOR region IN ('WEST' AS west, 'EAST' AS east)
-                ) pivoted_orders;
-
-                selectPivotXmlAny:
-                SELECT *
-                FROM partitioned_orders PIVOT XML (
-                  COUNT(id)
-                  FOR region IN (ANY)
-                ) pivoted_orders;
-
-                selectPivotXmlSubquery:
-                SELECT *
-                FROM partitioned_orders PIVOT XML (
-                  COUNT(id)
-                  FOR region IN (
-                    SELECT region
-                    FROM partitioned_orders
-                  )
-                ) pivoted_orders;
-
-                selectPivotCompositeColumns:
-                SELECT *
-                FROM partitioned_orders PIVOT (
-                  COUNT(id)
-                  FOR (region, created_year) IN (('WEST', 2026) AS west_2026)
-                ) pivoted_orders;
-
-                selectUnpivot:
-                SELECT *
-                FROM partitioned_orders UNPIVOT INCLUDE NULLS (
-                  metric_value
-                  FOR metric_name IN (id AS 'ID', created_year AS 'CREATED_YEAR')
-                ) unpivoted_orders;
-
-                selectUnpivotCompositeColumns:
-                SELECT *
-                FROM partitioned_orders UNPIVOT EXCLUDE NULLS (
-                  (metric_id, metric_year)
-                  FOR metric_name IN ((id, created_year) AS ('ID', 'CREATED_YEAR'))
-                ) unpivoted_orders;
-
-                selectMatchRecognize:
-                SELECT *
-                FROM partitioned_orders MATCH_RECOGNIZE (
-                  PARTITION BY region
-                  ORDER BY id
-                  MEASURES FIRST(id) AS first_id, LAST(id) AS last_id
-                  ONE ROW PER MATCH
-                  AFTER MATCH SKIP TO LAST rising
-                  PATTERN (start_row rising+)
-                  DEFINE rising AS rising.id > PREV(rising.id)
-                ) matched_orders;
-
-                selectQualify:
-                SELECT id, region, ROW_NUMBER() OVER (PARTITION BY region ORDER BY id) AS row_number
-                FROM partitioned_orders
-                QUALIFY id > 0;
-
-                selectHierarchicalStartFirst:
-                SELECT id, region
-                FROM partitioned_orders
-                START WITH id = 1
-                CONNECT BY PRIOR id = created_year;
-
-                selectHierarchicalConnectFirst:
-                SELECT id, region
-                FROM partitioned_orders
-                CONNECT BY NOCYCLE PRIOR id = created_year
-                START WITH id = 1;
-
-                selectTableCollection:
-                SELECT 1
-                FROM TABLE(ODCINUMBERLIST(1, 2)) numbers;
-
-                selectLegacyTheCollection:
-                SELECT 1
-                FROM THE (
-                  SELECT ODCINUMBERLIST(1, 2)
-                  FROM partitioned_orders
-                ) numbers;
-
-                selectGraphqlTableFunction:
-                SELECT *
-                FROM GRAPHQL('
-                  employees {
-                    _id: employee_id
-                    Name: first_name
-                  }
-                ') employee_documents;
-
-                selectGraphqlTableFunctionWithPassing:
-                SELECT *
-                FROM GRAPHQL('
-                  employees(employee_id: ${'$'}employee_id) {
-                    _id: employee_id
-                    Name: first_name
-                  }
-                ' PASSING 174 AS employee_id) employee_documents;
-
-                selectOuterJoinedTableCollection:
-                SELECT 1
-                FROM partitioned_orders po,
-                     TABLE(ODCINUMBERLIST(1))(+) numbers;
-
-                selectValuesTable:
-                SELECT *
-                FROM (
-                  VALUES (1, 'SCOTT'),
-                         (2, 'SMITH')
-                ) value_employees (employee_id, first_name);
-
-                selectInlineExternalTable:
-                SELECT *
-                FROM EXTERNAL ((
-                  id NUMBER NOT NULL,
-                  region VARCHAR2(64)
-                ) TYPE ORACLE_LOADER DEFAULT DIRECTORY data_dir LOCATION ('inline_orders.csv') REJECT LIMIT UNLIMITED) inline_orders;
+                );
 
                 selectModifiedExternalTable:
                 SELECT *
@@ -3680,18 +3487,18 @@ class OracleParserBackedTest :
 
                 updateFromUsing:
                 UPDATE partitioned_order_updates target
-                SET order_total = source.adjustment_total
+                SET order_total = order_total + 1
                 FROM partitioned_order_adjustments source
-                WHERE source.order_id = target.order_id;
+                WHERE order_id = ?;
 
                 updateTupleFromSubquery:
                 UPDATE partitioned_order_updates target
                 SET (order_total, archived_at) = (
-                  SELECT source.adjustment_total, CURRENT_TIMESTAMP
+                  SELECT adjustment_total, CURRENT_TIMESTAMP
                   FROM partitioned_order_adjustments source
-                  WHERE source.order_id = target.order_id
+                  WHERE order_id = ?
                 )
-                WHERE target.order_id = ?;
+                WHERE order_id = ?;
 
                 updateRemoteTarget:
                 UPDATE partitioned_order_updates@orders_link

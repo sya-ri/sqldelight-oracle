@@ -169,6 +169,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun create_type_body_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_user_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_view_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun delete_stmt_limited_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun delete_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun disassociate_statistics_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_analytic_view_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun drop_application_identity_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -260,6 +262,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun truncate_table_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun type_name_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun update_end_user_context_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun update_stmt_limited_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun update_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun with_clause_real (Lcom/intellij/lang/PsiBuilder;I)Z
 }
 
@@ -382,6 +386,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun createTypeBodyStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createUserStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createViewStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun deleteStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun deleteStmtLimitedExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun disassociateStatisticsStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropAnalyticViewStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun dropApplicationIdentityStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -556,6 +562,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getCreate_type_body_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_user_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_view_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getDelete_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getDelete_stmt_limited ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDisassociate_statistics_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_analytic_view_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getDrop_application_identity_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -644,6 +652,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getTruncate_table_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getType_name ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getUpdate_end_user_context_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getUpdate_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getUpdate_stmt_limited ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getWith_clause ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public static final fun grantDataRoleStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun grantStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -786,6 +796,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setCreate_type_body_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_user_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_view_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setDelete_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setDelete_stmt_limited (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDisassociate_statistics_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_analytic_view_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setDrop_application_identity_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -876,6 +888,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setTruncate_table_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setType_name (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setUpdate_end_user_context_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setUpdate_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setUpdate_stmt_limited (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public static final fun setUseDataGrantsOnlyStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public final fun setWith_clause (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public static final fun stmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -886,6 +900,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun truncateTableStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun typeNameExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun updateEndUserContextStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun updateStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun updateStmtLimitedExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun withClauseExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 }
 
@@ -1251,6 +1267,12 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateViewStmt : com/alecstrong/sql/psi/core/psi/TableElement, com/intellij/psi/StubBasedPsiElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDeleteStmt : com/alecstrong/sql/psi/core/psi/SqlDeleteStmt {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDeleteStmtLimited : com/alecstrong/sql/psi/core/psi/SqlDeleteStmtLimited {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDisassociateStatisticsStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -1639,6 +1661,8 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreateIndexStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIndexStmt;
 	public abstract fun getCreateTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTableStmt;
 	public abstract fun getCreateViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateViewStmt;
+	public abstract fun getDeleteStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDeleteStmt;
+	public abstract fun getDeleteStmtLimited ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDeleteStmtLimited;
 	public abstract fun getDropTriggerStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTriggerStmt;
 	public abstract fun getExtensionExpr ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionExpr;
 	public abstract fun getExtensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionStmt;
@@ -1656,6 +1680,8 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getTableConstraint ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTableConstraint;
 	public abstract fun getTableOrSubquery ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTableOrSubquery;
 	public abstract fun getTypeName ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTypeName;
+	public abstract fun getUpdateStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleUpdateStmt;
+	public abstract fun getUpdateStmtLimited ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleUpdateStmtLimited;
 	public abstract fun getWithClause ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleWithClause;
 }
 
@@ -1935,7 +1961,6 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field CALL_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field COLUMN_CONSTRAINT Lcom/intellij/psi/tree/IElementType;
 	public static final field COMMA Lcom/intellij/psi/tree/IElementType;
-	public static final field COMMENT Lcom/intellij/psi/tree/IElementType;
 	public static final field COMMENT_ON_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field COMMIT_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field COMPOUND_OPERATOR Lcom/intellij/psi/tree/IElementType;
@@ -1991,6 +2016,8 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field CREATE_TYPE_BODY_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_USER_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_VIEW_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field DELETE_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field DELETE_STMT_LIMITED Lcom/intellij/psi/tree/IElementType;
 	public static final field DIGIT Lcom/intellij/psi/tree/IElementType;
 	public static final field DISASSOCIATE_STATISTICS_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field DOT Lcom/intellij/psi/tree/IElementType;
@@ -2088,6 +2115,8 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field TRUNCATE_TABLE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field TYPE_NAME Lcom/intellij/psi/tree/IElementType;
 	public static final field UPDATE_END_USER_CONTEXT_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field UPDATE_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field UPDATE_STMT_LIMITED Lcom/intellij/psi/tree/IElementType;
 	public static final field WITH_CLAUSE Lcom/intellij/psi/tree/IElementType;
 }
 
@@ -2097,6 +2126,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTypes$F
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleUpdateEndUserContextStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleUpdateStmt : com/alecstrong/sql/psi/core/psi/SqlUpdateStmt {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleUpdateStmtLimited : com/alecstrong/sql/psi/core/psi/SqlUpdateStmtLimited {
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor : com/intellij/psi/PsiElementVisitor {
@@ -2218,6 +2253,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitCreateTypeBodyStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTypeBodyStmt;)V
 	public fun visitCreateUserStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateUserStmt;)V
 	public fun visitCreateViewStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateViewStmt;)V
+	public fun visitDeleteStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDeleteStmt;)V
+	public fun visitDeleteStmtLimited (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDeleteStmtLimited;)V
 	public fun visitDisassociateStatisticsStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDisassociateStatisticsStmt;)V
 	public fun visitDropAnalyticViewStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAnalyticViewStmt;)V
 	public fun visitDropApplicationIdentityStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropApplicationIdentityStmt;)V
@@ -2309,6 +2346,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitSqlCompoundSelectStmt (Lcom/alecstrong/sql/psi/core/psi/SqlCompoundSelectStmt;)V
 	public fun visitSqlCreateIndexStmt (Lcom/alecstrong/sql/psi/core/psi/SqlCreateIndexStmt;)V
 	public fun visitSqlCreateTableStmt (Lcom/alecstrong/sql/psi/core/psi/SqlCreateTableStmt;)V
+	public fun visitSqlDeleteStmt (Lcom/alecstrong/sql/psi/core/psi/SqlDeleteStmt;)V
+	public fun visitSqlDeleteStmtLimited (Lcom/alecstrong/sql/psi/core/psi/SqlDeleteStmtLimited;)V
 	public fun visitSqlDropTriggerStmt (Lcom/alecstrong/sql/psi/core/psi/SqlDropTriggerStmt;)V
 	public fun visitSqlExtensionExpr (Lcom/alecstrong/sql/psi/core/psi/SqlExtensionExpr;)V
 	public fun visitSqlExtensionStmt (Lcom/alecstrong/sql/psi/core/psi/SqlExtensionStmt;)V
@@ -2326,6 +2365,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitSqlTableConstraint (Lcom/alecstrong/sql/psi/core/psi/SqlTableConstraint;)V
 	public fun visitSqlTableOrSubquery (Lcom/alecstrong/sql/psi/core/psi/SqlTableOrSubquery;)V
 	public fun visitSqlTypeName (Lcom/alecstrong/sql/psi/core/psi/SqlTypeName;)V
+	public fun visitSqlUpdateStmt (Lcom/alecstrong/sql/psi/core/psi/SqlUpdateStmt;)V
+	public fun visitSqlUpdateStmtLimited (Lcom/alecstrong/sql/psi/core/psi/SqlUpdateStmtLimited;)V
 	public fun visitSqlWithClause (Lcom/alecstrong/sql/psi/core/psi/SqlWithClause;)V
 	public fun visitStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleStmt;)V
 	public fun visitTableAlias (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTableAlias;)V
@@ -2336,6 +2377,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitTruncateTableStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTruncateTableStmt;)V
 	public fun visitTypeName (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTypeName;)V
 	public fun visitUpdateEndUserContextStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleUpdateEndUserContextStmt;)V
+	public fun visitUpdateStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleUpdateStmt;)V
+	public fun visitUpdateStmtLimited (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleUpdateStmtLimited;)V
 	public fun visitWithClause (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleWithClause;)V
 }
 
@@ -3061,6 +3104,18 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCr
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDeleteStmtImpl : com/alecstrong/sql/psi/core/psi/impl/SqlDeleteStmtImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDeleteStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDeleteStmtLimitedImpl : com/alecstrong/sql/psi/core/psi/impl/SqlDeleteStmtLimitedImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDeleteStmtLimited {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleDisassociateStatisticsStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDisassociateStatisticsStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
@@ -3651,6 +3706,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOv
 	public fun getCreateIndexStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIndexStmt;
 	public fun getCreateTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTableStmt;
 	public fun getCreateViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateViewStmt;
+	public fun getDeleteStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDeleteStmt;
+	public fun getDeleteStmtLimited ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDeleteStmtLimited;
 	public fun getDropTriggerStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTriggerStmt;
 	public fun getExtensionExpr ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionExpr;
 	public fun getExtensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionStmt;
@@ -3668,6 +3725,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOv
 	public fun getTableConstraint ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTableConstraint;
 	public fun getTableOrSubquery ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTableOrSubquery;
 	public fun getTypeName ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTypeName;
+	public fun getUpdateStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleUpdateStmt;
+	public fun getUpdateStmtLimited ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleUpdateStmtLimited;
 	public fun getWithClause ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleWithClause;
 }
 
@@ -3941,6 +4000,18 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleTy
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleUpdateEndUserContextStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleUpdateEndUserContextStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleUpdateStmtImpl : com/alecstrong/sql/psi/core/psi/impl/SqlUpdateStmtImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleUpdateStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleUpdateStmtLimitedImpl : com/alecstrong/sql/psi/core/psi/impl/SqlUpdateStmtLimitedImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleUpdateStmtLimited {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V

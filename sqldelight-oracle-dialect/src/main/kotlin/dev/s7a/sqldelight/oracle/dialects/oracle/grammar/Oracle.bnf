@@ -897,7 +897,7 @@ private oracle_group_by_having_clause ::= (
   'HAVING' <<expr '-1'>>
 )
 
-table_or_subquery ::= oracle_graphql_table_reference | oracle_xmltable_reference | oracle_inline_external_table_reference | oracle_containers_table_reference | oracle_collection_table_reference | oracle_values_table_reference | oracle_subquery_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
+table_or_subquery ::= oracle_graphql_table_reference | oracle_xmltable_reference | oracle_containers_table_reference | oracle_collection_table_reference | oracle_values_table_reference | oracle_subquery_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTableOrSubqueryImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlTableOrSubquery"
   override = true
@@ -935,7 +935,9 @@ private oracle_xmltype_sequence_clause ::= [ 'SEQUENCE' ] 'BY' 'REF'
 private oracle_inline_external_table_reference ::= 'EXTERNAL' LP LP oracle_inline_external_column_definition ( COMMA oracle_inline_external_column_definition ) * RP oracle_inline_external_table_properties RP
   [ oracle_table_alias_clause ]
 
-private oracle_inline_external_column_definition ::= oracle_object_name_part oracle_json_collection_expression_type [ 'NOT' 'NULL' ]
+private oracle_inline_external_column_definition ::= oracle_object_name_part oracle_inline_external_column_type [ 'NOT' 'NULL' ]
+
+private oracle_inline_external_column_type ::= oracle_type_name | core_type_name
 
 private oracle_inline_external_table_properties ::= 'TYPE' [ oracle_object_name_part ]
   oracle_external_table_token *
@@ -977,7 +979,8 @@ private oracle_modified_external_table_token ::= (
 
 private oracle_external_table_reject_limit_clause ::= 'REJECT' 'LIMIT' ( {signed_number} | 'UNLIMITED' )
 
-private oracle_only_table_reference ::= 'ONLY' LP <<tableOrSubqueryExt <<table_or_subquery_real>>>> RP
+private oracle_only_table_reference ::= 'ONLY' LP [ <<databaseNameExt <<database_name_real>>>> DOT ]
+  <<tableNameExt <<table_name_real>>>> [ oracle_dblink_clause ] [ oracle_partition_extension_clause ] RP
   [ oracle_sample_clause ] [ oracle_flashback_query_clause ] [ oracle_table_transform_clause ] [ oracle_table_alias_clause ]
 
 private oracle_flashback_query_clause ::= (
@@ -1046,13 +1049,13 @@ private oracle_row_pattern_clause ::= 'MATCH_RECOGNIZE' LP
   'DEFINE' oracle_row_pattern_definition ( COMMA oracle_row_pattern_definition ) *
   RP
 
-private oracle_row_pattern_partition_by_clause ::= 'PARTITION' 'BY' <<expr '-1'>> ( COMMA <<expr '-1'>> ) *
+private oracle_row_pattern_partition_by_clause ::= 'PARTITION' 'BY' oracle_row_pattern_operand ( COMMA oracle_row_pattern_operand ) *
 
 private oracle_row_pattern_order_by_clause ::= 'ORDER' 'BY' <<orderingTermExt <<ordering_term_real>>>> ( COMMA <<orderingTermExt <<ordering_term_real>>>> ) *
 
 private oracle_row_pattern_measures_clause ::= 'MEASURES' oracle_row_pattern_measure_column ( COMMA oracle_row_pattern_measure_column ) *
 
-private oracle_row_pattern_measure_column ::= <<expr '-1'>> [ [ 'AS' ] <<columnAliasExt <<column_alias_real>>>> ]
+private oracle_row_pattern_measure_column ::= oracle_row_pattern_operand [ [ 'AS' ] <<columnAliasExt <<column_alias_real>>>> ]
 
 private oracle_row_pattern_rows_per_match_clause ::= (
   'ONE' 'ROW' 'PER' 'MATCH' |
@@ -1069,7 +1072,13 @@ private oracle_row_pattern_subset_clause ::= 'SUBSET' oracle_row_pattern_subset_
 
 private oracle_row_pattern_subset_item ::= oracle_object_name_part EQ LP oracle_object_name_part ( COMMA oracle_object_name_part ) * RP
 
-private oracle_row_pattern_definition ::= oracle_object_name_part 'AS' <<expr '-1'>>
+private oracle_row_pattern_definition ::= oracle_object_name_part 'AS' oracle_row_pattern_condition
+
+private oracle_row_pattern_condition ::= oracle_row_pattern_operand [ oracle_row_pattern_comparison_operator oracle_row_pattern_operand ]
+
+private oracle_row_pattern_comparison_operator ::= EQ | '^=' | '!=' | '<>' | '>' | '<'
+
+private oracle_row_pattern_operand ::= oracle_schema_object_name | {string_literal} | DIGIT | {signed_number}
 
 private oracle_row_pattern_token ::= oracle_row_pattern_group | oracle_object_name_part | '+' | '*'
 

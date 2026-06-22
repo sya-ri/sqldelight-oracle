@@ -3729,6 +3729,14 @@ class OracleParserBackedTest :
                 DELETE FROM partitioned_order_updates SUBPARTITION (orders_2026_q1_us)
                 WHERE region_code = ?;
 
+                deleteCorrelatedSubquery:
+                DELETE FROM partitioned_order_updates
+                WHERE EXISTS (
+                  SELECT 1
+                  FROM partitioned_order_adjustments source
+                  WHERE source.order_id = partitioned_order_updates.order_id
+                );
+
                 deleteReturning:
                 DELETE FROM partitioned_order_updates
                 WHERE order_id = ?

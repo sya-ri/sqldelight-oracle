@@ -3787,6 +3787,60 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle alter view statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE alter_view_accounts (
+                  id NUMBER PRIMARY KEY,
+                  status VARCHAR2(32) NOT NULL,
+                  created_at TIMESTAMP
+                );
+
+                CREATE OR REPLACE VIEW alterable_account_view
+                AS
+                SELECT id, status, created_at
+                FROM alter_view_accounts;
+
+                ALTER VIEW IF EXISTS alterable_account_view
+                  ADD CONSTRAINT alterable_account_view_uk UNIQUE (id) RELY DISABLE NOVALIDATE;
+
+                ALTER VIEW alterable_account_view
+                  MODIFY CONSTRAINT alterable_account_view_uk NORELY;
+
+                ALTER VIEW alterable_account_view
+                  MODIFY (
+                    id ANNOTATIONS (ADD display_name 'Account ID'),
+                    status ANNOTATIONS (REPLACE classification 'public')
+                  );
+
+                ALTER VIEW alterable_account_view
+                  DROP UNIQUE (id);
+
+                ALTER VIEW alterable_account_view
+                  DROP CONSTRAINT alterable_account_view_uk;
+
+                ALTER VIEW alterable_account_view
+                  ANNOTATIONS (ADD IF NOT EXISTS lifecycle 'active', DROP IF EXISTS obsolete_tag);
+
+                ALTER VIEW alterable_account_view COMPILE;
+                ALTER VIEW alterable_account_view RECOMPILE;
+                ALTER VIEW alterable_account_view READ ONLY;
+                ALTER VIEW alterable_account_view READ WRITE;
+                ALTER VIEW alterable_account_view EDITIONABLE;
+                ALTER VIEW alterable_account_view NONEDITIONABLE;
+
+                selectAll:
+                SELECT id, status, created_at
+                FROM alterable_account_view;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle create sequence statements through SQLDelight environment exactly") {
             val sql =
                 """

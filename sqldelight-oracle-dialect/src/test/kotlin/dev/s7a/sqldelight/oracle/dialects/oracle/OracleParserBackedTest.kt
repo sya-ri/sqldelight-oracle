@@ -5176,6 +5176,28 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle create indextype statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE INDEXTYPE position_indextype
+                  FOR eq_op(NUMBER, NUMBER)
+                  USING position_im;
+
+                CREATE OR REPLACE INDEXTYPE IF NOT EXISTS hr.text_indextype
+                  FOR contains_op(VARCHAR2, VARCHAR2), contains_op(CLOB, VARCHAR2)
+                  USING hr.text_index_impl
+                  WITH LOCAL RANGE PARTITION
+                  WITH SYSTEM MANAGED STORAGE TABLES
+                  WITH ARRAY DML (VARCHAR2 AS hr.varchar2_array, NUMBER AS hr.number_array);
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle schema object alter statements through SQLDelight environment exactly") {
             val sql =
                 """

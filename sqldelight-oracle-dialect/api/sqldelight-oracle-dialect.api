@@ -143,6 +143,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun create_hierarchy_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_iceberg_table_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_index_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun create_indextype_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_inmemory_join_group_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_java_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_json_relational_duality_view_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -368,6 +369,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun createHierarchyStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createIcebergTableStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createIndexStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun createIndextypeStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createInmemoryJoinGroupStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createJavaStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createJsonRelationalDualityViewStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -552,6 +554,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getCreate_hierarchy_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_iceberg_table_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_index_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getCreate_indextype_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_inmemory_join_group_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_java_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_json_relational_duality_view_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -794,6 +797,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setCreate_hierarchy_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_iceberg_table_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_index_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setCreate_indextype_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_inmemory_join_group_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_java_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_json_relational_duality_view_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -1222,6 +1226,10 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIndexStmt : com/alecstrong/sql/psi/core/psi/SqlCreateIndexStmt, com/intellij/psi/StubBasedPsiElement {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIndextypeStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+	public abstract fun getOracleTypeNameList ()Ljava/util/List;
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateInmemoryJoinGroupStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
@@ -1570,6 +1578,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreateFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateFunctionStmt;
 	public abstract fun getCreateHierarchyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateHierarchyStmt;
 	public abstract fun getCreateIcebergTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIcebergTableStmt;
+	public abstract fun getCreateIndextypeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIndextypeStmt;
 	public abstract fun getCreateInmemoryJoinGroupStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateInmemoryJoinGroupStmt;
 	public abstract fun getCreateJavaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJavaStmt;
 	public abstract fun getCreateJsonRelationalDualityViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJsonRelationalDualityViewStmt;
@@ -1856,6 +1865,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreateFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateFunctionStmt;
 	public abstract fun getCreateHierarchyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateHierarchyStmt;
 	public abstract fun getCreateIcebergTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIcebergTableStmt;
+	public abstract fun getCreateIndextypeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIndextypeStmt;
 	public abstract fun getCreateInmemoryJoinGroupStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateInmemoryJoinGroupStmt;
 	public abstract fun getCreateJavaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJavaStmt;
 	public abstract fun getCreateJsonRelationalDualityViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJsonRelationalDualityViewStmt;
@@ -2057,6 +2067,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field CREATE_FUNCTION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_HIERARCHY_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_ICEBERG_TABLE_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field CREATE_INDEXTYPE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_INDEX_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_INMEMORY_JOIN_GROUP_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_JAVA_STMT Lcom/intellij/psi/tree/IElementType;
@@ -2303,6 +2314,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitCreateHierarchyStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateHierarchyStmt;)V
 	public fun visitCreateIcebergTableStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIcebergTableStmt;)V
 	public fun visitCreateIndexStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIndexStmt;)V
+	public fun visitCreateIndextypeStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIndextypeStmt;)V
 	public fun visitCreateInmemoryJoinGroupStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateInmemoryJoinGroupStmt;)V
 	public fun visitCreateJavaStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJavaStmt;)V
 	public fun visitCreateJsonRelationalDualityViewStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJsonRelationalDualityViewStmt;)V
@@ -3030,6 +3042,13 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCr
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateIndextypeStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIndextypeStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+	public fun getOracleTypeNameList ()Ljava/util/List;
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateInmemoryJoinGroupStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateInmemoryJoinGroupStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
@@ -3647,6 +3666,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getCreateFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateFunctionStmt;
 	public fun getCreateHierarchyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateHierarchyStmt;
 	public fun getCreateIcebergTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIcebergTableStmt;
+	public fun getCreateIndextypeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIndextypeStmt;
 	public fun getCreateInmemoryJoinGroupStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateInmemoryJoinGroupStmt;
 	public fun getCreateJavaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJavaStmt;
 	public fun getCreateJsonRelationalDualityViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJsonRelationalDualityViewStmt;
@@ -4017,6 +4037,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSt
 	public fun getCreateFunctionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateFunctionStmt;
 	public fun getCreateHierarchyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateHierarchyStmt;
 	public fun getCreateIcebergTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIcebergTableStmt;
+	public fun getCreateIndextypeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateIndextypeStmt;
 	public fun getCreateInmemoryJoinGroupStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateInmemoryJoinGroupStmt;
 	public fun getCreateJavaStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJavaStmt;
 	public fun getCreateJsonRelationalDualityViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateJsonRelationalDualityViewStmt;

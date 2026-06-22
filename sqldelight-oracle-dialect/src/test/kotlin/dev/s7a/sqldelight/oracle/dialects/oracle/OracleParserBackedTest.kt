@@ -460,6 +460,30 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle Text conditions and score operators exactly") {
+            val sql =
+                """
+                CREATE TABLE oracle_text_samples (
+                  id NUMBER PRIMARY KEY,
+                  content CLOB,
+                  category VARCHAR2(100),
+                  query_text VARCHAR2(4000)
+                );
+
+                SELECT id, SCORE(1) AS relevance
+                FROM oracle_text_samples
+                WHERE CONTAINS(content, 'oracle database', 1) > 0
+                  AND CATSEARCH(category, 'database', 'order by category') > 0
+                  AND MATCHES(query_text, 'oracle') > 0;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle Unicode LIKE conditions exactly") {
             val sql =
                 """

@@ -726,6 +726,32 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle user-defined function expressions exactly") {
+            val sql =
+                """
+                CREATE TABLE function_expression_samples (
+                  id NUMBER PRIMARY KEY,
+                  employee_id NUMBER,
+                  salary NUMBER,
+                  commission_pct NUMBER,
+                  effective_at TIMESTAMP
+                );
+
+                SELECT payroll.tax_rate(employee_id) AS package_tax_rate,
+                  hr.employee_api.adjusted_salary(employee_id, salary) AS schema_package_salary,
+                  hr.employee_api.remote_status@reporting.us.example(employee_id) AS remote_status,
+                  calculate_bonus(employee_id => employee_id, amount => salary) AS named_bonus,
+                  calculate_bonus(employee_id, amount => salary, effective_at => effective_at) AS mixed_bonus
+                FROM function_expression_samples;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle placeholder expressions exactly") {
             val sql =
                 """

@@ -3380,6 +3380,9 @@ class OracleParserBackedTest :
                 ALTER TABLE alter_advanced_targets MEMOPTIMIZE FOR WRITE;
                 ALTER TABLE alter_advanced_targets NO MEMOPTIMIZE FOR WRITE;
 
+                ALTER TABLE alter_advanced_targets MINIMIZE RECORDS_PER_BLOCK;
+                ALTER TABLE alter_advanced_targets NOMINIMIZE RECORDS_PER_BLOCK;
+
                 ALTER TABLE alter_advanced_targets
                 ADD PARTITION p_2026 VALUES LESS THAN (DATE '2027-01-01') TABLESPACE users;
 

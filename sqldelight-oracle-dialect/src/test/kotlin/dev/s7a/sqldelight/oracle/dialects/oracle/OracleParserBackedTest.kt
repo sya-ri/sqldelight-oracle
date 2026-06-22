@@ -4416,6 +4416,11 @@ class OracleParserBackedTest :
                 VALUES (?, ?, ?)
                 RETURNING order_id, order_total INTO ?, ?;
 
+                insertValuesReturningExpression:
+                INSERT INTO import_orders (order_id, customer_name, order_total)
+                VALUES (?, ?, ?)
+                RETURNING order_id, order_total INTO returned_order_id, returned_total;
+
                 insertValuesReturnAlias:
                 INSERT INTO import_orders (order_id, customer_name, order_total)
                 VALUES (?, ?, ?)

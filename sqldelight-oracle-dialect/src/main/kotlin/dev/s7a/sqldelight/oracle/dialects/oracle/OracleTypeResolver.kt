@@ -110,6 +110,12 @@ public class OracleTypeResolver(
                 }
             }
 
+            "nullif" -> {
+                functionExpr.exprList.takeIf { exprList -> exprList.size == 2 }?.firstOrNull()?.let { expression ->
+                    parentResolver.resolvedType(expression)
+                }
+            }
+
             "nvl2" -> {
                 functionExpr.exprList.drop(1).takeIf { exprList -> exprList.size == 2 }?.let { exprList ->
                     parentResolver.encapsulatingTypePreferringKotlin(

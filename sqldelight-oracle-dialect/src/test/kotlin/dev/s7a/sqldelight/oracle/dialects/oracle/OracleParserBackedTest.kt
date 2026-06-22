@@ -265,6 +265,44 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle single-row utility functions exactly") {
+            val sql =
+                """
+                CREATE TABLE single_row_function_samples (
+                  id NUMBER PRIMARY KEY,
+                  label VARCHAR2(100),
+                  raw_value RAW(16),
+                  amount NUMBER,
+                  enabled BOOLEAN
+                );
+
+                SELECT CON_DBID_TO_ID(amount) AS container_id_from_dbid,
+                  CON_GUID_TO_ID(raw_value) AS container_id_from_guid,
+                  CON_NAME_TO_ID(label) AS container_id_from_name,
+                  CON_UID_TO_ID(amount) AS container_id_from_uid,
+                  COSH(amount) AS hyperbolic_cosine,
+                  DUMP(label) AS dumped_label,
+                  LNNVL(enabled) AS not_false_enabled,
+                  NULLIF(label, 'unknown') AS nullable_label,
+                  ORA_HASH(label) AS hashed_label,
+                  SINH(amount) AS hyperbolic_sine,
+                  STANDARD_HASH(label) AS standard_hash,
+                  SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') AS current_schema,
+                  SYS_GUID() AS generated_guid,
+                  SYS_TYPEID(label) AS type_identifier,
+                  TANH(amount) AS hyperbolic_tangent,
+                  USERENV('LANGUAGE') AS legacy_language,
+                  VSIZE(label) AS label_size
+                FROM single_row_function_samples;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle COLLATE operator exactly") {
             val sql =
                 """

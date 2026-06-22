@@ -2100,6 +2100,32 @@ class OracleParserBackedTest :
                   PARTITION p_hash_2 READ WRITE ROW STORE COMPRESS BASIC
                 );
 
+                CREATE TABLE range_list_partitioned_accounts (
+                  account_id NUMBER NOT NULL,
+                  created_at DATE,
+                  region_code VARCHAR2(8)
+                ) PARTITION BY RANGE (created_at)
+                SUBPARTITION BY LIST (region_code)
+                SUBPARTITION TEMPLATE (
+                  SUBPARTITION sp_us VALUES ('US', 'CA') TABLESPACE users,
+                  SUBPARTITION sp_other VALUES (DEFAULT)
+                ) (
+                  PARTITION p_2025 VALUES LESS THAN (DATE '2026-01-01'),
+                  PARTITION p_max VALUES LESS THAN (MAXVALUE)
+                );
+
+                CREATE TABLE list_hash_partitioned_accounts (
+                  account_id NUMBER NOT NULL,
+                  region_code VARCHAR2(8)
+                ) PARTITION BY LIST (region_code)
+                SUBPARTITION BY HASH (account_id) SUBPARTITIONS 4 STORE IN (users, archive_ts) (
+                  PARTITION p_us VALUES ('US', 'CA') (
+                    SUBPARTITION sp_us_1 TABLESPACE users,
+                    SUBPARTITION sp_us_2 TABLESPACE archive_ts
+                  ),
+                  PARTITION p_other VALUES (DEFAULT)
+                );
+
                 CREATE TABLE row_store_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)

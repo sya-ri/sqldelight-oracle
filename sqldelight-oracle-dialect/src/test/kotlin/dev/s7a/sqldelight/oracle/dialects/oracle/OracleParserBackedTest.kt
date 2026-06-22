@@ -2358,6 +2358,11 @@ class OracleParserBackedTest :
                   NO ON DATA MOVEMENT
                   WITH MATERIALIZED ZONEMAP;
 
+                CREATE TABLE staging_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) FOR STAGING;
+
                 CREATE TABLE account_snapshot AS
                 SELECT account_id, external_id
                 FROM staged_accounts;
@@ -2422,6 +2427,11 @@ class OracleParserBackedTest :
 
                 CREATE TABLE no_inmemory_account_snapshot
                 NO INMEMORY ROW ARCHIVAL INDEXING ON
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
+                CREATE TABLE staging_account_snapshot
+                FOR STAGING
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 
@@ -2721,6 +2731,18 @@ class OracleParserBackedTest :
                 FROM ranked_accounts
                 ORDER BY score DESC
                 OFFSET 10 ROWS FETCH FIRST 5 ROWS ONLY;
+
+                selectNextPercentWithTies:
+                SELECT id, status
+                FROM ranked_accounts
+                ORDER BY score DESC
+                FETCH NEXT 10 PERCENT ROWS WITH TIES;
+
+                selectOffsetFetchNext:
+                SELECT id, status
+                FROM ranked_accounts
+                ORDER BY id
+                OFFSET 1 ROW FETCH NEXT 2 ROWS ONLY;
 
                 selectApproximate:
                 SELECT id
@@ -3497,6 +3519,9 @@ class OracleParserBackedTest :
                 ALTER TABLE alter_targets INDEXING ON;
                 ALTER TABLE alter_targets MOVE TABLESPACE users COMPRESS ADVANCED;
                 ALTER TABLE alter_targets SHRINK SPACE CASCADE;
+                ALTER TABLE alter_targets FOR STAGING;
+                ALTER TABLE alter_targets NOT FOR STAGING;
+                ALTER TABLE alter_targets RENAME TO altered_targets;
                 ALTER TABLE alter_targets ALLOCATE EXTENT (SIZE 128M DATAFILE '/u01/oradata/users01.dbf' INSTANCE 1);
                 ALTER TABLE alter_targets DEALLOCATE UNUSED KEEP 64M;
                 ALTER TABLE alter_targets ADD OVERFLOW TABLESPACE users;

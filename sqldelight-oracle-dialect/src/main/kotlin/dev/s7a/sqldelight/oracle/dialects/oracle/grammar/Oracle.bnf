@@ -1660,6 +1660,7 @@ private oracle_create_table_property ::= (
   oracle_ilm_clause |
   oracle_ledger_table_clause |
   oracle_table_partitioning_clause |
+  oracle_for_staging_clause |
   'CACHE' |
   'NOCACHE' |
   oracle_parallel_clause |
@@ -1688,6 +1689,7 @@ private oracle_create_table_as_property ::= (
   oracle_ilm_clause |
   oracle_ledger_table_clause |
   oracle_table_partitioning_clause |
+  oracle_for_staging_clause |
   oracle_parallel_clause |
   [ 'NO' ] 'ROW' 'ARCHIVAL' |
   oracle_create_table_as_inmemory_clause |
@@ -1697,6 +1699,8 @@ private oracle_create_table_as_property ::= (
 
 private oracle_create_table_as_inmemory_clause ::= 'INMEMORY'
   [ 'MEMCOMPRESS' [ 'FOR' ( 'DML' | 'QUERY' [ 'LOW' | 'HIGH' ] | 'CAPACITY' [ 'LOW' | 'HIGH' ] ) ] ]
+
+private oracle_for_staging_clause ::= [ 'NOT' ] 'FOR' 'STAGING'
 
 private oracle_default_collation_clause ::= 'DEFAULT' 'COLLATION' {collation_name}
 
@@ -2112,6 +2116,7 @@ alter_table_rules ::= (
   alter_table_memoptimize |
   alter_table_records_per_block |
   alter_table_upgrade |
+  alter_table_for_staging |
   alter_table_modify_clustering |
   alter_table_external_properties |
   alter_table_modify_xmltype_storage |
@@ -2125,6 +2130,7 @@ alter_table_rules ::= (
   alter_table_modify_column |
   alter_table_drop_period |
   alter_table_rename_constraint |
+  alter_table_rename_table |
   alter_table_drop_constraint |
   alter_table_drop_column |
   alter_table_set_unused_column |
@@ -2181,6 +2187,8 @@ private alter_table_memoptimize ::= [ 'NO' ] 'MEMOPTIMIZE' 'FOR' ( 'READ' | 'WRI
 private alter_table_records_per_block ::= ( 'MINIMIZE' | 'NOMINIMIZE' ) 'RECORDS_PER_BLOCK'
 
 private alter_table_upgrade ::= 'UPGRADE' [ [ 'NOT' ] 'INCLUDING' 'DATA' ]
+
+private alter_table_for_staging ::= oracle_for_staging_clause
 
 private alter_table_modify_clustering ::= 'MODIFY' oracle_attribute_clustering_clause
 
@@ -2239,6 +2247,8 @@ private alter_table_drop_period ::= 'DROP' 'PERIOD' 'FOR' oracle_object_name_par
 private alter_table_modify_constraint ::= 'MODIFY' 'CONSTRAINT' oracle_object_name_part oracle_constraint_state * [ 'CASCADE' ]
 
 private alter_table_rename_constraint ::= 'RENAME' 'CONSTRAINT' oracle_object_name_part 'TO' oracle_object_name_part
+
+private alter_table_rename_table ::= 'RENAME' 'TO' oracle_object_name_part
 
 alter_table_drop_constraint ::= 'DROP' (
   'CONSTRAINT' {identifier} |

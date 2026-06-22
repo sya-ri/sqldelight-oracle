@@ -1941,7 +1941,10 @@ class OracleParserBackedTest :
                 SELECT id,
                   TRUE AS literal_true,
                   FALSE AS literal_false,
-                  UNKNOWN AS literal_unknown
+                  UNKNOWN AS literal_unknown,
+                  (enabled IS TRUE) AS enabled_is_true,
+                  (validated IS NOT FALSE) AS validated_is_not_false,
+                  (validated IS UNKNOWN) AS validated_is_unknown
                 FROM feature_flags
                 WHERE enabled IS TRUE
                   AND validated IS NOT FALSE

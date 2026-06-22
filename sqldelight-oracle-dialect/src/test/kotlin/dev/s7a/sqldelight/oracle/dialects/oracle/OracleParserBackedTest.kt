@@ -1918,6 +1918,16 @@ class OracleParserBackedTest :
                   external_id VARCHAR2(64)
                 ) SEGMENT CREATION DEFERRED;
 
+                CREATE TABLE tablespace_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) TABLESPACE users LOGGING PCTFREE 10 PCTUSED 40 INITRANS 2;
+
+                CREATE TABLE tablespace_set_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) TABLESPACE SET user_sets NOLOGGING;
+
                 CREATE TABLE row_store_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)
@@ -1964,6 +1974,11 @@ class OracleParserBackedTest :
 
                 CREATE TABLE deferred_account_snapshot
                 SEGMENT CREATION IMMEDIATE
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
+                CREATE TABLE logged_account_snapshot
+                TABLESPACE users NOLOGGING PCTFREE 5 INITRANS 1
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 
@@ -5423,7 +5438,7 @@ class OracleParserBackedTest :
                     fileNames = listOf("Test.sq"),
                     errors =
                         listOf(
-                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, COLUMN, COMPRESS, NOCOMPRESS, ON, ROW or SEGMENT expected, got '('",
+                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, COLUMN, COMPRESS, FILESYSTEM_LIKE_LOGGING, INITRANS, LOGGING, NOCOMPRESS, NOLOGGING, ON, PCTFREE, PCTUSED, ROW, SEGMENT or TABLESPACE expected, got '('",
                         ),
                 )
         }

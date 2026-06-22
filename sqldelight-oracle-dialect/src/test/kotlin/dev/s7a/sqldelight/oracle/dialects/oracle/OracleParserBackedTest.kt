@@ -2928,6 +2928,11 @@ class OracleParserBackedTest :
                 FROM join_employees e FULL OUTER JOIN join_departments d
                   ON e.department_id = d.id;
 
+                selectPartitionedOuterJoin:
+                SELECT employee_name, department_name
+                FROM join_employees e PARTITION BY (1) RIGHT OUTER JOIN join_departments d
+                  ON e.department_id = d.id;
+
                 selectCrossApply:
                 SELECT department_name, employee_name
                 FROM join_departments d CROSS APPLY (

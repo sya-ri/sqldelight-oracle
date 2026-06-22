@@ -1239,12 +1239,14 @@ join_operator ::= (
   COMMA |
   'CROSS' 'APPLY' |
   'OUTER' 'APPLY' |
-  [ 'NATURAL' ] oracle_join_type 'JOIN'
+  [ oracle_join_partition_clause ] [ 'NATURAL' ] oracle_join_type 'JOIN'
 ) {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlJoinOperatorImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlJoinOperator"
   override = true
 }
+
+private oracle_join_partition_clause ::= 'PARTITION' 'BY' LP <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP
 
 private oracle_join_type ::= (
   ( 'LEFT' | 'RIGHT' | 'FULL' ) [ 'OUTER' ] |

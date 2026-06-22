@@ -4792,6 +4792,12 @@ class OracleParserBackedTest :
                 CREATE NONEDITIONABLE PROCEDURE IF NOT EXISTS reporting.refresh_bonus
                   IS BEGIN NULL END refresh_bonus;
 
+                CREATE OR REPLACE PACKAGE emp_mgmt
+                  AS END emp_mgmt;
+
+                CREATE NONEDITIONABLE PACKAGE IF NOT EXISTS reporting.bonus_api
+                  IS END bonus_api;
+
                 CREATE OR REPLACE PACKAGE BODY emp_mgmt
                   AS END emp_mgmt;
 

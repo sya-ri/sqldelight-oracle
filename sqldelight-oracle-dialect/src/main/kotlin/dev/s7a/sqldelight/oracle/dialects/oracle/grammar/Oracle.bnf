@@ -1104,10 +1104,10 @@ table_constraint ::= [ 'CONSTRAINT' {identifier} ] (
   override = true
 }
 
-create_table_stmt ::= 'CREATE' [ oracle_table_kind ] 'TABLE' [ 'IF' 'NOT' 'EXISTS' ] [ {database_name} DOT ] {table_name} (
+create_table_stmt ::= 'CREATE' [ oracle_table_kind ] 'TABLE' [ 'IF' 'NOT' 'EXISTS' ] [ {database_name} DOT ] {table_name} [ oracle_create_table_sharing_clause ] (
   LP {column_def} ( COMMA {column_def} ) * ( COMMA oracle_create_table_element ) * RP [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_property * |
   [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_as_property * 'AS' {compound_select_stmt}
-) {
+) oracle_create_table_top_level_clause * {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCreateTableStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlCreateTableStmt"
   elementTypeClass = "com.alecstrong.sql.psi.core.psi.mixins.CreateTableElementType"
@@ -1129,13 +1129,26 @@ private oracle_supplemental_log_column ::= {column_name} [ 'NO' 'LOG' ]
 
 private oracle_supplemental_id_key ::= 'ALL' | 'PRIMARY' 'KEY' | 'UNIQUE' | 'FOREIGN' 'KEY'
 
-private oracle_table_kind ::= oracle_table_scope | 'BLOCKCHAIN' | 'IMMUTABLE'
+private oracle_table_kind ::= oracle_table_scope | 'SHARDED' | 'DUPLICATED' | [ 'IMMUTABLE' ] 'BLOCKCHAIN' | 'IMMUTABLE'
 
 private oracle_table_scope ::= ( 'GLOBAL' | 'PRIVATE' ) 'TEMPORARY' | 'TEMP' | 'TEMPORARY'
 
-private oracle_on_commit_clause ::= 'ON' 'COMMIT' ( 'DELETE' | 'PRESERVE' ) 'ROWS'
+private oracle_create_table_sharing_clause ::= 'SHARING' EQ ( 'METADATA' | 'DATA' | 'EXTENDED' 'DATA' | 'NONE' )
+
+private oracle_on_commit_clause ::= 'ON' 'COMMIT' (
+  ( 'DELETE' | 'PRESERVE' ) 'ROWS' |
+  ( 'DROP' | 'PRESERVE' ) 'DEFINITION'
+)
+
+private oracle_create_table_top_level_clause ::= (
+  'MEMOPTIMIZE' 'FOR' ( 'READ' | 'WRITE' ) |
+  'PARENT' [ {database_name} DOT ] {table_name} |
+  'REFRESH' 'INTERVAL' {signed_number} ( 'SECOND' | 'MINUTE' | 'HOUR' ) |
+  'SYNCHRONOUS'
+)
 
 private oracle_create_table_property ::= (
+  oracle_default_collation_clause |
   oracle_table_compression |
   oracle_deferred_segment_creation |
   oracle_segment_attribute_clause |
@@ -1160,6 +1173,7 @@ private oracle_create_table_property ::= (
 )
 
 private oracle_create_table_as_property ::= (
+  oracle_default_collation_clause |
   oracle_table_compression |
   oracle_deferred_segment_creation |
   oracle_segment_attribute_clause |
@@ -1173,6 +1187,8 @@ private oracle_create_table_as_property ::= (
   oracle_ilm_clause |
   oracle_ledger_table_clause
 )
+
+private oracle_default_collation_clause ::= 'DEFAULT' 'COLLATION' {collation_name}
 
 private oracle_deferred_segment_creation ::= 'SEGMENT' 'CREATION' ( 'IMMEDIATE' | 'DEFERRED' )
 

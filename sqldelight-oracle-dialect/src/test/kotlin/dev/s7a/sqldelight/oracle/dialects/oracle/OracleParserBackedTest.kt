@@ -1918,6 +1918,26 @@ class OracleParserBackedTest :
                   external_id VARCHAR2(64)
                 ) NO DROP UNTIL 31 DAYS IDLE NO DELETE LOCKED HASHING USING "SHA2_512" VERSION "v1";
 
+                CREATE IMMUTABLE BLOCKCHAIN TABLE immutable_blockchain_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) NO DROP UNTIL 31 DAYS IDLE NO DELETE LOCKED;
+
+                CREATE SHARDED TABLE sharded_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) PARENT accounts MEMOPTIMIZE FOR READ REFRESH INTERVAL 30 SECOND;
+
+                CREATE DUPLICATED TABLE duplicated_accounts SHARING = METADATA (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) MEMOPTIMIZE FOR WRITE SYNCHRONOUS;
+
+                CREATE TABLE collated_definition_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) ON COMMIT DROP DEFINITION DEFAULT COLLATION BINARY_CI;
+
                 CREATE TABLE compressed_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)
@@ -2081,6 +2101,12 @@ class OracleParserBackedTest :
 
                 CREATE TABLE compressed_account_snapshot
                 COLUMN STORE COMPRESS FOR ARCHIVE LOW
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
+                CREATE TABLE collated_account_snapshot
+                ON COMMIT PRESERVE DEFINITION
+                DEFAULT COLLATION BINARY_AI
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 
@@ -5600,7 +5626,7 @@ class OracleParserBackedTest :
                     fileNames = listOf("Test.sq"),
                     errors =
                         listOf(
-                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, BLOCKCHAIN, COLUMN, COMPRESS, DISABLE, ENABLE, FILESYSTEM_LIKE_LOGGING, FLASHBACK, HASHING, ILM, INITRANS, LOGGING, NO, NOCOMPRESS, NOLOGGING, ON, ORGANIZATION, PCTFREE, PCTUSED, READ, RESULT_CACHE, ROW, SEGMENT, STORAGE or TABLESPACE expected, got '('",
+                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, BLOCKCHAIN, COLUMN, COMPRESS, DEFAULT, DISABLE, ENABLE, FILESYSTEM_LIKE_LOGGING, FLASHBACK, HASHING, ILM, INITRANS, LOGGING, MEMOPTIMIZE, NO, NOCOMPRESS, NOLOGGING, ON, ORGANIZATION, PARENT, PCTFREE, PCTUSED, READ, REFRESH, RESULT_CACHE, ROW, SEGMENT, SHARING, STORAGE, SYNCHRONOUS or TABLESPACE expected, got '('",
                         ),
                 )
         }

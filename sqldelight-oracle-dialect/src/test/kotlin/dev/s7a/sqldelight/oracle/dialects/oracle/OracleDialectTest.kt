@@ -7,12 +7,15 @@ import app.cash.sqldelight.dialect.api.TypeResolver
 import com.alecstrong.sql.psi.core.SqlParserUtil
 import com.alecstrong.sql.psi.core.psi.SqlExpr
 import com.alecstrong.sql.psi.core.psi.SqlFunctionExpr
+import com.alecstrong.sql.psi.core.psi.SqlFunctionName
 import com.alecstrong.sql.psi.core.psi.SqlStmt
 import com.alecstrong.sql.psi.core.psi.SqlTypeName
 import com.intellij.psi.PsiElement
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import java.lang.reflect.Method
+import java.lang.reflect.Proxy
 import java.util.ServiceLoader
 
 class OracleDialectTest :
@@ -42,6 +45,15 @@ class OracleDialectTest :
 
         test("uses Oracle type resolver") {
             OracleDialect().typeResolver(ParentTypeResolver)::class shouldBe OracleTypeResolver::class
+        }
+
+        test("resolves Oracle EXTRACT function overloads exactly") {
+            val resolver = OracleDialect().typeResolver(ParentTypeResolver)
+
+            resolver.functionType(sqlFunctionExpr("EXTRACT", argumentCount = 1)) shouldBe
+                IntermediateType(OracleType.DECIMAL_NUMBER)
+            resolver.functionType(sqlFunctionExpr("EXTRACT", argumentCount = 2)) shouldBe
+                IntermediateType(OracleType.TEXT)
         }
 
         test("keeps optional dialect services explicit") {
@@ -82,3 +94,51 @@ private fun serviceResource(path: String): String =
     requireNotNull(OracleDialectTest::class.java.classLoader.getResource(path)) {
         "Missing test resource $path"
     }.readText()
+
+private fun sqlFunctionExpr(
+    name: String,
+    argumentCount: Int,
+): SqlFunctionExpr =
+    proxy(SqlFunctionExpr::class.java) { proxy, method, arguments ->
+        when (method.name) {
+            "getFunctionName" -> sqlFunctionName(name)
+            "getExprList" -> List(argumentCount) { sqlExpr() }
+            "getText" -> "$name()"
+            "hashCode" -> System.identityHashCode(proxy)
+            "equals" -> proxy === arguments?.singleOrNull()
+            "toString" -> "$name($argumentCount arguments)"
+            else -> error("Unexpected SqlFunctionExpr method: ${method.name}")
+        }
+    }
+
+private fun sqlFunctionName(name: String): SqlFunctionName =
+    proxy(SqlFunctionName::class.java) { proxy, method, arguments ->
+        when (method.name) {
+            "getText" -> name
+            "hashCode" -> System.identityHashCode(proxy)
+            "equals" -> proxy === arguments?.singleOrNull()
+            "toString" -> name
+            else -> error("Unexpected SqlFunctionName method: ${method.name}")
+        }
+    }
+
+private fun sqlExpr(): SqlExpr =
+    proxy(SqlExpr::class.java) { proxy, method, arguments ->
+        when (method.name) {
+            "getText" -> "argument"
+            "hashCode" -> System.identityHashCode(proxy)
+            "equals" -> proxy === arguments?.singleOrNull()
+            "toString" -> "argument"
+            else -> error("Unexpected SqlExpr method: ${method.name}")
+        }
+    }
+
+private fun <T> proxy(
+    type: Class<T>,
+    handler: (proxy: Any, method: Method, arguments: Array<Any?>?) -> Any?,
+): T =
+    type.cast(
+        Proxy.newProxyInstance(type.classLoader, arrayOf(type)) { proxy, method, arguments ->
+            handler(proxy, method, arguments)
+        },
+    )

@@ -699,6 +699,7 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                     "UNISTR",
                     "USER",
                     "USERENV",
+                    "VALUE",
                     "VALIDATE_CONVERSION",
                     "VARIANCE",
                     "VAR_POP",

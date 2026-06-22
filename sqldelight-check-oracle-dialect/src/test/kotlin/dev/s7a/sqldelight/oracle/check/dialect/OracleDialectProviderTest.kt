@@ -665,6 +665,7 @@ private val oracleCommonFunctions =
         Syntax("UUID_TO_RAW"),
         Syntax("USER"),
         Syntax("USERENV"),
+        Syntax("VALUE"),
         Syntax("VARIANCE"),
         Syntax("VECTOR"),
         Syntax("VECTOR_CHUNKS"),

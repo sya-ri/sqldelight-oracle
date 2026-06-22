@@ -361,6 +361,7 @@ public enum class OracleType(
                 "DEREF" to TEXT,
                 "MAKE_REF" to TEXT,
                 "REF" to TEXT,
+                "VALUE" to TEXT,
                 "CV" to TEXT,
                 "PRESENTNNV" to TEXT,
                 "PRESENTV" to TEXT,

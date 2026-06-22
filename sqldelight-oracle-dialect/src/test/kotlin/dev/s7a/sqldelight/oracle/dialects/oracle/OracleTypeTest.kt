@@ -161,6 +161,7 @@ class OracleTypeTest :
                     "DEREF" to OracleType.TEXT,
                     "MAKE_REF" to OracleType.TEXT,
                     "REF" to OracleType.TEXT,
+                    "VALUE" to OracleType.TEXT,
                     "CV" to OracleType.TEXT,
                     "PRESENTNNV" to OracleType.TEXT,
                     "PRESENTV" to OracleType.TEXT,

@@ -209,6 +209,12 @@ public class OracleTypeResolver(
                 }
             }
 
+            "extract" -> {
+                functionExpr.exprList
+                    .takeIf { exprList -> exprList.size == 2 }
+                    ?.let { IntermediateType(OracleType.TEXT) }
+            }
+
             else -> {
                 null
             }

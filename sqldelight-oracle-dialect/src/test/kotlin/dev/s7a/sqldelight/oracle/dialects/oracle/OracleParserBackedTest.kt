@@ -75,6 +75,53 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle single-line optimizer hint comments exactly") {
+            val sql =
+                """
+                CREATE TABLE hint_samples (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(64)
+                );
+
+                SELECT --+ FULL(hint_samples)
+                  id, name
+                FROM hint_samples
+                WHERE id = 1;
+
+                INSERT --+ APPEND
+                INTO hint_samples (id, name)
+                VALUES (2, 'inserted');
+
+                UPDATE --+ INDEX(hint_samples)
+                  hint_samples
+                SET name = 'updated'
+                WHERE id = 2;
+
+                DELETE --+ INDEX(hint_samples)
+                FROM hint_samples
+                WHERE id = 2;
+
+                MERGE --+ USE_HASH(source_samples)
+                INTO hint_samples
+                USING (
+                  SELECT 3 AS id, 'merged' AS name
+                  FROM hint_samples
+                ) source_samples
+                ON (1 = 0)
+                WHEN MATCHED THEN
+                  UPDATE SET name = 'merged'
+                WHEN NOT MATCHED THEN
+                  INSERT (id, name)
+                  VALUES (3, 'merged');
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle datetime and interval literals exactly") {
             val sql =
                 """
@@ -391,6 +438,28 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle user-defined operator calls exactly") {
+            val sql =
+                """
+                CREATE TABLE user_operator_samples (
+                  id NUMBER PRIMARY KEY,
+                  left_value VARCHAR2(100),
+                  right_value VARCHAR2(100)
+                );
+
+                SELECT id
+                FROM user_operator_samples
+                WHERE eq_op(left_value, right_value) = 1
+                  AND hr.eq_op(left_value, 'ACTIVE') = 1;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle floating-point and IS OF type conditions exactly") {
             val sql =
                 """
@@ -416,6 +485,27 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle dangling REF conditions exactly") {
+            val sql =
+                """
+                CREATE TABLE ref_condition_samples (
+                  id NUMBER PRIMARY KEY,
+                  address_ref REF
+                );
+
+                SELECT id
+                FROM ref_condition_samples
+                WHERE address_ref IS DANGLING
+                  OR address_ref IS NOT DANGLING;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle IS JSON conditions exactly") {
             val sql =
                 """
@@ -430,6 +520,31 @@ class OracleParserBackedTest :
                 FROM json_samples
                 WHERE doc IS JSON STRICT WITH UNIQUE KEYS
                   AND expected_doc IS NOT JSON VALIDATE USING '{"type":"object"}';
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle SQL JSON function conditions exactly") {
+            val sql =
+                """
+                CREATE TABLE json_condition_samples (
+                  id NUMBER PRIMARY KEY,
+                  doc CLOB,
+                  expected_doc CLOB,
+                  search_text VARCHAR2(100)
+                );
+
+                SELECT id
+                FROM json_condition_samples
+                WHERE JSON_EXISTS(doc, '${'$'}.items[*]?(@.status == ${'$'}status)' PASSING 'active' AS status TRUE ON ERROR FALSE ON EMPTY)
+                  AND JSON_EXISTS(doc FORMAT JSON, '${'$'}.metadata' ERROR ON ERROR ERROR ON EMPTY)
+                  AND JSON_EQUAL(doc, expected_doc TRUE ON ERROR)
+                  AND JSON_TEXTCONTAINS(doc, '${'$'}.description', search_text);
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe
@@ -836,7 +951,9 @@ class OracleParserBackedTest :
                 CREATE TABLE employees (
                   id NUMBER PRIMARY KEY,
                   name VARCHAR2(100),
-                  details JSON
+                  department_id NUMBER,
+                  details JSON,
+                  patch JSON
                 );
 
                 SELECT JSON_OBJECT(
@@ -855,8 +972,32 @@ class OracleParserBackedTest :
                     NULL NULL ON NULL
                     RETURNING VARCHAR2(4000)
                     STRICT
+                  ),
+                  JSON_ARRAYAGG(
+                    details FORMAT JSON
+                    ORDER BY id
+                    ABSENT ON NULL
+                    RETURNING JSON
+                    STRICT
+                  ) FILTER (WHERE id IS NOT NULL),
+                  JSON_OBJECTAGG(
+                    KEY name VALUE details FORMAT JSON
+                    NULL ON NULL
+                    RETURNING JSON
+                    STRICT
+                    WITH UNIQUE KEYS
+                  ),
+                  JSON_DATAGUIDE(details, 'format_schema', 'pretty'),
+                  JSON_MERGEPATCH(
+                    details,
+                    patch
+                    RETURNING JSON
+                    PRETTY ASCII
+                    TRUNCATE
+                    ERROR ON ERROR
                   )
-                FROM employees;
+                FROM employees
+                GROUP BY department_id;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe
@@ -975,6 +1116,41 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle JSON table references exactly") {
+            val sql =
+                """
+                CREATE TABLE documents (
+                  id NUMBER PRIMARY KEY,
+                  payload JSON
+                );
+
+                SELECT d.id
+                FROM documents d,
+                  JSON_TABLE(
+                    '{"employee":{"id":1,"name":"Ada"},"items":[{"name":"Keyboard"}]}' FORMAT JSON,
+                    '${'$'}'
+                    PASSING 1 AS document_id
+                    COLUMNS (
+                      line_number FOR ORDINALITY,
+                      employee_id NUMBER PATH '${'$'}.employee.id' ERROR ON ERROR DEFAULT 0 ON EMPTY,
+                      employee_name VARCHAR2(100) PATH '${'$'}.employee.name' NULL ON ERROR,
+                      has_items NUMBER EXISTS PATH '${'$'}.items' TRUE ON ERROR FALSE ON EMPTY,
+                      details JSON FORMAT JSON PATH '${'$'}.details' WITH WRAPPER NULL ON EMPTY,
+                      NESTED PATH '${'$'}.items[*]' COLUMNS (
+                        item_number FOR ORDINALITY,
+                        item_name VARCHAR2(100) TRUNCATE PATH '${'$'}.name'
+                      )
+                    )
+                  ) jt;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle SQL XML functions exactly") {
             val sql =
                 """
@@ -1050,12 +1226,28 @@ class OracleParserBackedTest :
                 CREATE TABLE documents (
                   id NUMBER PRIMARY KEY,
                   body CLOB,
-                  embedding VECTOR(3, FLOAT32)
+                  embedding VECTOR(3, FLOAT32),
+                  embedding_default VECTOR(100),
+                  embedding_any VECTOR(*, *),
+                  embedding_any_dims VECTOR(*, FLOAT32),
+                  embedding_any_format VECTOR(100, *)
                 );
 
                 SELECT VECTOR('[1,2,3]'),
                   TO_VECTOR('[1,2,3]', 3, FLOAT32),
                   VECTOR_DISTANCE(embedding, TO_VECTOR('[1,2,3]', 3, FLOAT32), COSINE),
+                  VECTOR_DISTANCE(embedding, TO_VECTOR('[1,0,1]', 3, BINARY), JACCARD),
+                  L1_DISTANCE(embedding, TO_VECTOR('[1,2,3]', 3, FLOAT32)) AS l1_distance,
+                  L2_DISTANCE(embedding, TO_VECTOR('[1,2,3]', 3, FLOAT32)) AS l2_distance,
+                  COSINE_DISTANCE(embedding, TO_VECTOR('[1,2,3]', 3, FLOAT32)) AS cosine_distance,
+                  INNER_PRODUCT(embedding, TO_VECTOR('[1,2,3]', 3, FLOAT32)) AS inner_product,
+                  HAMMING_DISTANCE(embedding, TO_VECTOR('[1,0,1]', 3, BINARY)) AS hamming_distance,
+                  JACCARD_DISTANCE(embedding, TO_VECTOR('[1,0,1]', 3, BINARY)) AS jaccard_distance,
+                  FROM_VECTOR(embedding) AS serialized_embedding,
+                  VECTOR_DIMS(embedding) AS embedding_dimensions,
+                  VECTOR_DIMENSION_COUNT(embedding) AS embedding_dimension_count,
+                  VECTOR_DIMENSION_FORMAT(embedding) AS embedding_dimension_format,
+                  VECTOR_NORM(embedding) AS embedding_norm,
                   VECTOR_EMBEDDING(all_minilm_l12 USING body AS DATA),
                   VECTOR_SERIALIZE(embedding RETURNING CLOB)
                 FROM documents
@@ -1412,6 +1604,7 @@ class OracleParserBackedTest :
 
                 SELECT REF(address_ref) AS sample_ref,
                   DEREF(address_ref) AS address_object,
+                  VALUE(address_ref) AS address_value,
                   MAKE_REF(id, id) AS made_ref
                 FROM object_reference_samples sample;
                 """.trimIndent()
@@ -1944,7 +2137,10 @@ class OracleParserBackedTest :
                   UNKNOWN AS literal_unknown,
                   (enabled IS TRUE) AS enabled_is_true,
                   (validated IS NOT FALSE) AS validated_is_not_false,
-                  (validated IS UNKNOWN) AS validated_is_unknown
+                  (validated IS UNKNOWN) AS validated_is_unknown,
+                  ((enabled IS TRUE) AND (validated IS NOT FALSE)) AS ready_to_ship,
+                  ((enabled IS FALSE) OR (validated IS UNKNOWN)) AS needs_review,
+                  (NOT (enabled IS TRUE)) AS disabled_or_unknown
                 FROM feature_flags
                 WHERE enabled IS TRUE
                   AND validated IS NOT FALSE

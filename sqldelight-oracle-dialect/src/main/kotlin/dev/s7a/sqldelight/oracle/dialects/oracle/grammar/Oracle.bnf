@@ -237,7 +237,7 @@ type_name ::= oracle_type_name | core_type_name {
   override = true
 }
 
-extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_boolean_literal_expr | oracle_boolean_test_expr | oracle_extract_datetime_expr | oracle_character_function_expr | oracle_object_method_expr | oracle_user_function_expr | oracle_collection_function_expr | oracle_oml_function_expr | oracle_ordered_aggregate_expr | oracle_analytic_function_expr | oracle_aggregate_function_expr | oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_condition_expr | oracle_multiset_expr | oracle_collate_expr | oracle_cursor_expr | oracle_validate_conversion_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_type_constructor_expr | oracle_bind_placeholder_expr {
+extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_boolean_literal_expr | oracle_boolean_not_expr | oracle_boolean_test_expr | oracle_extract_datetime_expr | oracle_character_function_expr | oracle_object_method_expr | oracle_user_function_expr | oracle_collection_function_expr | oracle_object_reference_function_expr | oracle_oml_function_expr | oracle_ordered_aggregate_expr | oracle_analytic_function_expr | oracle_aggregate_function_expr | oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_condition_expr | oracle_multiset_expr | oracle_collate_expr | oracle_cursor_expr | oracle_validate_conversion_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_type_constructor_expr | oracle_bind_placeholder_expr {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionExprImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionExpr"
   override = true
@@ -254,6 +254,8 @@ private oracle_floating_point_literal ::= (
 )
 
 private oracle_boolean_literal_expr ::= 'TRUE' | 'FALSE' | 'UNKNOWN'
+
+private oracle_boolean_not_expr ::= 'NOT' <<expr '-1'>>
 
 private oracle_boolean_test_expr ::= LP <<expr '-1'>> 'IS' [ 'NOT' ] ( 'TRUE' | 'FALSE' | 'UNKNOWN' ) RP
 
@@ -307,6 +309,11 @@ private oracle_collection_function_expr ::= (
 private oracle_simple_collection_function_name ::= 'CARDINALITY' | 'POWERMULTISET' | 'SET'
 
 private oracle_collect_expr ::= 'COLLECT' LP [ 'DISTINCT' | 'UNIQUE' ] <<expr '-1'>> [ 'ORDER' 'BY' <<orderingTermExt <<ordering_term_real>>>> ( COMMA <<orderingTermExt <<ordering_term_real>>>> ) * ] RP
+
+private oracle_object_reference_function_expr ::= (
+  ( 'REF' | 'DEREF' | 'VALUE' ) LP <<expr '-1'>> RP |
+  'MAKE_REF' LP <<expr '-1'>> COMMA <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP
+)
 
 private oracle_oml_function_expr ::= oracle_oml_function_name LP oracle_oml_argument_clause RP [ oracle_over_clause ]
 
@@ -468,7 +475,7 @@ private oracle_to_vector_expr ::= 'TO_VECTOR' LP <<expr '-1'>> [ COMMA <<expr '-
 
 private oracle_vector_distance_expr ::= 'VECTOR_DISTANCE' LP <<expr '-1'>> COMMA <<expr '-1'>> [ COMMA oracle_vector_distance_metric ] RP
 
-private oracle_vector_distance_metric ::= 'COSINE' | 'DOT' | 'EUCLIDEAN' | 'EUCLIDEAN_SQUARED' | 'HAMMING' | 'MANHATTAN' | oracle_object_name_part
+private oracle_vector_distance_metric ::= 'COSINE' | 'DOT' | 'EUCLIDEAN' | 'EUCLIDEAN_SQUARED' | 'HAMMING' | 'JACCARD' | 'MANHATTAN' | oracle_object_name_part
 
 private oracle_vector_dimension_format ::= 'INT8' | 'BINARY' | 'FLOAT32' | 'FLOAT64' | oracle_object_name_part
 
@@ -478,9 +485,9 @@ private oracle_vector_serialize_expr ::= 'VECTOR_SERIALIZE' LP <<expr '-1'>> [ '
 
 private oracle_vector_returning_type ::= oracle_object_name_part [ oracle_type_parameters ]
 
-private oracle_sql_json_expr ::= oracle_sql_json_generation_expr | oracle_sql_json_query_expr
+private oracle_sql_json_expr ::= oracle_sql_json_generation_expr | oracle_sql_json_query_expr | oracle_json_mergepatch_expr | oracle_json_dataguide_expr
 
-private oracle_sql_json_generation_expr ::= oracle_json_object_expr | oracle_json_array_expr
+private oracle_sql_json_generation_expr ::= oracle_json_object_expr | oracle_json_array_expr | oracle_json_arrayagg_expr | oracle_json_objectagg_expr
 
 private oracle_json_object_expr ::= 'JSON_OBJECT' LP [ oracle_json_object_content ] RP
 
@@ -502,6 +509,13 @@ private oracle_json_array_element ::= <<expr '-1'>> [ oracle_json_format_clause 
 
 private oracle_json_generation_option ::= oracle_json_on_null_clause | oracle_json_returning_clause | 'STRICT' | 'WITH' 'UNIQUE' 'KEYS'
 
+private oracle_json_arrayagg_expr ::= 'JSON_ARRAYAGG' LP <<expr '-1'>> [ oracle_json_format_clause ]
+  [ 'ORDER' 'BY' <<orderingTermExt <<ordering_term_real>>>> ( COMMA <<orderingTermExt <<ordering_term_real>>>> ) * ]
+  oracle_json_generation_option * RP [ oracle_filter_clause ]
+
+private oracle_json_objectagg_expr ::= 'JSON_OBJECTAGG' LP [ 'KEY' ] <<expr '-1'>> 'VALUE' <<expr '-1'>>
+  [ oracle_json_format_clause ] oracle_json_generation_option * RP [ oracle_filter_clause ]
+
 private oracle_json_format_clause ::= 'FORMAT' 'JSON'
 
 private oracle_json_on_null_clause ::= ( 'NULL' | 'ABSENT' ) 'ON' 'NULL'
@@ -522,13 +536,18 @@ private oracle_json_serialize_expr ::= 'JSON_SERIALIZE' LP <<expr '-1'>> oracle_
 
 private oracle_json_serialize_clause ::= oracle_json_returning_clause | oracle_json_ascii_clause | oracle_json_pretty_clause | 'ORDERED' | 'TRUNCATE' | oracle_json_serialize_on_error_clause
 
+private oracle_json_mergepatch_expr ::= 'JSON_MERGEPATCH' LP <<expr '-1'>> COMMA <<expr '-1'>>
+  ( oracle_json_returning_clause | oracle_json_pretty_clause | oracle_json_ascii_clause | 'TRUNCATE' | oracle_json_serialize_on_error_clause ) * RP
+
+private oracle_json_dataguide_expr ::= 'JSON_DATAGUIDE' LP <<expr '-1'>> [ COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] ] RP [ oracle_filter_clause ]
+
 private oracle_json_transform_expr ::= 'JSON_TRANSFORM' LP <<expr '-1'>> COMMA oracle_json_transform_operation ( COMMA oracle_json_transform_operation ) * oracle_json_transform_clause * RP
 
 private oracle_json_transform_clause ::= oracle_json_returning_clause | oracle_json_passing_clause
 
 private oracle_json_passing_clause ::= 'PASSING' oracle_json_passing_binding ( COMMA oracle_json_passing_binding ) *
 
-private oracle_json_passing_binding ::= <<expr '-1'>> 'AS' oracle_json_variable_name
+private oracle_json_passing_binding ::= <<expr '-1'>> 'AS' oracle_json_passing_identifier
 
 private oracle_json_transform_operation ::= (
   oracle_json_transform_set_operation |
@@ -558,6 +577,8 @@ private oracle_json_transform_rhs ::= <<expr '-1'>> | oracle_json_path_expressio
 private oracle_json_transform_handler ::= ( 'CREATE' | 'ERROR' | 'IGNORE' | 'REMOVE' | 'REPLACE' ) 'ON' ( 'EXISTING' | 'MISSING' | 'NULL' | 'EMPTY' | 'ERROR' )
 
 private oracle_json_variable_name ::= '$' oracle_object_name_part
+
+private oracle_json_passing_identifier ::= oracle_json_variable_name | oracle_object_name_part | string
 
 private oracle_json_path_expression ::= {string_literal}
 
@@ -631,7 +652,7 @@ private oracle_json_id_operator ::= 'JSON_ID' LP ( 'OID' | 'UUID' | {string_lite
 
 private oracle_shard_chunk_id_operator ::= 'SHARD_CHUNK_ID' LP <<expr '-1'>> COMMA <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP
 
-private oracle_condition_expr ::= oracle_sql_json_condition_expr | oracle_xml_condition_expr | oracle_pattern_matching_condition_expr | oracle_comparison_condition_expr | oracle_in_condition_expr | oracle_floating_point_condition_expr | oracle_is_of_type_condition_expr
+private oracle_condition_expr ::= oracle_sql_json_condition_expr | oracle_xml_condition_expr | oracle_pattern_matching_condition_expr | oracle_comparison_condition_expr | oracle_in_condition_expr | oracle_floating_point_condition_expr | oracle_is_of_type_condition_expr | oracle_is_dangling_condition_expr
 
 private oracle_comparison_condition_expr ::= (
   oracle_outer_join_condition |
@@ -673,9 +694,16 @@ private oracle_is_of_type_condition_expr ::= oracle_condition_operand 'IS' [ 'NO
 
 private oracle_is_of_type_entry ::= [ 'ONLY' ] oracle_schema_object_name
 
+private oracle_is_dangling_condition_expr ::= oracle_condition_operand 'IS' [ 'NOT' ] 'DANGLING'
+
 private oracle_pattern_matching_condition_expr ::= oracle_condition_operand [ 'NOT' ] ( 'LIKEC' | 'LIKE2' | 'LIKE4' ) <<expr '-1'>> [ 'ESCAPE' <<expr '-1'>> ]
 
-private oracle_sql_json_condition_expr ::= oracle_is_json_condition_expr
+private oracle_sql_json_condition_expr ::= (
+  oracle_is_json_condition_expr |
+  oracle_json_exists_condition_expr |
+  oracle_json_equal_condition_expr |
+  oracle_json_textcontains_condition_expr
+)
 
 private oracle_is_json_condition_expr ::= oracle_condition_operand 'IS' [ 'NOT' ] 'JSON' oracle_is_json_modifier *
 
@@ -689,6 +717,20 @@ private oracle_is_json_modifier ::= (
   'SCALAR' |
   'VALIDATE' [ 'CAST' ] [ 'USING' ] {string_literal}
 )
+
+private oracle_json_exists_condition_expr ::= 'JSON_EXISTS' LP <<expr '-1'>> [ oracle_json_format_clause ]
+  COMMA oracle_json_path_expression oracle_json_exists_clause * RP
+
+private oracle_json_exists_clause ::= oracle_json_passing_clause | oracle_json_exists_on_error_clause | oracle_json_exists_on_empty_clause
+
+private oracle_json_exists_on_error_clause ::= ( 'ERROR' | 'TRUE' | 'FALSE' ) 'ON' 'ERROR'
+
+private oracle_json_exists_on_empty_clause ::= ( 'ERROR' | 'TRUE' | 'FALSE' ) 'ON' 'EMPTY'
+
+private oracle_json_equal_condition_expr ::= 'JSON_EQUAL' LP <<expr '-1'>> COMMA <<expr '-1'>>
+  [ ( 'ERROR' | 'TRUE' | 'FALSE' ) 'ON' 'ERROR' ] RP
+
+private oracle_json_textcontains_condition_expr ::= 'JSON_TEXTCONTAINS' LP oracle_condition_operand COMMA oracle_json_path_expression COMMA <<expr '-1'>> RP
 
 private oracle_xml_condition_expr ::= ( 'EQUALS_PATH' | 'UNDER_PATH' ) LP oracle_condition_operand COMMA <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP
 
@@ -839,7 +881,7 @@ private oracle_named_type ::= (
 
 private oracle_type_parameters ::= LP oracle_type_parameter_token (oracle_type_parameter_token) * RP
 
-private oracle_type_parameter_token ::= <<identifierExt identifier_real>> | oracle_vector_format | DIGIT | {signed_number} | COMMA
+private oracle_type_parameter_token ::= <<identifierExt identifier_real>> | oracle_vector_format | DIGIT | {signed_number} | '*' | COMMA
 
 private oracle_vector_format ::= 'FLOAT32' | 'FLOAT64' | 'INT8' | 'BINARY'
 
@@ -1038,7 +1080,7 @@ private oracle_group_by_having_clause ::= (
   'HAVING' <<expr '-1'>>
 )
 
-table_or_subquery ::= oracle_graph_table_reference | oracle_graphql_table_reference | oracle_xmltable_reference | oracle_inline_external_table_reference | oracle_containers_table_reference | oracle_collection_table_reference | oracle_values_table_reference | oracle_subquery_table_reference | oracle_join_to_one_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
+table_or_subquery ::= oracle_graph_table_reference | oracle_graphql_table_reference | oracle_json_table_reference | oracle_xmltable_reference | oracle_inline_external_table_reference | oracle_containers_table_reference | oracle_collection_table_reference | oracle_values_table_reference | oracle_subquery_table_reference | oracle_join_to_one_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTableOrSubqueryImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlTableOrSubquery"
   override = true
@@ -1096,6 +1138,42 @@ private oracle_graphql_table_reference ::= 'GRAPHQL' LP {string_literal} [ oracl
 private oracle_graphql_passing_clause ::= 'PASSING' oracle_graphql_variable_binding ( COMMA oracle_graphql_variable_binding ) *
 
 private oracle_graphql_variable_binding ::= <<expr '-1'>> 'AS' oracle_object_name_part
+
+private oracle_json_table_reference ::= 'JSON_TABLE' LP <<expr '-1'>> [ oracle_json_format_clause ]
+  COMMA oracle_json_path_expression [ oracle_json_passing_clause ] oracle_json_table_columns_clause RP
+  [ oracle_table_alias_clause ]
+
+private oracle_json_table_columns_clause ::= 'COLUMNS' LP oracle_json_table_column ( COMMA oracle_json_table_column ) * RP
+
+private oracle_json_table_column ::= (
+  oracle_json_table_nested_column |
+  oracle_json_table_ordinality_column |
+  oracle_json_table_exists_column |
+  oracle_json_table_regular_column
+)
+
+private oracle_json_table_ordinality_column ::= oracle_object_name_part 'FOR' 'ORDINALITY'
+
+private oracle_json_table_regular_column ::= oracle_object_name_part oracle_json_table_datatype [ 'TRUNCATE' ]
+  [ oracle_json_format_clause ] [ oracle_json_table_path_clause ] oracle_json_table_value_clause *
+
+private oracle_json_table_exists_column ::= oracle_object_name_part [ oracle_json_table_datatype ]
+  'EXISTS' [ oracle_json_table_path_clause ] ( oracle_json_exists_on_error_clause | oracle_json_exists_on_empty_clause ) *
+
+private oracle_json_table_nested_column ::= 'NESTED' [ 'PATH' ] oracle_json_path_expression oracle_json_table_columns_clause
+
+private oracle_json_table_datatype ::= oracle_object_name_part [ oracle_type_parameters ]
+
+private oracle_json_table_path_clause ::= 'PATH' oracle_json_path_expression
+
+private oracle_json_table_value_clause ::= (
+  oracle_json_query_wrapper_clause |
+  oracle_json_value_on_error_clause |
+  oracle_json_value_on_empty_clause |
+  oracle_json_query_on_error_clause |
+  oracle_json_query_on_empty_clause |
+  oracle_json_on_mismatch_clause
+)
 
 private oracle_xmltable_reference ::= 'XMLTABLE' LP [ oracle_xmlnamespaces_clause COMMA ] {string_literal}
   [ oracle_xml_passing_clause ] [ 'RETURNING' 'SEQUENCE' 'BY' 'REF' ] [ oracle_xmltable_columns_clause ] RP

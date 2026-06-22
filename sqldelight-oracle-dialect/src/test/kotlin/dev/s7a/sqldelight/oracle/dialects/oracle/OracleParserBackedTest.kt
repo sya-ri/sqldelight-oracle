@@ -1491,6 +1491,18 @@ class OracleParserBackedTest :
                     PARTITION BY department_id
                     ORDER BY amount DESC NULLS LAST
                   ) AS amount_rank,
+                  RANK() OVER (
+                    PARTITION BY department_id
+                    ORDER BY amount DESC
+                  ) AS amount_rank_with_gaps,
+                  DENSE_RANK() OVER (
+                    PARTITION BY department_id
+                    ORDER BY amount DESC
+                  ) AS dense_amount_rank,
+                  NTILE(4) OVER (
+                    PARTITION BY region
+                    ORDER BY amount DESC
+                  ) AS amount_quartile,
                   CUME_DIST() OVER (
                     PARTITION BY department_id
                     ORDER BY amount

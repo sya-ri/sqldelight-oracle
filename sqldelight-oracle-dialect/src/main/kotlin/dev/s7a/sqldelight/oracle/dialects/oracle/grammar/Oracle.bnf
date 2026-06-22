@@ -1995,6 +1995,7 @@ alter_table_rules ::= (
   alter_table_add_period |
   alter_table_add_column |
   alter_table_annotations |
+  alter_table_memoptimize |
   alter_table_upgrade |
   alter_table_modify_xmltype_storage |
   alter_table_modify_lob_storage |
@@ -2044,6 +2045,8 @@ alter_table_modify_column ::= 'MODIFY' [ 'COLUMN' ] {column_def} {
 private alter_table_annotations ::= oracle_annotations_clause
 
 private alter_table_modify_column_annotations ::= 'MODIFY' [ 'COLUMN' ] {column_name} oracle_annotations_clause
+
+private alter_table_memoptimize ::= [ 'NO' ] 'MEMOPTIMIZE' 'FOR' ( 'READ' | 'WRITE' )
 
 private alter_table_upgrade ::= 'UPGRADE' [ [ 'NOT' ] 'INCLUDING' 'DATA' ]
 

@@ -356,6 +356,7 @@ public enum class OracleType(
                 "POWERMULTISET" to TEXT,
                 "POWERMULTISET_BY_CARDINALITY" to TEXT,
                 "SET" to TEXT,
+                "ODCINUMBERLIST" to DECIMAL_NUMBER,
                 "SYS_CONNECT_BY_PATH" to TEXT,
                 "DEREF" to TEXT,
                 "MAKE_REF" to TEXT,

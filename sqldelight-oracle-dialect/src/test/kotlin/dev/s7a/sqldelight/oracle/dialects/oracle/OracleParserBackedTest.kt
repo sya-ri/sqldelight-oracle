@@ -2801,6 +2801,138 @@ class OracleParserBackedTest :
                   region VARCHAR2(64)
                 );
 
+                selectOnlyTable:
+                SELECT id, region
+                FROM ONLY (partitioned_orders) po;
+
+                selectRemoteTable:
+                SELECT id, region
+                FROM partitioned_orders@orders_link po;
+
+                selectPartition:
+                SELECT id, region
+                FROM partitioned_orders PARTITION (p_2026) po;
+
+                selectSubpartitionFor:
+                SELECT id, region
+                FROM partitioned_orders SUBPARTITION FOR (2026, 'WEST') po;
+
+                selectSampleBlock:
+                SELECT id, region
+                FROM partitioned_orders SAMPLE BLOCK (10) SEED (42) po;
+
+                selectAsOfScn:
+                SELECT id, region
+                FROM partitioned_orders AS OF SCN 123456 po;
+
+                selectAsOfTimestamp:
+                SELECT id, region
+                FROM partitioned_orders AS OF TIMESTAMP TIMESTAMP '2026-01-01 00:00:00' po;
+
+                selectVersionsBetweenScn:
+                SELECT *
+                FROM partitioned_orders VERSIONS BETWEEN SCN MINVALUE AND MAXVALUE po;
+
+                selectVersionsBetweenTimestamp:
+                SELECT *
+                FROM partitioned_orders VERSIONS BETWEEN TIMESTAMP MINVALUE AND MAXVALUE po;
+
+                selectVersionsBetweenAsOfScn:
+                SELECT *
+                FROM partitioned_orders VERSIONS BETWEEN SCN MINVALUE AND MAXVALUE AS OF SCN 123456 po;
+
+                selectAsOfPeriod:
+                SELECT id, region
+                FROM partitioned_orders AS OF PERIOD FOR valid_time TIMESTAMP '2026-01-01 00:00:00' po;
+
+                selectVersionsPeriod:
+                SELECT *
+                FROM partitioned_orders VERSIONS PERIOD FOR valid_time BETWEEN MINVALUE AND MAXVALUE po;
+
+                selectPivot:
+                SELECT *
+                FROM partitioned_orders PIVOT (
+                  COUNT(*) AS order_count
+                  FOR region IN ('WEST' AS west, 'EAST' AS east)
+                ) pivoted_orders;
+
+                selectPivotXmlAny:
+                SELECT *
+                FROM partitioned_orders PIVOT XML (
+                  COUNT(*)
+                  FOR region IN (ANY)
+                ) pivoted_orders;
+
+                selectPivotXmlSubquery:
+                SELECT *
+                FROM partitioned_orders PIVOT XML (
+                  COUNT(*)
+                  FOR region IN (
+                    SELECT region
+                    FROM partitioned_orders
+                  )
+                ) pivoted_orders;
+
+                selectPivotCompositeColumns:
+                SELECT *
+                FROM partitioned_orders PIVOT (
+                  COUNT(*)
+                  FOR (region, created_year) IN (('WEST', 2026) AS west_2026)
+                ) pivoted_orders;
+
+                selectMatchRecognize:
+                SELECT *
+                FROM partitioned_orders MATCH_RECOGNIZE (
+                  PARTITION BY 1
+                  ORDER BY 1
+                  MEASURES 1 AS first_id, 2 AS last_id
+                  ONE ROW PER MATCH
+                  AFTER MATCH SKIP TO LAST rising
+                  PATTERN (start_row rising+)
+                  DEFINE rising AS 1 > 0
+                ) matched_orders;
+
+                selectTableCollection:
+                SELECT 1
+                FROM TABLE(ODCINUMBERLIST(1, 2)) numbers;
+
+                selectLegacyTheCollection:
+                SELECT 1
+                FROM THE (
+                  SELECT ODCINUMBERLIST(1, 2)
+                  FROM partitioned_orders
+                ) numbers;
+
+                selectOuterJoinedTableCollection:
+                SELECT 1
+                FROM partitioned_orders po,
+                     TABLE(ODCINUMBERLIST(1))(+) numbers;
+
+                selectValuesTable:
+                SELECT *
+                FROM (
+                  VALUES (1, 'SCOTT'),
+                         (2, 'SMITH')
+                ) value_employees (employee_id, first_name);
+
+                selectGraphqlTableFunction:
+                SELECT *
+                FROM GRAPHQL('
+                  employees {
+                    _id: employee_id
+                    Name: first_name
+                  }
+                ') employee_documents;
+
+                selectGraphqlTableFunctionWithPassing:
+                SELECT *
+                FROM GRAPHQL('
+                  employees(employee_id: ${'$'}employee_id) {
+                    _id: employee_id
+                    Name: first_name
+                  }
+                ' PASSING 174 AS employee_id) employee_documents;
+
                 selectModifiedExternalTable:
                 SELECT *
                 FROM external_query_orders EXTERNAL MODIFY (

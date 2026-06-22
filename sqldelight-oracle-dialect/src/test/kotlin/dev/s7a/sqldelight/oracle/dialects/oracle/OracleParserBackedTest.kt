@@ -4801,6 +4801,12 @@ class OracleParserBackedTest :
                 CREATE OR REPLACE PACKAGE BODY emp_mgmt
                   AS END emp_mgmt;
 
+                CREATE OR REPLACE TYPE address_typ
+                  AS OBJECT (street VARCHAR2(35), city VARCHAR2(20));
+
+                CREATE NONEDITIONABLE TYPE IF NOT EXISTS reporting.phone_list_typ
+                  AS TABLE OF VARCHAR2(25);
+
                 CREATE TYPE BODY IF NOT EXISTS data_typ1
                   AS END data_typ1;
 

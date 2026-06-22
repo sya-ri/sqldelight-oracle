@@ -4508,6 +4508,12 @@ create_procedure_stmt ::= 'CREATE' oracle_create_replace_or_edition_clause * 'PR
   pin = 3
 }
 
+create_trigger_stmt ::= 'CREATE' oracle_create_replace_or_edition_clause * 'TRIGGER' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name oracle_trigger_source_token + {
+  extends = "com.alecstrong.sql.psi.core.psi.SqlCompositeElementImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlCompositeElement"
+  pin = 3
+}
+
 create_package_body_stmt ::= 'CREATE' oracle_create_replace_or_edition_clause * 'PACKAGE' 'BODY' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name oracle_plsql_source_token + {
   pin = 4
 }
@@ -4553,6 +4559,61 @@ private oracle_plsql_source_token ::= (
   'EXTERNAL' |
   'TABLE' |
   'LIBRARY'
+)
+
+private oracle_trigger_source_token ::= (
+  oracle_plsql_source_token |
+  ':' |
+  '+' |
+  '-' |
+  '*' |
+  '/' |
+  'AFTER' |
+  'BEFORE' |
+  'CALL' |
+  'COMPOUND' |
+  'CROSSEDITION' |
+  'DATABASE' |
+  'DECLARE' |
+  'DELETE' |
+  'DELETING' |
+  'DISABLE' |
+  'EACH' |
+  'ELSE' |
+  'ELSIF' |
+  'ENABLE' |
+  'EXCEPTION' |
+  'FOLLOWS' |
+  'FOR' |
+  'FORWARD' |
+  'FROM' |
+  'IF' |
+  'INSERT' |
+  'INSERTING' |
+  'INSTEAD' |
+  'INTO' |
+  'LOOP' |
+  'NEW' |
+  'NEXTVAL' |
+  'OLD' |
+  'ON' |
+  'OR' |
+  'PARENT' |
+  'PRECEDES' |
+  'REFERENCING' |
+  'REVERSE' |
+  'ROW' |
+  'SCHEMA' |
+  'SELECT' |
+  'STATEMENT' |
+  'THEN' |
+  'TRIGGER' |
+  'UPDATE' |
+  'UPDATING' |
+  'VALUES' |
+  'WHEN' |
+  'WHERE' |
+  'WHILE'
 )
 
 create_audit_policy_stmt ::= 'CREATE' 'AUDIT' 'POLICY' oracle_object_name_part

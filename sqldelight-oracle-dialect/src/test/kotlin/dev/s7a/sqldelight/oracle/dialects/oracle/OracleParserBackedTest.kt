@@ -4792,6 +4792,21 @@ class OracleParserBackedTest :
                 CREATE NONEDITIONABLE PROCEDURE IF NOT EXISTS reporting.refresh_bonus
                   IS BEGIN NULL END refresh_bonus;
 
+                CREATE OR REPLACE EDITIONABLE TRIGGER hr.customer_id_trigger
+                  BEFORE INSERT ON hr.customer
+                  FOR EACH ROW
+                  BEGIN NULL END customer_id_trigger;
+
+                CREATE NONEDITIONABLE TRIGGER IF NOT EXISTS reporting.customer_audit_trigger
+                  AFTER INSERT ON reporting.customer
+                  FOR EACH ROW
+                  BEGIN NULL END customer_audit_trigger;
+
+                CREATE OR REPLACE TRIGGER compound_customer_trigger
+                  FOR INSERT OR UPDATE ON customer
+                  COMPOUND TRIGGER
+                  END compound_customer_trigger;
+
                 CREATE OR REPLACE PACKAGE emp_mgmt
                   AS END emp_mgmt;
 

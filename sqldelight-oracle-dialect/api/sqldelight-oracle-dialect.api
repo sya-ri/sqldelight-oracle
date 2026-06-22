@@ -175,6 +175,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun create_table_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_tablespace_set_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_tablespace_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun create_trigger_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_true_cache_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_type_body_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_type_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -404,6 +405,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun createTableStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createTablespaceSetStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createTablespaceStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun createTriggerStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createTrueCacheStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createTypeBodyStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createTypeStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -592,6 +594,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getCreate_table_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_tablespace_set_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_tablespace_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getCreate_trigger_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_true_cache_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_type_body_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_type_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -838,6 +841,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setCreate_table_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_tablespace_set_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_tablespace_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setCreate_trigger_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_true_cache_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_type_body_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_type_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -1335,6 +1339,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTablespaceStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTriggerStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTrueCacheStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -2127,6 +2134,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field CREATE_TABLESPACE_SET_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_TABLESPACE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_TABLE_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field CREATE_TRIGGER_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_TRUE_CACHE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_TYPE_BODY_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_TYPE_STMT Lcom/intellij/psi/tree/IElementType;
@@ -2376,6 +2384,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitCreateTableStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTableStmt;)V
 	public fun visitCreateTablespaceSetStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTablespaceSetStmt;)V
 	public fun visitCreateTablespaceStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTablespaceStmt;)V
+	public fun visitCreateTriggerStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTriggerStmt;)V
 	public fun visitCreateTrueCacheStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTrueCacheStmt;)V
 	public fun visitCreateTypeBodyStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTypeBodyStmt;)V
 	public fun visitCreateTypeStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTypeStmt;)V
@@ -3266,6 +3275,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCr
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateTablespaceStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTablespaceStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateTriggerStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTriggerStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V

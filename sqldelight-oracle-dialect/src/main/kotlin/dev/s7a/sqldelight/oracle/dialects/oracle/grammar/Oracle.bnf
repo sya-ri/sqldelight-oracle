@@ -5159,7 +5159,7 @@ private oracle_schema_object_name ::= oracle_object_name_part [ DOT oracle_objec
 
 private oracle_object_name_part ::= oracle_common_object_name_part | <<identifierExt <<identifier_real>>>> | string
 
-private oracle_dblink_clause ::= '@' oracle_object_name_part
+private oracle_dblink_clause ::= '@' oracle_database_link_reference
 
 private oracle_common_object_name_part ::= <<identifierExt <<identifier_real>>>> '#' '#' <<identifierExt <<identifier_real>>>>
 

@@ -3115,19 +3115,19 @@ class OracleParserBackedTest :
 
                 selectRemoteTable:
                 SELECT id, region
-                FROM partitioned_orders@orders_link po;
+                FROM partitioned_orders@orders.remote.example po;
 
                 selectRemoteView:
                 SELECT id, region
-                FROM reporting_orders_view@orders_link rov;
+                FROM reporting_orders_view@reporting.us.example rov;
 
                 selectRemoteMaterializedView:
                 SELECT id, region
-                FROM reporting_orders_mv@orders_link romv;
+                FROM reporting_orders_mv@reporting.us.example romv;
 
                 selectRemoteOnlyTable:
                 SELECT id, region
-                FROM ONLY (partitioned_orders@orders_link) po;
+                FROM ONLY (partitioned_orders@orders.remote.example) po;
 
                 selectOnlySubquery:
                 SELECT id, region
@@ -4140,7 +4140,7 @@ class OracleParserBackedTest :
                 RETURNING order_id INTO ?;
 
                 insertRemoteTarget:
-                INSERT INTO import_orders@orders_link (order_id, customer_name, order_total)
+                INSERT INTO import_orders@orders.remote.example (order_id, customer_name, order_total)
                 VALUES (?, ?, ?);
 
                 insertSetClause:
@@ -4331,7 +4331,7 @@ class OracleParserBackedTest :
                 WHERE order_id = ?;
 
                 updateRemoteTarget:
-                UPDATE partitioned_order_updates@orders_link
+                UPDATE partitioned_order_updates@orders.remote.example
                 SET archived_at = CURRENT_TIMESTAMP
                 WHERE order_id = ?;
 
@@ -4376,7 +4376,7 @@ class OracleParserBackedTest :
                 LOG ERRORS INTO partitioned_order_delete_errors ('delete-load') REJECT LIMIT 10;
 
                 deleteRemoteTarget:
-                DELETE FROM partitioned_order_updates@orders_link
+                DELETE FROM partitioned_order_updates@orders.remote.example
                 WHERE order_id = ?;
 
                 deleteWhereCurrentOf:
@@ -4404,11 +4404,11 @@ class OracleParserBackedTest :
 
                 CALL hr.employee_api.adjust_salary(100, delta => 2500, effective_at => CURRENT_TIMESTAMP);
 
-                CALL hr.remote_api.refresh_cache@reporting_link(tenant_id => 42);
+                CALL hr.remote_api.refresh_cache@reporting.us.example(tenant_id => 42);
 
                 CALL hr.employee_api.current_salary(employee_id => 100) INTO :salary_out;
 
-                CALL hr.remote_api.current_status@reporting_link(tenant_id => 42) INTO :status_out;
+                CALL hr.remote_api.current_status@reporting.us.example(tenant_id => 42) INTO :status_out;
 
                 CALL warehouse_typ(456, 'Warehouse 456', 2236).ret_name() INTO :warehouse_name;
 
@@ -4436,7 +4436,7 @@ class OracleParserBackedTest :
                 LOCK TABLE sales PARTITION FOR (2026, 1), sales SUBPARTITION (sales_q1_north)
                 IN SHARE ROW EXCLUSIVE MODE;
 
-                LOCK TABLE hr.remote_sales@reporting_link IN ROW EXCLUSIVE MODE WAIT 5;
+                LOCK TABLE hr.remote_sales@reporting.us.example IN ROW EXCLUSIVE MODE WAIT 5;
 
                 LOCK TABLE sales SUBPARTITION FOR ('NORTH') IN SHARE UPDATE MODE;
                 """.trimIndent()
@@ -4463,7 +4463,7 @@ class OracleParserBackedTest :
 
                 EXPLAIN PLAN
                   SET STATEMENT_ID = 'employee lookup'
-                  INTO plan_table@reporting_link
+                  INTO plan_table@reporting.us.example
                   FOR SELECT id, salary
                       FROM explain_employees
                       WHERE department_id = 10;

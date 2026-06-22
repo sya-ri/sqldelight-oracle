@@ -4582,6 +4582,11 @@ class OracleParserBackedTest :
                   WITH ROWID, SEQUENCE (cust_id, prod_id)
                   INCLUDING NEW VALUES;
 
+                CREATE MATERIALIZED VIEW LOG ON reporting.sales
+                  PCTFREE 5
+                  TABLESPACE users
+                  PURGE REPEAT INTERVAL '5' DAY;
+
                 CREATE MATERIALIZED ZONEMAP sales_zmap
                   ON sales(cust_id, prod_id);
                 """.trimIndent()
@@ -4697,6 +4702,12 @@ class OracleParserBackedTest :
 
                 ALTER MATERIALIZED VIEW LOG ON sales
                   PURGE IMMEDIATE ASYNCHRONOUS;
+
+                ALTER MATERIALIZED VIEW LOG ON sales
+                  PURGE START WITH SYSDATE NEXT SYSDATE + 1;
+
+                ALTER MATERIALIZED VIEW LOG ON sales
+                  PURGE START WITH SYSDATE REPEAT INTERVAL '1' DAY;
 
                 ALTER MATERIALIZED VIEW LOG ON sales
                   FOR SYNCHRONOUS REFRESH;

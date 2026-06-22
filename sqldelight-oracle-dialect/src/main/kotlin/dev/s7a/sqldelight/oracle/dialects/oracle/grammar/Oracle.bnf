@@ -2818,8 +2818,17 @@ private oracle_mv_log_augmentation ::= (
 
 private oracle_mv_log_purge_clause ::= (
   ( 'IMMEDIATE' [ 'SYNCHRONOUS' | 'ASYNCHRONOUS' ] ) |
-  ( 'START' 'WITH' oracle_mv_log_boundary_token + 'NEXT' oracle_mv_log_boundary_token + )
+  [ 'START' 'WITH' oracle_mv_log_datetime_expr ] oracle_mv_log_purge_schedule
 )
+
+private oracle_mv_log_purge_schedule ::= (
+  'NEXT' oracle_mv_log_datetime_expr |
+  'REPEAT' 'INTERVAL' oracle_mv_log_interval_expr
+)
+
+private oracle_mv_log_datetime_expr ::= ( !'NEXT' !'REPEAT' oracle_mv_log_boundary_token ) +
+
+private oracle_mv_log_interval_expr ::= oracle_mv_log_boundary_token +
 
 private oracle_zonemap_clause ::= (
   'TABLESPACE' oracle_schema_object_name |
@@ -2872,7 +2881,7 @@ private oracle_zonemap_query_token ::= (
   'WHERE'
 )
 
-private oracle_mv_log_boundary_token ::= oracle_plsql_source_token | 'AT' | 'NEXT' | 'START' | 'WITH' | 'TABLESPACE'
+private oracle_mv_log_boundary_token ::= oracle_plsql_source_token | '+' | '-' | '*' | '/' | 'AT' | 'DAY' | 'HOUR' | 'MINUTE' | 'MONTH' | 'SECOND' | 'TABLESPACE' | 'YEAR'
 
 create_analytic_view_stmt ::= 'CREATE' oracle_create_replace_clause * 'ANALYTIC' 'VIEW' [ 'IF' 'NOT' 'EXISTS' ]
   oracle_schema_object_name oracle_analytic_dimension_create_clause + {

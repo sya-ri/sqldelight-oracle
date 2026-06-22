@@ -1217,13 +1217,13 @@ private oracle_partition_key ::= {column_name} | LP <<expr '-1'>> RP
 
 private oracle_range_partition_definition ::= 'PARTITION' [ oracle_object_name_part ] 'VALUES' 'LESS' 'THAN' LP oracle_range_partition_value ( COMMA oracle_range_partition_value ) * RP oracle_partition_table_description *
 
-private oracle_range_partition_value ::= {string_literal} | 'MAXVALUE' | DIGIT | {signed_number}
+private oracle_range_partition_value ::= 'MAXVALUE' | <<expr '-1'>>
 
 private oracle_list_partition_definition ::= 'PARTITION' [ oracle_object_name_part ] 'VALUES' LP ( oracle_list_partition_values | 'DEFAULT' ) RP oracle_partition_table_description *
 
 private oracle_list_partition_values ::= oracle_list_partition_value ( COMMA oracle_list_partition_value ) *
 
-private oracle_list_partition_value ::= {string_literal} | 'NULL' | DIGIT | {signed_number}
+private oracle_list_partition_value ::= <<expr '-1'>>
 
 private oracle_hash_partition_definition ::= 'PARTITION' [ oracle_object_name_part ] oracle_partition_table_description *
 

@@ -2064,8 +2064,9 @@ class OracleParserBackedTest :
                   account_id NUMBER NOT NULL,
                   created_at DATE,
                   external_id VARCHAR2(64)
-                ) PARTITION BY RANGE (created_at) (
-                  PARTITION p_2025 VALUES LESS THAN ('2026-01-01') TABLESPACE users,
+                ) PARTITION BY RANGE (created_at)
+                INTERVAL (NUMTOYMINTERVAL(1, 'MONTH')) STORE IN (users, archive_ts) (
+                  PARTITION p_2025 VALUES LESS THAN (DATE '2026-01-01') TABLESPACE users,
                   PARTITION p_max VALUES LESS THAN (MAXVALUE) READ ONLY
                 );
 
@@ -2073,7 +2074,7 @@ class OracleParserBackedTest :
                   account_id NUMBER NOT NULL,
                   region_code VARCHAR2(8),
                   external_id VARCHAR2(64)
-                ) PARTITION BY LIST (region_code) (
+                ) PARTITION BY LIST (region_code) AUTOMATIC STORE IN (users, archive_ts) (
                   PARTITION p_us VALUES ('US', 'CA') INDEXING ON,
                   PARTITION p_other VALUES (DEFAULT)
                 );
@@ -2082,6 +2083,14 @@ class OracleParserBackedTest :
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)
                 ) PARTITION BY HASH (account_id) PARTITIONS 4 STORE IN (users, archive_ts);
+
+                CREATE TABLE individual_hash_partitioned_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) PARTITION BY HASH (account_id) (
+                  PARTITION p_hash_1 TABLESPACE users,
+                  PARTITION p_hash_2 READ WRITE ROW STORE COMPRESS BASIC
+                );
 
                 CREATE TABLE row_store_accounts (
                   account_id NUMBER NOT NULL,

@@ -2289,6 +2289,15 @@ class OracleParserBackedTest :
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 
+                CREATE TABLE external_account_snapshot
+                ORGANIZATION EXTERNAL (
+                  TYPE ORACLE_DATAPUMP
+                  DEFAULT DIRECTORY data_dir
+                  LOCATION ('account_snapshot.dmp')
+                ) REJECT LIMIT 0
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
                 CREATE TABLE disabled_account_snapshot
                 DISABLE CONSTRAINT disabled_account_snapshot_pk
                 AS SELECT account_id, external_id

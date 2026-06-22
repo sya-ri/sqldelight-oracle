@@ -937,11 +937,57 @@ private oracle_group_by_having_clause ::= (
   'HAVING' <<expr '-1'>>
 )
 
-table_or_subquery ::= oracle_graphql_table_reference | oracle_xmltable_reference | oracle_inline_external_table_reference | oracle_containers_table_reference | oracle_collection_table_reference | oracle_values_table_reference | oracle_subquery_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
+table_or_subquery ::= oracle_graph_table_reference | oracle_graphql_table_reference | oracle_xmltable_reference | oracle_inline_external_table_reference | oracle_containers_table_reference | oracle_collection_table_reference | oracle_values_table_reference | oracle_subquery_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTableOrSubqueryImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlTableOrSubquery"
   override = true
 }
+
+private oracle_graph_table_reference ::= 'GRAPH_TABLE' LP oracle_graph_table_token + RP
+  [ oracle_table_alias_clause ]
+
+private oracle_graph_table_boundary ::= LP oracle_graph_table_token * RP
+
+private oracle_graph_table_token ::= (
+  oracle_graph_table_boundary |
+  oracle_schema_object_name |
+  {string_literal} |
+  string |
+  DIGIT |
+  {signed_number} |
+  COMMA |
+  DOT |
+  EQ |
+  GT |
+  '*' |
+  '!=' |
+  '<>' |
+  '<' |
+  '>=' |
+  '<=' |
+  'ALL' |
+  'AND' |
+  'AS' |
+  'ASC' |
+  'BY' |
+  'COLUMNS' |
+  'CURRENT_DATE' |
+  'CURRENT_TIMESTAMP' |
+  'CURRENT_TIME' |
+  'DESC' |
+  'FALSE' |
+  'IS' |
+  'MATCH' |
+  'NOT' |
+  'NULL' |
+  'OF' |
+  'OR' |
+  'PROPERTY' |
+  'SCN' |
+  'TIMESTAMP' |
+  'TRUE' |
+  'WHERE'
+)
 
 private oracle_graphql_table_reference ::= 'GRAPHQL' LP {string_literal} [ oracle_graphql_passing_clause ] RP
   [ oracle_table_alias_clause ]

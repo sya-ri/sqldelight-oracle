@@ -3071,6 +3071,22 @@ class OracleParserBackedTest :
                   DEFAULT DIRECTORY data_dir
                 ) external_employees;
 
+                selectGraphTable:
+                SELECT *
+                FROM GRAPH_TABLE (
+                  employees_graph
+                  MATCH (employee IS employee_node WHERE employee.status = 'ACTIVE')
+                  COLUMNS (employee.employee_id AS employee_id, employee.name AS employee_name)
+                ) graph_employees;
+
+                selectGraphTableAsOfTimestamp:
+                SELECT *
+                FROM GRAPH_TABLE (
+                  employees_graph AS OF TIMESTAMP CURRENT_TIMESTAMP
+                  MATCH (employee IS employee_node)
+                  COLUMNS (employee.*)
+                ) graph_employee_versions;
+
                 selectGraphqlTableFunction:
                 SELECT *
                 FROM GRAPHQL('

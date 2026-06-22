@@ -1127,6 +1127,8 @@ private oracle_create_table_property ::= (
   oracle_result_cache_clause |
   oracle_read_only_clause |
   oracle_row_movement_clause |
+  oracle_logical_replication_clause |
+  oracle_table_flashback_archive_clause |
   'CACHE' |
   'NOCACHE' |
   oracle_parallel_clause |
@@ -1144,7 +1146,9 @@ private oracle_create_table_as_property ::= (
   oracle_segment_attribute_clause |
   oracle_result_cache_clause |
   oracle_read_only_clause |
-  oracle_row_movement_clause
+  oracle_row_movement_clause |
+  oracle_logical_replication_clause |
+  oracle_table_flashback_archive_clause
 )
 
 private oracle_deferred_segment_creation ::= 'SEGMENT' 'CREATION' ( 'IMMEDIATE' | 'DEFERRED' )
@@ -1152,6 +1156,21 @@ private oracle_deferred_segment_creation ::= 'SEGMENT' 'CREATION' ( 'IMMEDIATE' 
 private oracle_read_only_clause ::= 'READ' ( 'ONLY' | 'WRITE' )
 
 private oracle_row_movement_clause ::= ( 'ENABLE' | 'DISABLE' ) 'ROW' 'MOVEMENT'
+
+private oracle_logical_replication_clause ::= (
+  'DISABLE' 'LOGICAL' 'REPLICATION' |
+  'ENABLE' 'LOGICAL' 'REPLICATION' (
+    'ALL' 'KEYS' |
+    'ALLOW' 'NOVALIDATE' 'KEYS' |
+    [ 'NO' ] 'PARTIAL' 'JSON'
+  ) *
+)
+
+private oracle_table_flashback_archive_clause ::= (
+  'BLOCKCHAIN' 'FLASHBACK' 'ARCHIVE' [ oracle_object_name_part ] |
+  'FLASHBACK' 'ARCHIVE' [ oracle_object_name_part ] |
+  'NO' 'FLASHBACK' 'ARCHIVE'
+)
 
 private oracle_result_cache_clause ::= 'RESULT_CACHE' LP (
   'MODE' ( 'DEFAULT' | 'FORCE' ) [ COMMA 'STANDBY' ( 'ENABLE' | 'DISABLE' ) ] |

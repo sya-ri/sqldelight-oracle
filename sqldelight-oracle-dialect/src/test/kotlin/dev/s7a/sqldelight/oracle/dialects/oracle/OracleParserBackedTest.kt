@@ -1961,6 +1961,16 @@ class OracleParserBackedTest :
                   external_id VARCHAR2(64)
                 ) ENABLE ROW MOVEMENT READ WRITE;
 
+                CREATE TABLE replicated_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) ENABLE LOGICAL REPLICATION ALL KEYS NO PARTIAL JSON;
+
+                CREATE TABLE flashback_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) BLOCKCHAIN FLASHBACK ARCHIVE account_archive;
+
                 CREATE TABLE row_store_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)
@@ -2032,6 +2042,16 @@ class OracleParserBackedTest :
 
                 CREATE TABLE movable_account_snapshot
                 DISABLE ROW MOVEMENT READ WRITE
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
+                CREATE TABLE replicated_account_snapshot
+                DISABLE LOGICAL REPLICATION
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
+                CREATE TABLE flashback_account_snapshot
+                NO FLASHBACK ARCHIVE
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 
@@ -5491,7 +5511,7 @@ class OracleParserBackedTest :
                     fileNames = listOf("Test.sq"),
                     errors =
                         listOf(
-                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, COLUMN, COMPRESS, DISABLE, ENABLE, FILESYSTEM_LIKE_LOGGING, INITRANS, LOGGING, NOCOMPRESS, NOLOGGING, ON, PCTFREE, PCTUSED, READ, RESULT_CACHE, ROW, SEGMENT, STORAGE or TABLESPACE expected, got '('",
+                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, BLOCKCHAIN, COLUMN, COMPRESS, DISABLE, ENABLE, FILESYSTEM_LIKE_LOGGING, FLASHBACK, INITRANS, LOGGING, NO, NOCOMPRESS, NOLOGGING, ON, PCTFREE, PCTUSED, READ, RESULT_CACHE, ROW, SEGMENT, STORAGE or TABLESPACE expected, got '('",
                         ),
                 )
         }

@@ -1321,7 +1321,35 @@ private oracle_table_flashback_archive_clause ::= (
 
 private oracle_table_organization_clause ::= 'ORGANIZATION' (
   'HEAP' oracle_segment_attribute_clause * oracle_table_compression * |
-  'INDEX' oracle_segment_attribute_clause * oracle_index_organization_property *
+  'INDEX' oracle_segment_attribute_clause * oracle_index_organization_property * |
+  'EXTERNAL' oracle_external_table_clause
+)
+
+private oracle_external_table_clause ::= oracle_external_table_boundary [ 'REJECT' 'LIMIT' ( {signed_number} | 'UNLIMITED' ) ]
+
+private oracle_external_table_boundary ::= LP oracle_external_table_token * RP
+
+private oracle_external_table_token ::= (
+  oracle_external_table_boundary |
+  {string_literal} |
+  string |
+  DIGIT |
+  {signed_number} |
+  COMMA |
+  DOT |
+  EQ |
+  'ACCESS' |
+  'BY' |
+  'DEFAULT' |
+  'DELIMITED' |
+  'DIRECTORY' |
+  'LOCATION' |
+  'NEWLINE' |
+  'PARAMETERS' |
+  'PREPROCESSOR' |
+  'RECORDS' |
+  'TYPE' |
+  oracle_schema_object_name
 )
 
 private oracle_index_organization_property ::= (

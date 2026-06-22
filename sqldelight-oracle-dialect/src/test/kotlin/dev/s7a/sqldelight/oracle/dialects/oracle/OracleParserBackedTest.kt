@@ -2020,6 +2020,16 @@ class OracleParserBackedTest :
                   CONSTRAINT index_organized_accounts_pk PRIMARY KEY (account_id)
                 ) ORGANIZATION INDEX TABLESPACE users PCTTHRESHOLD 50 MAPPING TABLE COMPRESS 1 INCLUDING external_id OVERFLOW TABLESPACE users;
 
+                CREATE TABLE external_accounts (
+                  account_id NUMBER,
+                  external_id VARCHAR2(64)
+                ) ORGANIZATION EXTERNAL (
+                  TYPE ORACLE_LOADER
+                  DEFAULT DIRECTORY data_dir
+                  ACCESS PARAMETERS (RECORDS DELIMITED BY NEWLINE)
+                  LOCATION ('accounts.csv')
+                ) REJECT LIMIT UNLIMITED;
+
                 CREATE TABLE enabled_constraint_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64),

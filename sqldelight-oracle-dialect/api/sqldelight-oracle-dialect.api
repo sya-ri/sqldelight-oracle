@@ -76,6 +76,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun alter_library_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_lockdown_profile_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_materialized_view_log_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun alter_materialized_view_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_materialized_zonemap_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_mle_env_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun alter_mle_module_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -294,6 +295,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun alterLibraryStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterLockdownProfileStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterMaterializedViewLogStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun alterMaterializedViewStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterMaterializedZonemapStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterMleEnvStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun alterMleModuleStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -470,6 +472,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getAlter_library_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_lockdown_profile_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_materialized_view_log_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getAlter_materialized_view_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_materialized_zonemap_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_mle_env_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_mle_module_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -704,6 +707,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setAlter_library_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_lockdown_profile_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_materialized_view_log_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setAlter_materialized_view_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_materialized_zonemap_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_mle_env_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAlter_mle_module_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -980,6 +984,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedViewLogStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedViewStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedZonemapStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -1469,6 +1476,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getAlterLibraryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterLibraryStmt;
 	public abstract fun getAlterLockdownProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterLockdownProfileStmt;
 	public abstract fun getAlterMaterializedViewLogStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedViewLogStmt;
+	public abstract fun getAlterMaterializedViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedViewStmt;
 	public abstract fun getAlterMaterializedZonemapStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedZonemapStmt;
 	public abstract fun getAlterMleEnvStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMleEnvStmt;
 	public abstract fun getAlterMleModuleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMleModuleStmt;
@@ -1930,6 +1938,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field ALTER_LIBRARY_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_LOCKDOWN_PROFILE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_MATERIALIZED_VIEW_LOG_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field ALTER_MATERIALIZED_VIEW_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_MATERIALIZED_ZONEMAP_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_MLE_ENV_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ALTER_MLE_MODULE_STMT Lcom/intellij/psi/tree/IElementType;
@@ -2169,6 +2178,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitAlterLibraryStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterLibraryStmt;)V
 	public fun visitAlterLockdownProfileStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterLockdownProfileStmt;)V
 	public fun visitAlterMaterializedViewLogStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedViewLogStmt;)V
+	public fun visitAlterMaterializedViewStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedViewStmt;)V
 	public fun visitAlterMaterializedZonemapStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedZonemapStmt;)V
 	public fun visitAlterMleEnvStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMleEnvStmt;)V
 	public fun visitAlterMleModuleStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMleModuleStmt;)V
@@ -2536,6 +2546,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAl
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterMaterializedViewLogStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedViewLogStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAlterMaterializedViewStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedViewStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
@@ -3479,6 +3495,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getAlterLibraryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterLibraryStmt;
 	public fun getAlterLockdownProfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterLockdownProfileStmt;
 	public fun getAlterMaterializedViewLogStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedViewLogStmt;
+	public fun getAlterMaterializedViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedViewStmt;
 	public fun getAlterMaterializedZonemapStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMaterializedZonemapStmt;
 	public fun getAlterMleEnvStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMleEnvStmt;
 	public fun getAlterMleModuleStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterMleModuleStmt;

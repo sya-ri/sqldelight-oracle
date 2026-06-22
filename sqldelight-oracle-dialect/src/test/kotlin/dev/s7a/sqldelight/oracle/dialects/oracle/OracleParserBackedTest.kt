@@ -4566,6 +4566,15 @@ class OracleParserBackedTest :
                 ALTER MATERIALIZED VIEW LOG ON sales
                   PCTFREE 20 PCTUSED 50 NOCACHE PARALLEL 4;
 
+                ALTER MATERIALIZED VIEW sales_summary
+                  ANNOTATIONS(ADD IF NOT EXISTS Display 'Sales Summary');
+
+                ALTER MATERIALIZED VIEW IF EXISTS reporting.sales_summary
+                  ANNOTATIONS(DROP IF EXISTS Display, REPLACE Refresh_Mode 'On Demand');
+
+                ALTER SNAPSHOT legacy_sales_snapshot
+                  ANNOTATIONS(ADD Legacy);
+
                 ALTER MATERIALIZED ZONEMAP sales_zmap
                   PCTFREE 20 PCTUSED 50 NOCACHE;
 

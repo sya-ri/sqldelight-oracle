@@ -5112,6 +5112,29 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle create directory statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE DIRECTORY admin AS '/disk1/oracle/admin';
+
+                CREATE OR REPLACE DIRECTORY bfile_dir AS '/usr/bin/bfile_dir';
+
+                CREATE DIRECTORY IF NOT EXISTS app_data_dir
+                  SHARING = METADATA
+                  AS '/u01/app/data';
+
+                CREATE DIRECTORY app_private_dir
+                  SHARING = NONE
+                  AS '/u01/app/private';
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle schema object alter statements through SQLDelight environment exactly") {
             val sql =
                 """

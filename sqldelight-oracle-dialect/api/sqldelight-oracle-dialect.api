@@ -132,6 +132,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun create_database_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_dimension_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_directive_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun create_directory_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_diskgroup_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_edition_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_end_user_context_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -355,6 +356,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun createDatabaseStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createDimensionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createDirectiveStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun createDirectoryStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createDiskgroupStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createEditionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createEndUserContextStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -537,6 +539,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getCreate_database_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_dimension_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_directive_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getCreate_directory_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_diskgroup_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_edition_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_end_user_context_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -777,6 +780,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setCreate_database_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_dimension_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_directive_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setCreate_directory_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_diskgroup_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_edition_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_end_user_context_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -1180,6 +1184,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDirectiveStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDirectoryStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDiskgroupStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
@@ -1545,6 +1552,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreateDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDatabaseStmt;
 	public abstract fun getCreateDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDimensionStmt;
 	public abstract fun getCreateDirectiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDirectiveStmt;
+	public abstract fun getCreateDirectoryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDirectoryStmt;
 	public abstract fun getCreateDiskgroupStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDiskgroupStmt;
 	public abstract fun getCreateEditionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEditionStmt;
 	public abstract fun getCreateEndUserContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEndUserContextStmt;
@@ -1829,6 +1837,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreateDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDatabaseStmt;
 	public abstract fun getCreateDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDimensionStmt;
 	public abstract fun getCreateDirectiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDirectiveStmt;
+	public abstract fun getCreateDirectoryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDirectoryStmt;
 	public abstract fun getCreateDiskgroupStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDiskgroupStmt;
 	public abstract fun getCreateEditionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEditionStmt;
 	public abstract fun getCreateEndUserContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEndUserContextStmt;
@@ -2028,6 +2037,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field CREATE_DATA_ROLE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_DIMENSION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_DIRECTIVE_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field CREATE_DIRECTORY_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_DISKGROUP_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_EDITION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_END_USER_CONTEXT_STMT Lcom/intellij/psi/tree/IElementType;
@@ -2271,6 +2281,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitCreateDatabaseStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDatabaseStmt;)V
 	public fun visitCreateDimensionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDimensionStmt;)V
 	public fun visitCreateDirectiveStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDirectiveStmt;)V
+	public fun visitCreateDirectoryStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDirectoryStmt;)V
 	public fun visitCreateDiskgroupStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDiskgroupStmt;)V
 	public fun visitCreateEditionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEditionStmt;)V
 	public fun visitCreateEndUserContextStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEndUserContextStmt;)V
@@ -2939,6 +2950,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCr
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateDirectoryStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDirectoryStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateDiskgroupStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDiskgroupStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
@@ -3601,6 +3618,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getCreateDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDatabaseStmt;
 	public fun getCreateDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDimensionStmt;
 	public fun getCreateDirectiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDirectiveStmt;
+	public fun getCreateDirectoryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDirectoryStmt;
 	public fun getCreateDiskgroupStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDiskgroupStmt;
 	public fun getCreateEditionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEditionStmt;
 	public fun getCreateEndUserContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEndUserContextStmt;
@@ -3969,6 +3987,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSt
 	public fun getCreateDatabaseStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDatabaseStmt;
 	public fun getCreateDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDimensionStmt;
 	public fun getCreateDirectiveStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDirectiveStmt;
+	public fun getCreateDirectoryStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDirectoryStmt;
 	public fun getCreateDiskgroupStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDiskgroupStmt;
 	public fun getCreateEditionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEditionStmt;
 	public fun getCreateEndUserContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateEndUserContextStmt;

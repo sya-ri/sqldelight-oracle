@@ -5135,6 +5135,47 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle create cluster statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE CLUSTER personnel
+                  (department NUMBER(4))
+                  SIZE 512
+                  STORAGE (INITIAL 100K NEXT 50K);
+
+                CREATE CLUSTER IF NOT EXISTS language
+                  (cust_language VARCHAR2(3) COLLATE BINARY SORT)
+                  SHARING = METADATA
+                  SIZE 512
+                  HASHKEYS 10
+                  STORAGE (INITIAL 100K NEXT 50K)
+                  NOCACHE;
+
+                CREATE CLUSTER cust_orders
+                  (customer_id NUMBER(6))
+                  SIZE 512
+                  SINGLE TABLE HASHKEYS 100;
+
+                CREATE CLUSTER sales
+                  (amount_sold NUMBER, prod_id NUMBER)
+                  HASHKEYS 100000
+                  HASH IS (amount_sold * 10 + prod_id)
+                  SIZE 300
+                  TABLESPACE example
+                  PARALLEL 4
+                  ROWDEPENDENCIES
+                  PARTITION BY RANGE (amount_sold)
+                    (PARTITION p1 VALUES LESS THAN (2001),
+                     PARTITION p2 VALUES LESS THAN (MAXVALUE));
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle schema object alter statements through SQLDelight environment exactly") {
             val sql =
                 """

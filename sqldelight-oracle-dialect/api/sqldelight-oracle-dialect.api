@@ -124,6 +124,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun create_assertion_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_attribute_dimension_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_audit_policy_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun create_cluster_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_context_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_controlfile_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun create_data_grant_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -348,6 +349,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun createAssertionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createAttributeDimensionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createAuditPolicyStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun createClusterStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createContextStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createControlfileStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun createDataGrantStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -531,6 +533,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getCreate_assertion_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_attribute_dimension_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_audit_policy_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getCreate_cluster_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_context_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_controlfile_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCreate_data_grant_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -772,6 +775,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setCreate_assertion_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_attribute_dimension_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_audit_policy_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setCreate_cluster_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_context_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_controlfile_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCreate_data_grant_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -1160,6 +1164,10 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAuditPolicyStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateClusterStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+	public abstract fun getTypeNameList ()Ljava/util/List;
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateContextStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
@@ -1544,6 +1552,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreateAssertionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAssertionStmt;
 	public abstract fun getCreateAttributeDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAttributeDimensionStmt;
 	public abstract fun getCreateAuditPolicyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAuditPolicyStmt;
+	public abstract fun getCreateClusterStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateClusterStmt;
 	public abstract fun getCreateContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateContextStmt;
 	public abstract fun getCreateControlfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateControlfileStmt;
 	public abstract fun getCreateDataGrantStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDataGrantStmt;
@@ -1829,6 +1838,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreateAssertionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAssertionStmt;
 	public abstract fun getCreateAttributeDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAttributeDimensionStmt;
 	public abstract fun getCreateAuditPolicyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAuditPolicyStmt;
+	public abstract fun getCreateClusterStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateClusterStmt;
 	public abstract fun getCreateContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateContextStmt;
 	public abstract fun getCreateControlfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateControlfileStmt;
 	public abstract fun getCreateDataGrantStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDataGrantStmt;
@@ -2029,6 +2039,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field CREATE_ASSERTION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_ATTRIBUTE_DIMENSION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_AUDIT_POLICY_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field CREATE_CLUSTER_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_CONTEXT_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_CONTROLFILE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field CREATE_DATABASE_LINK_STMT Lcom/intellij/psi/tree/IElementType;
@@ -2273,6 +2284,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitCreateAssertionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAssertionStmt;)V
 	public fun visitCreateAttributeDimensionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAttributeDimensionStmt;)V
 	public fun visitCreateAuditPolicyStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAuditPolicyStmt;)V
+	public fun visitCreateClusterStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateClusterStmt;)V
 	public fun visitCreateContextStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateContextStmt;)V
 	public fun visitCreateControlfileStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateControlfileStmt;)V
 	public fun visitCreateDataGrantStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDataGrantStmt;)V
@@ -2900,6 +2912,13 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCr
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateClusterStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateClusterStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+	public fun getTypeNameList ()Ljava/util/List;
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateContextStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateContextStmt {
@@ -3610,6 +3629,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getCreateAssertionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAssertionStmt;
 	public fun getCreateAttributeDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAttributeDimensionStmt;
 	public fun getCreateAuditPolicyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAuditPolicyStmt;
+	public fun getCreateClusterStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateClusterStmt;
 	public fun getCreateContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateContextStmt;
 	public fun getCreateControlfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateControlfileStmt;
 	public fun getCreateDataGrantStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDataGrantStmt;
@@ -3979,6 +3999,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSt
 	public fun getCreateAssertionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAssertionStmt;
 	public fun getCreateAttributeDimensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAttributeDimensionStmt;
 	public fun getCreateAuditPolicyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateAuditPolicyStmt;
+	public fun getCreateClusterStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateClusterStmt;
 	public fun getCreateContextStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateContextStmt;
 	public fun getCreateControlfileStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateControlfileStmt;
 	public fun getCreateDataGrantStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateDataGrantStmt;

@@ -1142,12 +1142,31 @@ private oracle_deferred_segment_creation ::= 'SEGMENT' 'CREATION' ( 'IMMEDIATE' 
 private oracle_segment_attribute_clause ::= (
   ( 'TABLESPACE' [ 'SET' ] oracle_object_name_part ) |
   oracle_logging_clause |
+  oracle_storage_clause |
   'PCTFREE' {signed_number} |
   'PCTUSED' {signed_number} |
   'INITRANS' {signed_number}
 )
 
 private oracle_logging_clause ::= 'LOGGING' | 'NOLOGGING' | 'FILESYSTEM_LIKE_LOGGING'
+
+private oracle_storage_clause ::= 'STORAGE' LP oracle_storage_parameter + RP
+
+private oracle_storage_parameter ::= (
+  ( 'INITIAL' | 'NEXT' | 'MAXSIZE' ) oracle_size_value |
+  'MINEXTENTS' {signed_number} |
+  'MAXEXTENTS' ( {signed_number} | 'UNLIMITED' ) |
+  'PCTINCREASE' {signed_number} |
+  'FREELISTS' {signed_number} |
+  'FREELIST' 'GROUPS' {signed_number} |
+  'OPTIMAL' [ oracle_size_value | 'NULL' ] |
+  'BUFFER_POOL' ( 'KEEP' | 'RECYCLE' | 'DEFAULT' ) |
+  'FLASH_CACHE' ( 'KEEP' | 'NONE' | 'DEFAULT' ) |
+  'CELL_FLASH_CACHE' ( 'KEEP' | 'NONE' | 'DEFAULT' ) |
+  'ENCRYPT'
+)
+
+private oracle_size_value ::= {signed_number} | DIGIT | oracle_object_name_part
 
 private oracle_table_compression ::= (
   'COMPRESS' [ 'ADVANCED' [ 'LOW' | 'HIGH' ] | {signed_number} ] |

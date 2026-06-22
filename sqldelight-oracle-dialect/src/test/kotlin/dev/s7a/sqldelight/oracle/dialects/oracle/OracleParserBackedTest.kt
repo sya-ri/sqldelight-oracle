@@ -1928,6 +1928,24 @@ class OracleParserBackedTest :
                   external_id VARCHAR2(64)
                 ) TABLESPACE SET user_sets NOLOGGING;
 
+                CREATE TABLE stored_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) STORAGE (
+                  INITIAL 8M
+                  NEXT 1M
+                  MINEXTENTS 1
+                  MAXEXTENTS UNLIMITED
+                  MAXSIZE 1G
+                  PCTINCREASE 0
+                  FREELISTS 2
+                  FREELIST GROUPS 1
+                  OPTIMAL NULL
+                  BUFFER_POOL KEEP
+                  FLASH_CACHE DEFAULT
+                  CELL_FLASH_CACHE NONE
+                );
+
                 CREATE TABLE row_store_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)
@@ -1979,6 +1997,11 @@ class OracleParserBackedTest :
 
                 CREATE TABLE logged_account_snapshot
                 TABLESPACE users NOLOGGING PCTFREE 5 INITRANS 1
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
+                CREATE TABLE stored_account_snapshot
+                STORAGE (INITIAL 64K NEXT 1M MAXEXTENTS 10 BUFFER_POOL DEFAULT)
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 
@@ -5438,7 +5461,7 @@ class OracleParserBackedTest :
                     fileNames = listOf("Test.sq"),
                     errors =
                         listOf(
-                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, COLUMN, COMPRESS, FILESYSTEM_LIKE_LOGGING, INITRANS, LOGGING, NOCOMPRESS, NOLOGGING, ON, PCTFREE, PCTUSED, ROW, SEGMENT or TABLESPACE expected, got '('",
+                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, COLUMN, COMPRESS, FILESYSTEM_LIKE_LOGGING, INITRANS, LOGGING, NOCOMPRESS, NOLOGGING, ON, PCTFREE, PCTUSED, ROW, SEGMENT, STORAGE or TABLESPACE expected, got '('",
                         ),
                 )
         }

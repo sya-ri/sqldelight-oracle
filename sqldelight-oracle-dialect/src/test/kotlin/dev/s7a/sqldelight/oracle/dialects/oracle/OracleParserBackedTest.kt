@@ -3450,6 +3450,12 @@ class OracleParserBackedTest :
 
                 ALTER TABLE alter_advanced_targets
                 ADD HASHING USING sha2_512 VERSION v1;
+
+                ALTER TABLE alter_advanced_targets
+                MODIFY IMMUTABLE
+                NO DROP UNTIL 16 DAYS IDLE
+                NO DELETE UNTIL 30 DAYS AFTER INSERT LOCKED
+                USE created_at FOR ROW CREATION TIME;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe

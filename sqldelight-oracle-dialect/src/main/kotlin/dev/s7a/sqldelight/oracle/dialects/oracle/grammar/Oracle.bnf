@@ -1929,8 +1929,10 @@ private oracle_ilm_time_period ::= {signed_number} ( 'DAY' | 'DAYS' | 'MONTH' | 
 private oracle_ledger_table_clause ::= (
   'NO' 'DROP' [ 'UNTIL' {signed_number} 'DAYS' 'IDLE' ] |
   'NO' 'DELETE' ( 'LOCKED' | 'UNTIL' {signed_number} 'DAYS' 'AFTER' 'INSERT' [ 'LOCKED' ] ) |
-  'HASHING' 'USING' oracle_ledger_clause_value [ 'VERSION' oracle_ledger_clause_value ]
+  oracle_blockchain_hash_clause
 )
+
+private oracle_blockchain_hash_clause ::= 'HASHING' 'USING' oracle_ledger_clause_value [ 'VERSION' oracle_ledger_clause_value ]
 
 private oracle_ledger_clause_value ::= {string_literal} | string | oracle_object_name_part
 
@@ -1995,6 +1997,7 @@ alter_table_rules ::= (
   alter_table_add_period |
   alter_table_add_column |
   alter_table_annotations |
+  alter_table_become_immutable |
   alter_table_enable_disable |
   alter_table_result_cache |
   alter_table_flashback_archive |
@@ -2090,7 +2093,11 @@ private alter_table_partition_maintenance ::= (
   oracle_alter_table_property_token *
 )
 
-private alter_table_add_hashing ::= 'ADD' 'HASHING' oracle_alter_table_property_token *
+private alter_table_add_hashing ::= 'ADD' oracle_blockchain_hash_clause
+
+private alter_table_become_immutable ::= 'MODIFY' 'IMMUTABLE'
+  oracle_ledger_table_clause *
+  [ 'USE' <<expr '-1'>> 'FOR' 'ROW' 'CREATION' 'TIME' ]
 
 private alter_table_drop_period ::= 'DROP' 'PERIOD' 'FOR' oracle_object_name_part
 

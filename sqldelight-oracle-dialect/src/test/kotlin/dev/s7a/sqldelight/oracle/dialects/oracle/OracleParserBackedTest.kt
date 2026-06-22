@@ -3383,6 +3383,10 @@ class OracleParserBackedTest :
                 ALTER TABLE alter_advanced_targets MINIMIZE RECORDS_PER_BLOCK;
                 ALTER TABLE alter_advanced_targets NOMINIMIZE RECORDS_PER_BLOCK;
 
+                ALTER TABLE alter_advanced_targets ENABLE VALIDATE PRIMARY KEY USING INDEX TABLESPACE users;
+                ALTER TABLE alter_advanced_targets DISABLE NOVALIDATE CONSTRAINT alter_targets_status_check CASCADE KEEP INDEX;
+                ALTER TABLE alter_advanced_targets ENABLE UNIQUE (id) DROP INDEX;
+
                 ALTER TABLE alter_advanced_targets
                 ADD PARTITION p_2026 VALUES LESS THAN (DATE '2027-01-01') TABLESPACE users;
 

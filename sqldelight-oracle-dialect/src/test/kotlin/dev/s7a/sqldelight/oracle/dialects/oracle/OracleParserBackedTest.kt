@@ -1923,6 +1923,21 @@ class OracleParserBackedTest :
                   external_id VARCHAR2(64)
                 ) COLUMN STORE COMPRESS FOR QUERY HIGH NO ROW LEVEL LOCKING;
 
+                CREATE TABLE cache_parallel_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) CACHE PARALLEL 4 ROWDEPENDENCIES;
+
+                CREATE TABLE nocache_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) NOCACHE;
+
+                CREATE TABLE noparallel_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) NOPARALLEL NOROWDEPENDENCIES;
+
                 CREATE TABLE inmemory_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)
@@ -5398,7 +5413,7 @@ class OracleParserBackedTest :
                     fileNames = listOf("Test.sq"),
                     errors =
                         listOf(
-                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, COLUMN, COMPRESS, INDEXING, INMEMORY, NO, NOCOMPRESS, ON or ROW expected, got '('",
+                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, COLUMN, COMPRESS, NOCOMPRESS, ON or ROW expected, got '('",
                         ),
                 )
         }

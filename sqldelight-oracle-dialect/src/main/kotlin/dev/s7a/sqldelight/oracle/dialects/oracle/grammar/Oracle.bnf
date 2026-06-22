@@ -1106,7 +1106,7 @@ table_constraint ::= [ 'CONSTRAINT' {identifier} ] (
 
 create_table_stmt ::= 'CREATE' [ oracle_table_scope ] 'TABLE' [ 'IF' 'NOT' 'EXISTS' ] [ {database_name} DOT ] {table_name} (
   LP {column_def} ( COMMA {column_def} ) * ( COMMA {table_constraint} ) * RP [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_property * |
-  [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_property * 'AS' {compound_select_stmt}
+  [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_as_property * 'AS' {compound_select_stmt}
 ) {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCreateTableStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlCreateTableStmt"
@@ -1122,11 +1122,18 @@ private oracle_on_commit_clause ::= 'ON' 'COMMIT' ( 'DELETE' | 'PRESERVE' ) 'ROW
 
 private oracle_create_table_property ::= (
   oracle_table_compression |
+  'CACHE' |
+  'NOCACHE' |
+  oracle_parallel_clause |
+  'ROWDEPENDENCIES' |
+  'NOROWDEPENDENCIES' |
   [ 'NO' ] 'ROW' 'ARCHIVAL' |
   'INMEMORY' oracle_alter_table_property_token * |
   'NO' 'INMEMORY' |
   'INDEXING' ( 'ON' | 'OFF' )
 )
+
+private oracle_create_table_as_property ::= oracle_table_compression
 
 private oracle_table_compression ::= (
   'COMPRESS' [ 'ADVANCED' [ 'LOW' | 'HIGH' ] | {signed_number} ] |
@@ -1134,6 +1141,8 @@ private oracle_table_compression ::= (
   'COLUMN' 'STORE' 'COMPRESS' [ 'FOR' [ 'MEMSPEED' ] ( 'QUERY' | 'ARCHIVE' ) [ 'LOW' | 'HIGH' ] ] [ [ 'NO' ] 'ROW' 'LEVEL' 'LOCKING' ] |
   'NOCOMPRESS'
 )
+
+private oracle_parallel_clause ::= 'NOPARALLEL' | 'PARALLEL' [ DIGIT | {signed_number} ]
 
 alter_table_stmt ::= 'ALTER' 'TABLE' [ {database_name} DOT ] {table_name} {alter_table_rules} ( COMMA {alter_table_rules} ) * {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlAlterTableStmtImpl"

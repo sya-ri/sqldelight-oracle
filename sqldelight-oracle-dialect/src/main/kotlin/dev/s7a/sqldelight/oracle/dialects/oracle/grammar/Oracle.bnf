@@ -1122,6 +1122,7 @@ private oracle_on_commit_clause ::= 'ON' 'COMMIT' ( 'DELETE' | 'PRESERVE' ) 'ROW
 
 private oracle_create_table_property ::= (
   oracle_table_compression |
+  oracle_deferred_segment_creation |
   'CACHE' |
   'NOCACHE' |
   oracle_parallel_clause |
@@ -1133,7 +1134,9 @@ private oracle_create_table_property ::= (
   'INDEXING' ( 'ON' | 'OFF' )
 )
 
-private oracle_create_table_as_property ::= oracle_table_compression
+private oracle_create_table_as_property ::= oracle_table_compression | oracle_deferred_segment_creation
+
+private oracle_deferred_segment_creation ::= 'SEGMENT' 'CREATION' ( 'IMMEDIATE' | 'DEFERRED' )
 
 private oracle_table_compression ::= (
   'COMPRESS' [ 'ADVANCED' [ 'LOW' | 'HIGH' ] | {signed_number} ] |

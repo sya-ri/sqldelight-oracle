@@ -1913,6 +1913,11 @@ class OracleParserBackedTest :
                   external_id VARCHAR2(64)
                 ) COMPRESS ADVANCED HIGH ROW ARCHIVAL INDEXING ON;
 
+                CREATE TABLE deferred_segment_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) SEGMENT CREATION DEFERRED;
+
                 CREATE TABLE row_store_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)
@@ -1954,6 +1959,11 @@ class OracleParserBackedTest :
 
                 CREATE TABLE compressed_account_snapshot
                 COLUMN STORE COMPRESS FOR ARCHIVE LOW
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
+                CREATE TABLE deferred_account_snapshot
+                SEGMENT CREATION IMMEDIATE
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 
@@ -5413,7 +5423,7 @@ class OracleParserBackedTest :
                     fileNames = listOf("Test.sq"),
                     errors =
                         listOf(
-                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, COLUMN, COMPRESS, NOCOMPRESS, ON or ROW expected, got '('",
+                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, COLUMN, COMPRESS, NOCOMPRESS, ON, ROW or SEGMENT expected, got '('",
                         ),
                 )
         }

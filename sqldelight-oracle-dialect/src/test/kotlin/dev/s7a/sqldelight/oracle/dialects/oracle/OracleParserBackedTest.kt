@@ -149,6 +149,14 @@ class OracleParserBackedTest :
 
                 SELECT COLUMN_VALUE, OBJECT_ID, OBJECT_VALUE, XMLDATA, ORA_SHARDSPACE_NAME
                 FROM employees;
+
+                SELECT DBTIMEZONE,
+                  ORA_INVOKING_USER,
+                  ORA_INVOKING_USERID,
+                  SESSIONTIMEZONE,
+                  UID,
+                  USER
+                FROM employees;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe

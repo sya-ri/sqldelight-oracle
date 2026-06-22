@@ -1129,6 +1129,7 @@ private oracle_create_table_property ::= (
   oracle_row_movement_clause |
   oracle_logical_replication_clause |
   oracle_table_flashback_archive_clause |
+  oracle_table_organization_clause |
   'CACHE' |
   'NOCACHE' |
   oracle_parallel_clause |
@@ -1148,7 +1149,8 @@ private oracle_create_table_as_property ::= (
   oracle_read_only_clause |
   oracle_row_movement_clause |
   oracle_logical_replication_clause |
-  oracle_table_flashback_archive_clause
+  oracle_table_flashback_archive_clause |
+  oracle_table_organization_clause
 )
 
 private oracle_deferred_segment_creation ::= 'SEGMENT' 'CREATION' ( 'IMMEDIATE' | 'DEFERRED' )
@@ -1170,6 +1172,24 @@ private oracle_table_flashback_archive_clause ::= (
   'BLOCKCHAIN' 'FLASHBACK' 'ARCHIVE' [ oracle_object_name_part ] |
   'FLASHBACK' 'ARCHIVE' [ oracle_object_name_part ] |
   'NO' 'FLASHBACK' 'ARCHIVE'
+)
+
+private oracle_table_organization_clause ::= 'ORGANIZATION' (
+  'HEAP' oracle_segment_attribute_clause * oracle_table_compression * |
+  'INDEX' oracle_segment_attribute_clause * oracle_index_organization_property *
+)
+
+private oracle_index_organization_property ::= (
+  'MAPPING' 'TABLE' |
+  'NOMAPPING' |
+  'PCTTHRESHOLD' {signed_number} |
+  oracle_index_organized_compression |
+  [ 'INCLUDING' {column_name} ] 'OVERFLOW' oracle_segment_attribute_clause *
+)
+
+private oracle_index_organized_compression ::= (
+  'COMPRESS' [ 'ADVANCED' [ 'LOW' ] | {signed_number} ] |
+  'NOCOMPRESS'
 )
 
 private oracle_result_cache_clause ::= 'RESULT_CACHE' LP (

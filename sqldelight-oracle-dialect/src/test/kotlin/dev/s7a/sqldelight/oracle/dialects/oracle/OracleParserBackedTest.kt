@@ -1971,6 +1971,17 @@ class OracleParserBackedTest :
                   external_id VARCHAR2(64)
                 ) BLOCKCHAIN FLASHBACK ARCHIVE account_archive;
 
+                CREATE TABLE heap_organized_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) ORGANIZATION HEAP TABLESPACE users ROW STORE COMPRESS ADVANCED;
+
+                CREATE TABLE index_organized_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64),
+                  CONSTRAINT index_organized_accounts_pk PRIMARY KEY (account_id)
+                ) ORGANIZATION INDEX TABLESPACE users PCTTHRESHOLD 50 MAPPING TABLE COMPRESS 1 INCLUDING external_id OVERFLOW TABLESPACE users;
+
                 CREATE TABLE row_store_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)
@@ -2052,6 +2063,11 @@ class OracleParserBackedTest :
 
                 CREATE TABLE flashback_account_snapshot
                 NO FLASHBACK ARCHIVE
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
+                CREATE TABLE heap_account_snapshot
+                ORGANIZATION HEAP TABLESPACE users
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 
@@ -5511,7 +5527,7 @@ class OracleParserBackedTest :
                     fileNames = listOf("Test.sq"),
                     errors =
                         listOf(
-                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, BLOCKCHAIN, COLUMN, COMPRESS, DISABLE, ENABLE, FILESYSTEM_LIKE_LOGGING, FLASHBACK, INITRANS, LOGGING, NO, NOCOMPRESS, NOLOGGING, ON, PCTFREE, PCTUSED, READ, RESULT_CACHE, ROW, SEGMENT, STORAGE or TABLESPACE expected, got '('",
+                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, BLOCKCHAIN, COLUMN, COMPRESS, DISABLE, ENABLE, FILESYSTEM_LIKE_LOGGING, FLASHBACK, INITRANS, LOGGING, NO, NOCOMPRESS, NOLOGGING, ON, ORGANIZATION, PCTFREE, PCTUSED, READ, RESULT_CACHE, ROW, SEGMENT, STORAGE or TABLESPACE expected, got '('",
                         ),
                 )
         }

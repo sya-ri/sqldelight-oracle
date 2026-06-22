@@ -870,7 +870,27 @@ class OracleParserBackedTest :
                   XMLAGG(XMLELEMENT("Employee", e.name) ORDER BY e.name)
                 ),
                   XMLCAST(XMLQUERY('/Warehouse/Area' PASSING d.warehouse_spec RETURNING CONTENT) AS NUMBER),
-                  XMLSERIALIZE(CONTENT d.warehouse_spec AS CLOB INDENT SIZE = 2 HIDE DEFAULTS)
+                  XMLFOREST(d.name AS "Name", d.id AS "Identifier"),
+                  XMLPARSE(CONTENT '<Warehouse/>' WELLFORMED),
+                  XMLPI(NAME "Department", d.name),
+                  XMLSERIALIZE(CONTENT d.warehouse_spec AS CLOB INDENT SIZE = 2 HIDE DEFAULTS),
+                  DEPTH(1),
+                  EXISTSNODE(d.warehouse_spec, '/Warehouse'),
+                  EXTRACT(d.warehouse_spec, '/Warehouse'),
+                  EXTRACTVALUE(d.warehouse_spec, '/Warehouse/Area'),
+                  PATH(1),
+                  SYS_DBURIGEN(d.id),
+                  SYS_XMLAGG(XMLELEMENT("Employee", e.name)),
+                  SYS_XMLGEN(d.name),
+                  XMLCDATA(d.name),
+                  XMLCOLATTVAL(d.name),
+                  XMLCOMMENT(d.name),
+                  XMLCONCAT(XMLELEMENT("Name", d.name), XMLELEMENT("Id", d.id)),
+                  XMLDIFF(d.warehouse_spec, XMLTYPE('<Warehouse/>')),
+                  XMLISVALID(d.warehouse_spec),
+                  XMLPATCH(d.warehouse_spec, XMLTYPE('<Warehouse/>')),
+                  XMLSEQUENCE(EXTRACT(d.warehouse_spec, '/Warehouse')),
+                  XMLTRANSFORM(d.warehouse_spec, XMLTYPE('<Warehouse/>'))
                 FROM departments d,
                   employees e
                 WHERE e.department_id = d.id

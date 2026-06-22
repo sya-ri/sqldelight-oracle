@@ -336,7 +336,18 @@ private oracle_window_between_clause ::= 'BETWEEN' oracle_window_bound 'AND' ora
 
 private oracle_window_bound ::= 'UNBOUNDED' ( 'PRECEDING' | 'FOLLOWING' ) | 'CURRENT' 'ROW' | <<expr '-1'>> ( 'PRECEDING' | 'FOLLOWING' )
 
-private oracle_xml_expr ::= oracle_xmlelement_expr | oracle_xmlagg_expr | oracle_xmlcast_expr | oracle_xmlquery_expr | oracle_xmlserialize_expr | oracle_xmlexists_expr
+private oracle_xml_expr ::= (
+  oracle_xmlelement_expr |
+  oracle_xmlagg_expr |
+  oracle_xmlcast_expr |
+  oracle_xmlforest_expr |
+  oracle_xmlparse_expr |
+  oracle_xmlpi_expr |
+  oracle_xmlquery_expr |
+  oracle_xmlserialize_expr |
+  oracle_xmlexists_expr |
+  oracle_simple_xml_function_expr
+)
 
 private oracle_xmlelement_expr ::= 'XMLELEMENT' LP oracle_xml_name ( COMMA oracle_xml_element_content ) * RP
 
@@ -350,11 +361,39 @@ private oracle_xmlagg_expr ::= 'XMLAGG' LP <<expr '-1'>> [ 'ORDER' 'BY' <<orderi
 
 private oracle_xmlcast_expr ::= 'XMLCAST' LP <<expr '-1'>> 'AS' oracle_type_name RP
 
+private oracle_xmlforest_expr ::= 'XMLFOREST' LP oracle_xml_element_content ( COMMA oracle_xml_element_content ) * RP
+
+private oracle_xmlparse_expr ::= 'XMLPARSE' LP ( 'DOCUMENT' | 'CONTENT' ) <<expr '-1'>> [ 'WELLFORMED' ] RP
+
+private oracle_xmlpi_expr ::= 'XMLPI' LP [ 'NAME' ] oracle_xml_name [ COMMA <<expr '-1'>> ] RP
+
 private oracle_xmlquery_expr ::= 'XMLQUERY' LP {string_literal} [ oracle_xml_passing_clause ] 'RETURNING' 'CONTENT' [ 'NULL' 'ON' 'EMPTY' ] RP
 
 private oracle_xmlexists_expr ::= 'XMLEXISTS' LP {string_literal} [ oracle_xml_passing_clause ] RP
 
 private oracle_xmlserialize_expr ::= 'XMLSERIALIZE' LP ( 'DOCUMENT' | 'CONTENT' ) <<expr '-1'>> [ 'AS' oracle_type_name ] oracle_xmlserialize_option * RP
+
+private oracle_simple_xml_function_expr ::= oracle_simple_xml_function_name LP [ <<expr '-1'>> ( COMMA <<expr '-1'>> ) * ] RP
+
+private oracle_simple_xml_function_name ::= (
+  'DEPTH' |
+  'EXISTSNODE' |
+  'EXTRACT' |
+  'EXTRACTVALUE' |
+  'PATH' |
+  'SYS_DBURIGEN' |
+  'SYS_XMLAGG' |
+  'SYS_XMLGEN' |
+  'XMLCDATA' |
+  'XMLCOLATTVAL' |
+  'XMLCOMMENT' |
+  'XMLCONCAT' |
+  'XMLDIFF' |
+  'XMLISVALID' |
+  'XMLPATCH' |
+  'XMLSEQUENCE' |
+  'XMLTRANSFORM'
+)
 
 private oracle_xmlserialize_option ::= (
   'VERSION' {string_literal} |

@@ -1105,7 +1105,7 @@ table_constraint ::= [ 'CONSTRAINT' {identifier} ] (
 }
 
 create_table_stmt ::= 'CREATE' [ oracle_table_scope ] 'TABLE' [ 'IF' 'NOT' 'EXISTS' ] [ {database_name} DOT ] {table_name} (
-  LP {column_def} ( COMMA {column_def} ) * ( COMMA {table_constraint} ) * RP [ oracle_annotations_clause ] [ oracle_on_commit_clause ] |
+  LP {column_def} ( COMMA {column_def} ) * ( COMMA {table_constraint} ) * RP [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_property * |
   [ oracle_annotations_clause ] 'AS' {compound_select_stmt}
 ) {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCreateTableStmtImpl"
@@ -1119,6 +1119,15 @@ create_table_stmt ::= 'CREATE' [ oracle_table_scope ] 'TABLE' [ 'IF' 'NOT' 'EXIS
 private oracle_table_scope ::= ( 'GLOBAL' | 'PRIVATE' ) 'TEMPORARY' | 'TEMP' | 'TEMPORARY'
 
 private oracle_on_commit_clause ::= 'ON' 'COMMIT' ( 'DELETE' | 'PRESERVE' ) 'ROWS'
+
+private oracle_create_table_property ::= (
+  'COMPRESS' [ 'ADVANCED' [ 'LOW' | 'HIGH' ] | {signed_number} ] |
+  'NOCOMPRESS' |
+  [ 'NO' ] 'ROW' 'ARCHIVAL' |
+  'INMEMORY' oracle_alter_table_property_token * |
+  'NO' 'INMEMORY' |
+  'INDEXING' ( 'ON' | 'OFF' )
+)
 
 alter_table_stmt ::= 'ALTER' 'TABLE' [ {database_name} DOT ] {table_name} {alter_table_rules} ( COMMA {alter_table_rules} ) * {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlAlterTableStmtImpl"

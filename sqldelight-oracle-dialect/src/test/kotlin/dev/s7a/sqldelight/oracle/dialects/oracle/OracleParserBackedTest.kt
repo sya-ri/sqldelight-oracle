@@ -1908,6 +1908,16 @@ class OracleParserBackedTest :
                   external_id VARCHAR2(64)
                 ) ON COMMIT DELETE ROWS;
 
+                CREATE TABLE compressed_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) COMPRESS ADVANCED HIGH ROW ARCHIVAL INDEXING ON;
+
+                CREATE TABLE inmemory_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) INMEMORY MEMCOMPRESS FOR QUERY LOW;
+
                 CREATE TABLE account_snapshot AS
                 SELECT account_id, external_id
                 FROM staged_accounts;

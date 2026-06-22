@@ -1240,7 +1240,7 @@ update_stmt_limited ::= oracle_update_stmt {
 }
 
 private oracle_update_stmt ::= [ {with_clause} ] 'UPDATE' {qualified_table_name}
-  'SET' oracle_update_set_clause ( COMMA {update_stmt_subsequent_setter} ) *
+  'SET' oracle_update_set_clause ( COMMA oracle_update_set_clause ) *
   [ oracle_from_using_clause ]
   [ oracle_dml_where_clause ]
   [ oracle_wait_clause ]
@@ -1248,12 +1248,12 @@ private oracle_update_stmt ::= [ {with_clause} ] 'UPDATE' {qualified_table_name}
   [ oracle_error_logging_clause ]
 
 private oracle_update_set_clause ::= (
-  {column_name} EQ {setter_expression} |
+  {column_name} EQ oracle_update_set_expr |
   LP {column_name} ( COMMA {column_name} ) * RP EQ LP ( <<compoundSelectStmtExt <<compound_select_stmt_real>>>> | oracle_update_set_expr ( COMMA oracle_update_set_expr ) * ) RP |
   'VALUE' LP <<tableAliasExt <<table_alias_real>>>> RP EQ {setter_expression}
 )
 
-private oracle_update_set_expr ::= 'DEFAULT' | <<expr '-1'>>
+private oracle_update_set_expr ::= 'DEFAULT' | {setter_expression}
 
 delete_stmt ::= oracle_delete_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlDeleteStmtImpl"

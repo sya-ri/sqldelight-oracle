@@ -3669,6 +3669,16 @@ class OracleParserBackedTest :
                 SET order_total = order_total + 1
                 WHERE region_code = ?;
 
+                updateSingleColumnDefault:
+                UPDATE partitioned_order_updates
+                SET archived_at = DEFAULT
+                WHERE order_id = ?;
+
+                updateMultipleColumnDefault:
+                UPDATE partitioned_order_updates
+                SET order_total = DEFAULT, archived_at = DEFAULT
+                WHERE region_code = ?;
+
                 updateReturning:
                 UPDATE partitioned_order_updates
                 SET order_total = order_total + ?

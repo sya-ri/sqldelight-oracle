@@ -1,6 +1,9 @@
 package dev.s7a.sqldelight.oracle.check.rule
 
+import dev.s7a.sqldelight.check.api.Severity
+import dev.s7a.sqldelight.check.rule.api.Rule
 import dev.s7a.sqldelight.check.rule.api.RuleSetProvider
+import dev.s7a.sqldelight.oracle.check.dialect.OracleDialectId
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingSequenceClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoEmptyStringComparisonRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NullableNotInPredicateRule
@@ -15,9 +18,10 @@ class OracleRuleSetProviderTest :
     FunSpec({
         test("provides Oracle rule set metadata") {
             val provider = OracleRuleSetProvider()
+            val rules = provider.rules()
 
             provider.id.value shouldBe "oracle"
-            provider.ruleProviders().map { ruleProvider -> ruleProvider.create()::class } shouldBe
+            rules.map { rule -> rule::class } shouldBe
                 listOf(
                     NullableNotInPredicateRule::class,
                     NoEmptyStringComparisonRule::class,
@@ -26,6 +30,19 @@ class OracleRuleSetProviderTest :
                     RequireNumberPrecisionRule::class,
                     UnsafeDdlMigrationRule::class,
                 )
+            rules.map { rule -> "oracle:${rule.id.value}" } shouldBe
+                listOf(
+                    "oracle:nullable-not-in-predicate",
+                    "oracle:no-empty-string-comparison",
+                    "oracle:no-conflicting-sequence-clauses",
+                    "oracle:prefer-identity-column",
+                    "oracle:require-number-precision",
+                    "oracle:unsafe-ddl-migration",
+                )
+            rules.map { rule -> rule.targetDialect } shouldBe
+                List(rules.size) { OracleDialectId }
+            rules.map { rule -> rule.defaultSeverity } shouldBe
+                List(rules.size) { Severity.Warning }
         }
 
         test("registers provider through ServiceLoader") {
@@ -39,6 +56,8 @@ class OracleRuleSetProviderTest :
                 "dev.s7a.sqldelight.oracle.check.rule.OracleRuleSetProvider\n"
         }
     })
+
+private fun OracleRuleSetProvider.rules(): List<Rule> = ruleProviders().map { ruleProvider -> ruleProvider.create() }
 
 private fun serviceResource(path: String): String =
     requireNotNull(OracleRuleSetProviderTest::class.java.classLoader.getResource(path)) {

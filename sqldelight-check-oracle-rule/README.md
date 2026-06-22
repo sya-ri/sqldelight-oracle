@@ -4,6 +4,25 @@
 
 These rules are gated by `OracleDialectId` and focus on Oracle null semantics, generated keys, numeric type declarations, sequence semantics, and migration DDL that can surprise live Oracle databases.
 
+## Install
+
+Add this artifact to the SQLDelight project checked by sqldelight-check:
+
+```kotlin
+dependencies {
+    sqldelightCheckRuleSet("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-rule:0.1.0")
+}
+```
+
+Oracle rules need Oracle dialect metadata from `sqldelight-check-oracle-dialect` so sqldelight-check can resolve the `oracle` dialect ID:
+
+```kotlin
+dependencies {
+    sqldelightCheckDialects("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-dialect:0.1.0")
+    sqldelightCheckRuleSet("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-rule:0.1.0")
+}
+```
+
 ## Rule Set ID
 
 ```kotlin
@@ -20,23 +39,61 @@ Rule IDs use the `oracle:<rule-name>` form.
 
 ## Configuration Model
 
-- `🟢` in the Enable column means the rule is enabled automatically for Oracle dialects.
-- `❌` or `⚠️` in the Severity column shows the built-in default severity.
+- `Yes` in the Enable column means the rule is enabled automatically for Oracle dialects.
+- `Warning` in the Severity column shows the built-in default severity.
 - The Fix column is blank when write tasks do not attach a fix.
 
 Built-in rules use `Severity.Warning` for visible Oracle-specific findings that need a human migration or query decision.
 `Severity.Info` and `Severity.Error` are supported through user configuration.
 
+Users can override enablement and severity in `build.gradle.kts`:
+
+```kotlin
+import dev.s7a.sqldelight.check.api.Severity
+
+sqldelightCheck {
+    ruleSets {
+        oracle {
+            enabled.set(true)
+        }
+    }
+    rules {
+        rule("oracle:unsafe-ddl-migration") {
+            severity.set(Severity.Error)
+        }
+        rule("oracle:prefer-identity-column") {
+            enabled.set(false)
+        }
+    }
+}
+```
+
+Database-specific overrides use the SQLDelight database name:
+
+```kotlin
+sqldelightCheck {
+    databases {
+        database("MainDatabase") {
+            rules {
+                rule("oracle:require-number-precision") {
+                    severity.set(Severity.Error)
+                }
+            }
+        }
+    }
+}
+```
+
 ## Rule Summary
 
 | Rule ID | Enable | Severity | Fix | Purpose |
 | --- | --- | --- | --- | --- |
-| [`oracle:nullable-not-in-predicate`](#oraclenullable-not-in-predicate) | 🟢 | ⚠️ |  | Flag `NOT IN (subquery)` predicates that do not explicitly filter nullable values. |
-| [`oracle:no-empty-string-comparison`](#oracleno-empty-string-comparison) | 🟢 | ⚠️ |  | Avoid comparing to `''`, because Oracle treats zero-length strings as `NULL`. |
-| [`oracle:no-conflicting-sequence-clauses`](#oracleno-conflicting-sequence-clauses) | 🟢 | ⚠️ |  | Avoid mutually exclusive `CREATE SEQUENCE` and `ALTER SEQUENCE` clauses. |
-| [`oracle:prefer-identity-column`](#oracleprefer-identity-column) | 🟢 | ⚠️ |  | Prefer Oracle identity columns over sequence-trigger generated keys. |
-| [`oracle:require-number-precision`](#oraclerequire-number-precision) | 🟢 | ⚠️ |  | Require explicit precision and scale for `NUMBER` declarations. |
-| [`oracle:unsafe-ddl-migration`](#oracleunsafe-ddl-migration) | 🟢 | ⚠️ |  | Flag migration DDL that can rewrite, lock, or destructively change large tables. |
+| [`oracle:nullable-not-in-predicate`](#oraclenullable-not-in-predicate) | Yes | Warning |  | Flag `NOT IN (subquery)` predicates that do not explicitly filter nullable values. |
+| [`oracle:no-empty-string-comparison`](#oracleno-empty-string-comparison) | Yes | Warning |  | Avoid comparing to `''`, because Oracle treats zero-length strings as `NULL`. |
+| [`oracle:no-conflicting-sequence-clauses`](#oracleno-conflicting-sequence-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE SEQUENCE` and `ALTER SEQUENCE` clauses. |
+| [`oracle:prefer-identity-column`](#oracleprefer-identity-column) | Yes | Warning |  | Prefer Oracle identity columns over sequence-trigger generated keys. |
+| [`oracle:require-number-precision`](#oraclerequire-number-precision) | Yes | Warning |  | Require explicit precision and scale for `NUMBER` declarations. |
+| [`oracle:unsafe-ddl-migration`](#oracleunsafe-ddl-migration) | Yes | Warning |  | Flag migration DDL that can rewrite, lock, or destructively change large tables. |
 
 ## `oracle:nullable-not-in-predicate`
 

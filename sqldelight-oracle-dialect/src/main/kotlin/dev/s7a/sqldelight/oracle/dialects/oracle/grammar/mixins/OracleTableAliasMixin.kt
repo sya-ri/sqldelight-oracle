@@ -21,7 +21,7 @@ internal abstract class OracleTableAliasMixin(
 
     override fun source(): PsiElement =
         (parent as SqlTableOrSubquery).let { tableOrSubquery ->
-            tableOrSubquery.tableName ?: tableOrSubquery.compoundSelectStmt!!
+            tableOrSubquery.tableName ?: tableOrSubquery.compoundSelectStmt ?: tableOrSubquery
         }
 
     override fun getIcon(flags: Int): Icon = AllIcons.Nodes.DataTables

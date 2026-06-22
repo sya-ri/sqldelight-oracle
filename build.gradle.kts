@@ -57,9 +57,6 @@ tasks.register("releaseCheck") {
     description = "Runs local release-blocking checks before publishing sqldelight-oracle."
     dependsOn("check")
     dependsOn(publishedArtifacts.keys.map { projectPath -> "$projectPath:check" })
-    dependsOn("dokkaGeneratePublicationHtml")
-    dependsOn(publishedArtifacts.keys.map { projectPath -> "$projectPath:dokkaGeneratePublicationJavadoc" })
-    dependsOn(publishedArtifacts.keys.map { projectPath -> "$projectPath:publishToMavenLocal" })
 }
 
 subprojects {

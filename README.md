@@ -63,4 +63,4 @@ MIT License. See [LICENSE](LICENSE).
 
 ## Contributing
 
-Development checks and Testcontainers notes are in [CONTRIBUTION.md](CONTRIBUTION.md).
+Development checks and Testcontainers notes are in [CONTRIBUTING.md](CONTRIBUTING.md).

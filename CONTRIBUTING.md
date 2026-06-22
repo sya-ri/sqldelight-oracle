@@ -1,18 +1,20 @@
-# Contribution
+# Contributing
 
 ## Development Checks
 
 Unit tests use Kotest `FunSpec`.
+SQLDelight parser and PSI classes are generated from `sqldelight-oracle-dialect/src/main/kotlin/dev/s7a/sqldelight/oracle/dialects/oracle/grammar/Oracle.bnf` during Gradle builds.
+Generated files under `build/grammars` are not committed.
 
 Run the local release-blocking checks before publishing or opening release work:
 
 ```shell
 ./gradlew check
-./gradlew publishToMavenLocal
 ./gradlew releaseCheck
 ```
 
-`releaseCheck` runs module checks, Dokka generation, ABI validation, Kover verification, and `publishToMavenLocal` for the published artifacts.
+`releaseCheck` runs root and module checks, including ABI validation through the Kotlin `check` lifecycle.
+Run `publishToMavenLocal` only when you need to inspect generated publications locally.
 
 ## Oracle Testcontainers
 

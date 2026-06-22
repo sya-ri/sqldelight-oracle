@@ -33,7 +33,7 @@
   ]
 }
 
-overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | insert_stmt | qualified_table_name | compound_select_stmt | select_stmt | with_clause | table_alias | table_or_subquery | group_by | join_operator | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt | extension_expr
+overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | insert_stmt | update_stmt | update_stmt_limited | delete_stmt | delete_stmt_limited | qualified_table_name | compound_select_stmt | select_stmt | with_clause | table_alias | table_or_subquery | group_by | join_operator | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt | extension_expr
 
 stmt ::= explain_plan_stmt | oracle_core_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlStmtImpl"
@@ -873,14 +873,23 @@ private oracle_select_query ::= 'SELECT' [ 'DISTINCT' | 'UNIQUE' | 'ALL' ]
   <<resultColumnExt <<result_column_real>>>> ( COMMA <<resultColumnExt <<result_column_real>>>> ) *
   [ 'FROM' <<joinClauseExt <<join_clause_real>>>> ]
   [ 'WHERE' <<expr '-1'>> ]
+  [ oracle_hierarchical_query_clause ]
   [ oracle_group_by_having_clause ]
   [ oracle_window_clause ]
+  [ oracle_qualify_clause ]
 
 private oracle_window_clause ::= 'WINDOW' oracle_window_definition ( COMMA oracle_window_definition ) *
 
 private oracle_window_definition ::= oracle_window_name 'AS' oracle_window_specification
 
+private oracle_qualify_clause ::= 'QUALIFY' <<expr '-1'>>
+
 private oracle_values_query ::= 'VALUES' {values_expression} ( COMMA {values_expression} ) *
+
+private oracle_hierarchical_query_clause ::= (
+  'CONNECT' 'BY' [ 'NOCYCLE' ] <<expr '-1'>> [ 'START' 'WITH' <<expr '-1'>> ] |
+  'START' 'WITH' <<expr '-1'>> 'CONNECT' 'BY' [ 'NOCYCLE' ] <<expr '-1'>>
+)
 
 private oracle_group_by_having_clause ::= (
   'HAVING' <<expr '-1'>> {group_by} [ 'HAVING' <<expr '-1'>> ] |
@@ -888,7 +897,7 @@ private oracle_group_by_having_clause ::= (
   'HAVING' <<expr '-1'>>
 )
 
-table_or_subquery ::= oracle_graphql_table_reference | oracle_xmltable_reference | oracle_containers_table_reference | oracle_collection_table_reference | oracle_values_table_reference | oracle_subquery_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
+table_or_subquery ::= oracle_graphql_table_reference | oracle_xmltable_reference | oracle_inline_external_table_reference | oracle_containers_table_reference | oracle_collection_table_reference | oracle_values_table_reference | oracle_subquery_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTableOrSubqueryImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlTableOrSubquery"
   override = true
@@ -923,10 +932,22 @@ private oracle_xmltable_datatype ::= oracle_object_name_part [ oracle_type_param
 
 private oracle_xmltype_sequence_clause ::= [ 'SEQUENCE' ] 'BY' 'REF'
 
+private oracle_inline_external_table_reference ::= 'EXTERNAL' LP LP oracle_inline_external_column_definition ( COMMA oracle_inline_external_column_definition ) * RP oracle_inline_external_table_properties RP
+  [ oracle_table_alias_clause ]
+
+private oracle_inline_external_column_definition ::= oracle_object_name_part oracle_json_collection_expression_type [ 'NOT' 'NULL' ]
+
+private oracle_inline_external_table_properties ::= 'TYPE' [ oracle_object_name_part ]
+  oracle_external_table_token *
+  [ oracle_external_table_reject_limit_clause ]
+
 private oracle_containers_table_reference ::= ( 'CONTAINERS' | 'SHARDS' ) LP [ <<databaseNameExt <<database_name_real>>>> DOT ]
   <<tableNameExt <<table_name_real>>>> RP [ oracle_table_alias_clause ]
 
-private oracle_collection_table_reference ::= 'TABLE' LP <<expr '-1'>> RP [ LP '+' RP ] [ oracle_table_alias_clause ]
+private oracle_collection_table_reference ::= (
+  'TABLE' LP <<expr '-1'>> RP |
+  'THE' LP <<compoundSelectStmtExt <<compound_select_stmt_real>>>> RP
+) [ LP '+' RP ] [ oracle_table_alias_clause ]
 
 private oracle_values_table_reference ::= LP 'VALUES'
   <<valuesExpressionExt <<values_expression_real>>>> ( COMMA <<valuesExpressionExt <<values_expression_real>>>> ) *
@@ -937,10 +958,122 @@ private oracle_table_alias_with_columns_clause ::= oracle_table_alias_clause [ L
 private oracle_table_reference ::= oracle_only_table_reference | oracle_plain_table_reference
 
 private oracle_plain_table_reference ::= [ <<databaseNameExt <<database_name_real>>>> DOT ]
-  <<tableNameExt <<table_name_real>>>> [ oracle_partition_extension_clause ] [ oracle_sample_clause ] [ oracle_table_alias_clause ] [ oracle_indexed_by_clause ]
+  <<tableNameExt <<table_name_real>>>> [ oracle_dblink_clause ] [ oracle_partition_extension_clause ] [ oracle_hierarchies_clause ] [ oracle_sample_clause ] [ oracle_modified_external_table_clause ] [ oracle_flashback_query_clause ] [ oracle_table_transform_clause ] [ oracle_table_alias_clause ] [ oracle_indexed_by_clause ]
 
-private oracle_only_table_reference ::= 'ONLY' LP [ <<databaseNameExt <<database_name_real>>>> DOT ]
-  <<tableNameExt <<table_name_real>>>> RP [ oracle_sample_clause ] [ oracle_table_alias_clause ]
+private oracle_hierarchies_clause ::= 'HIERARCHIES' LP oracle_object_name_part ( COMMA oracle_object_name_part ) * RP
+
+private oracle_modified_external_table_clause ::= 'EXTERNAL' 'MODIFY' ( oracle_modified_external_table_boundary | oracle_modified_external_table_token + )
+
+private oracle_modified_external_table_boundary ::= LP oracle_modified_external_table_token * RP
+
+private oracle_modified_external_table_token ::= (
+  oracle_modified_external_table_boundary |
+  oracle_external_table_reject_limit_clause |
+  oracle_external_table_token |
+  'BADFILE' |
+  'DISCARDFILE' |
+  'LOGFILE'
+)
+
+private oracle_external_table_reject_limit_clause ::= 'REJECT' 'LIMIT' ( {signed_number} | 'UNLIMITED' )
+
+private oracle_only_table_reference ::= 'ONLY' LP <<tableOrSubqueryExt <<table_or_subquery_real>>>> RP
+  [ oracle_sample_clause ] [ oracle_flashback_query_clause ] [ oracle_table_transform_clause ] [ oracle_table_alias_clause ]
+
+private oracle_flashback_query_clause ::= (
+  oracle_flashback_versions_clause |
+  oracle_flashback_as_of_clause |
+  oracle_flashback_versions_period_clause |
+  oracle_flashback_as_of_period_clause
+)
+
+private oracle_flashback_versions_clause ::= 'VERSIONS' 'BETWEEN' ( 'SCN' | 'TIMESTAMP' )
+  oracle_flashback_boundary 'AND' oracle_flashback_boundary [ oracle_flashback_as_of_clause ]
+
+private oracle_flashback_as_of_clause ::= 'AS' 'OF' ( 'SCN' | 'TIMESTAMP' ) <<expr '-1'>>
+
+private oracle_flashback_versions_period_clause ::= 'VERSIONS' 'PERIOD' 'FOR' oracle_object_name_part
+  'BETWEEN' oracle_flashback_boundary 'AND' oracle_flashback_boundary
+
+private oracle_flashback_as_of_period_clause ::= 'AS' 'OF' 'PERIOD' 'FOR' oracle_object_name_part <<expr '-1'>>
+
+private oracle_flashback_boundary ::= 'MINVALUE' | 'MAXVALUE' | <<expr '-1'>>
+
+private oracle_table_transform_clause ::= oracle_pivot_clause | oracle_unpivot_clause | oracle_row_pattern_clause
+
+private oracle_pivot_clause ::= 'PIVOT' [ 'XML' ] LP
+  oracle_pivot_aggregate ( COMMA oracle_pivot_aggregate ) *
+  oracle_pivot_for_clause
+  oracle_pivot_in_clause
+  RP
+
+private oracle_pivot_aggregate ::= oracle_aggregate_function_name LP [ oracle_function_argument ( COMMA oracle_function_argument ) * ] RP [ [ 'AS' ] oracle_object_name_part ]
+
+private oracle_pivot_for_clause ::= 'FOR' oracle_pivot_column_group
+
+private oracle_pivot_column_group ::= oracle_object_name_part | LP oracle_object_name_part ( COMMA oracle_object_name_part ) * RP
+
+private oracle_pivot_in_clause ::= 'IN' LP (
+  <<compoundSelectStmtExt <<compound_select_stmt_real>>>> |
+  'ANY' ( COMMA 'ANY' ) * |
+  oracle_pivot_in_entry ( COMMA oracle_pivot_in_entry ) *
+) RP
+
+private oracle_pivot_in_entry ::= ( LP <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP | <<expr '-1'>> ) [ [ 'AS' ] oracle_object_name_part ]
+
+private oracle_unpivot_clause ::= 'UNPIVOT' [ ( 'INCLUDE' | 'EXCLUDE' ) 'NULLS' ] LP
+  oracle_pivot_column_group
+  oracle_pivot_for_clause
+  oracle_unpivot_in_clause
+  RP
+
+private oracle_unpivot_in_clause ::= 'IN' LP oracle_unpivot_in_entry ( COMMA oracle_unpivot_in_entry ) * RP
+
+private oracle_unpivot_in_entry ::= oracle_pivot_column_group [ 'AS' oracle_unpivot_literal_group ]
+
+private oracle_unpivot_literal_group ::= oracle_unpivot_literal | LP oracle_unpivot_literal ( COMMA oracle_unpivot_literal ) * RP
+
+private oracle_unpivot_literal ::= {string_literal} | string | DIGIT | {signed_number}
+
+private oracle_row_pattern_clause ::= 'MATCH_RECOGNIZE' LP
+  [ oracle_row_pattern_partition_by_clause ]
+  [ oracle_row_pattern_order_by_clause ]
+  [ oracle_row_pattern_measures_clause ]
+  [ oracle_row_pattern_rows_per_match_clause ]
+  [ oracle_row_pattern_skip_to_clause ]
+  'PATTERN' LP oracle_row_pattern_token + RP
+  [ oracle_row_pattern_subset_clause ]
+  'DEFINE' oracle_row_pattern_definition ( COMMA oracle_row_pattern_definition ) *
+  RP
+
+private oracle_row_pattern_partition_by_clause ::= 'PARTITION' 'BY' <<expr '-1'>> ( COMMA <<expr '-1'>> ) *
+
+private oracle_row_pattern_order_by_clause ::= 'ORDER' 'BY' <<orderingTermExt <<ordering_term_real>>>> ( COMMA <<orderingTermExt <<ordering_term_real>>>> ) *
+
+private oracle_row_pattern_measures_clause ::= 'MEASURES' oracle_row_pattern_measure_column ( COMMA oracle_row_pattern_measure_column ) *
+
+private oracle_row_pattern_measure_column ::= <<expr '-1'>> [ [ 'AS' ] <<columnAliasExt <<column_alias_real>>>> ]
+
+private oracle_row_pattern_rows_per_match_clause ::= (
+  'ONE' 'ROW' 'PER' 'MATCH' |
+  'ALL' 'ROWS' 'PER' 'MATCH'
+)
+
+private oracle_row_pattern_skip_to_clause ::= 'AFTER' 'MATCH' 'SKIP' (
+  'PAST' 'LAST' 'ROW' |
+  'TO' 'NEXT' 'ROW' |
+  'TO' [ 'FIRST' | 'LAST' ] oracle_object_name_part
+)
+
+private oracle_row_pattern_subset_clause ::= 'SUBSET' oracle_row_pattern_subset_item ( COMMA oracle_row_pattern_subset_item ) *
+
+private oracle_row_pattern_subset_item ::= oracle_object_name_part EQ LP oracle_object_name_part ( COMMA oracle_object_name_part ) * RP
+
+private oracle_row_pattern_definition ::= oracle_object_name_part 'AS' <<expr '-1'>>
+
+private oracle_row_pattern_token ::= oracle_row_pattern_group | oracle_object_name_part | '+' | '*'
+
+private oracle_row_pattern_group ::= LP oracle_row_pattern_token * RP
 
 private oracle_sample_clause ::= 'SAMPLE' [ 'BLOCK' ] LP <<expr '-1'>> RP [ 'SEED' LP <<expr '-1'>> RP ]
 
@@ -956,7 +1089,7 @@ private oracle_parenthesized_table_reference ::= LP (
   <<tableOrSubqueryExt <<table_or_subquery_real>>>> ( COMMA <<tableOrSubqueryExt <<table_or_subquery_real>>>> ) *
 ) RP
 
-private oracle_subquery_table_reference ::= [ 'LATERAL' ] LP <<compoundSelectStmtExt <<compound_select_stmt_real>>>> RP [ oracle_table_alias_clause ]
+private oracle_subquery_table_reference ::= [ 'LATERAL' ] LP <<compoundSelectStmtExt <<compound_select_stmt_real>>>> [ oracle_subquery_restriction_clause ] RP [ oracle_table_transform_clause ] [ oracle_table_alias_clause ]
 
 join_operator ::= (
   COMMA |
@@ -1035,15 +1168,17 @@ private oracle_single_table_insert ::=
   [ LP {column_name} ( COMMA {column_name} ) * RP ] oracle_insert_stmt_values
 
 private oracle_insert_target_table ::= (
-  'ONLY' LP [ <<databaseNameExt <<database_name_real>>>> DOT ] <<tableNameExt <<table_name_real>>>> RP |
-  [ <<databaseNameExt <<database_name_real>>>> DOT ] <<tableNameExt <<table_name_real>>>>
+  'ONLY' LP [ <<databaseNameExt <<database_name_real>>>> DOT ] <<tableNameExt <<table_name_real>>>> [ oracle_dblink_clause ] RP |
+  [ <<databaseNameExt <<database_name_real>>>> DOT ] <<tableNameExt <<table_name_real>>>> [ oracle_dblink_clause ]
 )
 
 private oracle_insert_stmt_values ::= (
   'VALUES' ( {bind_expr} | {values_expression} ( COMMA {values_expression} ) * ) |
-  {compound_select_stmt} |
+  {compound_select_stmt} [ oracle_by_name_position_clause ] |
   'DEFAULT' 'VALUES'
-) [ oracle_error_logging_clause ]
+) [ oracle_returning_clause ] [ oracle_wait_clause ] [ oracle_error_logging_clause ]
+
+private oracle_by_name_position_clause ::= 'BY' ( 'NAME' | 'POSITION' )
 
 private oracle_multi_table_insert ::= ( 'ALL' | 'FIRST' ) oracle_multi_table_insert_clause + {compound_select_stmt}
 
@@ -1060,9 +1195,72 @@ private oracle_multi_table_insert_into_clause ::= 'INTO' oracle_insert_target_ta
 
 private oracle_multi_table_insert_value ::= 'DEFAULT' | <<expr '-1'>>
 
+update_stmt ::= oracle_update_stmt {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlUpdateStmtImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlUpdateStmt"
+  override = true
+  pin = 2
+}
+
+update_stmt_limited ::= oracle_update_stmt {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlUpdateStmtLimitedImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlUpdateStmtLimited"
+  override = true
+  pin = 2
+}
+
+private oracle_update_stmt ::= [ {with_clause} ] 'UPDATE' {qualified_table_name}
+  'SET' oracle_update_set_clause ( COMMA {update_stmt_subsequent_setter} ) *
+  [ oracle_from_using_clause ]
+  [ oracle_dml_where_clause ]
+  [ oracle_wait_clause ]
+  [ oracle_returning_clause ]
+  [ oracle_error_logging_clause ]
+
+private oracle_update_set_clause ::= (
+  {column_name} EQ {setter_expression} |
+  LP {column_name} ( COMMA {column_name} ) * RP EQ LP ( <<compoundSelectStmtExt <<compound_select_stmt_real>>>> | oracle_update_set_expr ( COMMA oracle_update_set_expr ) * ) RP |
+  'VALUE' LP <<tableAliasExt <<table_alias_real>>>> RP EQ {setter_expression}
+)
+
+private oracle_update_set_expr ::= 'DEFAULT' | <<expr '-1'>>
+
+delete_stmt ::= oracle_delete_stmt {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlDeleteStmtImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlDeleteStmt"
+  override = true
+  pin = 2
+}
+
+delete_stmt_limited ::= oracle_delete_stmt {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlDeleteStmtLimitedImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlDeleteStmtLimited"
+  override = true
+  pin = 2
+}
+
+private oracle_delete_stmt ::= [ {with_clause} ] 'DELETE' [ 'FROM' ] {qualified_table_name}
+  [ oracle_dml_where_clause ]
+  [ oracle_returning_clause ]
+  [ oracle_error_logging_clause ]
+
+private oracle_dml_where_clause ::= 'WHERE' ( 'CURRENT' 'OF' oracle_object_name_part | <<expr '-1'>> )
+
+private oracle_from_using_clause ::= 'FROM' oracle_from_using_source ( COMMA oracle_from_using_source ) *
+
+private oracle_from_using_source ::= <<tableOrSubqueryExt <<table_or_subquery_real>>>> | <<joinClauseExt <<join_clause_real>>>>
+
+private oracle_wait_clause ::= 'NOWAIT' | 'WAIT' ( 'FOREVER' | {signed_number} [ 'SECONDS' | 'MILLISECONDS' | 'MICROSECONDS' ] )
+
+private oracle_returning_clause ::= 'RETURNING' oracle_returning_expr ( COMMA oracle_returning_expr ) * 'INTO' oracle_returning_target ( COMMA oracle_returning_target ) *
+
+private oracle_returning_expr ::= [ 'OLD' | 'NEW' ] <<expr '-1'>>
+
+private oracle_returning_target ::= {bind_expr} | oracle_schema_object_name
+
 qualified_table_name ::= (
-  'ONLY' LP [ <<databaseNameExt <<database_name_real>>>> DOT ] <<tableNameExt <<table_name_real>>>> RP |
-  [ <<databaseNameExt <<database_name_real>>>> DOT ] <<tableNameExt <<table_name_real>>>>
+  'ONLY' LP [ <<databaseNameExt <<database_name_real>>>> DOT ] <<tableNameExt <<table_name_real>>>> [ oracle_dblink_clause ] RP |
+  [ <<databaseNameExt <<database_name_real>>>> DOT ] <<tableNameExt <<table_name_real>>>> [ oracle_dblink_clause ]
 ) [ oracle_partition_extension_clause ] [ <<tableAliasExt <<table_alias_real>>>> ]
   [ 'INDEXED' 'BY' <<indexNameExt <<index_name_real>>>> | 'NOT' 'INDEXED' ] {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlQualifiedTableNameImpl"
@@ -4358,12 +4556,10 @@ private oracle_sequence_clause ::= (
   'GLOBAL'
 )
 
-merge_stmt ::= 'MERGE' [ oracle_hint ] 'INTO' oracle_merge_table_reference [ oracle_merge_using_clause ] 'ON' LP <<expr '-1'>> RP
+merge_stmt ::= 'MERGE' 'INTO' oracle_merge_table_reference [ oracle_merge_using_clause ] 'ON' LP <<expr '-1'>> RP
   ( oracle_merge_update_clause | oracle_merge_insert_clause ) + [ oracle_error_logging_clause ] {
   pin = 1
 }
-
-private oracle_hint ::= comment
 
 private oracle_merge_using_clause ::= 'USING' (
   oracle_merge_table_reference |

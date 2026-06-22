@@ -232,12 +232,16 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                 sourcePatterns(
                     "AS OF SCN",
                     "AS OF TIMESTAMP",
+                    "AS OF PERIOD",
                     "ADD MEASURES",
                     "ALTER DOMAIN",
                     "ANNOTATIONS",
+                    "BY NAME",
+                    "BY POSITION",
                     "CHOOSE DOMAIN USING",
                     "CONNECT BY",
                     "COLUMNS",
+                    "CURRENT OF",
                     "DEFAULT MEASURE",
                     "DEFAULT ON NULL",
                     "DESTINATION KEY",
@@ -254,6 +258,7 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                     "INSERT ALL",
                     "INSERT FIRST",
                     "JSON_TABLE",
+                    "JOIN TO ONE",
                     "LATERAL",
                     "MATCH",
                     "MATCH_RECOGNIZE",
@@ -267,6 +272,7 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                     "PROPERTIES",
                     "QUALIFY",
                     "RETURNING",
+                    "ROW WIDENED",
                     "SAMPLE",
                     "SEARCH",
                     "SHARDS",
@@ -277,6 +283,7 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                     "USECASE",
                     "VERTEX TABLES",
                     "VERSIONS BETWEEN",
+                    "VERSIONS PERIOD",
                     "XMLTABLE",
                     roles = setOf(ClauseBoundary),
                 ) +
@@ -286,6 +293,7 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                 sourcePatterns("FETCH", "FOR", "OFFSET", "RETURNING", roles = setOf(OrderByBoundary)) +
                 sourcePatterns(
                     "CONNECT",
+                    "CURRENT OF",
                     "FETCH",
                     "FOR",
                     "GRAPH_TABLE",
@@ -296,7 +304,7 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                     "START",
                     roles = setOf(GroupByBoundary, PredicateBoundary, JoinConditionBoundary),
                 ) +
-                sourcePatterns("CONNECT", "FETCH", "FOR", "MODEL", "OFFSET", "START", roles = setOf(TableReferenceBoundary)) +
+                sourcePatterns("CONNECT", "FETCH", "FOR", "MODEL", "OFFSET", "START", "THE", roles = setOf(TableReferenceBoundary)) +
                 sourcePatterns(
                     "ANYDATA",
                     "ANYDATASET",

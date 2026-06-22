@@ -2796,13 +2796,73 @@ class OracleParserBackedTest :
                   created_year NUMBER
                 );
 
+                CREATE TABLE external_query_orders (
+                  id NUMBER,
+                  region VARCHAR2(64)
+                ) ORGANIZATION EXTERNAL (
+                  TYPE ORACLE_LOADER
+                  DEFAULT DIRECTORY data_dir
+                  LOCATION ('external_orders.csv')
+                ) REJECT LIMIT UNLIMITED;
+
                 selectOnlyTable:
                 SELECT id, region
                 FROM ONLY (partitioned_orders) po;
 
+                selectRemoteTable:
+                SELECT id, region
+                FROM partitioned_orders@orders_link po;
+
+                selectRemoteOnlyTable:
+                SELECT id, region
+                FROM ONLY (partitioned_orders@orders_link) po;
+
+                selectOnlySubquery:
+                SELECT id, region
+                FROM ONLY ((
+                  SELECT id, region
+                  FROM partitioned_orders
+                )) only_orders;
+
                 selectPartition:
                 SELECT id, region
                 FROM partitioned_orders PARTITION (p_2026) po;
+
+                selectAnalyticViewHierarchies:
+                SELECT id, region
+                FROM sales_av HIERARCHIES (time_hier, product_hier) av;
+
+                selectHierarchyReference:
+                SELECT id, region
+                FROM sales_hier h;
+
+                selectAsOfScn:
+                SELECT id, region
+                FROM partitioned_orders AS OF SCN 123456 po;
+
+                selectAsOfTimestamp:
+                SELECT id, region
+                FROM partitioned_orders AS OF TIMESTAMP TIMESTAMP '2026-01-01 00:00:00' po;
+
+                selectVersionsBetweenScn:
+                SELECT *
+                FROM partitioned_orders VERSIONS BETWEEN SCN MINVALUE AND MAXVALUE po;
+
+                selectVersionsBetweenTimestamp:
+                SELECT *
+                FROM partitioned_orders VERSIONS BETWEEN TIMESTAMP MINVALUE AND MAXVALUE po;
+
+                selectVersionsBetweenAsOfScn:
+                SELECT *
+                FROM partitioned_orders VERSIONS BETWEEN SCN MINVALUE AND MAXVALUE AS OF SCN 123456 po;
+
+                selectAsOfPeriod:
+                SELECT id, region
+                FROM partitioned_orders AS OF PERIOD FOR valid_time TIMESTAMP '2026-01-01 00:00:00' po;
+
+                selectVersionsPeriod:
+                SELECT *
+                FROM partitioned_orders VERSIONS PERIOD FOR valid_time BETWEEN MINVALUE AND MAXVALUE po;
 
                 selectSubpartitionFor:
                 SELECT id, region
@@ -2812,9 +2872,90 @@ class OracleParserBackedTest :
                 SELECT id, region
                 FROM partitioned_orders SAMPLE BLOCK (10) SEED (42) po;
 
+                selectPivot:
+                SELECT *
+                FROM partitioned_orders PIVOT (
+                  COUNT(id) AS order_count
+                  FOR region IN ('WEST' AS west, 'EAST' AS east)
+                ) pivoted_orders;
+
+                selectPivotXmlAny:
+                SELECT *
+                FROM partitioned_orders PIVOT XML (
+                  COUNT(id)
+                  FOR region IN (ANY)
+                ) pivoted_orders;
+
+                selectPivotXmlSubquery:
+                SELECT *
+                FROM partitioned_orders PIVOT XML (
+                  COUNT(id)
+                  FOR region IN (
+                    SELECT region
+                    FROM partitioned_orders
+                  )
+                ) pivoted_orders;
+
+                selectPivotCompositeColumns:
+                SELECT *
+                FROM partitioned_orders PIVOT (
+                  COUNT(id)
+                  FOR (region, created_year) IN (('WEST', 2026) AS west_2026)
+                ) pivoted_orders;
+
+                selectUnpivot:
+                SELECT *
+                FROM partitioned_orders UNPIVOT INCLUDE NULLS (
+                  metric_value
+                  FOR metric_name IN (id AS 'ID', created_year AS 'CREATED_YEAR')
+                ) unpivoted_orders;
+
+                selectUnpivotCompositeColumns:
+                SELECT *
+                FROM partitioned_orders UNPIVOT EXCLUDE NULLS (
+                  (metric_id, metric_year)
+                  FOR metric_name IN ((id, created_year) AS ('ID', 'CREATED_YEAR'))
+                ) unpivoted_orders;
+
+                selectMatchRecognize:
+                SELECT *
+                FROM partitioned_orders MATCH_RECOGNIZE (
+                  PARTITION BY region
+                  ORDER BY id
+                  MEASURES FIRST(id) AS first_id, LAST(id) AS last_id
+                  ONE ROW PER MATCH
+                  AFTER MATCH SKIP TO LAST rising
+                  PATTERN (start_row rising+)
+                  DEFINE rising AS rising.id > PREV(rising.id)
+                ) matched_orders;
+
+                selectQualify:
+                SELECT id, region, ROW_NUMBER() OVER (PARTITION BY region ORDER BY id) AS row_number
+                FROM partitioned_orders
+                QUALIFY id > 0;
+
+                selectHierarchicalStartFirst:
+                SELECT id, region
+                FROM partitioned_orders
+                START WITH id = 1
+                CONNECT BY PRIOR id = created_year;
+
+                selectHierarchicalConnectFirst:
+                SELECT id, region
+                FROM partitioned_orders
+                CONNECT BY NOCYCLE PRIOR id = created_year
+                START WITH id = 1;
+
                 selectTableCollection:
                 SELECT 1
                 FROM TABLE(ODCINUMBERLIST(1, 2)) numbers;
+
+                selectLegacyTheCollection:
+                SELECT 1
+                FROM THE (
+                  SELECT ODCINUMBERLIST(1, 2)
+                  FROM partitioned_orders
+                ) numbers;
 
                 selectGraphqlTableFunction:
                 SELECT *
@@ -2846,6 +2987,21 @@ class OracleParserBackedTest :
                          (2, 'SMITH')
                 ) value_employees (employee_id, first_name);
 
+                selectInlineExternalTable:
+                SELECT *
+                FROM EXTERNAL ((
+                  id NUMBER NOT NULL,
+                  region VARCHAR2(64)
+                ) TYPE ORACLE_LOADER DEFAULT DIRECTORY data_dir LOCATION ('inline_orders.csv') REJECT LIMIT UNLIMITED) inline_orders;
+
+                selectModifiedExternalTable:
+                SELECT *
+                FROM external_query_orders EXTERNAL MODIFY (
+                  DEFAULT DIRECTORY data_dir
+                  LOCATION ('runtime_orders.csv')
+                  REJECT LIMIT UNLIMITED
+                ) query_orders;
+
                 selectContainersTable:
                 SELECT 1
                 FROM CONTAINERS(partitioned_orders) container_orders;
@@ -2860,6 +3016,22 @@ class OracleParserBackedTest :
                   SELECT created_year AS derived_year
                   FROM partitioned_orders
                 ) years;
+
+                selectSubqueryWithCheckOption:
+                SELECT id, region
+                FROM (
+                  SELECT id, region
+                  FROM partitioned_orders
+                  WITH CHECK OPTION
+                ) checked_orders;
+
+                selectSubqueryWithReadOnly:
+                SELECT id, region
+                FROM (
+                  SELECT id, region
+                  FROM partitioned_orders
+                  WITH READ ONLY
+                ) read_only_orders;
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe
@@ -3306,6 +3478,17 @@ class OracleParserBackedTest :
                 VALUES (?, ?, ?)
                 LOG ERRORS INTO import_order_errors ('values-load') REJECT LIMIT 25;
 
+                insertValuesReturning:
+                INSERT INTO import_orders (order_id, customer_name, order_total)
+                VALUES (?, ?, ?)
+                RETURNING order_id, order_total INTO ?, ?;
+
+                insertValuesReturningWait:
+                INSERT INTO import_orders (order_id, customer_name, order_total)
+                VALUES (?, ?, ?)
+                RETURNING order_id INTO ?
+                WAIT FOREVER;
+
                 insertSelectWithErrorLogging:
                 INSERT INTO import_orders (order_id, customer_name, order_total)
                 SELECT order_id, customer_name, order_total
@@ -3313,9 +3496,36 @@ class OracleParserBackedTest :
                 WHERE order_total IS NOT NULL
                 LOG ERRORS REJECT LIMIT UNLIMITED;
 
+                insertSelectReturning:
+                INSERT INTO import_orders (order_id, customer_name, order_total)
+                SELECT order_id, customer_name, order_total
+                FROM import_orders
+                WHERE order_total IS NOT NULL
+                RETURNING order_id INTO ?;
+
+                insertSelectByName:
+                INSERT INTO import_orders (order_id, customer_name, order_total)
+                SELECT order_id, customer_name, order_total
+                FROM import_orders
+                BY NAME;
+
+                insertSelectByPosition:
+                INSERT INTO import_orders (order_id, customer_name, order_total)
+                SELECT order_id, customer_name, order_total
+                FROM import_orders
+                BY POSITION;
+
                 insertDefaultWithErrorLogging:
                 INSERT INTO import_orders DEFAULT VALUES
                 LOG ERRORS INTO import_order_errors REJECT LIMIT 1;
+
+                insertDefaultReturning:
+                INSERT INTO import_orders DEFAULT VALUES
+                RETURNING order_id INTO ?;
+
+                insertRemoteTarget:
+                INSERT INTO import_orders@orders_link (order_id, customer_name, order_total)
+                VALUES (?, ?, ?);
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe
@@ -3425,6 +3635,21 @@ class OracleParserBackedTest :
                   archived_at TIMESTAMP
                 );
 
+                CREATE TABLE partitioned_order_adjustments (
+                  order_id NUMBER PRIMARY KEY,
+                  adjustment_total NUMBER(10, 2)
+                );
+
+                CREATE TABLE partitioned_order_update_errors (
+                  order_id NUMBER,
+                  error_message VARCHAR2(4000)
+                );
+
+                CREATE TABLE partitioned_order_delete_errors (
+                  order_id NUMBER,
+                  error_message VARCHAR2(4000)
+                );
+
                 updatePartitionByName:
                 UPDATE partitioned_order_updates PARTITION (orders_2026_q1)
                 SET order_total = order_total + 1
@@ -3440,6 +3665,44 @@ class OracleParserBackedTest :
                 SET order_total = order_total + 1
                 WHERE region_code = ?;
 
+                updateReturning:
+                UPDATE partitioned_order_updates
+                SET order_total = order_total + ?
+                WHERE order_id = ?
+                RETURNING NEW order_total, OLD archived_at INTO ?, ?;
+
+                updateWithWaitAndErrorLogging:
+                UPDATE partitioned_order_updates
+                SET archived_at = CURRENT_TIMESTAMP
+                WHERE order_id = ?
+                WAIT 5 SECONDS
+                LOG ERRORS INTO partitioned_order_update_errors ('update-load') REJECT LIMIT UNLIMITED;
+
+                updateFromUsing:
+                UPDATE partitioned_order_updates target
+                SET order_total = source.adjustment_total
+                FROM partitioned_order_adjustments source
+                WHERE source.order_id = target.order_id;
+
+                updateTupleFromSubquery:
+                UPDATE partitioned_order_updates target
+                SET (order_total, archived_at) = (
+                  SELECT source.adjustment_total, CURRENT_TIMESTAMP
+                  FROM partitioned_order_adjustments source
+                  WHERE source.order_id = target.order_id
+                )
+                WHERE target.order_id = ?;
+
+                updateRemoteTarget:
+                UPDATE partitioned_order_updates@orders_link
+                SET archived_at = CURRENT_TIMESTAMP
+                WHERE order_id = ?;
+
+                updateWhereCurrentOf:
+                UPDATE partitioned_order_updates
+                SET archived_at = CURRENT_TIMESTAMP
+                WHERE CURRENT OF order_cursor;
+
                 deletePartitionForKey:
                 DELETE FROM partitioned_order_updates PARTITION FOR (2026, 1)
                 WHERE archived_at IS NOT NULL;
@@ -3451,6 +3714,24 @@ class OracleParserBackedTest :
                 deleteSubpartitionByName:
                 DELETE FROM partitioned_order_updates SUBPARTITION (orders_2026_q1_us)
                 WHERE region_code = ?;
+
+                deleteReturning:
+                DELETE FROM partitioned_order_updates
+                WHERE order_id = ?
+                RETURNING OLD order_total INTO ?;
+
+                deleteWithErrorLogging:
+                DELETE FROM partitioned_order_updates
+                WHERE archived_at IS NOT NULL
+                LOG ERRORS INTO partitioned_order_delete_errors ('delete-load') REJECT LIMIT 10;
+
+                deleteRemoteTarget:
+                DELETE FROM partitioned_order_updates@orders_link
+                WHERE order_id = ?;
+
+                deleteWhereCurrentOf:
+                DELETE FROM partitioned_order_updates
+                WHERE CURRENT OF order_cursor;
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe

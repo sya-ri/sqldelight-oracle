@@ -6,8 +6,10 @@ import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.ClauseBoundary
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.CommonFunctionName
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.DataTypeName
+import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.PredicateBoundary
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.SqlDelightExecutableStatementStart
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.StatementStart
+import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.TableReferenceBoundary
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.TransactionEndStatement
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatternRole.TransactionStartStatement
 import dev.s7a.sqldelight.check.api.SqlDialectSourcePatterns
@@ -78,6 +80,14 @@ class OracleDialectProviderTest :
 
         test("recognizes Oracle START WITH clause role") {
             OracleDialectSourcePatterns.shouldMatchExactly(StartWithClause, Syntax("START WITH"))
+        }
+
+        test("recognizes Oracle CURRENT OF predicate boundary exactly") {
+            OracleDialectSourcePatterns.shouldMatchExactly(PredicateBoundary, Syntax("CURRENT OF"))
+        }
+
+        test("recognizes Oracle legacy THE table reference boundary exactly") {
+            OracleDialectSourcePatterns.shouldMatchExactly(TableReferenceBoundary, Syntax("THE"))
         }
 
         listOf("<->", "<=>", "<#>").forEach { operator ->
@@ -313,12 +323,16 @@ private val oracleClauseBoundaries =
     listOf(
         Syntax("AS OF SCN"),
         Syntax("AS OF TIMESTAMP"),
+        Syntax("AS OF PERIOD"),
         Syntax("ADD MEASURES"),
         Syntax("ALTER DOMAIN"),
         Syntax("ANNOTATIONS"),
+        Syntax("BY NAME"),
+        Syntax("BY POSITION"),
         Syntax("CHOOSE DOMAIN USING"),
         Syntax("CONNECT BY"),
         Syntax("COLUMNS"),
+        Syntax("CURRENT OF"),
         Syntax("DEFAULT MEASURE"),
         Syntax("DEFAULT ON NULL"),
         Syntax("DESTINATION KEY"),
@@ -336,6 +350,7 @@ private val oracleClauseBoundaries =
         Syntax("INSERT ALL"),
         Syntax("INSERT FIRST"),
         Syntax("JSON_TABLE"),
+        Syntax("JOIN TO ONE"),
         Syntax("LATERAL"),
         Syntax("MATCH"),
         Syntax("MATCH_RECOGNIZE"),
@@ -349,6 +364,7 @@ private val oracleClauseBoundaries =
         Syntax("PROPERTIES"),
         Syntax("QUALIFY"),
         Syntax("RETURNING"),
+        Syntax("ROW WIDENED"),
         Syntax("SAMPLE"),
         Syntax("SEARCH"),
         Syntax("SHARDS"),
@@ -359,6 +375,7 @@ private val oracleClauseBoundaries =
         Syntax("USECASE"),
         Syntax("VERTEX TABLES"),
         Syntax("VERSIONS BETWEEN"),
+        Syntax("VERSIONS PERIOD"),
         Syntax("XMLTABLE"),
     )
 

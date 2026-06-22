@@ -1139,7 +1139,8 @@ alter_table_rules ::= (
   alter_table_modify_column |
   alter_table_drop_constraint |
   alter_table_drop_column |
-  alter_table_rename_column
+  alter_table_rename_column |
+  alter_table_oracle_properties
 ) {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlAlterTableRulesImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlAlterTableRules"
@@ -1187,6 +1188,47 @@ alter_table_rename_column ::= 'RENAME' [ 'COLUMN' ] {column_name} 'TO' {column_a
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.AlterTableRenameColumnMixin"
   pin = 1
 }
+
+private alter_table_oracle_properties ::= oracle_alter_table_property_token +
+
+private oracle_alter_table_property_token ::= (
+  oracle_storage_admin_boundary_token |
+  oracle_parenthesized_clause |
+  oracle_schema_object_name |
+  {string_literal} |
+  string |
+  DIGIT |
+  {signed_number} |
+  COMMA |
+  DOT |
+  EQ |
+  'ADVANCED' |
+  'ALLOCATE' |
+  'ARCHIVE' |
+  'ARCHIVELOG' |
+  'ARCHIVAL' |
+  'CACHE' |
+  'CASCADE' |
+  'COMPRESS' |
+  'DEALLOCATE' |
+  'DISABLE' |
+  'DUPLICATE' |
+  'ENABLE' |
+  'FOR' |
+  'INMEMORY' |
+  'LOW' |
+  'MEMCOMPRESS' |
+  'MOVE' |
+  'NOCACHE' |
+  'NOLOGGING' |
+  'NOLOGICAL' |
+  'NO' |
+  'PARALLEL' |
+  'QUERY' |
+  'ROW' |
+  'TABLESPACE' |
+  'UNUSED'
+)
 
 create_index_stmt ::= 'CREATE' [ 'JSON' ] [ oracle_index_kind ] 'INDEX' [ 'IF' 'NOT' 'EXISTS' ] [ {database_name} DOT ] {index_name}
   [ oracle_index_ilm_clause ] 'ON' ( oracle_cluster_index_clause | oracle_table_index_clause ) [ oracle_annotations_clause ] oracle_index_post_attribute * {

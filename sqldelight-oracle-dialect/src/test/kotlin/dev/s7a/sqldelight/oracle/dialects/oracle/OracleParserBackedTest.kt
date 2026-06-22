@@ -2435,6 +2435,12 @@ class OracleParserBackedTest :
                 ALTER TABLE alter_targets DROP COLUMN archived_at CASCADE CONSTRAINTS;
                 ALTER TABLE alter_targets DROP COLUMN created_at CASCADE CONSTRAINTS;
                 ALTER TABLE alter_targets DROP CONSTRAINT alter_targets_status_check;
+                ALTER TABLE alter_targets ENABLE ROW MOVEMENT;
+                ALTER TABLE alter_targets READ ONLY;
+                ALTER TABLE alter_targets READ WRITE;
+                ALTER TABLE alter_targets MOVE TABLESPACE users COMPRESS ADVANCED;
+                ALTER TABLE alter_targets SHRINK SPACE CASCADE;
+                ALTER TABLE alter_targets INMEMORY MEMCOMPRESS FOR QUERY LOW;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe

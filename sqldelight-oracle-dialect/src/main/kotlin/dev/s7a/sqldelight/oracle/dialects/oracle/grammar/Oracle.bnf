@@ -2117,6 +2117,8 @@ alter_table_rules ::= (
   alter_table_memoptimize |
   alter_table_records_per_block |
   alter_table_upgrade |
+  alter_table_default_collation |
+  alter_table_rekey |
   alter_table_for_staging |
   alter_table_modify_clustering |
   alter_table_drop_clustering |
@@ -2189,6 +2191,10 @@ private alter_table_memoptimize ::= [ 'NO' ] 'MEMOPTIMIZE' 'FOR' ( 'READ' | 'WRI
 private alter_table_records_per_block ::= ( 'MINIMIZE' | 'NOMINIMIZE' ) 'RECORDS_PER_BLOCK'
 
 private alter_table_upgrade ::= 'UPGRADE' [ [ 'NOT' ] 'INCLUDING' 'DATA' ]
+
+private alter_table_default_collation ::= oracle_default_collation_clause
+
+private alter_table_rekey ::= 'REKEY' oracle_encryption_spec
 
 private alter_table_for_staging ::= oracle_for_staging_clause
 

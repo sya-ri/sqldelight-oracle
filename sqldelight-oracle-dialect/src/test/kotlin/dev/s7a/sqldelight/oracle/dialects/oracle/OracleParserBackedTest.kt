@@ -3575,6 +3575,9 @@ class OracleParserBackedTest :
                 ALTER TABLE alter_advanced_targets UPGRADE INCLUDING DATA;
                 ALTER TABLE alter_advanced_targets UPGRADE NOT INCLUDING DATA;
 
+                ALTER TABLE alter_advanced_targets DEFAULT COLLATION BINARY_CI;
+                ALTER TABLE alter_advanced_targets REKEY ENCRYPT USING 'AES256' IDENTIFIED BY account_key NO SALT;
+
                 ALTER TABLE alter_advanced_targets MEMOPTIMIZE FOR READ;
                 ALTER TABLE alter_advanced_targets NO MEMOPTIMIZE FOR READ;
                 ALTER TABLE alter_advanced_targets MEMOPTIMIZE FOR WRITE;

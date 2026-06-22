@@ -19,6 +19,7 @@
     "static com.alecstrong.sql.psi.core.SqlParserUtil.compoundSelectStmtExt"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.columnAliasExt"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.databaseNameExt"
+    "static com.alecstrong.sql.psi.core.SqlParserUtil.generatedClauseExt"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.identifierExt"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.groupByExt"
     "static com.alecstrong.sql.psi.core.SqlParserUtil.indexNameExt"
@@ -33,7 +34,7 @@
   ]
 }
 
-overrides ::= stmt | type_name | column_constraint | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | insert_stmt | update_stmt | update_stmt_limited | delete_stmt | delete_stmt_limited | qualified_table_name | compound_select_stmt | select_stmt | with_clause | table_alias | table_or_subquery | group_by | join_operator | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt | extension_expr
+overrides ::= stmt | type_name | column_constraint | generated_clause | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | insert_stmt | update_stmt | update_stmt_limited | delete_stmt | delete_stmt_limited | qualified_table_name | compound_select_stmt | select_stmt | with_clause | table_alias | table_or_subquery | group_by | join_operator | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt | extension_expr
 
 stmt ::= explain_plan_stmt | oracle_core_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlStmtImpl"
@@ -796,12 +797,19 @@ column_constraint ::= [ 'CONSTRAINT' {identifier} ] (
   {default_constraint} |
   'COLLATE' {collation_name} |
   {foreign_key_clause} oracle_constraint_state * |
+  <<generatedClauseExt <<generated_clause_real>>>> |
   oracle_identity_clause |
   oracle_annotations_clause |
   oracle_visibility
 ) {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlColumnConstraintImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlColumnConstraint"
+  override = true
+}
+
+generated_clause ::= [ 'GENERATED' 'ALWAYS' ] 'AS' LP <<expr '-1'>> RP [ 'VIRTUAL' ] {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlGeneratedClauseImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlGeneratedClause"
   override = true
 }
 

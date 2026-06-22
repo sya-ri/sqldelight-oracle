@@ -227,6 +227,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun extension_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun flashback_database_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun flashback_table_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun generated_clause_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun grant_data_role_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun grant_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun group_by_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -444,6 +445,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun extensionStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun flashbackDatabaseStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun flashbackTableStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun generatedClauseExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public final fun getAdminister_key_management_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_analytic_view_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAlter_assertion_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -620,6 +622,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getExtension_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getFlashback_database_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getFlashback_table_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getGenerated_clause ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getGrant_data_role_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getGrant_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getGroup_by ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -854,6 +857,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setExtension_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setFlashback_database_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setFlashback_table_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setGenerated_clause (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setGrant_data_role_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setGrant_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setGroup_by (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -1617,6 +1621,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleFlashbackTableStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleGeneratedClause : com/alecstrong/sql/psi/core/psi/SqlGeneratedClause {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleGrantDataRoleStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
@@ -1666,6 +1673,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getDropTriggerStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTriggerStmt;
 	public abstract fun getExtensionExpr ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionExpr;
 	public abstract fun getExtensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionStmt;
+	public abstract fun getGeneratedClause ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleGeneratedClause;
 	public abstract fun getGroupBy ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleGroupBy;
 	public abstract fun getInsertStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleInsertStmt;
 	public abstract fun getJoinOperator ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleJoinOperator;
@@ -2077,6 +2085,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field EXTENSION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field FLASHBACK_DATABASE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field FLASHBACK_TABLE_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field GENERATED_CLAUSE Lcom/intellij/psi/tree/IElementType;
 	public static final field GRANT_DATA_ROLE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field GRANT_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field GROUP_BY Lcom/intellij/psi/tree/IElementType;
@@ -2311,6 +2320,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitExtensionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionStmt;)V
 	public fun visitFlashbackDatabaseStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleFlashbackDatabaseStmt;)V
 	public fun visitFlashbackTableStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleFlashbackTableStmt;)V
+	public fun visitGeneratedClause (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleGeneratedClause;)V
 	public fun visitGrantDataRoleStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleGrantDataRoleStmt;)V
 	public fun visitGrantStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleGrantStmt;)V
 	public fun visitGroupBy (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleGroupBy;)V
@@ -2351,6 +2361,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitSqlDropTriggerStmt (Lcom/alecstrong/sql/psi/core/psi/SqlDropTriggerStmt;)V
 	public fun visitSqlExtensionExpr (Lcom/alecstrong/sql/psi/core/psi/SqlExtensionExpr;)V
 	public fun visitSqlExtensionStmt (Lcom/alecstrong/sql/psi/core/psi/SqlExtensionStmt;)V
+	public fun visitSqlGeneratedClause (Lcom/alecstrong/sql/psi/core/psi/SqlGeneratedClause;)V
 	public fun visitSqlGroupBy (Lcom/alecstrong/sql/psi/core/psi/SqlGroupBy;)V
 	public fun visitSqlInsertStmt (Lcom/alecstrong/sql/psi/core/psi/SqlInsertStmt;)V
 	public fun visitSqlJoinOperator (Lcom/alecstrong/sql/psi/core/psi/SqlJoinOperator;)V
@@ -3626,6 +3637,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleFl
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleGeneratedClauseImpl : com/alecstrong/sql/psi/core/psi/impl/SqlGeneratedClauseImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleGeneratedClause {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleGrantDataRoleStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleGrantDataRoleStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
@@ -3711,6 +3728,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOv
 	public fun getDropTriggerStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropTriggerStmt;
 	public fun getExtensionExpr ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionExpr;
 	public fun getExtensionStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionStmt;
+	public fun getGeneratedClause ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleGeneratedClause;
 	public fun getGroupBy ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleGroupBy;
 	public fun getInsertStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleInsertStmt;
 	public fun getJoinOperator ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleJoinOperator;

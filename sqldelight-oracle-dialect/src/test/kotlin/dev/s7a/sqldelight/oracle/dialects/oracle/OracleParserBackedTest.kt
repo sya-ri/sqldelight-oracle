@@ -2007,6 +2007,14 @@ class OracleParserBackedTest :
                   external_id VARCHAR2(64)
                 ) ON COMMIT DROP DEFINITION DEFAULT COLLATION BINARY_CI;
 
+                CREATE TABLE virtual_column_accounts (
+                  account_id NUMBER NOT NULL,
+                  first_name VARCHAR2(64),
+                  last_name VARCHAR2(64),
+                  account_display_name VARCHAR2(129) GENERATED ALWAYS AS (first_name || ' ' || last_name) VIRTUAL,
+                  account_search_name VARCHAR2(129) AS (first_name || last_name) INVISIBLE
+                );
+
                 CREATE TABLE compressed_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)

@@ -1922,6 +1922,11 @@ class OracleParserBackedTest :
                 SELECT account_id, external_id
                 FROM staged_accounts;
 
+                CREATE GLOBAL TEMPORARY TABLE staged_account_snapshot
+                ON COMMIT PRESERVE ROWS
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
                 selectAll:
                 SELECT account_id, external_id
                 FROM account_snapshot;
@@ -5378,7 +5383,7 @@ class OracleParserBackedTest :
                     fileNames = listOf("Test.sq"),
                     errors =
                         listOf(
-                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS or AS expected, got '('",
+                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS or ON expected, got '('",
                         ),
                 )
         }

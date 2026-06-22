@@ -2060,6 +2060,29 @@ class OracleParserBackedTest :
                   PERIOD FOR valid_time (valid_from, valid_to)
                 );
 
+                CREATE TABLE range_partitioned_accounts (
+                  account_id NUMBER NOT NULL,
+                  created_at DATE,
+                  external_id VARCHAR2(64)
+                ) PARTITION BY RANGE (created_at) (
+                  PARTITION p_2025 VALUES LESS THAN ('2026-01-01') TABLESPACE users,
+                  PARTITION p_max VALUES LESS THAN (MAXVALUE) READ ONLY
+                );
+
+                CREATE TABLE list_partitioned_accounts (
+                  account_id NUMBER NOT NULL,
+                  region_code VARCHAR2(8),
+                  external_id VARCHAR2(64)
+                ) PARTITION BY LIST (region_code) (
+                  PARTITION p_us VALUES ('US', 'CA') INDEXING ON,
+                  PARTITION p_other VALUES (DEFAULT)
+                );
+
+                CREATE TABLE hash_partitioned_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) PARTITION BY HASH (account_id) PARTITIONS 4 STORE IN (users, archive_ts);
+
                 CREATE TABLE row_store_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)
@@ -5626,7 +5649,7 @@ class OracleParserBackedTest :
                     fileNames = listOf("Test.sq"),
                     errors =
                         listOf(
-                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, BLOCKCHAIN, COLUMN, COMPRESS, DEFAULT, DISABLE, ENABLE, FILESYSTEM_LIKE_LOGGING, FLASHBACK, HASHING, ILM, INITRANS, LOGGING, MEMOPTIMIZE, NO, NOCOMPRESS, NOLOGGING, ON, ORGANIZATION, PARENT, PCTFREE, PCTUSED, READ, REFRESH, RESULT_CACHE, ROW, SEGMENT, SHARING, STORAGE, SYNCHRONOUS or TABLESPACE expected, got '('",
+                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, BLOCKCHAIN, COLUMN, COMPRESS, DEFAULT, DISABLE, ENABLE, FILESYSTEM_LIKE_LOGGING, FLASHBACK, HASHING, ILM, INITRANS, LOGGING, MEMOPTIMIZE, NO, NOCOMPRESS, NOLOGGING, ON, ORGANIZATION, PARENT, PARTITION, PCTFREE, PCTUSED, READ, REFRESH, RESULT_CACHE, ROW, SEGMENT, SHARING, STORAGE, SYNCHRONOUS or TABLESPACE expected, got '('",
                         ),
                 )
         }

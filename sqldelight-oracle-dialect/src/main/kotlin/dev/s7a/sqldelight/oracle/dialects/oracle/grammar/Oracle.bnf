@@ -1161,6 +1161,7 @@ private oracle_create_table_property ::= (
   oracle_table_enable_disable_clause |
   oracle_ilm_clause |
   oracle_ledger_table_clause |
+  oracle_table_partitioning_clause |
   'CACHE' |
   'NOCACHE' |
   oracle_parallel_clause |
@@ -1185,10 +1186,50 @@ private oracle_create_table_as_property ::= (
   oracle_table_organization_clause |
   oracle_table_enable_disable_clause |
   oracle_ilm_clause |
-  oracle_ledger_table_clause
+  oracle_ledger_table_clause |
+  oracle_table_partitioning_clause
 )
 
 private oracle_default_collation_clause ::= 'DEFAULT' 'COLLATION' {collation_name}
+
+private oracle_table_partitioning_clause ::= 'PARTITION' 'BY' (
+  oracle_range_partitions |
+  oracle_list_partitions |
+  oracle_hash_partitions
+) {
+  pin = 1
+}
+
+private oracle_range_partitions ::= 'RANGE' LP oracle_partition_key ( COMMA oracle_partition_key ) * RP
+  [ 'INTERVAL' LP <<expr '-1'>> RP [ 'STORE' 'IN' LP oracle_tablespace_name_list RP ] ]
+  LP oracle_range_partition_definition ( COMMA oracle_range_partition_definition ) * RP
+
+private oracle_list_partitions ::= 'LIST' LP oracle_partition_key ( COMMA oracle_partition_key ) * RP
+  [ 'AUTOMATIC' [ 'STORE' 'IN' LP oracle_tablespace_name_list RP ] ]
+  LP oracle_list_partition_definition ( COMMA oracle_list_partition_definition ) * RP
+
+private oracle_hash_partitions ::= 'HASH' LP oracle_partition_key ( COMMA oracle_partition_key ) * RP (
+  LP oracle_hash_partition_definition ( COMMA oracle_hash_partition_definition ) * RP |
+  'PARTITIONS' {signed_number} [ 'STORE' 'IN' LP oracle_tablespace_name_list RP ]
+)
+
+private oracle_partition_key ::= {column_name} | LP <<expr '-1'>> RP
+
+private oracle_range_partition_definition ::= 'PARTITION' [ oracle_object_name_part ] 'VALUES' 'LESS' 'THAN' LP oracle_range_partition_value ( COMMA oracle_range_partition_value ) * RP oracle_partition_table_description *
+
+private oracle_range_partition_value ::= {string_literal} | 'MAXVALUE' | DIGIT | {signed_number}
+
+private oracle_list_partition_definition ::= 'PARTITION' [ oracle_object_name_part ] 'VALUES' LP ( oracle_list_partition_values | 'DEFAULT' ) RP oracle_partition_table_description *
+
+private oracle_list_partition_values ::= oracle_list_partition_value ( COMMA oracle_list_partition_value ) *
+
+private oracle_list_partition_value ::= {string_literal} | 'NULL' | DIGIT | {signed_number}
+
+private oracle_hash_partition_definition ::= 'PARTITION' [ oracle_object_name_part ] oracle_partition_table_description *
+
+private oracle_partition_table_description ::= oracle_read_only_clause | 'INDEXING' ( 'ON' | 'OFF' ) | oracle_segment_attribute_clause | oracle_table_compression
+
+private oracle_tablespace_name_list ::= oracle_object_name_part ( COMMA oracle_object_name_part ) *
 
 private oracle_deferred_segment_creation ::= 'SEGMENT' 'CREATION' ( 'IMMEDIATE' | 'DEFERRED' )
 

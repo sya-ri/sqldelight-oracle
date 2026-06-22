@@ -1104,9 +1104,9 @@ table_constraint ::= [ 'CONSTRAINT' {identifier} ] (
   override = true
 }
 
-create_table_stmt ::= 'CREATE' [ oracle_table_kind ] 'TABLE' [ 'IF' 'NOT' 'EXISTS' ] [ {database_name} DOT ] {table_name} [ oracle_create_table_sharing_clause ] (
-  LP {column_def} ( COMMA {column_def} ) * ( COMMA oracle_create_table_element ) * RP [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_property * |
-  [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_as_property * 'AS' {compound_select_stmt}
+create_table_stmt ::= 'CREATE' (
+  [ oracle_table_kind ] 'TABLE' [ 'IF' 'NOT' 'EXISTS' ] [ {database_name} DOT ] {table_name} [ oracle_create_table_sharing_clause ] oracle_create_relational_table |
+  [ oracle_table_kind ] 'JSON' 'COLLECTION' 'TABLE' [ 'IF' 'NOT' 'EXISTS' ] [ {database_name} DOT ] {table_name} [ oracle_create_table_sharing_clause ] oracle_create_json_collection_table
 ) oracle_create_table_top_level_clause * {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCreateTableStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlCreateTableStmt"
@@ -1115,6 +1115,13 @@ create_table_stmt ::= 'CREATE' [ oracle_table_kind ] 'TABLE' [ 'IF' 'NOT' 'EXIST
   override = true
   pin = 6
 }
+
+private oracle_create_relational_table ::= (
+  LP {column_def} ( COMMA {column_def} ) * ( COMMA oracle_create_table_element ) * RP [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_property * |
+  [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_as_property * 'AS' {compound_select_stmt}
+)
+
+private oracle_create_json_collection_table ::= [ 'WITH' 'ETAG' ] oracle_create_table_property *
 
 private oracle_create_table_element ::= {table_constraint} | oracle_supplemental_logging_props | oracle_period_definition
 

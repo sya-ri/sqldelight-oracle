@@ -1933,6 +1933,12 @@ class OracleParserBackedTest :
                   external_id VARCHAR2(64)
                 ) MEMOPTIMIZE FOR WRITE SYNCHRONOUS;
 
+                CREATE JSON COLLECTION TABLE account_documents
+                SHARING = DATA
+                WITH ETAG
+                TABLESPACE users
+                READ WRITE;
+
                 CREATE TABLE collated_definition_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)
@@ -5671,7 +5677,7 @@ class OracleParserBackedTest :
                     fileNames = listOf("Test.sq"),
                     errors =
                         listOf(
-                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, BLOCKCHAIN, COLUMN, COMPRESS, DEFAULT, DISABLE, ENABLE, FILESYSTEM_LIKE_LOGGING, FLASHBACK, HASHING, ILM, INITRANS, LOGGING, MEMOPTIMIZE, NO, NOCOMPRESS, NOLOGGING, ON, ORGANIZATION, PARENT, PARTITION, PCTFREE, PCTUSED, READ, REFRESH, RESULT_CACHE, ROW, SEGMENT, SHARING, STORAGE, SYNCHRONOUS or TABLESPACE expected, got '('",
+                            "Test.sq: (3, 20): ')', ',', <column constraint real> or AS expected",
                         ),
                 )
         }

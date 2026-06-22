@@ -3525,6 +3525,11 @@ class OracleParserBackedTest :
                 insertRemoteTarget:
                 INSERT INTO import_orders@orders_link (order_id, customer_name, order_total)
                 VALUES (?, ?, ?);
+
+                insertSetClause:
+                INSERT INTO import_orders
+                SET order_id = ?, customer_name = ?, order_total = DEFAULT
+                RETURNING order_id INTO ?;
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe

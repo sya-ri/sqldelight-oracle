@@ -1199,9 +1199,14 @@ private oracle_insert_target_table ::= (
 
 private oracle_insert_stmt_values ::= (
   'VALUES' ( {bind_expr} | {values_expression} ( COMMA {values_expression} ) * ) |
+  oracle_insert_set_clause |
   {compound_select_stmt} [ oracle_by_name_position_clause ] |
   'DEFAULT' 'VALUES'
 ) [ oracle_returning_clause ] [ oracle_wait_clause ] [ oracle_error_logging_clause ]
+
+private oracle_insert_set_clause ::= 'SET' oracle_insert_set_assignment ( COMMA oracle_insert_set_assignment ) *
+
+private oracle_insert_set_assignment ::= {column_name} EQ ( 'DEFAULT' | <<expr '-1'>> )
 
 private oracle_by_name_position_clause ::= 'BY' ( 'NAME' | 'POSITION' )
 

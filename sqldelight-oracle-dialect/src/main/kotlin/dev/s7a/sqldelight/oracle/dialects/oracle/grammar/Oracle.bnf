@@ -1998,7 +1998,11 @@ private oracle_ledger_table_clause ::= (
   oracle_blockchain_hash_clause
 )
 
-private oracle_blockchain_hash_clause ::= 'HASHING' 'USING' oracle_ledger_clause_value [ 'VERSION' oracle_ledger_clause_value ]
+private oracle_blockchain_hash_clause ::=
+  'HASHING' 'USING' oracle_ledger_clause_value [ oracle_blockchain_row_version_user_chain_clause ] [ 'VERSION' oracle_ledger_clause_value ]
+
+private oracle_blockchain_row_version_user_chain_clause ::=
+  'WITH' 'ROW' 'VERSION' [ 'AND' 'USER' 'CHAIN' ] oracle_object_name_part LP {column_name} ( COMMA {column_name} ) * RP
 
 private oracle_ledger_clause_value ::= {string_literal} | string | oracle_object_name_part
 

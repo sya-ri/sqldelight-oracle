@@ -1981,6 +1981,20 @@ class OracleParserBackedTest :
                   external_id VARCHAR2(64)
                 ) NO DROP UNTIL 31 DAYS IDLE NO DELETE LOCKED HASHING USING "SHA2_512" VERSION "v1";
 
+                CREATE BLOCKCHAIN TABLE blockchain_account_versions (
+                  bank VARCHAR2(128),
+                  account_no NUMBER,
+                  deposit_date DATE,
+                  deposit_amount NUMBER
+                ) NO DROP UNTIL 31 DAYS IDLE NO DELETE LOCKED HASHING USING SHA2_512 WITH ROW VERSION account_versions (bank, account_no) VERSION V2;
+
+                CREATE BLOCKCHAIN TABLE blockchain_account_chains (
+                  bank VARCHAR2(128),
+                  account_no NUMBER,
+                  deposit_date DATE,
+                  deposit_amount NUMBER
+                ) NO DROP UNTIL 31 DAYS IDLE NO DELETE LOCKED HASHING USING SHA2_512 WITH ROW VERSION AND USER CHAIN bank_accounts (bank, account_no) VERSION V2;
+
                 CREATE IMMUTABLE BLOCKCHAIN TABLE immutable_blockchain_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)

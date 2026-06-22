@@ -2300,6 +2300,21 @@ class OracleParserBackedTest :
                   external_id VARCHAR2(64)
                 ) COLUMN STORE COMPRESS FOR QUERY HIGH NO ROW LEVEL LOCKING;
 
+                CREATE TABLE legacy_basic_compressed_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) COMPRESS BASIC;
+
+                CREATE TABLE legacy_oltp_compressed_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) COMPRESS FOR OLTP;
+
+                CREATE TABLE legacy_hcc_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) COMPRESS FOR QUERY LOW;
+
                 CREATE TABLE cache_parallel_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)
@@ -2337,6 +2352,11 @@ class OracleParserBackedTest :
 
                 CREATE TABLE compressed_account_snapshot
                 COLUMN STORE COMPRESS FOR ARCHIVE LOW
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
+                CREATE TABLE legacy_compressed_account_snapshot
+                COMPRESS FOR ARCHIVE HIGH
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 

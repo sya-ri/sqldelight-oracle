@@ -2037,7 +2037,12 @@ private oracle_storage_parameter ::= (
 private oracle_size_value ::= oracle_size_clause
 
 private oracle_table_compression ::= (
-  'COMPRESS' [ 'ADVANCED' [ 'LOW' | 'HIGH' ] | {signed_number} ] |
+  'COMPRESS' [
+    'ADVANCED' [ 'LOW' | 'HIGH' ] |
+    'BASIC' |
+    'FOR' ( 'OLTP' | ( 'QUERY' | 'ARCHIVE' ) [ 'LOW' | 'HIGH' ] ) |
+    {signed_number}
+  ] |
   'ROW' 'STORE' 'COMPRESS' [ 'BASIC' | 'ADVANCED' ] |
   'COLUMN' 'STORE' 'COMPRESS' [ 'FOR' [ 'MEMSPEED' ] ( 'QUERY' | 'ARCHIVE' ) [ 'LOW' | 'HIGH' ] ] [ [ 'NO' ] 'ROW' 'LEVEL' 'LOCKING' ] |
   'NOCOMPRESS'

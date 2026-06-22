@@ -1557,6 +1557,7 @@ private oracle_create_table_property ::= (
   oracle_row_movement_clause |
   oracle_logical_replication_clause |
   oracle_table_flashback_archive_clause |
+  oracle_column_properties |
   oracle_table_organization_clause |
   oracle_table_enable_disable_clause |
   oracle_ilm_clause |
@@ -1583,6 +1584,7 @@ private oracle_create_table_as_property ::= (
   oracle_row_movement_clause |
   oracle_logical_replication_clause |
   oracle_table_flashback_archive_clause |
+  oracle_column_properties |
   oracle_table_organization_clause |
   oracle_table_enable_disable_clause |
   oracle_ilm_clause |
@@ -1704,6 +1706,93 @@ private oracle_table_flashback_archive_clause ::= (
   'BLOCKCHAIN' 'FLASHBACK' 'ARCHIVE' [ oracle_object_name_part ] |
   'FLASHBACK' 'ARCHIVE' [ oracle_object_name_part ] |
   'NO' 'FLASHBACK' 'ARCHIVE'
+)
+
+private oracle_column_properties ::= (
+  oracle_object_type_col_properties |
+  oracle_nested_table_col_properties |
+  oracle_varray_col_properties |
+  oracle_lob_storage_clause |
+  oracle_lob_partition_storage |
+  oracle_xmltype_column_properties |
+  oracle_json_storage_clause
+)
+
+private oracle_object_type_col_properties ::= 'COLUMN' oracle_schema_object_name oracle_substitutable_column_clause
+
+private oracle_substitutable_column_clause ::= (
+  'ELEMENT' 'IS' 'OF' ( 'TYPE' )? LP [ 'ONLY' ] oracle_schema_object_name RP |
+  [ 'NOT' ] 'SUBSTITUTABLE' 'AT' 'ALL' 'LEVELS'
+)
+
+private oracle_nested_table_col_properties ::= 'NESTED' 'TABLE' oracle_schema_object_name 'STORE' 'AS' oracle_object_name_part
+  [ oracle_nested_table_return_clause ] [ oracle_column_property_boundary ]
+
+private oracle_nested_table_return_clause ::= 'RETURN' 'AS' ( 'LOCATOR' | 'VALUE' )
+
+private oracle_varray_col_properties ::= 'VARRAY' oracle_schema_object_name 'STORE' 'AS'
+  [ 'SECUREFILE' | 'BASICFILE' ] 'LOB' [ oracle_column_property_storage_target ]
+
+private oracle_lob_storage_clause ::= 'LOB' LP oracle_schema_object_name ( COMMA oracle_schema_object_name ) * RP
+  'STORE' 'AS' [ 'SECUREFILE' | 'BASICFILE' ] [ oracle_column_property_storage_target ]
+
+private oracle_column_property_storage_target ::= oracle_column_property_boundary | oracle_object_name_part [ oracle_column_property_boundary ]
+
+private oracle_lob_partition_storage ::= 'LOB' LP oracle_schema_object_name RP 'STORE' 'AS'
+  ( 'PARTITION' | 'SUBPARTITION' ) oracle_object_name_part oracle_column_property_boundary
+
+private oracle_xmltype_column_properties ::= 'XMLTYPE' 'COLUMN' oracle_schema_object_name
+  ( oracle_xmlschema_spec | oracle_xmltype_storage | oracle_column_property_boundary ) *
+
+private oracle_json_storage_clause ::= 'JSON' 'COLUMN' oracle_schema_object_name 'STORE' 'AS'
+  ( 'TEXT' | 'BLOB' | 'CLOB' | 'JSON' ) [ oracle_column_property_boundary ]
+
+private oracle_column_property_boundary ::= LP oracle_column_property_token * RP
+
+private oracle_column_property_token ::= (
+  oracle_column_property_boundary |
+  oracle_segment_attribute_clause |
+  oracle_schema_object_name |
+  {string_literal} |
+  string |
+  DIGIT |
+  {signed_number} |
+  COMMA |
+  DOT |
+  EQ |
+  'ALLOW' |
+  'BASICFILE' |
+  'CACHE' |
+  'CHUNK' |
+  'COLUMN' |
+  'COMPRESS' |
+  'DEDUPLICATE' |
+  'DECRYPT' |
+  'DISABLE' |
+  'DISALLOW' |
+  'DUPLICATE' |
+  'ENABLE' |
+  'ENCRYPT' |
+  'FILESYSTEM_LIKE_LOGGING' |
+  'FREEPOOLS' |
+  'HIGH' |
+  'IN' |
+  'KEEP_DUPLICATES' |
+  'LOB' |
+  'LOW' |
+  'MEDIUM' |
+  'NOCACHE' |
+  'NOCOMPRESS' |
+  'NODEDUPLICATE' |
+  'NOLOGGING' |
+  'NONE' |
+  'OUT' |
+  'PCTVERSION' |
+  'READS' |
+  'RETENTION' |
+  'ROW' |
+  'SECUREFILE' |
+  'STORAGE'
 )
 
 private oracle_table_organization_clause ::= 'ORGANIZATION' (

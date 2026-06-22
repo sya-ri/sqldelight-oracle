@@ -2455,6 +2455,40 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle relational table column property storage clauses exactly") {
+            val sql =
+                """
+                CREATE TABLE account_document_storage (
+                  account_id NUMBER PRIMARY KEY,
+                  document_text CLOB,
+                  document_blob BLOB,
+                  document_xml XMLTYPE,
+                  line_items NESTED TABLE,
+                  attachments VARRAY(10),
+                  contact OBJECT
+                )
+                LOB (document_text, document_blob) STORE AS SECUREFILE (
+                  TABLESPACE users
+                  ENABLE STORAGE IN ROW
+                  CHUNK 8192
+                  CACHE READS
+                  COMPRESS HIGH
+                  DEDUPLICATE
+                  ENCRYPT
+                )
+                XMLTYPE COLUMN document_xml XMLSCHEMA 'http://example.com/document.xsd' ELEMENT 'Document' STORE AS BINARY XML
+                NESTED TABLE line_items STORE AS account_line_items RETURN AS LOCATOR
+                VARRAY attachments STORE AS BASICFILE LOB account_attachments_lob
+                COLUMN contact NOT SUBSTITUTABLE AT ALL LEVELS;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle JSON collection table expression columns exactly") {
             val sql =
                 """

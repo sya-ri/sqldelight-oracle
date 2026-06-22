@@ -1099,6 +1099,27 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle object reference functions exactly") {
+            val sql =
+                """
+                CREATE TABLE object_reference_samples (
+                  id NUMBER PRIMARY KEY,
+                  address_ref REF
+                );
+
+                SELECT REF(address_ref) AS sample_ref,
+                  DEREF(address_ref) AS address_object,
+                  MAKE_REF(id, id) AS made_ref
+                FROM object_reference_samples sample;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle conversion functions exactly") {
             val sql =
                 """

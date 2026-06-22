@@ -1908,6 +1908,16 @@ class OracleParserBackedTest :
                   external_id VARCHAR2(64)
                 ) ON COMMIT DELETE ROWS;
 
+                CREATE IMMUTABLE TABLE immutable_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) NO DROP UNTIL 16 DAYS IDLE NO DELETE UNTIL 30 DAYS AFTER INSERT LOCKED;
+
+                CREATE BLOCKCHAIN TABLE blockchain_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64)
+                ) NO DROP UNTIL 31 DAYS IDLE NO DELETE LOCKED HASHING USING "SHA2_512" VERSION "v1";
+
                 CREATE TABLE compressed_accounts (
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64)
@@ -5583,7 +5593,7 @@ class OracleParserBackedTest :
                     fileNames = listOf("Test.sq"),
                     errors =
                         listOf(
-                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, BLOCKCHAIN, COLUMN, COMPRESS, DISABLE, ENABLE, FILESYSTEM_LIKE_LOGGING, FLASHBACK, ILM, INITRANS, LOGGING, NO, NOCOMPRESS, NOLOGGING, ON, ORGANIZATION, PCTFREE, PCTUSED, READ, RESULT_CACHE, ROW, SEGMENT, STORAGE or TABLESPACE expected, got '('",
+                            "Test.sq: (1, 19): '(', '.', ';', ANNOTATIONS, AS, BLOCKCHAIN, COLUMN, COMPRESS, DISABLE, ENABLE, FILESYSTEM_LIKE_LOGGING, FLASHBACK, HASHING, ILM, INITRANS, LOGGING, NO, NOCOMPRESS, NOLOGGING, ON, ORGANIZATION, PCTFREE, PCTUSED, READ, RESULT_CACHE, ROW, SEGMENT, STORAGE or TABLESPACE expected, got '('",
                         ),
                 )
         }

@@ -1104,7 +1104,7 @@ table_constraint ::= [ 'CONSTRAINT' {identifier} ] (
   override = true
 }
 
-create_table_stmt ::= 'CREATE' [ oracle_table_scope ] 'TABLE' [ 'IF' 'NOT' 'EXISTS' ] [ {database_name} DOT ] {table_name} (
+create_table_stmt ::= 'CREATE' [ oracle_table_kind ] 'TABLE' [ 'IF' 'NOT' 'EXISTS' ] [ {database_name} DOT ] {table_name} (
   LP {column_def} ( COMMA {column_def} ) * ( COMMA oracle_create_table_element ) * RP [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_property * |
   [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_as_property * 'AS' {compound_select_stmt}
 ) {
@@ -1127,6 +1127,8 @@ private oracle_supplemental_log_column ::= {column_name} [ 'NO' 'LOG' ]
 
 private oracle_supplemental_id_key ::= 'ALL' | 'PRIMARY' 'KEY' | 'UNIQUE' | 'FOREIGN' 'KEY'
 
+private oracle_table_kind ::= oracle_table_scope | 'BLOCKCHAIN' | 'IMMUTABLE'
+
 private oracle_table_scope ::= ( 'GLOBAL' | 'PRIVATE' ) 'TEMPORARY' | 'TEMP' | 'TEMPORARY'
 
 private oracle_on_commit_clause ::= 'ON' 'COMMIT' ( 'DELETE' | 'PRESERVE' ) 'ROWS'
@@ -1143,6 +1145,7 @@ private oracle_create_table_property ::= (
   oracle_table_organization_clause |
   oracle_table_enable_disable_clause |
   oracle_ilm_clause |
+  oracle_ledger_table_clause |
   'CACHE' |
   'NOCACHE' |
   oracle_parallel_clause |
@@ -1165,7 +1168,8 @@ private oracle_create_table_as_property ::= (
   oracle_table_flashback_archive_clause |
   oracle_table_organization_clause |
   oracle_table_enable_disable_clause |
-  oracle_ilm_clause
+  oracle_ilm_clause |
+  oracle_ledger_table_clause
 )
 
 private oracle_deferred_segment_creation ::= 'SEGMENT' 'CREATION' ( 'IMMEDIATE' | 'DEFERRED' )
@@ -1252,6 +1256,14 @@ private oracle_ilm_policy_condition ::= (
 )
 
 private oracle_ilm_time_period ::= {signed_number} ( 'DAY' | 'DAYS' | 'MONTH' | 'MONTHS' | 'YEAR' | 'YEARS' )
+
+private oracle_ledger_table_clause ::= (
+  'NO' 'DROP' [ 'UNTIL' {signed_number} 'DAYS' 'IDLE' ] |
+  'NO' 'DELETE' ( 'LOCKED' | 'UNTIL' {signed_number} 'DAYS' 'AFTER' 'INSERT' [ 'LOCKED' ] ) |
+  'HASHING' 'USING' oracle_ledger_clause_value [ 'VERSION' oracle_ledger_clause_value ]
+)
+
+private oracle_ledger_clause_value ::= {string_literal} | string | oracle_object_name_part
 
 private oracle_result_cache_clause ::= 'RESULT_CACHE' LP (
   'MODE' ( 'DEFAULT' | 'FORCE' ) [ COMMA 'STANDBY' ( 'ENABLE' | 'DISABLE' ) ] |

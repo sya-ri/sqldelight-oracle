@@ -1123,10 +1123,28 @@ create_table_stmt ::= 'CREATE' (
 }
 
 private oracle_create_relational_table ::= (
+  oracle_create_xmltype_table |
   oracle_create_object_table |
   LP {column_def} ( COMMA {column_def} ) * ( COMMA oracle_create_table_element ) * RP [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_property * |
   [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_as_property * 'AS' {compound_select_stmt}
 )
+
+private oracle_create_xmltype_table ::= 'OF' 'XMLTYPE'
+  oracle_xmltype_table_property *
+  oracle_create_table_property *
+
+private oracle_xmltype_table_property ::= (
+  oracle_xmlschema_spec |
+  oracle_xmltype_storage |
+  oracle_object_id_clause |
+  oracle_oid_index_clause
+)
+
+private oracle_xmlschema_spec ::= 'XMLSCHEMA' ( string | {string_literal} ) [ 'ELEMENT' ( string | {string_literal} ) ]
+
+private oracle_xmltype_storage ::= 'STORE' 'AS' ( 'CLOB' | 'BINARY' 'XML' )
+
+private oracle_object_id_clause ::= 'WITH' 'OBJECT' 'ID' LP oracle_object_name_part ( COMMA oracle_object_name_part ) * RP
 
 private oracle_create_object_table ::= 'OF' oracle_schema_object_name
   [ oracle_object_table_substitution ]

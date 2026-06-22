@@ -2361,6 +2361,30 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses representative Oracle XMLType table statements exactly") {
+            val sql =
+                """
+                CREATE TABLE account_xml_documents
+                OF XMLTYPE
+                XMLSCHEMA 'http://example.com/account.xsd' ELEMENT 'Account'
+                STORE AS BINARY XML
+                WITH OBJECT ID (account_id)
+                OIDINDEX account_xml_documents_oid_idx (TABLESPACE users)
+                TABLESPACE users;
+
+                CREATE TABLE account_xml_clobs
+                OF XMLTYPE
+                STORE AS CLOB
+                READ ONLY;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle quoted table identifiers through SQLDelight environment exactly") {
             val sql =
                 """

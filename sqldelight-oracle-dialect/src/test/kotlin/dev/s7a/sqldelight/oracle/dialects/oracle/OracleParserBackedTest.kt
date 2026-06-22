@@ -2363,6 +2363,16 @@ class OracleParserBackedTest :
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 
+                CREATE TABLE inmemory_account_snapshot
+                INMEMORY MEMCOMPRESS FOR QUERY LOW NO ROW ARCHIVAL INDEXING OFF
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
+                CREATE TABLE no_inmemory_account_snapshot
+                NO INMEMORY ROW ARCHIVAL INDEXING ON
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
                 CREATE TABLE cached_account_snapshot
                 RESULT_CACHE (STANDBY DISABLE, MODE DEFAULT)
                 AS SELECT account_id, external_id

@@ -1660,8 +1660,15 @@ private oracle_create_table_as_property ::= (
   oracle_ilm_clause |
   oracle_ledger_table_clause |
   oracle_table_partitioning_clause |
-  oracle_parallel_clause
+  oracle_parallel_clause |
+  [ 'NO' ] 'ROW' 'ARCHIVAL' |
+  oracle_create_table_as_inmemory_clause |
+  'NO' 'INMEMORY' |
+  'INDEXING' ( 'ON' | 'OFF' )
 )
+
+private oracle_create_table_as_inmemory_clause ::= 'INMEMORY'
+  [ 'MEMCOMPRESS' [ 'FOR' ( 'DML' | 'QUERY' [ 'LOW' | 'HIGH' ] | 'CAPACITY' [ 'LOW' | 'HIGH' ] ) ] ]
 
 private oracle_default_collation_clause ::= 'DEFAULT' 'COLLATION' {collation_name}
 

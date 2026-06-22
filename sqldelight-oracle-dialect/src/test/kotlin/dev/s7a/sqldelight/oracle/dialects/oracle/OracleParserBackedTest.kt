@@ -3578,6 +3578,11 @@ class OracleParserBackedTest :
                 ALTER TABLE alter_advanced_targets DEFAULT COLLATION BINARY_CI;
                 ALTER TABLE alter_advanced_targets REKEY ENCRYPT USING 'AES256' IDENTIFIED BY account_key NO SALT;
 
+                ALTER TABLE alter_advanced_targets ADD SUPPLEMENTAL LOG GROUP alter_targets_log (id, created_at NO LOG) ALWAYS;
+                ALTER TABLE alter_advanced_targets ADD SUPPLEMENTAL LOG DATA (PRIMARY KEY, UNIQUE) COLUMNS;
+                ALTER TABLE alter_advanced_targets DROP SUPPLEMENTAL LOG GROUP alter_targets_log;
+                ALTER TABLE alter_advanced_targets DROP SUPPLEMENTAL LOG DATA (PRIMARY KEY, UNIQUE) COLUMNS;
+
                 ALTER TABLE alter_advanced_targets MEMOPTIMIZE FOR READ;
                 ALTER TABLE alter_advanced_targets NO MEMOPTIMIZE FOR READ;
                 ALTER TABLE alter_advanced_targets MEMOPTIMIZE FOR WRITE;

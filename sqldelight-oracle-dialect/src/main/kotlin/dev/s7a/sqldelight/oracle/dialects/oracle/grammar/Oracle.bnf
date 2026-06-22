@@ -2102,6 +2102,7 @@ alter_table_rules ::= (
   alter_table_partition_maintenance |
   alter_table_iot_clause |
   alter_table_add_clustering |
+  alter_table_add_supplemental_logging |
   alter_table_add_hashing |
   alter_table_add_columns |
   alter_table_add_constraint |
@@ -2135,6 +2136,7 @@ alter_table_rules ::= (
   alter_table_drop_period |
   alter_table_rename_constraint |
   alter_table_rename_table |
+  alter_table_drop_supplemental_logging |
   alter_table_drop_constraint |
   alter_table_drop_column |
   alter_table_set_unused_column |
@@ -2200,6 +2202,8 @@ private alter_table_for_staging ::= oracle_for_staging_clause
 
 private alter_table_add_clustering ::= 'ADD' oracle_attribute_clustering_clause
 
+private alter_table_add_supplemental_logging ::= 'ADD' oracle_supplemental_logging_props
+
 private alter_table_modify_clustering ::= 'MODIFY' oracle_attribute_clustering_clause
 
 private alter_table_drop_clustering ::= 'DROP' 'CLUSTERING'
@@ -2261,6 +2265,11 @@ private alter_table_modify_constraint ::= 'MODIFY' 'CONSTRAINT' oracle_object_na
 private alter_table_rename_constraint ::= 'RENAME' 'CONSTRAINT' oracle_object_name_part 'TO' oracle_object_name_part
 
 private alter_table_rename_table ::= 'RENAME' 'TO' oracle_object_name_part
+
+private alter_table_drop_supplemental_logging ::= 'DROP' 'SUPPLEMENTAL' 'LOG' (
+  'GROUP' oracle_object_name_part |
+  'DATA' LP oracle_supplemental_id_key ( COMMA oracle_supplemental_id_key ) * RP 'COLUMNS'
+)
 
 alter_table_drop_constraint ::= 'DROP' (
   'CONSTRAINT' {identifier} |

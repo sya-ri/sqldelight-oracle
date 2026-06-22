@@ -2414,6 +2414,11 @@ class OracleParserBackedTest :
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 
+                CREATE TABLE consistent_hash_account_snapshot
+                PARTITION BY CONSISTENT HASH ((1)) PARTITIONS AUTO TABLESPACE SET tenant_tablespace_set
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
                 selectAll:
                 SELECT account_id, external_id
                 FROM account_snapshot;

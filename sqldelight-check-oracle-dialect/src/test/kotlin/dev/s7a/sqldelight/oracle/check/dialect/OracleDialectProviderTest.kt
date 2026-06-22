@@ -80,6 +80,12 @@ class OracleDialectProviderTest :
             OracleDialectSourcePatterns.shouldMatchExactly(StartWithClause, Syntax("START WITH"))
         }
 
+        listOf("<->", "<=>", "<#>").forEach { operator ->
+            test("recognizes Oracle vector distance operator: $operator") {
+                OracleDialectSourcePatterns.shouldMatchExactly(VectorDistanceOperator, Syntax(operator))
+            }
+        }
+
         test("recognizes Oracle transaction start") {
             OracleDialectSourcePatterns.shouldMatchExactly(TransactionStartStatement, Syntax("SET TRANSACTION"))
         }

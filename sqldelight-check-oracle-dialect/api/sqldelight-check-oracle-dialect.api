@@ -40,3 +40,10 @@ public final class dev/s7a/sqldelight/oracle/check/dialect/StartWithClause : dev
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class dev/s7a/sqldelight/oracle/check/dialect/VectorDistanceOperator : dev/s7a/sqldelight/check/api/SqlDialectSourcePatternRole {
+	public static final field INSTANCE Ldev/s7a/sqldelight/oracle/check/dialect/VectorDistanceOperator;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+

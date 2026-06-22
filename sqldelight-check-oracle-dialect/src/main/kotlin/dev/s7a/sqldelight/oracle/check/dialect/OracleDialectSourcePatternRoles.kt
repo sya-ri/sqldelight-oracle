@@ -18,6 +18,11 @@ public data object ConnectByClause : SqlDialectSourcePatternRole
 public data object StartWithClause : SqlDialectSourcePatternRole
 
 /**
+ * Oracle AI Vector Search shorthand distance operator.
+ */
+public data object VectorDistanceOperator : SqlDialectSourcePatternRole
+
+/**
  * Oracle empty-string literal, which Oracle treats as null in SQL.
  */
 public data object EmptyStringLiteral : SqlDialectSourcePatternRole

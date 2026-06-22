@@ -282,6 +282,7 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                 ) +
                 sourcePatterns("CONNECT BY", roles = setOf(ConnectByClause)) +
                 sourcePatterns("START WITH", roles = setOf(StartWithClause)) +
+                sourcePatterns("<->", "<=>", "<#>", roles = setOf(VectorDistanceOperator)) +
                 sourcePatterns("FETCH", "FOR", "OFFSET", "RETURNING", roles = setOf(OrderByBoundary)) +
                 sourcePatterns(
                     "CONNECT",

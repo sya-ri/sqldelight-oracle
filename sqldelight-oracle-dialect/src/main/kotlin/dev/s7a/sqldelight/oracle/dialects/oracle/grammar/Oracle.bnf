@@ -1566,6 +1566,7 @@ private oracle_create_table_property ::= (
   oracle_logical_replication_clause |
   oracle_table_flashback_archive_clause |
   oracle_column_properties |
+  oracle_attribute_clustering_clause |
   oracle_table_organization_clause |
   oracle_table_enable_disable_clause |
   oracle_ilm_clause |
@@ -1593,6 +1594,7 @@ private oracle_create_table_as_property ::= (
   oracle_logical_replication_clause |
   oracle_table_flashback_archive_clause |
   oracle_column_properties |
+  oracle_attribute_clustering_clause |
   oracle_table_organization_clause |
   oracle_table_enable_disable_clause |
   oracle_ilm_clause |
@@ -1715,6 +1717,15 @@ private oracle_table_flashback_archive_clause ::= (
   'FLASHBACK' 'ARCHIVE' [ oracle_object_name_part ] |
   'NO' 'FLASHBACK' 'ARCHIVE'
 )
+
+private oracle_attribute_clustering_clause ::= 'CLUSTERING'
+  [ oracle_schema_object_name ]
+  [ 'JOIN' oracle_schema_object_name ( COMMA oracle_schema_object_name ) * ]
+  'BY' [ 'LINEAR' | 'INTERLEAVED' ] 'ORDER' LP oracle_clustering_column_group ( COMMA oracle_clustering_column_group ) * RP
+  [ ( 'YES' | 'NO' ) 'ON' 'LOAD' ]
+  [ 'WITH' 'MATERIALIZED' 'ZONEMAP' ]
+
+private oracle_clustering_column_group ::= oracle_schema_object_name | LP oracle_schema_object_name ( COMMA oracle_schema_object_name ) * RP
 
 private oracle_column_properties ::= (
   oracle_object_type_col_properties |

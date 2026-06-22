@@ -2291,6 +2291,12 @@ class OracleParserBackedTest :
                   external_id VARCHAR2(64)
                 ) INMEMORY MEMCOMPRESS FOR QUERY LOW;
 
+                CREATE TABLE clustered_accounts (
+                  account_id NUMBER NOT NULL,
+                  external_id VARCHAR2(64),
+                  created_at DATE
+                ) CLUSTERING BY LINEAR ORDER (account_id, created_at) YES ON LOAD WITH MATERIALIZED ZONEMAP;
+
                 CREATE TABLE account_snapshot AS
                 SELECT account_id, external_id
                 FROM staged_accounts;
@@ -2333,6 +2339,11 @@ class OracleParserBackedTest :
 
                 CREATE TABLE serial_account_snapshot
                 NOPARALLEL
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
+                CREATE TABLE clustered_account_snapshot
+                CLUSTERING BY INTERLEAVED ORDER ((account_id, external_id), created_at) NO ON LOAD
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 

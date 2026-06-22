@@ -1139,6 +1139,7 @@ alter_table_rules ::= (
   alter_table_modify_column |
   alter_table_drop_constraint |
   alter_table_drop_column |
+  alter_table_set_unused_column |
   alter_table_rename_column |
   alter_table_oracle_properties
 ) {
@@ -1183,6 +1184,8 @@ alter_table_drop_column ::= 'DROP' [ 'COLUMN' ] {column_name} [ 'CASCADE' 'CONST
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.AlterTableDropColumnMixin"
   pin = 1
 }
+
+private alter_table_set_unused_column ::= 'SET' 'UNUSED' [ 'COLUMN' ] ( {column_name} | LP {column_name} ( COMMA {column_name} ) * RP ) [ 'CASCADE' 'CONSTRAINTS' ] [ 'ONLINE' ]
 
 alter_table_rename_column ::= 'RENAME' [ 'COLUMN' ] {column_name} 'TO' {column_alias} {
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.AlterTableRenameColumnMixin"

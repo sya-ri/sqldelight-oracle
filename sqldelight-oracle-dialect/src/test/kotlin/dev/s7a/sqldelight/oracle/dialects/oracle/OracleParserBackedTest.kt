@@ -2434,6 +2434,8 @@ class OracleParserBackedTest :
                 ALTER TABLE alter_targets RENAME COLUMN status TO account_status;
                 ALTER TABLE alter_targets DROP COLUMN archived_at CASCADE CONSTRAINTS;
                 ALTER TABLE alter_targets DROP COLUMN created_at CASCADE CONSTRAINTS;
+                ALTER TABLE alter_targets SET UNUSED COLUMN updated_at ONLINE;
+                ALTER TABLE alter_targets SET UNUSED (account_status) CASCADE CONSTRAINTS;
                 ALTER TABLE alter_targets DROP CONSTRAINT alter_targets_status_check;
                 ALTER TABLE alter_targets ENABLE ROW MOVEMENT;
                 ALTER TABLE alter_targets READ ONLY;

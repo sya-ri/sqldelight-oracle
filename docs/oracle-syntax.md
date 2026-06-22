@@ -146,6 +146,7 @@ This checklist tracks parser/source-scanner/rule support. Check an item only aft
 - [x] [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html)
 - [x] [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html) parser support for `ADD column`
 - [x] [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html) parser support for single-operation `ADD` table constraint, `MODIFY` column, `DROP COLUMN`, `DROP CONSTRAINT`, and `RENAME COLUMN`
+- [x] [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html) parser support for [`drop_column_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/drop_column_clause.html) `SET UNUSED` single-column and multi-column forms
 - [x] [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html) parser support for Oracle multiple-column `ADD` and `MODIFY`
 - [x] [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html) parser support for table property and storage boundary clauses including row movement, read only/read write, move/compress, shrink, and In-Memory clauses
 - [ ] [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html) remaining parser support for partition, LOB, XMLSchema, object table, external table, immutable/blockchain, and detailed table property clauses

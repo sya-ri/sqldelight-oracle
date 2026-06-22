@@ -189,6 +189,14 @@ public class OracleTypeResolver(
                 functionExpr.exprList.firstOrNull()?.let { expression -> parentResolver.resolvedType(expression).asNullable() }
             }
 
+            "to_lob" -> {
+                functionExpr.exprList.singleOrNull()?.let { expression ->
+                    OracleType
+                        .fromToLobArgumentType(parentResolver.resolvedType(expression).dialectType)
+                        ?.let { type -> IntermediateType(type) }
+                }
+            }
+
             else -> {
                 null
             }

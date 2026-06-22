@@ -128,6 +128,21 @@ public enum class OracleType(
 
         public fun fromFunctionName(functionName: String): OracleType? = functionReturnTypes[functionName.trim().uppercase()]
 
+        internal fun fromToLobArgumentType(argumentType: DialectType): OracleType? =
+            when (argumentType) {
+                TEXT -> {
+                    TEXT
+                }
+
+                BINARY -> {
+                    BINARY
+                }
+
+                else -> {
+                    null
+                }
+            }
+
         internal fun fromComparableFunctionTypes(
             functionName: String,
             argumentTypes: List<OracleType>,

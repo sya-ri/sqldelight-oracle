@@ -510,6 +510,7 @@ private val oracleCommonFunctions =
         Syntax("TAN"),
         Syntax("TO_CHAR"),
         Syntax("TO_DATE"),
+        Syntax("TO_LOB"),
         Syntax("TO_NUMBER"),
         Syntax("TO_TIMESTAMP"),
         Syntax("TO_TIMESTAMP_TZ"),

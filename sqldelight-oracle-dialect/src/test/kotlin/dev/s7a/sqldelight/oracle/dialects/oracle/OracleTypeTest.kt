@@ -304,6 +304,18 @@ class OracleTypeTest :
             OracleType.fromFunctionName("coalesce") shouldBe null
         }
 
+        test("maps Oracle TO_LOB argument types to SQLDelight dialect types exactly") {
+            val mappings =
+                listOf(
+                    OracleType.TEXT to OracleType.TEXT,
+                    OracleType.BINARY to OracleType.BINARY,
+                    OracleType.DECIMAL_NUMBER to null,
+                )
+
+            mappings.map { (argumentType, expectedType) -> argumentType to OracleType.fromToLobArgumentType(argumentType) } shouldBe
+                mappings
+        }
+
         test("maps Oracle comparable function argument types exactly") {
             val mappings =
                 listOf(

@@ -544,6 +544,7 @@ public val OracleDialectSourcePatterns: SqlDialectSourcePatterns =
                     "TO_CLOB",
                     "TO_DATE",
                     "TO_DSINTERVAL",
+                    "TO_LOB",
                     "TO_MULTI_BYTE",
                     "TO_NCHAR",
                     "TO_NCLOB",

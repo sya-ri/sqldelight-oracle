@@ -1125,6 +1125,8 @@ class OracleParserBackedTest :
                   TO_BINARY_FLOAT(text_value) AS binary_float_value,
                   TO_BLOB(raw_value) AS blob_value,
                   TO_CLOB(text_value) AS clob_value,
+                  TO_LOB(text_value) AS lob_text_value,
+                  TO_LOB(raw_value) AS lob_binary_value,
                   TO_MULTI_BYTE(text_value) AS multibyte_text,
                   TO_NCHAR(text_value) AS national_text,
                   TO_NCLOB(text_value) AS national_clob_value,

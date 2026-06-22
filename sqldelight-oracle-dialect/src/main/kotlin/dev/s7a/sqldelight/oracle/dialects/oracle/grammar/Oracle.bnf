@@ -1799,11 +1799,14 @@ alter_table_stmt ::= 'ALTER' 'TABLE' [ {database_name} DOT ] {table_name} {alter
 }
 
 alter_table_rules ::= (
+  alter_table_partition_maintenance |
+  alter_table_add_hashing |
   alter_table_add_columns |
   alter_table_add_constraint |
   alter_table_add_period |
   alter_table_add_column |
   alter_table_annotations |
+  alter_table_modify_xmltype_storage |
   alter_table_modify_column_annotations |
   alter_table_modify_collection_retrieval |
   alter_table_modify_columns |
@@ -1852,6 +1855,16 @@ private alter_table_modify_column_annotations ::= 'MODIFY' [ 'COLUMN' ] {column_
 
 private alter_table_modify_collection_retrieval ::= 'MODIFY' 'NESTED' 'TABLE' oracle_object_name_part 'RETURN' 'AS' ( 'LOCATOR' | 'VALUE' )
 
+private alter_table_modify_xmltype_storage ::= 'MODIFY' 'XMLTYPE' 'COLUMN' oracle_object_name_part oracle_alter_table_property_token *
+
+private alter_table_partition_maintenance ::= (
+  ( 'ADD' | 'DROP' | 'TRUNCATE' | 'MOVE' | 'SPLIT' | 'MERGE' | 'EXCHANGE' | 'COALESCE' | 'MODIFY' )
+  ( 'PARTITION' | 'SUBPARTITION' )
+  oracle_alter_table_property_token *
+)
+
+private alter_table_add_hashing ::= 'ADD' 'HASHING' oracle_alter_table_property_token *
+
 private alter_table_drop_period ::= 'DROP' 'PERIOD' 'FOR' oracle_object_name_part
 
 alter_table_drop_constraint ::= 'DROP' 'CONSTRAINT' {identifier} {
@@ -1884,34 +1897,103 @@ private oracle_alter_table_property_token ::= (
   DOT |
   EQ |
   'ADVANCED' |
+  'ACCESS' |
+  'ADD' |
+  'AFTER' |
+  'ALL' |
+  'ALLOW' |
   'ALLOCATE' |
   'ARCHIVE' |
   'ARCHIVELOG' |
   'ARCHIVAL' |
+  'AS' |
+  'AT' |
+  'BASICFILE' |
+  'BLOCKCHAIN' |
   'CACHE' |
   'CASCADE' |
+  'CHUNK' |
+  'COLUMN' |
+  'COLUMNS' |
   'COMPRESS' |
+  'COALESCE' |
+  'DATA' |
+  'DAYS' |
   'DEALLOCATE' |
+  'DEDUPLICATE' |
+  'DECRYPT' |
+  'DEFAULT' |
+  'DELETE' |
   'DISABLE' |
+  'DIRECTORY' |
+  'DISALLOW' |
+  'DROP' |
   'DUPLICATE' |
   'ENABLE' |
+  'ENCRYPT' |
+  'EXCHANGE' |
+  'EXTERNAL' |
+  'FILESYSTEM_LIKE_LOGGING' |
   'FOR' |
+  'FREEPOOLS' |
+  'GLOBAL' |
+  'HASHING' |
+  'IDLE' |
+  'INCLUDING' |
   'INDEXING' |
+  'INDEXES' |
+  'INSERT' |
+  'INTO' |
   'INMEMORY' |
+  'KEEP_DUPLICATES' |
+  'LESS' |
+  'LIMIT' |
+  'LOB' |
   'LOW' |
   'MEMCOMPRESS' |
+  'MERGE' |
   'MOVE' |
+  'NO' |
   'NOCACHE' |
+  'NOCOMPRESS' |
   'NOLOGGING' |
   'NOLOGICAL' |
-  'NO' |
+  'NONSCHEMA' |
   'OFF' |
   'ON' |
+  'ONLINE' |
   'PARALLEL' |
+  'PARAMETERS' |
+  'PARTITION' |
+  'PCTVERSION' |
+  'PROJECT' |
   'QUERY' |
+  'READS' |
+  'REFERENCED' |
+  'REJECT' |
+  'RETENTION' |
   'ROW' |
+  'ROWS' |
+  'SCHEMA' |
+  'SECUREFILE' |
+  'SPLIT' |
+  'STORE' |
+  'SUBPARTITION' |
   'TABLESPACE' |
-  'UNUSED'
+  'THAN' |
+  'TRUNCATE' |
+  'UNUSED' |
+  'UNTIL' |
+  'UPDATE' |
+  'USING' |
+  'VALIDATION' |
+  'VALUES' |
+  'VERIFY' |
+  'VERSION' |
+  'WITH' |
+  'WITHOUT' |
+  'XMLSCHEMA' |
+  'XMLTYPE'
 )
 
 create_index_stmt ::= 'CREATE' [ 'JSON' ] [ oracle_index_kind ] 'INDEX' [ 'IF' 'NOT' 'EXISTS' ] [ {database_name} DOT ] {index_name}

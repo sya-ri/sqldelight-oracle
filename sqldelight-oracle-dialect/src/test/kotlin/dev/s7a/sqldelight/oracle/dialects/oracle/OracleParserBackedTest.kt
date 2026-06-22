@@ -3209,6 +3209,52 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle advanced alter table clauses through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE alter_advanced_targets (
+                  id NUMBER PRIMARY KEY,
+                  created_at DATE,
+                  payload CLOB,
+                  payload_xml XMLTYPE
+                );
+
+                CREATE TABLE alter_exchange_stage (
+                  id NUMBER PRIMARY KEY,
+                  created_at DATE,
+                  payload CLOB,
+                  payload_xml XMLTYPE
+                );
+
+                ALTER TABLE alter_advanced_targets
+                MODIFY XMLTYPE COLUMN payload_xml XMLSCHEMA 'http://example.com/payload.xsd' ALLOW NONSCHEMA STORE AS BINARY XML;
+
+                ALTER TABLE alter_advanced_targets
+                ADD PARTITION p_2026 VALUES LESS THAN (DATE '2027-01-01') TABLESPACE users;
+
+                ALTER TABLE alter_advanced_targets
+                TRUNCATE PARTITION p_2025 UPDATE GLOBAL INDEXES;
+
+                ALTER TABLE alter_advanced_targets
+                EXCHANGE PARTITION p_2025 WITH TABLE alter_exchange_stage INCLUDING INDEXES WITHOUT VALIDATION;
+
+                ALTER TABLE alter_advanced_targets
+                DEFAULT DIRECTORY data_dir ACCESS PARAMETERS (RECORDS DELIMITED BY NEWLINE) LOCATION ('orders.csv') REJECT LIMIT UNLIMITED;
+
+                ALTER TABLE alter_advanced_targets
+                NO DROP UNTIL 31 DAYS IDLE;
+
+                ALTER TABLE alter_advanced_targets
+                ADD HASHING USING sha2_512 VERSION v1;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle create index statements through SQLDelight environment exactly") {
             val sql =
                 """

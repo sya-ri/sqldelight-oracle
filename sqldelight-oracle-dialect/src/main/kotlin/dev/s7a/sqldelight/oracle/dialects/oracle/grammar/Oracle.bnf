@@ -2050,6 +2050,7 @@ alter_table_stmt ::= 'ALTER' 'TABLE' [ {database_name} DOT ] {table_name} {alter
 alter_table_rules ::= (
   alter_table_set_subpartition_template |
   alter_table_partition_maintenance |
+  alter_table_iot_clause |
   alter_table_add_hashing |
   alter_table_add_columns |
   alter_table_add_constraint |
@@ -2150,6 +2151,20 @@ private alter_table_modify_varray_storage ::= 'MODIFY' 'VARRAY' oracle_schema_ob
 
 private alter_table_set_subpartition_template ::= 'SET' 'SUBPARTITION' 'TEMPLATE'
   LP [ oracle_subpartition_definition ( COMMA oracle_subpartition_definition ) * ] RP
+
+private alter_table_iot_clause ::= (
+  'ADD' 'OVERFLOW' oracle_segment_attribute_clause * |
+  'OVERFLOW' oracle_iot_storage_clause + |
+  'MAPPING' 'TABLE' ( oracle_allocate_extent_clause | oracle_deallocate_unused_clause ) +
+)
+
+private oracle_iot_storage_clause ::= oracle_segment_attribute_clause | oracle_allocate_extent_clause | oracle_deallocate_unused_clause | oracle_shrink_clause
+
+private oracle_allocate_extent_clause ::= 'ALLOCATE' 'EXTENT' [ LP 'SIZE' oracle_size_clause RP ]
+
+private oracle_deallocate_unused_clause ::= 'DEALLOCATE' 'UNUSED' [ 'KEEP' oracle_size_clause ]
+
+private oracle_shrink_clause ::= 'SHRINK' 'SPACE' [ 'COMPACT' | 'CASCADE' ]
 
 private alter_table_partition_maintenance ::= (
   ( 'ADD' | 'DROP' | 'TRUNCATE' | 'MOVE' | 'SPLIT' | 'MERGE' | 'EXCHANGE' | 'COALESCE' | 'MODIFY' | 'RENAME' )

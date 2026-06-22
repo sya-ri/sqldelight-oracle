@@ -2503,7 +2503,8 @@ class OracleParserBackedTest :
                   document_xml XMLTYPE,
                   line_items NESTED TABLE,
                   attachments VARRAY(10),
-                  contact OBJECT
+                  contact OBJECT,
+                  preferred_contact OBJECT
                 )
                 LOB (document_text, document_blob) STORE AS SECUREFILE (
                   TABLESPACE users
@@ -2517,6 +2518,7 @@ class OracleParserBackedTest :
                 XMLTYPE COLUMN document_xml XMLSCHEMA 'http://example.com/document.xsd' ELEMENT 'Document' STORE AS BINARY XML
                 NESTED TABLE line_items STORE AS account_line_items RETURN AS LOCATOR
                 VARRAY attachments STORE AS BASICFILE LOB account_attachments_lob
+                COLUMN preferred_contact ELEMENT IS OF TYPE (ONLY account_contact_type)
                 COLUMN contact NOT SUBSTITUTABLE AT ALL LEVELS;
 
                 CREATE TABLE partitioned_document_storage (

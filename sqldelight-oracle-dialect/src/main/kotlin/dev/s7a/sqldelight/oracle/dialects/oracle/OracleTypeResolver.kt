@@ -29,8 +29,8 @@ public class OracleTypeResolver(
 
     override fun functionType(functionExpr: SqlFunctionExpr): IntermediateType? {
         val functionName = functionExpr.functionName.text
-        return OracleType.fromFunctionName(functionName)?.let { type -> IntermediateType(type) }
-            ?: argumentDependentFunctionType(functionName, functionExpr)
+        return argumentDependentFunctionType(functionName, functionExpr)
+            ?: OracleType.fromFunctionName(functionName)?.let { type -> IntermediateType(type) }
             ?: parentResolver.functionType(functionExpr)
     }
 
@@ -200,6 +200,12 @@ public class OracleTypeResolver(
                     OracleType
                         .fromToLobArgumentType(parentResolver.resolvedType(expression).dialectType)
                         ?.let { type -> IntermediateType(type) }
+                }
+            }
+
+            "userenv" -> {
+                functionExpr.exprList.singleOrNull()?.let { expression ->
+                    IntermediateType(OracleType.fromUserEnvParameter(expression.text))
                 }
             }
 

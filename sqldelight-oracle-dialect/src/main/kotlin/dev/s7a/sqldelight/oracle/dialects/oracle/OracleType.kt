@@ -128,6 +128,17 @@ public enum class OracleType(
 
         public fun fromFunctionName(functionName: String): OracleType? = functionReturnTypes[functionName.trim().uppercase()]
 
+        internal fun fromUserEnvParameter(parameterText: String): OracleType =
+            when (parameterText.oracleStringLiteralValue().uppercase()) {
+                "ENTRYID", "SESSIONID", "SID" -> {
+                    DECIMAL_NUMBER
+                }
+
+                else -> {
+                    TEXT
+                }
+            }
+
         internal fun fromToLobArgumentType(argumentType: DialectType): OracleType? =
             when (argumentType) {
                 TEXT -> {
@@ -686,6 +697,22 @@ private fun String.normalizedOracleTypeName(): String =
     trim()
         .replace(Regex("""\s+"""), " ")
         .uppercase()
+
+private fun String.oracleStringLiteralValue(): String {
+    val normalized = trim()
+    val textLiteral =
+        if (normalized.length >= 2 && normalized.first().equals('N', ignoreCase = true) && normalized[1] == '\'') {
+            normalized.drop(1)
+        } else {
+            normalized
+        }
+
+    return if (textLiteral.length >= 2 && textLiteral.first() == '\'' && textLiteral.last() == '\'') {
+        textLiteral.substring(1, textLiteral.lastIndex).replace("''", "'")
+    } else {
+        textLiteral
+    }
+}
 
 private fun String.baseOracleTypeName(): String =
     when {

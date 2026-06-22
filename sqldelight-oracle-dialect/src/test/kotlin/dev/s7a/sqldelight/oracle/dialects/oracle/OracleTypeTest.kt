@@ -443,6 +443,22 @@ class OracleTypeTest :
                 mappings
         }
 
+        test("maps Oracle USERENV parameters to SQLDelight dialect types exactly") {
+            val mappings =
+                listOf(
+                    "'SESSIONID'" to OracleType.DECIMAL_NUMBER,
+                    "'SID'" to OracleType.DECIMAL_NUMBER,
+                    "'ENTRYID'" to OracleType.DECIMAL_NUMBER,
+                    "'LANGUAGE'" to OracleType.TEXT,
+                    "N'LANG'" to OracleType.TEXT,
+                    "parameter_name" to OracleType.TEXT,
+                )
+
+            mappings.map { (parameterText, expectedType) ->
+                parameterText to OracleType.fromUserEnvParameter(parameterText)
+            } shouldBe mappings
+        }
+
         test("maps Oracle comparable function argument types exactly") {
             val mappings =
                 listOf(

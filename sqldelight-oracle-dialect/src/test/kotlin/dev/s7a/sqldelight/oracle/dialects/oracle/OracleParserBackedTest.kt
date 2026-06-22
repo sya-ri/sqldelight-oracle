@@ -2759,6 +2759,8 @@ class OracleParserBackedTest :
                 ALTER TABLE alter_targets INDEXING ON;
                 ALTER TABLE alter_targets MOVE TABLESPACE users COMPRESS ADVANCED;
                 ALTER TABLE alter_targets SHRINK SPACE CASCADE;
+                ALTER TABLE alter_targets ALLOCATE EXTENT (SIZE 128M DATAFILE '/u01/oradata/users01.dbf' INSTANCE 1);
+                ALTER TABLE alter_targets DEALLOCATE UNUSED KEEP 64M;
                 ALTER TABLE alter_targets INMEMORY MEMCOMPRESS FOR QUERY LOW;
                 """.trimIndent()
 

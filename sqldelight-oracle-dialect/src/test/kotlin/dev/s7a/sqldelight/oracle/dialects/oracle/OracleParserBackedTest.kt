@@ -1057,6 +1057,48 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle conversion functions exactly") {
+            val sql =
+                """
+                CREATE TABLE conversion_samples (
+                  id NUMBER PRIMARY KEY,
+                  raw_value RAW(16),
+                  text_value VARCHAR2(4000),
+                  row_identifier ROWID,
+                  created_at TIMESTAMP
+                );
+
+                SELECT ASCIISTR(text_value) AS ascii_text,
+                  BIN_TO_NUM(1, 0, 1, 1) AS binary_number,
+                  CHARTOROWID(ROWIDTOCHAR(row_identifier)) AS chartorowid_value,
+                  COMPOSE(text_value) AS composed_text,
+                  CONVERT(text_value, 'AL32UTF8', 'WE8ISO8859P1') AS converted_text,
+                  DECOMPOSE(text_value) AS decomposed_text,
+                  RAWTONHEX(raw_value) AS national_hex,
+                  ROWIDTOCHAR(row_identifier) AS rowid_text,
+                  ROWIDTONCHAR(row_identifier) AS rowid_national_text,
+                  SCN_TO_TIMESTAMP(123456) AS timestamp_from_scn,
+                  TIMESTAMP_TO_SCN(created_at) AS scn_from_timestamp,
+                  TO_BINARY_DOUBLE(text_value) AS binary_double_value,
+                  TO_BINARY_FLOAT(text_value) AS binary_float_value,
+                  TO_BLOB(raw_value) AS blob_value,
+                  TO_CLOB(text_value) AS clob_value,
+                  TO_MULTI_BYTE(text_value) AS multibyte_text,
+                  TO_NCHAR(text_value) AS national_text,
+                  TO_NCLOB(text_value) AS national_clob_value,
+                  TO_SINGLE_BYTE(text_value) AS singlebyte_text,
+                  UNISTR('\3042') AS unicode_text,
+                  VALIDATE_CONVERSION(text_value AS NUMBER) AS valid_number
+                FROM conversion_samples;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle text and national literals exactly") {
             val sql =
                 """

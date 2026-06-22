@@ -5707,6 +5707,10 @@ class OracleParserBackedTest :
                   DATAFILE '/u01/big_data01.dbf' SIZE 1 G
                   NOLOGGING;
 
+                CREATE TABLESPACE reusable_data
+                  DATAFILE '/u01/reusable_data01.dbf' SIZE 500 M REUSE
+                  AUTOEXTEND OFF;
+
                 CREATE TEMPORARY TABLESPACE temp_ts
                   TEMPFILE '/u01/temp_ts01.dbf' SIZE 100 M;
 
@@ -5812,6 +5816,10 @@ class OracleParserBackedTest :
 
                 ALTER DATABASE ADD LOGFILE GROUP 3 ('/u01/oradata/redo03.log') SIZE 100 M;
 
+                ALTER DATABASE ADD LOGFILE GROUP 5
+                  ('/u01/oradata/redo05a.log', '/u02/oradata/redo05b.log')
+                  SIZE 100 M BLOCKSIZE 4096 REUSE;
+
                 ALTER DATABASE DICTIONARY ENCRYPT CREDENTIALS;
 
                 ALTER DATABASE DICTIONARY REKEY CREDENTIALS;
@@ -5854,6 +5862,9 @@ class OracleParserBackedTest :
                 ALTER TABLESPACE users END BACKUP;
 
                 ALTER TABLESPACE users ADD DATAFILE '/u01/oradata/users02.dbf' SIZE 100 M;
+
+                ALTER TABLESPACE users ADD DATAFILE '/u01/oradata/users03.dbf'
+                  SIZE 10 M REUSE AUTOEXTEND OFF;
 
                 ALTER TABLESPACE users DROP DATAFILE '/u01/oradata/users02.dbf';
 

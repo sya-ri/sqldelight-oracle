@@ -616,7 +616,10 @@ class OracleParserBackedTest :
                 );
 
                 SELECT NEW cust_address_typ(street, postal_code, city, state_code, country_code) AS address_value,
-                  NEW hr.cust_address_typ(street, postal_code, city, state_code, country_code) AS schema_address_value
+                  NEW hr.cust_address_typ(street, postal_code, city, state_code, country_code) AS schema_address_value,
+                  cust_address_typ(street, postal_code, city, state_code, country_code) AS optional_new_address_value,
+                  address_book_t() AS empty_address_book,
+                  address_book_t(cust_address_typ(street, postal_code, city, state_code, country_code)) AS address_book
                 FROM constructor_samples;
                 """.trimIndent()
 

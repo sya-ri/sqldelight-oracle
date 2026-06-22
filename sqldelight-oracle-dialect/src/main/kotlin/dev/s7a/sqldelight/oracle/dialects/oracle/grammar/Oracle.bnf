@@ -332,11 +332,13 @@ private oracle_query_partition_clause ::= 'PARTITION' 'BY' <<expr '-1'>> ( COMMA
 
 private oracle_analytic_order_by_clause ::= 'ORDER' 'BY' <<orderingTermExt <<ordering_term_real>>>> ( COMMA <<orderingTermExt <<ordering_term_real>>>> ) *
 
-private oracle_windowing_clause ::= ( 'ROWS' | 'RANGE' | 'GROUPS' ) ( oracle_window_between_clause | oracle_window_bound )
+private oracle_windowing_clause ::= ( 'ROWS' | 'RANGE' | 'GROUPS' ) ( oracle_window_between_clause | oracle_window_bound ) [ oracle_window_exclusion_clause ]
 
 private oracle_window_between_clause ::= 'BETWEEN' oracle_window_bound 'AND' oracle_window_bound
 
 private oracle_window_bound ::= 'UNBOUNDED' ( 'PRECEDING' | 'FOLLOWING' ) | 'CURRENT' 'ROW' | <<expr '-1'>> ( 'PRECEDING' | 'FOLLOWING' )
+
+private oracle_window_exclusion_clause ::= 'EXCLUDE' ( 'CURRENT' 'ROW' | 'GROUP' | 'TIES' | 'NO' 'OTHERS' )
 
 private oracle_xml_expr ::= (
   oracle_xmlelement_expr |

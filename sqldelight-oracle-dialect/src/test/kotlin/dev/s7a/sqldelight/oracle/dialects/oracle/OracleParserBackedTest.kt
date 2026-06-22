@@ -1490,6 +1490,16 @@ class OracleParserBackedTest :
                     PARTITION BY department_id
                     ORDER BY sold_at ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
                   ) AS second_amount,
+                  SUM(amount) OVER (
+                    PARTITION BY region
+                    ORDER BY sold_at
+                    ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING EXCLUDE CURRENT ROW
+                  ) AS other_region_amount,
+                  AVG(amount) OVER (
+                    PARTITION BY department_id
+                    ORDER BY amount
+                    GROUPS BETWEEN 1 PRECEDING AND 1 FOLLOWING EXCLUDE TIES
+                  ) AS peer_adjusted_average,
                   MAX(employee_id) KEEP (
                     DENSE_RANK LAST ORDER BY amount NULLS LAST
                   ) AS top_employee_id

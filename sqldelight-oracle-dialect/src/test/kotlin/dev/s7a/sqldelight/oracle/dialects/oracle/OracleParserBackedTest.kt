@@ -3812,6 +3812,13 @@ class OracleParserBackedTest :
                   VALUES (1, 1, CURRENT_TIMESTAMP)
                 WAIT 10 SECONDS
                 RETURNING 1 INTO ?;
+
+                MERGE INTO account_balance target
+                USING account_delta source
+                ON (1 = 0)
+                WHEN MATCHED THEN UPDATE SET
+                  balance = 2
+                RETURN NEW 1 INTO ?;
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe

@@ -2801,6 +2801,16 @@ class OracleParserBackedTest :
                   region VARCHAR2(64)
                 );
 
+                CREATE TABLE sales_av (
+                  id NUMBER,
+                  region VARCHAR2(64)
+                );
+
+                CREATE TABLE sales_hier (
+                  id NUMBER,
+                  region VARCHAR2(64)
+                );
+
                 selectOnlyTable:
                 SELECT id, region
                 FROM ONLY (partitioned_orders) po;
@@ -2820,6 +2830,14 @@ class OracleParserBackedTest :
                 selectSubpartitionFor:
                 SELECT id, region
                 FROM partitioned_orders SUBPARTITION FOR (2026, 'WEST') po;
+
+                selectAnalyticViewHierarchies:
+                SELECT id, region
+                FROM sales_av HIERARCHIES (time_hier, product_hier) av;
+
+                selectHierarchyReference:
+                SELECT id, region
+                FROM sales_hier h;
 
                 selectSampleBlock:
                 SELECT id, region

@@ -2202,6 +2202,19 @@ class OracleParserBackedTest :
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 
+                CREATE TABLE range_partitioned_account_snapshot
+                PARTITION BY RANGE ((1)) (
+                  PARTITION p_low VALUES LESS THAN (1000),
+                  PARTITION p_max VALUES LESS THAN (MAXVALUE)
+                )
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
+                CREATE TABLE hash_partitioned_account_snapshot
+                PARTITION BY HASH ((1)) PARTITIONS 4 STORE IN (users, archive_ts)
+                AS SELECT account_id, external_id
+                FROM staged_accounts;
+
                 selectAll:
                 SELECT account_id, external_id
                 FROM account_snapshot;

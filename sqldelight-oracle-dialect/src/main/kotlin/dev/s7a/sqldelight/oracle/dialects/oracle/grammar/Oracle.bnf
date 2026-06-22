@@ -1737,7 +1737,10 @@ private oracle_subpartition_by_list_clause ::= 'SUBPARTITION' 'BY' 'LIST' LP ora
   [ 'SUBPARTITION' 'TEMPLATE' LP oracle_list_subpartition_definition ( COMMA oracle_list_subpartition_definition ) * RP ]
 
 private oracle_subpartition_by_hash_clause ::= 'SUBPARTITION' 'BY' 'HASH' LP oracle_partition_key ( COMMA oracle_partition_key ) * RP
-  [ 'SUBPARTITIONS' {signed_number} [ 'STORE' 'IN' LP oracle_tablespace_name_list RP ] ]
+  [
+    'SUBPARTITION' 'TEMPLATE' LP oracle_hash_subpartition_definition ( COMMA oracle_hash_subpartition_definition ) * RP |
+    'SUBPARTITIONS' {signed_number} [ 'STORE' 'IN' LP oracle_tablespace_name_list RP ]
+  ]
 
 private oracle_partition_key ::= {column_name} | LP <<expr '-1'>> RP
 

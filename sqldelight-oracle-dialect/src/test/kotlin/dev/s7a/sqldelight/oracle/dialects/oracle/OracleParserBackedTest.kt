@@ -3358,6 +3358,15 @@ class OracleParserBackedTest :
                 MODIFY XMLTYPE COLUMN payload_xml XMLSCHEMA 'http://example.com/payload.xsd' ALLOW NONSCHEMA STORE AS BINARY XML;
 
                 ALTER TABLE alter_advanced_targets
+                MODIFY LOB (payload) (
+                  CACHE
+                  STORAGE (INITIAL 1M NEXT 1M)
+                );
+
+                ALTER TABLE alter_advanced_targets
+                MODIFY LOB (payload) (RETENTION COMPRESS HIGH ENCRYPT);
+
+                ALTER TABLE alter_advanced_targets
                 ADD PARTITION p_2026 VALUES LESS THAN (DATE '2027-01-01') TABLESPACE users;
 
                 ALTER TABLE alter_advanced_targets

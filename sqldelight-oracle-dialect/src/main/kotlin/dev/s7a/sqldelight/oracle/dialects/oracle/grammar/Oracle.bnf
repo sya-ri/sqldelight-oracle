@@ -1996,6 +1996,7 @@ alter_table_rules ::= (
   alter_table_add_column |
   alter_table_annotations |
   alter_table_modify_xmltype_storage |
+  alter_table_modify_lob_storage |
   alter_table_modify_column_annotations |
   alter_table_modify_collection_retrieval |
   alter_table_modify_columns |
@@ -2045,6 +2046,9 @@ private alter_table_modify_column_annotations ::= 'MODIFY' [ 'COLUMN' ] {column_
 private alter_table_modify_collection_retrieval ::= 'MODIFY' 'NESTED' 'TABLE' oracle_object_name_part 'RETURN' 'AS' ( 'LOCATOR' | 'VALUE' )
 
 private alter_table_modify_xmltype_storage ::= 'MODIFY' 'XMLTYPE' 'COLUMN' oracle_object_name_part oracle_alter_table_property_token *
+
+private alter_table_modify_lob_storage ::= 'MODIFY' 'LOB' LP oracle_schema_object_name ( COMMA oracle_schema_object_name ) * RP
+  oracle_alter_table_property_token *
 
 private alter_table_set_subpartition_template ::= 'SET' 'SUBPARTITION' 'TEMPLATE'
   LP [ oracle_subpartition_definition ( COMMA oracle_subpartition_definition ) * ] RP

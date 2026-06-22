@@ -2353,7 +2353,10 @@ class OracleParserBackedTest :
                   account_id NUMBER NOT NULL,
                   external_id VARCHAR2(64),
                   created_at DATE
-                ) CLUSTERING BY LINEAR ORDER (account_id, created_at) YES ON LOAD WITH MATERIALIZED ZONEMAP;
+                ) CLUSTERING BY LINEAR ORDER (account_id, created_at)
+                  YES ON LOAD
+                  NO ON DATA MOVEMENT
+                  WITH MATERIALIZED ZONEMAP;
 
                 CREATE TABLE account_snapshot AS
                 SELECT account_id, external_id
@@ -2406,7 +2409,9 @@ class OracleParserBackedTest :
                 FROM staged_accounts;
 
                 CREATE TABLE clustered_account_snapshot
-                CLUSTERING BY INTERLEAVED ORDER ((account_id, external_id), created_at) NO ON LOAD
+                CLUSTERING BY INTERLEAVED ORDER ((account_id, external_id), created_at)
+                  NO ON LOAD
+                  YES ON DATA MOVEMENT
                 AS SELECT account_id, external_id
                 FROM staged_accounts;
 
@@ -3544,7 +3549,10 @@ class OracleParserBackedTest :
                 ALTER TABLE alter_advanced_targets ILM DELETE_ALL;
 
                 ALTER TABLE alter_advanced_targets
-                MODIFY CLUSTERING BY LINEAR ORDER (id, created_at) YES ON LOAD WITH MATERIALIZED ZONEMAP;
+                MODIFY CLUSTERING BY LINEAR ORDER (id, created_at)
+                  YES ON LOAD
+                  YES ON DATA MOVEMENT
+                  WITH MATERIALIZED ZONEMAP;
 
                 ALTER TABLE alter_advanced_targets
                 ADD PARTITION p_2026 VALUES LESS THAN (DATE '2027-01-01') TABLESPACE users;

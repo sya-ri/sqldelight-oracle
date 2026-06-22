@@ -1811,8 +1811,10 @@ private oracle_attribute_clustering_clause ::= 'CLUSTERING'
   [ oracle_schema_object_name ]
   [ 'JOIN' oracle_schema_object_name ( COMMA oracle_schema_object_name ) * ]
   'BY' [ 'LINEAR' | 'INTERLEAVED' ] 'ORDER' LP oracle_clustering_column_group ( COMMA oracle_clustering_column_group ) * RP
-  [ ( 'YES' | 'NO' ) 'ON' 'LOAD' ]
+  oracle_clustering_when_clause *
   [ 'WITH' 'MATERIALIZED' 'ZONEMAP' ]
+
+private oracle_clustering_when_clause ::= ( 'YES' | 'NO' ) 'ON' ( 'LOAD' | 'DATA' 'MOVEMENT' )
 
 private oracle_clustering_column_group ::= oracle_schema_object_name | LP oracle_schema_object_name ( COMMA oracle_schema_object_name ) * RP
 

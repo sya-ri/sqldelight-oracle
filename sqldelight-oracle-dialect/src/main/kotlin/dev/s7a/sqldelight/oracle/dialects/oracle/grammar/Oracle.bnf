@@ -582,7 +582,7 @@ private oracle_json_id_operator ::= 'JSON_ID' LP ( 'OID' | 'UUID' | {string_lite
 
 private oracle_shard_chunk_id_operator ::= 'SHARD_CHUNK_ID' LP <<expr '-1'>> COMMA <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP
 
-private oracle_condition_expr ::= oracle_sql_json_condition_expr | oracle_xml_condition_expr | oracle_pattern_matching_condition_expr | oracle_comparison_condition_expr | oracle_floating_point_condition_expr | oracle_is_of_type_condition_expr
+private oracle_condition_expr ::= oracle_sql_json_condition_expr | oracle_xml_condition_expr | oracle_pattern_matching_condition_expr | oracle_comparison_condition_expr | oracle_in_condition_expr | oracle_floating_point_condition_expr | oracle_is_of_type_condition_expr
 
 private oracle_comparison_condition_expr ::= (
   oracle_condition_operand '^=' oracle_condition_operand |
@@ -592,6 +592,10 @@ private oracle_comparison_condition_expr ::= (
 private oracle_group_comparison_operator ::= EQ | '!=' | '<>' | '>' | '<' | '<=' | '>='
 
 private oracle_group_comparison_rhs ::= LP ( <<compoundSelectStmtExt <<compound_select_stmt_real>>>> | <<expr '-1'>> ( COMMA <<expr '-1'>> ) * ) RP
+
+private oracle_in_condition_expr ::= oracle_row_value_constructor [ 'NOT' ] 'IN' LP ( <<compoundSelectStmtExt <<compound_select_stmt_real>>>> | oracle_row_value_constructor ( COMMA oracle_row_value_constructor ) * ) RP
+
+private oracle_row_value_constructor ::= LP <<expr '-1'>> COMMA <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP
 
 private oracle_floating_point_condition_expr ::= oracle_condition_operand 'IS' [ 'NOT' ] ( 'NAN' | 'INFINITE' )
 

@@ -577,6 +577,11 @@ class OracleParserBackedTest :
                     FROM departments
                     WHERE name IN ('SALES', 'HR')
                   )
+                  AND (department_id, status) IN ((10, 'ACTIVE'), (20, 'PENDING'))
+                  AND (department_id, status) NOT IN (
+                    SELECT id, name
+                    FROM departments
+                  )
                   AND EXISTS (
                     SELECT id
                     FROM departments

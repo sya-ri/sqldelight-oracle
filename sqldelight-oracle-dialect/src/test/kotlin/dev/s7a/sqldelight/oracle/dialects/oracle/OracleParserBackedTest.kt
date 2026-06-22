@@ -2114,6 +2114,20 @@ class OracleParserBackedTest :
                   PARTITION p_max VALUES LESS THAN (MAXVALUE)
                 );
 
+                CREATE TABLE range_range_partitioned_accounts (
+                  account_id NUMBER NOT NULL,
+                  created_at DATE,
+                  account_id_bucket NUMBER
+                ) PARTITION BY RANGE (created_at)
+                SUBPARTITION BY RANGE (account_id_bucket)
+                SUBPARTITION TEMPLATE (
+                  SUBPARTITION sp_low VALUES LESS THAN (1000) TABLESPACE users,
+                  SUBPARTITION sp_max VALUES LESS THAN (MAXVALUE)
+                ) (
+                  PARTITION p_2025 VALUES LESS THAN (DATE '2026-01-01'),
+                  PARTITION p_max VALUES LESS THAN (MAXVALUE)
+                );
+
                 CREATE TABLE list_hash_partitioned_accounts (
                   account_id NUMBER NOT NULL,
                   region_code VARCHAR2(8)

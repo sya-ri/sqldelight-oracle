@@ -1233,7 +1233,7 @@ private oracle_hash_partitions ::= 'HASH' LP oracle_partition_key ( COMMA oracle
 )
 
 private oracle_composite_range_partitions ::= 'RANGE' LP oracle_partition_key ( COMMA oracle_partition_key ) * RP
-  oracle_subpartition_by_list_clause
+  oracle_subpartition_by_clause
   LP oracle_range_partition_with_subpartitions ( COMMA oracle_range_partition_with_subpartitions ) * RP
 
 private oracle_composite_list_partitions ::= 'LIST' LP oracle_partition_key ( COMMA oracle_partition_key ) * RP
@@ -1250,6 +1250,11 @@ private oracle_reference_partitioning ::= 'REFERENCE' LP oracle_object_name_part
 private oracle_system_partitioning ::= 'SYSTEM'
   [ LP oracle_reference_partition_definition ( COMMA oracle_reference_partition_definition ) * RP ]
 
+private oracle_subpartition_by_clause ::= oracle_subpartition_by_range_clause | oracle_subpartition_by_list_clause | oracle_subpartition_by_hash_clause
+
+private oracle_subpartition_by_range_clause ::= 'SUBPARTITION' 'BY' 'RANGE' LP oracle_partition_key ( COMMA oracle_partition_key ) * RP
+  [ 'SUBPARTITION' 'TEMPLATE' LP oracle_range_subpartition_definition ( COMMA oracle_range_subpartition_definition ) * RP ]
+
 private oracle_subpartition_by_list_clause ::= 'SUBPARTITION' 'BY' 'LIST' LP oracle_partition_key ( COMMA oracle_partition_key ) * RP
   [ 'SUBPARTITION' 'TEMPLATE' LP oracle_list_subpartition_definition ( COMMA oracle_list_subpartition_definition ) * RP ]
 
@@ -1261,14 +1266,14 @@ private oracle_partition_key ::= {column_name} | LP <<expr '-1'>> RP
 private oracle_range_partition_definition ::= 'PARTITION' [ oracle_object_name_part ] 'VALUES' 'LESS' 'THAN' LP oracle_range_partition_value ( COMMA oracle_range_partition_value ) * RP oracle_partition_table_description *
 
 private oracle_range_partition_with_subpartitions ::= 'PARTITION' [ oracle_object_name_part ] 'VALUES' 'LESS' 'THAN' LP oracle_range_partition_value ( COMMA oracle_range_partition_value ) * RP
-  oracle_partition_table_description * [ LP oracle_list_subpartition_definition ( COMMA oracle_list_subpartition_definition ) * RP ]
+  oracle_partition_table_description * [ LP oracle_subpartition_definition ( COMMA oracle_subpartition_definition ) * RP ]
 
 private oracle_range_partition_value ::= 'MAXVALUE' | <<expr '-1'>>
 
 private oracle_list_partition_definition ::= 'PARTITION' [ oracle_object_name_part ] 'VALUES' LP ( oracle_list_partition_values | 'DEFAULT' ) RP oracle_partition_table_description *
 
 private oracle_list_partition_with_subpartitions ::= 'PARTITION' [ oracle_object_name_part ] 'VALUES' LP ( oracle_list_partition_values | 'DEFAULT' ) RP
-  oracle_partition_table_description * [ LP oracle_hash_subpartition_definition ( COMMA oracle_hash_subpartition_definition ) * RP ]
+  oracle_partition_table_description * [ LP oracle_subpartition_definition ( COMMA oracle_subpartition_definition ) * RP ]
 
 private oracle_list_partition_values ::= oracle_list_partition_value ( COMMA oracle_list_partition_value ) *
 
@@ -1277,9 +1282,13 @@ private oracle_list_partition_value ::= <<expr '-1'>>
 private oracle_hash_partition_definition ::= 'PARTITION' [ oracle_object_name_part ] oracle_partition_table_description *
 
 private oracle_hash_partition_with_subpartitions ::= 'PARTITION' [ oracle_object_name_part ] oracle_partition_table_description *
-  [ LP oracle_list_subpartition_definition ( COMMA oracle_list_subpartition_definition ) * RP ]
+  [ LP oracle_subpartition_definition ( COMMA oracle_subpartition_definition ) * RP ]
 
 private oracle_reference_partition_definition ::= 'PARTITION' [ oracle_object_name_part ] oracle_partition_table_description *
+
+private oracle_subpartition_definition ::= oracle_range_subpartition_definition | oracle_list_subpartition_definition | oracle_hash_subpartition_definition
+
+private oracle_range_subpartition_definition ::= 'SUBPARTITION' [ oracle_object_name_part ] 'VALUES' 'LESS' 'THAN' LP oracle_range_partition_value ( COMMA oracle_range_partition_value ) * RP oracle_partition_table_description *
 
 private oracle_list_subpartition_definition ::= 'SUBPARTITION' [ oracle_object_name_part ] 'VALUES' LP ( oracle_list_partition_values | 'DEFAULT' ) RP oracle_partition_table_description *
 

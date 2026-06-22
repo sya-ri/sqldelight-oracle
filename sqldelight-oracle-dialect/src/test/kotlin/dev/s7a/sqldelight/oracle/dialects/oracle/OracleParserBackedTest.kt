@@ -581,7 +581,14 @@ class OracleParserBackedTest :
                     SELECT id
                     FROM departments
                     WHERE departments.id = employees.department_id
-                  );
+                  )
+                  AND salary >= ALL (1400, 3000)
+                  AND salary = ANY (
+                    SELECT salary
+                    FROM employees e
+                    WHERE e.department_id = employees.department_id
+                  )
+                  AND department_id != SOME (10, 20);
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe

@@ -584,7 +584,14 @@ private oracle_shard_chunk_id_operator ::= 'SHARD_CHUNK_ID' LP <<expr '-1'>> COM
 
 private oracle_condition_expr ::= oracle_sql_json_condition_expr | oracle_xml_condition_expr | oracle_pattern_matching_condition_expr | oracle_comparison_condition_expr | oracle_floating_point_condition_expr | oracle_is_of_type_condition_expr
 
-private oracle_comparison_condition_expr ::= oracle_condition_operand '^=' oracle_condition_operand
+private oracle_comparison_condition_expr ::= (
+  oracle_condition_operand '^=' oracle_condition_operand |
+  oracle_condition_operand oracle_group_comparison_operator ( 'ANY' | 'SOME' | 'ALL' ) oracle_group_comparison_rhs
+)
+
+private oracle_group_comparison_operator ::= EQ | '!=' | '<>' | '>' | '<' | '<=' | '>='
+
+private oracle_group_comparison_rhs ::= LP ( <<compoundSelectStmtExt <<compound_select_stmt_real>>>> | <<expr '-1'>> ( COMMA <<expr '-1'>> ) * ) RP
 
 private oracle_floating_point_condition_expr ::= oracle_condition_operand 'IS' [ 'NOT' ] ( 'NAN' | 'INFINITE' )
 

@@ -1213,9 +1213,11 @@ private oracle_row_pattern_comparison_operator ::= EQ | '^=' | '!=' | '<>' | '>'
 
 private oracle_row_pattern_operand ::= oracle_schema_object_name | {string_literal} | DIGIT | {signed_number}
 
-private oracle_row_pattern_token ::= oracle_row_pattern_group | oracle_object_name_part | '+' | '*'
+private oracle_row_pattern_token ::= ( oracle_row_pattern_group | oracle_object_name_part ) [ oracle_row_pattern_quantifier ]
 
 private oracle_row_pattern_group ::= LP oracle_row_pattern_token * RP
+
+private oracle_row_pattern_quantifier ::= ( '+' | '*' | '?' ) [ '?' ]
 
 private oracle_sample_clause ::= 'SAMPLE' [ 'BLOCK' ] LP <<expr '-1'>> RP [ 'SEED' LP <<expr '-1'>> RP ]
 

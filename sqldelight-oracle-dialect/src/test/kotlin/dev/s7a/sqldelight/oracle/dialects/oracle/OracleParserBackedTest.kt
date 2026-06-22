@@ -3134,6 +3134,14 @@ class OracleParserBackedTest :
                   DEFINE rising AS 1 > 0, falling AS 0 < 1
                 ) advanced_matches;
 
+                selectMatchRecognizeReluctantPattern:
+                SELECT *
+                FROM partitioned_orders MATCH_RECOGNIZE (
+                  ALL ROWS PER MATCH OMIT EMPTY MATCHES
+                  PATTERN (start_row?? rising+? falling*?)
+                  DEFINE start_row AS 1 = 1, rising AS 1 > 0, falling AS 0 < 1
+                ) reluctant_matches;
+
                 selectQualify:
                 SELECT id, region, ROW_NUMBER() OVER (PARTITION BY region ORDER BY id) AS row_number
                 FROM partitioned_orders

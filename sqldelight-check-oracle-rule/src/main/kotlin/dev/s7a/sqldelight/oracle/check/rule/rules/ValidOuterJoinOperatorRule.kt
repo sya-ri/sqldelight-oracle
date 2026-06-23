@@ -24,7 +24,7 @@ public class ValidOuterJoinOperatorRule : Rule {
     ) {
         val content = context.file.content
         content
-            .maskOuterJoinCommentsAndQuotedTextPreservingOffsets()
+            .maskSqlCommentsAndQuotedTextPreservingOffsets()
             .outerJoinTokens()
             .invalidOuterJoinOperatorConditions()
             .forEach { condition ->
@@ -116,52 +116,5 @@ private fun String.outerJoinTokens(): List<OuterJoinToken> =
                 endOffset = match.range.last + 1,
             )
         }.toList()
-
-private fun String.maskOuterJoinCommentsAndQuotedTextPreservingOffsets(): String {
-    val chars = toCharArray()
-    var index = 0
-    while (index < chars.size) {
-        index =
-            when {
-                startsWith("--", index) -> outerJoinMaskRange(chars, index, skipOuterJoinLineComment(index))
-                startsWith("/*", index) -> outerJoinMaskRange(chars, index, skipOuterJoinBlockComment(index))
-                chars[index] == '\'' -> outerJoinMaskRange(chars, index, skipOuterJoinQuotedString(index))
-                else -> index + 1
-            }
-    }
-    return String(chars)
-}
-
-private fun String.skipOuterJoinLineComment(start: Int): Int = indexOf('\n', startIndex = start).let { if (it == -1) length else it }
-
-private fun String.skipOuterJoinBlockComment(start: Int): Int =
-    indexOf("*/", startIndex = start + 2).let { if (it == -1) length else it + 2 }
-
-private fun String.skipOuterJoinQuotedString(start: Int): Int {
-    var index = start + 1
-    while (index < length) {
-        if (this[index] == '\'') {
-            if (index + 1 < length && this[index + 1] == '\'') {
-                index += 2
-            } else {
-                return index + 1
-            }
-        } else {
-            index++
-        }
-    }
-    return length
-}
-
-private fun outerJoinMaskRange(
-    chars: CharArray,
-    start: Int,
-    end: Int,
-): Int {
-    for (index in start until end) {
-        chars[index] = ' '
-    }
-    return end
-}
 
 private fun OuterJoinToken?.outerJoinHasText(text: String): Boolean = this?.text.equals(text, ignoreCase = true)

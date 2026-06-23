@@ -24,7 +24,7 @@ public class NoConflictingFlashbackClauseRule : Rule {
     ) {
         val content = context.file.content
         content
-            .maskFlashbackCommentsAndQuotedTextPreservingOffsets()
+            .maskSqlCommentsAndQuotedTextPreservingOffsets()
             .flashbackTokens()
             .conflictingFlashbackClauses()
             .forEach { conflict ->
@@ -158,52 +158,5 @@ private fun String.flashbackTokens(): List<FlashbackToken> =
                 endOffset = match.range.last + 1,
             )
         }.toList()
-
-private fun String.maskFlashbackCommentsAndQuotedTextPreservingOffsets(): String {
-    val chars = toCharArray()
-    var index = 0
-    while (index < chars.size) {
-        index =
-            when {
-                startsWith("--", index) -> flashbackMaskRange(chars, index, skipFlashbackLineComment(index))
-                startsWith("/*", index) -> flashbackMaskRange(chars, index, skipFlashbackBlockComment(index))
-                chars[index] == '\'' -> flashbackMaskRange(chars, index, skipFlashbackQuotedString(index))
-                else -> index + 1
-            }
-    }
-    return String(chars)
-}
-
-private fun String.skipFlashbackLineComment(start: Int): Int = indexOf('\n', startIndex = start).let { if (it == -1) length else it }
-
-private fun String.skipFlashbackBlockComment(start: Int): Int =
-    indexOf("*/", startIndex = start + 2).let { if (it == -1) length else it + 2 }
-
-private fun String.skipFlashbackQuotedString(start: Int): Int {
-    var index = start + 1
-    while (index < length) {
-        if (this[index] == '\'') {
-            if (index + 1 < length && this[index + 1] == '\'') {
-                index += 2
-            } else {
-                return index + 1
-            }
-        } else {
-            index++
-        }
-    }
-    return length
-}
-
-private fun flashbackMaskRange(
-    chars: CharArray,
-    start: Int,
-    end: Int,
-): Int {
-    for (index in start until end) {
-        chars[index] = ' '
-    }
-    return end
-}
 
 private fun FlashbackToken?.flashbackHasText(text: String): Boolean = this?.text.equals(text, ignoreCase = true)

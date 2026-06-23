@@ -23,7 +23,7 @@ public class ValidBooleanTestConditionRule : Rule {
         reporter: DiagnosticReporter,
     ) {
         val content = context.file.content
-        val masked = content.maskBooleanTestCommentsAndQuotedTextPreservingOffsets()
+        val masked = content.maskSqlCommentsAndQuotedTextPreservingOffsets()
         invalidBooleanTestPattern.findAll(masked).forEach { match ->
             reporter.report(
                 RuleDiagnostic(
@@ -39,50 +39,3 @@ public class ValidBooleanTestConditionRule : Rule {
 }
 
 private val invalidBooleanTestPattern = Regex("""(?i)\bIS\s+NOT\s+NOT\s+(TRUE|FALSE|UNKNOWN)\b""")
-
-private fun String.maskBooleanTestCommentsAndQuotedTextPreservingOffsets(): String {
-    val chars = toCharArray()
-    var index = 0
-    while (index < chars.size) {
-        index =
-            when {
-                startsWith("--", index) -> booleanTestMaskRange(chars, index, skipBooleanTestLineComment(index))
-                startsWith("/*", index) -> booleanTestMaskRange(chars, index, skipBooleanTestBlockComment(index))
-                chars[index] == '\'' -> booleanTestMaskRange(chars, index, skipBooleanTestQuotedString(index))
-                else -> index + 1
-            }
-    }
-    return String(chars)
-}
-
-private fun String.skipBooleanTestLineComment(start: Int): Int = indexOf('\n', startIndex = start).let { if (it == -1) length else it }
-
-private fun String.skipBooleanTestBlockComment(start: Int): Int =
-    indexOf("*/", startIndex = start + 2).let { if (it == -1) length else it + 2 }
-
-private fun String.skipBooleanTestQuotedString(start: Int): Int {
-    var index = start + 1
-    while (index < length) {
-        if (this[index] == '\'') {
-            if (index + 1 < length && this[index + 1] == '\'') {
-                index += 2
-            } else {
-                return index + 1
-            }
-        } else {
-            index++
-        }
-    }
-    return length
-}
-
-private fun booleanTestMaskRange(
-    chars: CharArray,
-    start: Int,
-    end: Int,
-): Int {
-    for (index in start until end) {
-        chars[index] = ' '
-    }
-    return end
-}

@@ -23,7 +23,7 @@ public class ValidValuesAliasColumnCountRule : Rule {
         reporter: DiagnosticReporter,
     ) {
         val content = context.file.content
-        content.maskValuesCommentsAndQuotedTextPreservingOffsets().valuesTables().forEach { table ->
+        content.maskSqlCommentsAndQuotedTextPreservingOffsets().valuesTables().forEach { table ->
             table.rowCounts.withIndex().firstOrNull { (_, rowCount) -> rowCount != table.expectedColumnCount }?.let { (index, rowCount) ->
                 reporter.report(
                     RuleDiagnostic(
@@ -81,8 +81,8 @@ private fun String.parseValuesTable(valuesOffset: Int): ValuesTable? {
     val rowCounts = mutableListOf<Int>()
     val rowRanges = mutableListOf<IntRange>()
     while (index < length && this[index] == '(') {
-        val rowEnd = matchingParenthesis(index) ?: return null
-        rowCounts += countTopLevelItems(index + 1, rowEnd)
+        val rowEnd = matchingSqlParenthesis(index) ?: return null
+        rowCounts += countTopLevelSqlItems(index + 1, rowEnd)
         rowRanges += index..rowEnd
         index = skipWhitespace(rowEnd + 1)
         if (index < length && this[index] == ',') {
@@ -106,11 +106,11 @@ private fun String.parseValuesTable(valuesOffset: Int): ValuesTable? {
         return ValuesTable(rowCounts, rowRanges, aliasColumnCount = null, aliasColumnRange = null)
     }
 
-    val columnListEnd = matchingParenthesis(columnListStart) ?: return ValuesTable(rowCounts, rowRanges, null, null)
+    val columnListEnd = matchingSqlParenthesis(columnListStart) ?: return ValuesTable(rowCounts, rowRanges, null, null)
     return ValuesTable(
         rowCounts = rowCounts,
         rowRanges = rowRanges,
-        aliasColumnCount = countTopLevelItems(columnListStart + 1, columnListEnd),
+        aliasColumnCount = countTopLevelSqlItems(columnListStart + 1, columnListEnd),
         aliasColumnRange = columnListStart..columnListEnd,
     )
 }
@@ -153,100 +153,6 @@ private fun String.identifierEnd(index: Int): Int {
         current++
     }
     return current
-}
-
-private fun String.matchingParenthesis(openOffset: Int): Int? {
-    var depth = 0
-    for (index in openOffset until length) {
-        when (this[index]) {
-            '(' -> {
-                depth++
-            }
-
-            ')' -> {
-                depth--
-                if (depth == 0) return index
-            }
-        }
-    }
-    return null
-}
-
-private fun String.countTopLevelItems(
-    startOffset: Int,
-    endOffset: Int,
-): Int {
-    var count = 1
-    var depth = 0
-    var hasContent = false
-    for (index in startOffset until endOffset) {
-        when (this[index]) {
-            '(' -> {
-                depth++
-                hasContent = true
-            }
-
-            ')' -> {
-                depth--
-                hasContent = true
-            }
-
-            ',' -> {
-                if (depth == 0) count++ else hasContent = true
-            }
-
-            else -> {
-                if (!this[index].isWhitespace()) hasContent = true
-            }
-        }
-    }
-    return if (hasContent) count else 0
-}
-
-private fun String.maskValuesCommentsAndQuotedTextPreservingOffsets(): String {
-    val chars = toCharArray()
-    var index = 0
-    while (index < chars.size) {
-        index =
-            when {
-                startsWith("--", index) -> {
-                    val end = indexOf('\n', startIndex = index).let { if (it == -1) chars.size else it }
-                    chars.fill(' ', index, end)
-                    end
-                }
-
-                startsWith("/*", index) -> {
-                    val end = indexOf("*/", startIndex = index + 2).let { if (it == -1) chars.size else it + 2 }
-                    chars.fill(' ', index, end)
-                    end
-                }
-
-                chars[index] == '\'' -> {
-                    val end = skipValuesQuotedString(index)
-                    chars.fill(' ', index, end)
-                    end
-                }
-
-                else -> {
-                    index + 1
-                }
-            }
-    }
-    return chars.concatToString()
-}
-
-private fun String.skipValuesQuotedString(start: Int): Int {
-    var index = start + 1
-    while (index < length) {
-        if (this[index] == '\'' && getOrNull(index + 1) == '\'') {
-            index += 2
-        } else if (this[index] == '\'') {
-            return index + 1
-        } else {
-            index++
-        }
-    }
-    return length
 }
 
 private const val VALUES = "VALUES"

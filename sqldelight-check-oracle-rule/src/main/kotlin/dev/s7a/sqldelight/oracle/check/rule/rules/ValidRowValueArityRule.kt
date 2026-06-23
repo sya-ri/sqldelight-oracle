@@ -23,7 +23,7 @@ public class ValidRowValueArityRule : Rule {
         reporter: DiagnosticReporter,
     ) {
         val content = context.file.content
-        content.maskRowValueCommentsAndQuotedTextPreservingOffsets().rowValueArityMismatches().forEach { mismatch ->
+        content.maskSqlCommentsAndQuotedTextPreservingOffsets().rowValueArityMismatches().forEach { mismatch ->
             reporter.report(
                 RuleDiagnostic(
                     severity = defaultSeverity,
@@ -55,11 +55,11 @@ private fun String.rowValueArityMismatches(): List<RowValueArityMismatch> {
         }
 
         val leftEnd =
-            matchingRowValueParenthesis(index) ?: run {
+            matchingSqlParenthesis(index) ?: run {
                 index++
                 continue
             }
-        val leftArity = countRowValueItems(index + 1, leftEnd)
+        val leftArity = countTopLevelSqlItems(index + 1, leftEnd)
         if (leftArity < 2) {
             index = leftEnd + 1
             continue
@@ -70,8 +70,8 @@ private fun String.rowValueArityMismatches(): List<RowValueArityMismatch> {
             hasRowValueOperator(afterLeft) -> {
                 val rightStart = skipRowValueWhitespace(afterLeft + rowValueOperatorLength(afterLeft))
                 if (rightStart < length && this[rightStart] == '(') {
-                    val rightEnd = matchingRowValueParenthesis(rightStart) ?: return mismatches
-                    val rightArity = countRowValueItems(rightStart + 1, rightEnd)
+                    val rightEnd = matchingSqlParenthesis(rightStart) ?: return mismatches
+                    val rightArity = countTopLevelSqlItems(rightStart + 1, rightEnd)
                     if (rightArity != leftArity) {
                         mismatches += RowValueArityMismatch(leftArity, rightArity, rightStart..rightEnd)
                     }
@@ -101,13 +101,13 @@ private fun String.rowValueInListMismatches(
     leftArity: Int,
     listStart: Int,
 ): List<RowValueArityMismatch> {
-    val listEnd = matchingRowValueParenthesis(listStart) ?: return emptyList()
+    val listEnd = matchingSqlParenthesis(listStart) ?: return emptyList()
     val mismatches = mutableListOf<RowValueArityMismatch>()
     var index = skipRowValueWhitespace(listStart + 1)
     while (index < listEnd) {
         if (this[index] == '(') {
-            val rowEnd = matchingRowValueParenthesis(index) ?: return mismatches
-            val rightArity = countRowValueItems(index + 1, rowEnd)
+            val rowEnd = matchingSqlParenthesis(index) ?: return mismatches
+            val rightArity = countTopLevelSqlItems(index + 1, rowEnd)
             if (rightArity != leftArity) {
                 mismatches += RowValueArityMismatch(leftArity, rightArity, index..rowEnd)
             }
@@ -140,98 +140,4 @@ private fun String.skipRowValueWhitespace(index: Int): Int {
     var current = index
     while (current < length && this[current].isWhitespace()) current++
     return current
-}
-
-private fun String.matchingRowValueParenthesis(openOffset: Int): Int? {
-    var depth = 0
-    for (index in openOffset until length) {
-        when (this[index]) {
-            '(' -> {
-                depth++
-            }
-
-            ')' -> {
-                depth--
-                if (depth == 0) return index
-            }
-        }
-    }
-    return null
-}
-
-private fun String.countRowValueItems(
-    startOffset: Int,
-    endOffset: Int,
-): Int {
-    var count = 1
-    var depth = 0
-    var hasContent = false
-    for (index in startOffset until endOffset) {
-        when (this[index]) {
-            '(' -> {
-                depth++
-                hasContent = true
-            }
-
-            ')' -> {
-                depth--
-                hasContent = true
-            }
-
-            ',' -> {
-                if (depth == 0) count++ else hasContent = true
-            }
-
-            else -> {
-                if (!this[index].isWhitespace()) hasContent = true
-            }
-        }
-    }
-    return if (hasContent) count else 0
-}
-
-private fun String.maskRowValueCommentsAndQuotedTextPreservingOffsets(): String {
-    val chars = toCharArray()
-    var index = 0
-    while (index < chars.size) {
-        index =
-            when {
-                startsWith("--", index) -> {
-                    val end = indexOf('\n', startIndex = index).let { if (it == -1) chars.size else it }
-                    chars.fill(' ', index, end)
-                    end
-                }
-
-                startsWith("/*", index) -> {
-                    val end = indexOf("*/", startIndex = index + 2).let { if (it == -1) chars.size else it + 2 }
-                    chars.fill(' ', index, end)
-                    end
-                }
-
-                chars[index] == '\'' -> {
-                    val end = skipRowValueQuotedString(index)
-                    chars.fill(' ', index, end)
-                    end
-                }
-
-                else -> {
-                    index + 1
-                }
-            }
-    }
-    return chars.concatToString()
-}
-
-private fun String.skipRowValueQuotedString(start: Int): Int {
-    var index = start + 1
-    while (index < length) {
-        if (this[index] == '\'' && getOrNull(index + 1) == '\'') {
-            index += 2
-        } else if (this[index] == '\'') {
-            return index + 1
-        } else {
-            index++
-        }
-    }
-    return length
 }

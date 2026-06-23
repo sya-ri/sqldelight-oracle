@@ -24,7 +24,7 @@ public class NoConflictingSynonymClausesRule : Rule {
     ) {
         val content = context.file.content
         content
-            .maskSynonymCommentsAndQuotedTextPreservingOffsets()
+            .maskSqlCommentsAndQuotedTextPreservingOffsets()
             .synonymStatements()
             .flatMap { statement -> statement.conflictingSynonymClauses() }
             .forEach { conflict ->
@@ -139,51 +139,5 @@ private fun String.synonymTokens(offset: Int): List<SynonymToken> =
                 endOffset = offset + match.range.last + 1,
             )
         }.toList()
-
-private fun String.maskSynonymCommentsAndQuotedTextPreservingOffsets(): String {
-    val chars = toCharArray()
-    var index = 0
-    while (index < chars.size) {
-        index =
-            when {
-                startsWith("--", index) -> synonymMaskRange(chars, index, skipSynonymLineComment(index))
-                startsWith("/*", index) -> synonymMaskRange(chars, index, skipSynonymBlockComment(index))
-                chars[index] == '\'' -> synonymMaskRange(chars, index, skipSynonymQuotedString(index))
-                else -> index + 1
-            }
-    }
-    return String(chars)
-}
-
-private fun String.skipSynonymLineComment(start: Int): Int = indexOf('\n', startIndex = start).let { if (it == -1) length else it }
-
-private fun String.skipSynonymBlockComment(start: Int): Int = indexOf("*/", startIndex = start + 2).let { if (it == -1) length else it + 2 }
-
-private fun String.skipSynonymQuotedString(start: Int): Int {
-    var index = start + 1
-    while (index < length) {
-        if (this[index] == '\'') {
-            if (index + 1 < length && this[index + 1] == '\'') {
-                index += 2
-            } else {
-                return index + 1
-            }
-        } else {
-            index++
-        }
-    }
-    return length
-}
-
-private fun synonymMaskRange(
-    chars: CharArray,
-    start: Int,
-    end: Int,
-): Int {
-    for (index in start until end) {
-        chars[index] = ' '
-    }
-    return end
-}
 
 private fun SynonymToken?.synonymHasText(text: String): Boolean = this?.text.equals(text, ignoreCase = true)

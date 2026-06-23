@@ -24,7 +24,7 @@ public class NoConflictingSetRoleClausesRule : Rule {
     ) {
         val content = context.file.content
         content
-            .maskSetRoleCommentsAndQuotedTextPreservingOffsets()
+            .maskSqlCommentsAndQuotedTextPreservingOffsets()
             .setRoleStatements()
             .mapNotNull { statement -> statement.conflictingSetRoleClause() }
             .forEach { conflict ->
@@ -80,36 +80,37 @@ private fun List<SetRoleToken>.setRoleForms(): List<SetRoleOccurrence> =
     buildList {
         var index = 2
         while (index < this@setRoleForms.size) {
-            val token = this@setRoleForms[index]
-            when {
-                token.setRoleHasText("ALL") -> {
-                    val endOffset =
-                        if (this@setRoleForms.getOrNull(index + 1).setRoleHasText("EXCEPT")) {
-                            val exceptRole = this@setRoleForms.getOrNull(index + 2)
-                            index += if (exceptRole == null) 2 else 3
-                            exceptRole?.endOffset ?: this@setRoleForms[index - 1].endOffset
-                        } else {
-                            index++
-                            token.endOffset
-                        }
-                    add(SetRoleOccurrence(token.startOffset, endOffset))
-                }
+            this@setRoleForms[index].let { token ->
+                when {
+                    token.setRoleHasText("ALL") -> {
+                        val endOffset =
+                            if (this@setRoleForms.getOrNull(index + 1).setRoleHasText("EXCEPT")) {
+                                val exceptRole = this@setRoleForms.getOrNull(index + 2)
+                                index += if (exceptRole == null) 2 else 3
+                                exceptRole?.endOffset ?: this@setRoleForms[index - 1].endOffset
+                            } else {
+                                index++
+                                token.endOffset
+                            }
+                        add(SetRoleOccurrence(token.startOffset, endOffset))
+                    }
 
-                token.setRoleHasText("NONE") -> {
-                    add(SetRoleOccurrence(token.startOffset, token.endOffset))
-                    index++
-                }
+                    token.setRoleHasText("NONE") -> {
+                        add(SetRoleOccurrence(token.startOffset, token.endOffset))
+                        index++
+                    }
 
-                !token.setRoleHasText("IDENTIFIED") &&
-                    !token.setRoleHasText("BY") &&
-                    !token.setRoleHasText("EXCEPT") &&
-                    token.text != ";" -> {
-                    add(SetRoleOccurrence(token.startOffset, token.endOffset))
-                    index++
-                }
+                    !token.setRoleHasText("IDENTIFIED") &&
+                        !token.setRoleHasText("BY") &&
+                        !token.setRoleHasText("EXCEPT") &&
+                        token.text != ";" -> {
+                        add(SetRoleOccurrence(token.startOffset, token.endOffset))
+                        index++
+                    }
 
-                else -> {
-                    index++
+                    else -> {
+                        index++
+                    }
                 }
             }
         }
@@ -127,51 +128,5 @@ private fun String.setRoleTokens(offset: Int): List<SetRoleToken> =
                 endOffset = offset + match.range.last + 1,
             )
         }.toList()
-
-private fun String.maskSetRoleCommentsAndQuotedTextPreservingOffsets(): String {
-    val chars = toCharArray()
-    var index = 0
-    while (index < chars.size) {
-        index =
-            when {
-                startsWith("--", index) -> setRoleMaskRange(chars, index, skipSetRoleLineComment(index))
-                startsWith("/*", index) -> setRoleMaskRange(chars, index, skipSetRoleBlockComment(index))
-                chars[index] == '\'' -> setRoleMaskRange(chars, index, skipSetRoleQuotedString(index))
-                else -> index + 1
-            }
-    }
-    return String(chars)
-}
-
-private fun String.skipSetRoleLineComment(start: Int): Int = indexOf('\n', startIndex = start).let { if (it == -1) length else it }
-
-private fun String.skipSetRoleBlockComment(start: Int): Int = indexOf("*/", startIndex = start + 2).let { if (it == -1) length else it + 2 }
-
-private fun String.skipSetRoleQuotedString(start: Int): Int {
-    var index = start + 1
-    while (index < length) {
-        if (this[index] == '\'') {
-            if (index + 1 < length && this[index + 1] == '\'') {
-                index += 2
-            } else {
-                return index + 1
-            }
-        } else {
-            index++
-        }
-    }
-    return length
-}
-
-private fun setRoleMaskRange(
-    chars: CharArray,
-    start: Int,
-    end: Int,
-): Int {
-    for (index in start until end) {
-        chars[index] = ' '
-    }
-    return end
-}
 
 private fun SetRoleToken?.setRoleHasText(text: String): Boolean = this?.text.equals(text, ignoreCase = true)

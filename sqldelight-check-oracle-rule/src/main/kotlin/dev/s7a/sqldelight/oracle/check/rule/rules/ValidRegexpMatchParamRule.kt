@@ -77,15 +77,15 @@ private fun String.functionArgumentsAt(openParenthesisOffset: Int): List<Argumen
         index =
             when {
                 startsWith("--", index) -> {
-                    skipLineComment(index)
+                    skipSqlLineComment(index)
                 }
 
                 startsWith("/*", index) -> {
-                    skipBlockComment(index)
+                    skipSqlBlockComment(index)
                 }
 
                 this[index] == '\'' -> {
-                    skipQuotedString(index)
+                    skipSqlQuotedString(index)
                 }
 
                 this[index] == '(' -> {
@@ -140,50 +140,4 @@ private fun String.staticStringLiteral(argument: ArgumentRange): String? {
         .substring(literalStart + 1, text.lastIndex)
         .replace("''", "'")
         .lowercase()
-}
-
-private fun String.maskSqlCommentsAndQuotedTextPreservingOffsets(): String {
-    val chars = toCharArray()
-    var index = 0
-    while (index < chars.size) {
-        index =
-            when {
-                startsWith("--", index) -> maskRange(chars, index, skipLineComment(index))
-                startsWith("/*", index) -> maskRange(chars, index, skipBlockComment(index))
-                chars[index] == '\'' -> maskRange(chars, index, skipQuotedString(index))
-                else -> index + 1
-            }
-    }
-    return String(chars)
-}
-
-private fun String.skipLineComment(start: Int): Int = indexOf('\n', startIndex = start).let { if (it == -1) length else it }
-
-private fun String.skipBlockComment(start: Int): Int = indexOf("*/", startIndex = start + 2).let { if (it == -1) length else it + 2 }
-
-private fun String.skipQuotedString(start: Int): Int {
-    var index = start + 1
-    while (index < length) {
-        if (this[index] == '\'') {
-            if (index + 1 < length && this[index + 1] == '\'') {
-                index += 2
-            } else {
-                return index + 1
-            }
-        } else {
-            index++
-        }
-    }
-    return length
-}
-
-private fun maskRange(
-    chars: CharArray,
-    start: Int,
-    end: Int,
-): Int {
-    for (index in start until end) {
-        chars[index] = ' '
-    }
-    return end
 }

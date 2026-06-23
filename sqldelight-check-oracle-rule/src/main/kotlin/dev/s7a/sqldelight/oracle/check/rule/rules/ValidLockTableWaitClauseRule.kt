@@ -24,7 +24,7 @@ public class ValidLockTableWaitClauseRule : Rule {
     ) {
         val content = context.file.content
         content
-            .maskLockWaitCommentsAndQuotedTextPreservingOffsets()
+            .maskSqlCommentsAndQuotedTextPreservingOffsets()
             .lockWaitStatements()
             .flatMap { statement -> statement.invalidLockWaitClauses() }
             .forEach { invalid ->
@@ -142,52 +142,5 @@ private fun String.lockWaitTokens(offset: Int): List<LockWaitToken> =
                 endOffset = offset + match.range.last + 1,
             )
         }.toList()
-
-private fun String.maskLockWaitCommentsAndQuotedTextPreservingOffsets(): String {
-    val chars = toCharArray()
-    var index = 0
-    while (index < chars.size) {
-        index =
-            when {
-                startsWith("--", index) -> lockWaitMaskRange(chars, index, skipLockWaitLineComment(index))
-                startsWith("/*", index) -> lockWaitMaskRange(chars, index, skipLockWaitBlockComment(index))
-                chars[index] == '\'' -> lockWaitMaskRange(chars, index, skipLockWaitQuotedString(index))
-                else -> index + 1
-            }
-    }
-    return String(chars)
-}
-
-private fun String.skipLockWaitLineComment(start: Int): Int = indexOf('\n', startIndex = start).let { if (it == -1) length else it }
-
-private fun String.skipLockWaitBlockComment(start: Int): Int =
-    indexOf("*/", startIndex = start + 2).let { if (it == -1) length else it + 2 }
-
-private fun String.skipLockWaitQuotedString(start: Int): Int {
-    var index = start + 1
-    while (index < length) {
-        if (this[index] == '\'') {
-            if (index + 1 < length && this[index + 1] == '\'') {
-                index += 2
-            } else {
-                return index + 1
-            }
-        } else {
-            index++
-        }
-    }
-    return length
-}
-
-private fun lockWaitMaskRange(
-    chars: CharArray,
-    start: Int,
-    end: Int,
-): Int {
-    for (index in start until end) {
-        chars[index] = ' '
-    }
-    return end
-}
 
 private fun LockWaitToken?.lockWaitHasText(text: String): Boolean = this?.text.equals(text, ignoreCase = true)

@@ -13,15 +13,18 @@ import com.alecstrong.sql.psi.core.psi.SqlTableName
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 
-internal fun PsiElement.oracleColumnDefinitions(): List<SqlColumnDef> = children.filterIsInstance<SqlColumnDef>()
+internal fun PsiElement.oracleColumnDefinitions(): List<SqlColumnDef> = PsiTreeUtil.getChildrenOfTypeAsList(this, SqlColumnDef::class.java)
 
 internal fun PsiElement.oracleSingleColumnDefinition(): SqlColumnDef = oracleColumnDefinitions().single()
 
-internal fun PsiElement.oracleFirstColumnName(): SqlColumnName = children.filterIsInstance<SqlColumnName>().first()
+internal fun PsiElement.oracleFirstColumnName(): SqlColumnName =
+    PsiTreeUtil.getChildrenOfTypeAsList(this, SqlColumnName::class.java).first()
 
-internal fun PsiElement.oracleSingleColumnName(): SqlColumnName = children.filterIsInstance<SqlColumnName>().single()
+internal fun PsiElement.oracleSingleColumnName(): SqlColumnName =
+    PsiTreeUtil.getChildrenOfTypeAsList(this, SqlColumnName::class.java).single()
 
-internal fun PsiElement.oracleSingleColumnAlias(): SqlColumnAlias = children.filterIsInstance<SqlColumnAlias>().single()
+internal fun PsiElement.oracleSingleColumnAlias(): SqlColumnAlias =
+    PsiTreeUtil.getChildrenOfTypeAsList(this, SqlColumnAlias::class.java).single()
 
 internal fun SqlColumnDef.oracleQueryColumn(): QueryColumn = QueryColumn(columnName)
 

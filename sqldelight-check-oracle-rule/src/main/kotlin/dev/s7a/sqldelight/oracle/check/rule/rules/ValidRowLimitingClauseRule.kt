@@ -25,7 +25,7 @@ public class ValidRowLimitingClauseRule : Rule {
     ) {
         val content = context.file.content
         content
-            .maskRowLimitCommentsAndQuotedTextPreservingOffsets()
+            .maskSqlCommentsAndQuotedTextPreservingOffsets()
             .rowLimitTokens()
             .rowLimitingClauseDiagnostics()
             .forEach { diagnostic ->
@@ -179,53 +179,6 @@ private fun String.rowLimitTokens(): List<RowLimitToken> =
                 endOffset = match.range.last + 1,
             )
         }.toList()
-
-private fun String.maskRowLimitCommentsAndQuotedTextPreservingOffsets(): String {
-    val chars = toCharArray()
-    var index = 0
-    while (index < chars.size) {
-        index =
-            when {
-                startsWith("--", index) -> rowLimitMaskRange(chars, index, skipRowLimitLineComment(index))
-                startsWith("/*", index) -> rowLimitMaskRange(chars, index, skipRowLimitBlockComment(index))
-                chars[index] == '\'' -> rowLimitMaskRange(chars, index, skipRowLimitQuotedString(index))
-                else -> index + 1
-            }
-    }
-    return String(chars)
-}
-
-private fun String.skipRowLimitLineComment(start: Int): Int = indexOf('\n', startIndex = start).let { if (it == -1) length else it }
-
-private fun String.skipRowLimitBlockComment(start: Int): Int =
-    indexOf("*/", startIndex = start + 2).let { if (it == -1) length else it + 2 }
-
-private fun String.skipRowLimitQuotedString(start: Int): Int {
-    var index = start + 1
-    while (index < length) {
-        if (this[index] == '\'') {
-            if (index + 1 < length && this[index + 1] == '\'') {
-                index += 2
-            } else {
-                return index + 1
-            }
-        } else {
-            index++
-        }
-    }
-    return length
-}
-
-private fun rowLimitMaskRange(
-    chars: CharArray,
-    start: Int,
-    end: Int,
-): Int {
-    for (index in start until end) {
-        chars[index] = ' '
-    }
-    return end
-}
 
 private fun RowLimitToken.staticNumber(): BigDecimal? = text.toBigDecimalOrNull()
 

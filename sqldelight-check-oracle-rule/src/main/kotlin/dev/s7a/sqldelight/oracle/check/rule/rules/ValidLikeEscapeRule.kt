@@ -23,7 +23,7 @@ public class ValidLikeEscapeRule : Rule {
         reporter: DiagnosticReporter,
     ) {
         val content = context.file.content
-        val masked = content.maskLikeEscapeCommentsAndQuotedTextPreservingOffsets()
+        val masked = content.maskSqlCommentsAndQuotedTextPreservingOffsets()
         likeEscapePattern.findAll(masked).forEach { match ->
             val literal = content.staticLikeEscapeLiteralAfter(match.range.last + 1) ?: return@forEach
             if (literal.value.codePointCount(0, literal.value.length) == 1) return@forEach
@@ -57,58 +57,11 @@ private fun String.staticLikeEscapeLiteralAfter(offset: Int): LikeEscapeLiteral?
         index++
     }
     if (this[index] != '\'') return null
-    val end = skipLikeEscapeQuotedString(index)
+    val end = skipSqlQuotedString(index)
     if (end > length || end <= index + 1) return null
     return LikeEscapeLiteral(
         value = substring(index + 1, end - 1).replace("''", "'"),
         startOffset = index,
         endOffset = end,
     )
-}
-
-private fun String.maskLikeEscapeCommentsAndQuotedTextPreservingOffsets(): String {
-    val chars = toCharArray()
-    var index = 0
-    while (index < chars.size) {
-        index =
-            when {
-                startsWith("--", index) -> likeEscapeMaskRange(chars, index, skipLikeEscapeLineComment(index))
-                startsWith("/*", index) -> likeEscapeMaskRange(chars, index, skipLikeEscapeBlockComment(index))
-                chars[index] == '\'' -> likeEscapeMaskRange(chars, index, skipLikeEscapeQuotedString(index))
-                else -> index + 1
-            }
-    }
-    return String(chars)
-}
-
-private fun String.skipLikeEscapeLineComment(start: Int): Int = indexOf('\n', startIndex = start).let { if (it == -1) length else it }
-
-private fun String.skipLikeEscapeBlockComment(start: Int): Int =
-    indexOf("*/", startIndex = start + 2).let { if (it == -1) length else it + 2 }
-
-private fun String.skipLikeEscapeQuotedString(start: Int): Int {
-    var index = start + 1
-    while (index < length) {
-        if (this[index] == '\'') {
-            if (index + 1 < length && this[index + 1] == '\'') {
-                index += 2
-            } else {
-                return index + 1
-            }
-        } else {
-            index++
-        }
-    }
-    return length
-}
-
-private fun likeEscapeMaskRange(
-    chars: CharArray,
-    start: Int,
-    end: Int,
-): Int {
-    for (index in start until end) {
-        chars[index] = ' '
-    }
-    return end
 }

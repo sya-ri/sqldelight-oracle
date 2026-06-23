@@ -23,7 +23,7 @@ public class NoUppercaseRowidColumnRule : Rule {
         reporter: DiagnosticReporter,
     ) {
         val content = context.file.content
-        val masked = content.maskRowidRuleCommentsAndQuotedTextPreservingOffsets(maskDoubleQuotedIdentifiers = false)
+        val masked = content.maskSqlCommentsAndQuotedTextPreservingOffsets(maskDoubleQuotedIdentifiers = false)
         uppercaseRowidIdentifierPattern
             .findAll(masked)
             .filter { match -> masked.isQuotedRowidColumnName(match.range.first, match.range.last + 1) }
@@ -147,69 +147,4 @@ private fun String.previousNonWhitespaceIndex(startOffset: Int): Int? {
         index--
     }
     return null
-}
-
-private fun String.maskRowidRuleCommentsAndQuotedTextPreservingOffsets(maskDoubleQuotedIdentifiers: Boolean): String {
-    val chars = toCharArray()
-    var index = 0
-    while (index < chars.size) {
-        index =
-            when {
-                startsWith("--", index) -> {
-                    rowidRuleMaskRange(chars, index, skipRowidRuleLineComment(index))
-                }
-
-                startsWith("/*", index) -> {
-                    rowidRuleMaskRange(chars, index, skipRowidRuleBlockComment(index))
-                }
-
-                chars[index] == '\'' -> {
-                    rowidRuleMaskRange(chars, index, skipRowidRuleQuotedString(index))
-                }
-
-                maskDoubleQuotedIdentifiers && chars[index] == '"' -> {
-                    rowidRuleMaskRange(chars, index, skipRowidRuleDoubleQuotedIdentifier(index))
-                }
-
-                else -> {
-                    index + 1
-                }
-            }
-    }
-    return String(chars)
-}
-
-private fun String.skipRowidRuleLineComment(start: Int): Int = indexOf('\n', startIndex = start).let { if (it == -1) length else it }
-
-private fun String.skipRowidRuleBlockComment(start: Int): Int =
-    indexOf("*/", startIndex = start + 2).let { if (it == -1) length else it + 2 }
-
-private fun String.skipRowidRuleQuotedString(start: Int): Int {
-    var index = start + 1
-    while (index < length) {
-        if (this[index] == '\'') {
-            if (index + 1 < length && this[index + 1] == '\'') {
-                index += 2
-            } else {
-                return index + 1
-            }
-        } else {
-            index++
-        }
-    }
-    return length
-}
-
-private fun String.skipRowidRuleDoubleQuotedIdentifier(start: Int): Int =
-    indexOf('"', startIndex = start + 1).let { if (it == -1) length else it + 1 }
-
-private fun rowidRuleMaskRange(
-    chars: CharArray,
-    start: Int,
-    end: Int,
-): Int {
-    for (index in start until end) {
-        chars[index] = ' '
-    }
-    return end
 }

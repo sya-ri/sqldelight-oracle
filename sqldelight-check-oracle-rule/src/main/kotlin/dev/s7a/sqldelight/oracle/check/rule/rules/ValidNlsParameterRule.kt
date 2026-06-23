@@ -23,12 +23,12 @@ public class ValidNlsParameterRule : Rule {
         reporter: DiagnosticReporter,
     ) {
         val content = context.file.content
-        val masked = content.maskNlsRuleCommentsAndQuotedTextPreservingOffsets()
+        val masked = content.maskSqlCommentsAndQuotedTextPreservingOffsets()
         nlsParameterFunctionPattern.findAll(masked).forEach { match ->
             val functionName = match.groupValues[1].uppercase()
             val openParenthesisOffset = masked.indexOf('(', startIndex = match.range.first)
             val arguments = content.nlsRuleFunctionArgumentsAt(openParenthesisOffset) ?: return@forEach
-            val argument = arguments.getOrNull(2)?.asNlsRuleStaticStringLiteral(content) ?: return@forEach
+            val argument = arguments.getOrNull(2)?.let { content.staticSqlStringLiteral(it.startOffset, it.endOffset) } ?: return@forEach
             val error = validateNlsParameter(functionName, argument.value) ?: return@forEach
 
             reporter.report(
@@ -51,12 +51,6 @@ private const val INVALID_NUMBER_NLS_PARAMETER_MESSAGE =
     "Use a valid Oracle number NLS parameter literal."
 
 private data class NlsRuleArgumentRange(
-    val startOffset: Int,
-    val endOffset: Int,
-)
-
-private data class NlsRuleStaticStringLiteral(
-    val value: String,
     val startOffset: Int,
     val endOffset: Int,
 )
@@ -148,23 +142,6 @@ private fun parseNlsAssignments(value: String): List<NlsAssignment>? {
     return assignments
 }
 
-private fun NlsRuleArgumentRange.asNlsRuleStaticStringLiteral(content: String): NlsRuleStaticStringLiteral? {
-    var start = startOffset
-    while (start < endOffset && content[start].isWhitespace()) start++
-    var end = endOffset
-    while (end > start && content[end - 1].isWhitespace()) end--
-    if (start >= end) return null
-    if (content[start].equals('N', ignoreCase = true)) start++
-    if (start >= end || content[start] != '\'') return null
-    val literalEnd = content.skipNlsRuleQuotedString(start)
-    if (literalEnd != end) return null
-    return NlsRuleStaticStringLiteral(
-        value = content.substring(start + 1, literalEnd - 1).replace("''", "'"),
-        startOffset = start,
-        endOffset = literalEnd,
-    )
-}
-
 private fun String.nlsRuleFunctionArgumentsAt(openParenthesisOffset: Int): List<NlsRuleArgumentRange>? {
     if (openParenthesisOffset !in indices || this[openParenthesisOffset] != '(') return null
 
@@ -176,15 +153,15 @@ private fun String.nlsRuleFunctionArgumentsAt(openParenthesisOffset: Int): List<
         index =
             when {
                 startsWith("--", index) -> {
-                    skipNlsRuleLineComment(index)
+                    skipSqlLineComment(index)
                 }
 
                 startsWith("/*", index) -> {
-                    skipNlsRuleBlockComment(index)
+                    skipSqlBlockComment(index)
                 }
 
                 this[index] == '\'' -> {
-                    skipNlsRuleQuotedString(index)
+                    skipSqlQuotedString(index)
                 }
 
                 this[index] == '(' -> {
@@ -213,61 +190,4 @@ private fun String.nlsRuleFunctionArgumentsAt(openParenthesisOffset: Int): List<
             }
     }
     return null
-}
-
-private fun String.maskNlsRuleCommentsAndQuotedTextPreservingOffsets(): String {
-    val chars = toCharArray()
-    var index = 0
-    while (index < chars.size) {
-        index =
-            when {
-                startsWith("--", index) -> {
-                    nlsRuleMaskRange(chars, index, skipNlsRuleLineComment(index))
-                }
-
-                startsWith("/*", index) -> {
-                    nlsRuleMaskRange(chars, index, skipNlsRuleBlockComment(index))
-                }
-
-                chars[index] == '\'' -> {
-                    nlsRuleMaskRange(chars, index, skipNlsRuleQuotedString(index))
-                }
-
-                else -> {
-                    index + 1
-                }
-            }
-    }
-    return String(chars)
-}
-
-private fun String.skipNlsRuleLineComment(start: Int): Int = indexOf('\n', startIndex = start).let { if (it == -1) length else it }
-
-private fun String.skipNlsRuleBlockComment(start: Int): Int = indexOf("*/", startIndex = start + 2).let { if (it == -1) length else it + 2 }
-
-private fun String.skipNlsRuleQuotedString(start: Int): Int {
-    var index = start + 1
-    while (index < length) {
-        if (this[index] == '\'') {
-            if (index + 1 < length && this[index + 1] == '\'') {
-                index += 2
-            } else {
-                return index + 1
-            }
-        } else {
-            index++
-        }
-    }
-    return length
-}
-
-private fun nlsRuleMaskRange(
-    chars: CharArray,
-    start: Int,
-    end: Int,
-): Int {
-    for (index in start until end) {
-        chars[index] = ' '
-    }
-    return end
 }

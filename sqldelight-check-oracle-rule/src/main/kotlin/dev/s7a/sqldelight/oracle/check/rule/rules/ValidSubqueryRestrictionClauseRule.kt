@@ -24,7 +24,7 @@ public class ValidSubqueryRestrictionClauseRule : Rule {
     ) {
         val content = context.file.content
         content
-            .maskSubqueryRestrictionCommentsAndQuotedTextPreservingOffsets()
+            .maskSqlCommentsAndQuotedTextPreservingOffsets()
             .subqueryRestrictionTokens()
             .splitSubqueryRestrictionStatements()
             .flatMap { statement -> statement.conflictingSubqueryRestrictionClauses() }
@@ -126,53 +126,5 @@ private fun String.subqueryRestrictionTokens(): List<SubqueryRestrictionToken> =
                 endOffset = match.range.last + 1,
             )
         }.toList()
-
-private fun String.maskSubqueryRestrictionCommentsAndQuotedTextPreservingOffsets(): String {
-    val chars = toCharArray()
-    var index = 0
-    while (index < chars.size) {
-        index =
-            when {
-                startsWith("--", index) -> subqueryRestrictionMaskRange(chars, index, skipSubqueryRestrictionLineComment(index))
-                startsWith("/*", index) -> subqueryRestrictionMaskRange(chars, index, skipSubqueryRestrictionBlockComment(index))
-                chars[index] == '\'' -> subqueryRestrictionMaskRange(chars, index, skipSubqueryRestrictionQuotedString(index))
-                else -> index + 1
-            }
-    }
-    return String(chars)
-}
-
-private fun String.skipSubqueryRestrictionLineComment(start: Int): Int =
-    indexOf('\n', startIndex = start).let { if (it == -1) length else it }
-
-private fun String.skipSubqueryRestrictionBlockComment(start: Int): Int =
-    indexOf("*/", startIndex = start + 2).let { if (it == -1) length else it + 2 }
-
-private fun String.skipSubqueryRestrictionQuotedString(start: Int): Int {
-    var index = start + 1
-    while (index < length) {
-        if (this[index] == '\'') {
-            if (index + 1 < length && this[index + 1] == '\'') {
-                index += 2
-            } else {
-                return index + 1
-            }
-        } else {
-            index++
-        }
-    }
-    return length
-}
-
-private fun subqueryRestrictionMaskRange(
-    chars: CharArray,
-    start: Int,
-    end: Int,
-): Int {
-    for (index in start until end) {
-        chars[index] = ' '
-    }
-    return end
-}
 
 private fun SubqueryRestrictionToken?.subqueryRestrictionHasText(text: String): Boolean = this?.text.equals(text, ignoreCase = true)

@@ -23,7 +23,7 @@ public class ValidCreateViewColumnAliasesRule : Rule {
         reporter: DiagnosticReporter,
     ) {
         val content = context.file.content
-        content.maskCreateViewAliasCommentsAndQuotedTextPreservingOffsets().createViewAliasChecks().forEach { check ->
+        content.maskSqlCommentsAndQuotedTextPreservingOffsets(maskQuoteDelimiters = false).createViewAliasChecks().forEach { check ->
             check.duplicateAlias()?.let { duplicate ->
                 reporter.report(
                     RuleDiagnostic(
@@ -99,7 +99,7 @@ private fun String.parseCreateViewAliasCheck(statementRange: IntRange): CreateVi
 
     val selectOffset = indexOfKeyword("SELECT", asOffset, statementRange.last + 1) ?: return null
     val fromOffset = indexOfTopLevelKeyword("FROM", selectOffset + "SELECT".length, statementRange.last + 1) ?: return null
-    val selectColumnCount = countTopLevelCreateViewItems(selectOffset + "SELECT".length, fromOffset)
+    val selectColumnCount = countTopLevelSqlItems(selectOffset + "SELECT".length, fromOffset)
     return CreateViewAliasCheck(
         aliases = aliases,
         aliasListRange = aliasListStart..aliasListEnd,
@@ -201,81 +201,4 @@ private fun String.createViewIdentifierEnd(
     return index
 }
 
-private fun String.countTopLevelCreateViewItems(
-    startOffset: Int,
-    endOffset: Int,
-): Int {
-    var count = 1
-    var depth = 0
-    var hasContent = false
-    for (index in startOffset until endOffset) {
-        when (this[index]) {
-            '(' -> {
-                depth++
-                hasContent = true
-            }
-
-            ')' -> {
-                depth--
-                hasContent = true
-            }
-
-            ',' -> {
-                if (depth == 0) count++ else hasContent = true
-            }
-
-            else -> {
-                if (!this[index].isWhitespace()) hasContent = true
-            }
-        }
-    }
-    return if (hasContent) count else 0
-}
-
 private fun String.isCreateViewBoundary(index: Int): Boolean = index !in indices || (!this[index].isLetterOrDigit() && this[index] != '_')
-
-private fun String.maskCreateViewAliasCommentsAndQuotedTextPreservingOffsets(): String {
-    val chars = toCharArray()
-    var index = 0
-    while (index < chars.size) {
-        index =
-            when {
-                startsWith("--", index) -> {
-                    val end = indexOf('\n', startIndex = index).let { if (it == -1) chars.size else it }
-                    chars.fill(' ', index, end)
-                    end
-                }
-
-                startsWith("/*", index) -> {
-                    val end = indexOf("*/", startIndex = index + 2).let { if (it == -1) chars.size else it + 2 }
-                    chars.fill(' ', index, end)
-                    end
-                }
-
-                chars[index] == '\'' -> {
-                    val end = skipCreateViewQuotedString(index)
-                    chars.fill(' ', index + 1, end - 1)
-                    end
-                }
-
-                else -> {
-                    index + 1
-                }
-            }
-    }
-    return chars.concatToString()
-}
-
-private fun String.skipCreateViewQuotedString(start: Int): Int {
-    var index = start + 1
-    while (index < length) {
-        if (this[index] == '\'' && getOrNull(index + 1) == '\'') {
-            index += 2
-        } else if (this[index] == '\'') {
-            return index + 1
-        } else {
-            index++
-        }
-    }
-    return length
-}

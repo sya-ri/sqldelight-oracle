@@ -23,7 +23,7 @@ public class ValidJsonTableClausesRule : Rule {
         reporter: DiagnosticReporter,
     ) {
         val content = context.file.content
-        val tokens = content.maskJsonTableCommentsAndQuotedTextPreservingOffsets().jsonTableTokens()
+        val tokens = content.maskSqlCommentsAndQuotedTextPreservingOffsets().jsonTableTokens()
         tokens.jsonTableConflicts().forEach { conflict ->
             reporter.report(
                 RuleDiagnostic(
@@ -230,52 +230,5 @@ private fun String.jsonTableTokens(): List<JsonTableToken> =
                 endOffset = match.range.last + 1,
             )
         }.toList()
-
-private fun String.maskJsonTableCommentsAndQuotedTextPreservingOffsets(): String {
-    val chars = toCharArray()
-    var index = 0
-    while (index < chars.size) {
-        index =
-            when {
-                startsWith("--", index) -> jsonTableMaskRange(chars, index, skipJsonTableLineComment(index))
-                startsWith("/*", index) -> jsonTableMaskRange(chars, index, skipJsonTableBlockComment(index))
-                chars[index] == '\'' -> jsonTableMaskRange(chars, index, skipJsonTableQuotedString(index))
-                else -> index + 1
-            }
-    }
-    return String(chars)
-}
-
-private fun String.skipJsonTableLineComment(start: Int): Int = indexOf('\n', startIndex = start).let { if (it == -1) length else it }
-
-private fun String.skipJsonTableBlockComment(start: Int): Int =
-    indexOf("*/", startIndex = start + 2).let { if (it == -1) length else it + 2 }
-
-private fun String.skipJsonTableQuotedString(start: Int): Int {
-    var index = start + 1
-    while (index < length) {
-        if (this[index] == '\'') {
-            if (index + 1 < length && this[index + 1] == '\'') {
-                index += 2
-            } else {
-                return index + 1
-            }
-        } else {
-            index++
-        }
-    }
-    return length
-}
-
-private fun jsonTableMaskRange(
-    chars: CharArray,
-    start: Int,
-    end: Int,
-): Int {
-    for (index in start until end) {
-        chars[index] = ' '
-    }
-    return end
-}
 
 private fun JsonTableToken?.jsonTableHasText(text: String): Boolean = this?.text.equals(text, ignoreCase = true)

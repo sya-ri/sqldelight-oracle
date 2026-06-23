@@ -23,7 +23,7 @@ public class PreferUnifiedAuditingRule : Rule {
         reporter: DiagnosticReporter,
     ) {
         val content = context.file.content
-        val masked = content.maskAuditRuleCommentsAndQuotedTextPreservingOffsets()
+        val masked = content.maskSqlCommentsAndQuotedTextPreservingOffsets()
         traditionalAuditingStatementPattern.findAll(masked).forEach { match ->
             val statementKeyword = match.groups[1] ?: return@forEach
             val trailingContent = masked.substring(statementKeyword.range.last + 1)
@@ -52,65 +52,4 @@ private fun String.startsWithUnifiedAuditingClause(): Boolean {
     val clause = trimStart()
     return clause.startsWith("POLICY", ignoreCase = true) ||
         clause.startsWith("CONTEXT", ignoreCase = true)
-}
-
-private fun String.maskAuditRuleCommentsAndQuotedTextPreservingOffsets(): String {
-    val chars = toCharArray()
-    var index = 0
-    while (index < chars.size) {
-        index =
-            when {
-                startsWith("--", index) -> {
-                    auditRuleMaskRange(chars, index, skipAuditRuleLineComment(index))
-                }
-
-                startsWith("/*", index) -> {
-                    auditRuleMaskRange(chars, index, skipAuditRuleBlockComment(index))
-                }
-
-                chars[index] == '\'' -> {
-                    auditRuleMaskRange(chars, index, skipAuditRuleQuotedString(index))
-                }
-
-                else -> {
-                    index + 1
-                }
-            }
-    }
-    return String(chars)
-}
-
-private fun String.skipAuditRuleLineComment(start: Int): Int =
-    indexOf('\n', startIndex = start).let {
-        if (it == -1) length else it
-    }
-
-private fun String.skipAuditRuleBlockComment(start: Int): Int =
-    indexOf("*/", startIndex = start + 2).let { if (it == -1) length else it + 2 }
-
-private fun String.skipAuditRuleQuotedString(start: Int): Int {
-    var index = start + 1
-    while (index < length) {
-        if (this[index] == '\'') {
-            if (index + 1 < length && this[index + 1] == '\'') {
-                index += 2
-            } else {
-                return index + 1
-            }
-        } else {
-            index++
-        }
-    }
-    return length
-}
-
-private fun auditRuleMaskRange(
-    chars: CharArray,
-    start: Int,
-    end: Int,
-): Int {
-    for (index in start until end) {
-        chars[index] = ' '
-    }
-    return end
 }

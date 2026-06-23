@@ -121,9 +121,8 @@ internal class OracleCommentLexer : LexerBase() {
             }
         if (quoteOffset + 1 >= endOffset || buffer[quoteOffset] != '\'') return null
 
-        val openingDelimiter = buffer[quoteOffset + 1]
         val closingDelimiter =
-            when (openingDelimiter) {
+            when (val openingDelimiter = buffer[quoteOffset + 1]) {
                 '[' -> ']'
                 '{' -> '}'
                 '(' -> ')'

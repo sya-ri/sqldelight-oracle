@@ -23,12 +23,13 @@ public class ValidFormatModelRule : Rule {
         reporter: DiagnosticReporter,
     ) {
         val content = context.file.content
-        val masked = content.maskFormatModelCommentsAndQuotedTextPreservingOffsets()
+        val masked = content.maskSqlCommentsAndQuotedTextPreservingOffsets()
         oracleFormatFunctionPattern.findAll(masked).forEach { match ->
             val functionName = match.groupValues[1].uppercase()
             val openParenthesisOffset = masked.indexOf('(', startIndex = match.range.first)
             val arguments = content.formatModelFunctionArgumentsAt(openParenthesisOffset) ?: return@forEach
-            val formatArgument = arguments.getOrNull(1)?.asStaticStringLiteral(content) ?: return@forEach
+            val formatArgument =
+                arguments.getOrNull(1)?.let { content.staticSqlStringLiteral(it.startOffset, it.endOffset) } ?: return@forEach
             val modelKind = formatModelKind(functionName, formatArgument.value) ?: return@forEach
             val error = validateFormatModel(modelKind, formatArgument.value) ?: return@forEach
 
@@ -62,12 +63,6 @@ private data class FormatModelError(
 )
 
 private data class FormatModelArgumentRange(
-    val startOffset: Int,
-    val endOffset: Int,
-)
-
-private data class StaticStringLiteral(
-    val value: String,
     val startOffset: Int,
     val endOffset: Int,
 )
@@ -131,7 +126,7 @@ private fun validateNumberFormatModel(value: String): FormatModelError? {
     val tmIndex = significantTokens.indexOf("TM")
     if (tmIndex != -1) {
         val tail = significantTokens.drop(tmIndex + 1)
-        if (tmIndex != 0 || tail !in listOf(emptyList<String>(), listOf("9"), listOf("E"), listOf("EEEE"))) {
+        if (tmIndex != 0 || tail !in listOf(emptyList(), listOf("9"), listOf("E"), listOf("EEEE"))) {
             return FormatModelError(INVALID_NUMBER_FORMAT_MODEL_MESSAGE)
         }
     }
@@ -228,23 +223,6 @@ private fun String.skipDoubleQuotedFormatText(start: Int): Int {
     return length
 }
 
-private fun FormatModelArgumentRange.asStaticStringLiteral(content: String): StaticStringLiteral? {
-    var start = startOffset
-    while (start < endOffset && content[start].isWhitespace()) start++
-    var end = endOffset
-    while (end > start && content[end - 1].isWhitespace()) end--
-    if (start >= end) return null
-    if (content[start].equals('N', ignoreCase = true)) start++
-    if (start >= end || content[start] != '\'') return null
-    val literalEnd = content.skipFormatModelQuotedString(start)
-    if (literalEnd != end) return null
-    return StaticStringLiteral(
-        value = content.substring(start + 1, literalEnd - 1).replace("''", "'"),
-        startOffset = start,
-        endOffset = literalEnd,
-    )
-}
-
 private fun String.formatModelFunctionArgumentsAt(openParenthesisOffset: Int): List<FormatModelArgumentRange>? {
     if (openParenthesisOffset !in indices || this[openParenthesisOffset] != '(') return null
 
@@ -256,15 +234,15 @@ private fun String.formatModelFunctionArgumentsAt(openParenthesisOffset: Int): L
         index =
             when {
                 startsWith("--", index) -> {
-                    skipFormatModelLineComment(index)
+                    skipSqlLineComment(index)
                 }
 
                 startsWith("/*", index) -> {
-                    skipFormatModelBlockComment(index)
+                    skipSqlBlockComment(index)
                 }
 
                 this[index] == '\'' -> {
-                    skipFormatModelQuotedString(index)
+                    skipSqlQuotedString(index)
                 }
 
                 this[index] == '(' -> {
@@ -301,53 +279,6 @@ private fun String.hasFormatModelNonWhitespace(
     startOffset: Int,
     endOffset: Int,
 ): Boolean = substring(startOffset, endOffset).any { character -> !character.isWhitespace() }
-
-private fun String.maskFormatModelCommentsAndQuotedTextPreservingOffsets(): String {
-    val chars = toCharArray()
-    var index = 0
-    while (index < chars.size) {
-        index =
-            when {
-                startsWith("--", index) -> maskFormatModelRange(chars, index, skipFormatModelLineComment(index))
-                startsWith("/*", index) -> maskFormatModelRange(chars, index, skipFormatModelBlockComment(index))
-                chars[index] == '\'' -> maskFormatModelRange(chars, index, skipFormatModelQuotedString(index))
-                else -> index + 1
-            }
-    }
-    return String(chars)
-}
-
-private fun String.skipFormatModelLineComment(start: Int): Int = indexOf('\n', startIndex = start).let { if (it == -1) length else it }
-
-private fun String.skipFormatModelBlockComment(start: Int): Int =
-    indexOf("*/", startIndex = start + 2).let { if (it == -1) length else it + 2 }
-
-private fun String.skipFormatModelQuotedString(start: Int): Int {
-    var index = start + 1
-    while (index < length) {
-        if (this[index] == '\'') {
-            if (index + 1 < length && this[index + 1] == '\'') {
-                index += 2
-            } else {
-                return index + 1
-            }
-        } else {
-            index++
-        }
-    }
-    return length
-}
-
-private fun maskFormatModelRange(
-    chars: CharArray,
-    start: Int,
-    end: Int,
-): Int {
-    for (index in start until end) {
-        chars[index] = ' '
-    }
-    return end
-}
 
 private val numberFormatTokens =
     listOf("EEEE", "MI", "PR", "RN", "TM", "FM", "S", "B", "C", "D", "G", "L", "U", "V", "X", "E")

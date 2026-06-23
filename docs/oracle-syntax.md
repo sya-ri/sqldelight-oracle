@@ -75,7 +75,8 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] parser support for table references with `FORMAT JSON`, `PASSING`, `COLUMNS`, ordinality columns, value columns, exists columns, query-style `FORMAT JSON` columns, and nested path columns
   - [x] parser support for row-level [`JSON_table_on_error_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/JSON_TABLE.html#GUID-ED7DFB32-1ED0-4F2D-BB6A-5983CA3293E1__BABGJHHA) and [`JSON_table_on_empty_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/JSON_TABLE.html#GUID-ED7DFB32-1ED0-4F2D-BB6A-5983CA3293E1__BABHFIAH) before `COLUMNS`
   - [x] SQLDelight column resolution for [`JSON_TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/JSON_TABLE.html) output columns, including ordinality, value, exists, query-style `FORMAT JSON`, and nested path columns
-  - [ ] deferred semantic validation: wrapper/error/empty clause ordering and nested path scoping
+  - [x] sqldelight-check rule coverage for duplicate static row-level and column-level `ON ERROR`, `ON EMPTY`, `ON MISMATCH`, and wrapper clauses
+  - [ ] deferred semantic validation: clause ordering and nested path scoping
 - [x] [`XMLTABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/XMLTABLE.html)
   - [x] SQLDelight column resolution for `XMLTABLE` `COLUMNS` output columns
 - [x] Analytic view query syntax source-scanner boundaries; DDL page is tracked under `CREATE ANALYTIC VIEW`

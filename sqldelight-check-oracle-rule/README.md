@@ -117,6 +117,7 @@ sqldelightCheck {
 | [`oracle:valid-create-view-column-aliases`](#oraclevalid-create-view-column-aliases) | Yes | Warning |  | Validate static `CREATE VIEW` column alias lists. |
 | [`oracle:valid-nls-parameter`](#oraclevalid-nls-parameter) | Yes | Warning |  | Validate static Oracle NLS parameter literals in conversion functions. |
 | [`oracle:valid-json-condition-options`](#oraclevalid-json-condition-options) | Yes | Warning |  | Validate static SQL/JSON condition option combinations. |
+| [`oracle:valid-json-table-clauses`](#oraclevalid-json-table-clauses) | Yes | Warning |  | Validate static Oracle `JSON_TABLE` option groups. |
 | [`oracle:valid-returning-clause`](#oraclevalid-returning-clause) | Yes | Warning |  | Validate static Oracle `RETURNING` clause forms. |
 | [`oracle:valid-row-value-arity`](#oraclevalid-row-value-arity) | Yes | Warning |  | Validate static Oracle row-value arity. |
 | [`oracle:valid-row-limiting-clause`](#oraclevalid-row-limiting-clause) | Yes | Warning |  | Validate static Oracle row limiting clause values and `WITH TIES` ordering. |
@@ -494,6 +495,27 @@ SELECT *
 FROM document_store
 WHERE payload IS JSON STRICT WITH UNIQUE KEYS
   AND JSON_EXISTS(payload, '$.items[*]' TRUE ON ERROR FALSE ON EMPTY);
+```
+
+## `oracle:valid-json-table-clauses`
+
+Reports duplicate static Oracle [`JSON_TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/JSON_TABLE.html) option groups in the row scope or one column scope.
+The rule checks repeated `ON ERROR`, `ON EMPTY`, `ON MISMATCH`, and wrapper clauses while keeping nested `COLUMNS` scopes independent.
+
+Prefer one option from each group in each scope:
+
+```sql
+SELECT *
+FROM JSON_TABLE(
+    payload,
+    '$'
+    ERROR ON ERROR
+    DEFAULT 'missing' ON EMPTY
+    COLUMNS (
+        id NUMBER PATH '$.id' NULL ON EMPTY DEFAULT 0 ON ERROR,
+        details JSON FORMAT JSON PATH '$.details' WITH CONDITIONAL WRAPPER NULL ON EMPTY
+    )
+) jt;
 ```
 
 ## `oracle:valid-create-view-column-aliases`

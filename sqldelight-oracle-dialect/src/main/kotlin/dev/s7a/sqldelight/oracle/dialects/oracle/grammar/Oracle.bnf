@@ -2013,8 +2013,12 @@ private oracle_nested_table_col_properties ::= 'NESTED' 'TABLE' ( oracle_schema_
 
 private oracle_nested_table_return_clause ::= 'RETURN' [ 'AS' ] ( 'LOCATOR' | 'VALUE' )
 
-private oracle_varray_col_properties ::= 'VARRAY' oracle_schema_object_name 'STORE' 'AS'
-  [ 'SECUREFILE' | 'BASICFILE' ] 'LOB' [ oracle_column_property_storage_target ]
+private oracle_varray_col_properties ::= 'VARRAY' oracle_schema_object_name (
+  [ oracle_substitutable_column_clause ] oracle_varray_storage_clause |
+  oracle_substitutable_column_clause
+)
+
+private oracle_varray_storage_clause ::= 'STORE' 'AS' [ 'SECUREFILE' | 'BASICFILE' ] 'LOB' [ oracle_column_property_storage_target ]
 
 private oracle_lob_storage_clause ::= 'LOB' LP oracle_schema_object_name ( COMMA oracle_schema_object_name ) * RP
   'STORE' 'AS' oracle_lob_storage_option +

@@ -2977,6 +2977,8 @@ class OracleParserBackedTest :
                   contact_items NESTED TABLE,
                   attachments VARRAY(10),
                   attachment_archive VARRAY(10),
+                  typed_attachments VARRAY(10),
+                  fixed_attachments VARRAY(10),
                   document_json JSON,
                   contact OBJECT,
                   preferred_contact OBJECT,
@@ -3029,6 +3031,10 @@ class OracleParserBackedTest :
                   CACHE
                   TABLESPACE users
                 )
+                VARRAY typed_attachments ELEMENT IS OF TYPE (ONLY account_attachment_type) STORE AS SECUREFILE LOB typed_attachments_lob (
+                  CACHE
+                )
+                VARRAY fixed_attachments NOT SUBSTITUTABLE AT ALL LEVELS
                 JSON COLUMN document_json STORE AS BLOB (CACHE)
                 COLUMN preferred_contact ELEMENT IS OF TYPE (ONLY account_contact_type)
                 COLUMN alternate_contact SUBSTITUTABLE AT ALL LEVELS

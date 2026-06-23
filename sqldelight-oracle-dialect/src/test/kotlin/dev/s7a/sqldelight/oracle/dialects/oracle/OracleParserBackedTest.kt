@@ -4110,6 +4110,36 @@ class OracleParserBackedTest :
                 CONNECT BY NOCYCLE PRIOR id = created_year
                 START WITH id = 1;
 
+                selectHierarchicalRangeCondition:
+                SELECT LEVEL AS generated_level
+                FROM partitioned_orders
+                CONNECT BY LEVEL <= 10
+                START WITH created_year >= 2020;
+
+                selectHierarchicalCompoundCondition:
+                SELECT id, region
+                FROM partitioned_orders
+                START WITH id = 1 AND region = 'NORTH'
+                CONNECT BY PRIOR id = created_year AND region <> 'ARCHIVED';
+
+                selectHierarchicalNullCondition:
+                SELECT id, region
+                FROM partitioned_orders
+                START WITH region IS NOT NULL
+                CONNECT BY PRIOR id = created_year;
+
+                selectHierarchicalPredicateCondition:
+                SELECT id, region
+                FROM partitioned_orders
+                START WITH region LIKE 'N%'
+                CONNECT BY PRIOR id IN (created_year, id);
+
+                selectHierarchicalBetweenCondition:
+                SELECT id, region
+                FROM partitioned_orders
+                START WITH id BETWEEN 1 AND 10
+                CONNECT BY created_year BETWEEN 2020 AND 2026;
+
                 selectTableCollection:
                 SELECT 1
                 FROM TABLE(ODCINUMBERLIST(1, 2)) numbers;

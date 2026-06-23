@@ -1665,13 +1665,54 @@ private oracle_table_alias_stop_keyword ::= (
   'WINDOW'
 )
 
-with_clause ::= 'WITH' oracle_with_clause_item ( COMMA oracle_with_clause_item ) * {
+with_clause ::= 'WITH' (
+  oracle_plsql_declaration + [ oracle_with_clause_item ( COMMA oracle_with_clause_item ) * ] |
+  oracle_with_clause_item ( COMMA oracle_with_clause_item ) *
+) {
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleWithClauseMixin"
   implements = "com.alecstrong.sql.psi.core.psi.SqlWithClause"
   override = true
 }
 
 private oracle_with_clause_item ::= oracle_subquery_factoring_clause | oracle_subav_factoring_clause
+
+private oracle_plsql_declaration ::= oracle_plsql_function_declaration | oracle_plsql_procedure_declaration
+
+private oracle_plsql_function_declaration ::= 'FUNCTION' oracle_object_name_part
+  [ oracle_plsql_parameter_list ] 'RETURN' oracle_type_name oracle_plsql_unit_property *
+  ( 'AS' | 'IS' ) oracle_inline_plsql_source_token * 'END' [ oracle_object_name_part ] ';'
+
+private oracle_plsql_procedure_declaration ::= 'PROCEDURE' oracle_object_name_part
+  [ oracle_plsql_parameter_list ] oracle_plsql_unit_property *
+  ( 'AS' | 'IS' ) oracle_inline_plsql_source_token * 'END' [ oracle_object_name_part ] ';'
+
+private oracle_inline_plsql_source_token ::= (
+  oracle_object_name_part |
+  {string_literal} |
+  string |
+  DIGIT |
+  {signed_number} |
+  COMMA |
+  DOT |
+  EQ |
+  LP |
+  RP |
+  ':' |
+  '+' |
+  '-' |
+  '*' |
+  '/' |
+  ';' |
+  'BEGIN' |
+  'DEFAULT' |
+  'IF' |
+  'IN' |
+  'INOUT' |
+  'NULL' |
+  'NOCOPY' |
+  'OUT' |
+  'RETURN'
+)
 
 private oracle_subquery_factoring_clause ::= {cte_table_name} 'AS' LP {with_clause_auxiliary_stmt} RP
   [ oracle_search_clause ] [ oracle_cycle_clause ]

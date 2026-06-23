@@ -82,7 +82,8 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] [`with_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/with_clause.html)
   - [x] [`values_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/values_clause.html) factoring parser support
   - [x] [`subav_factoring_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/subav_factoring_clause.html) parser boundary support for transitory analytic views declared with `ANALYTIC VIEW AS (...)`
-  - [ ] deferred additions: recursive CTE semantic integration and inline [`plsql_declarations`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/plsql_declarations.html) until SQLDelight query analysis can model Oracle recursive factoring and inline PL/SQL declarations
+  - [x] inline [`plsql_declarations`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/plsql_declarations.html) parser support for local `FUNCTION` and `PROCEDURE` declarations before a query
+  - [ ] deferred recursive CTE semantic integration until SQLDelight query analysis can model Oracle recursive factoring
 - [x] [Set operators](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/The-UNION-ALL-INTERSECT-MINUS-Operators.html): `UNION`, `UNION ALL`, `INTERSECT`, `INTERSECT ALL`, `MINUS`, `MINUS ALL`, `EXCEPT`, and `EXCEPT ALL`
 - [x] [ANSI join operator](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Joins.html)
   - [x] and [`cross_outer_apply_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/cross_outer_apply_clause.html) parser support for `RIGHT OUTER JOIN`, `FULL OUTER JOIN`, `CROSS APPLY`, and `OUTER APPLY`

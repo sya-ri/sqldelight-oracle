@@ -3375,6 +3375,22 @@ class OracleParserBackedTest :
                 SELECT id, unit_name
                 FROM staged_units;
 
+                selectInlinePlsqlFunction:
+                WITH FUNCTION local_bonus(amount IN NUMBER) RETURN NUMBER IS
+                BEGIN
+                  RETURN amount + 1;
+                END local_bonus;
+                SELECT local_bonus(id) AS bonus
+                FROM org_units;
+
+                selectInlinePlsqlProcedure:
+                WITH PROCEDURE touch_unit(target_id IN NUMBER) IS
+                BEGIN
+                  NULL;
+                END;
+                SELECT id
+                FROM org_units;
+
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe

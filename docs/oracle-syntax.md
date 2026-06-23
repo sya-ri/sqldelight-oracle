@@ -43,6 +43,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] `DATE`, `TIMESTAMP`, timestamp time-zone strings, and `AT TIME ZONE`
   - [x] `INTERVAL YEAR TO MONTH` and `INTERVAL DAY TO SECOND`
 - [ ] Literal and [format model](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Format-Models.html) semantic validation: numeric range/precision, datetime and interval precision, time-zone ambiguity, field-order restrictions, context-specific type expectations, and number/datetime/XML format model token correctness
+  - [x] sqldelight-check rule coverage for static number and datetime format-model literals in [`TO_CHAR`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TO_CHAR-datetime.html), [`TO_DATE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TO_DATE.html), [`TO_TIMESTAMP`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TO_TIMESTAMP.html), [`TO_TIMESTAMP_TZ`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TO_TIMESTAMP_TZ.html), [`TO_NUMBER`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TO_NUMBER.html), [`TO_BINARY_FLOAT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TO_BINARY_FLOAT.html), and [`TO_BINARY_DOUBLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TO_BINARY_DOUBLE.html), including unknown token detection and documented static placement/count restrictions
 
 ## Queries
 

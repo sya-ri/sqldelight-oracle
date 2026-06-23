@@ -1332,6 +1332,7 @@ class OracleParserBackedTest :
                   CAST(id AS BINARY_DOUBLE),
                   CAST(active AS NUMBER),
                   CAST(name AS NUMBER DEFAULT 0 ON CONVERSION ERROR),
+                  CAST(name AS DATE DEFAULT NULL ON CONVERSION ERROR, 'YYYY-MM-DD', 'NLS_DATE_LANGUAGE = American'),
                   TREAT(payload AS JSON)
                 FROM employees;
                 """.trimIndent()

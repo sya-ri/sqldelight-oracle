@@ -138,7 +138,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] default-values and partition target details
     - [x] `DEFAULT VALUES` parser coverage
     - [x] [`partition_extension_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/partition_extension_clause.html) parser support for `PARTITION`, `PARTITION FOR`, `SUBPARTITION`, and `SUBPARTITION FOR`
-  - [ ] DML table expressions
+  - [x] DML table expressions
     - [x] parser support for direct `ONLY (table)` target forms in `INSERT`, `UPDATE`, and `DELETE`
     - [x] parser support for direct remote table targets with `@dblink` in `INSERT`, `UPDATE`, and `DELETE`, including period-qualified database link names
     - [x] parser support for direct named remote view targets with `@dblink`

@@ -1488,6 +1488,7 @@ class OracleParserBackedTest :
                   jt.employee_name,
                   jt.has_items,
                   jt.details,
+                  jt.created_at,
                   jt.item_number,
                   jt.item_name
                 FROM documents d,
@@ -1503,6 +1504,7 @@ class OracleParserBackedTest :
                       employee_name VARCHAR2(100) PATH '${'$'}.employee.name' NULL ON ERROR,
                       has_items NUMBER EXISTS PATH '${'$'}.items' TRUE ON ERROR FALSE ON EMPTY,
                       details JSON FORMAT JSON PATH '${'$'}.details' WITH WRAPPER NULL ON EMPTY,
+                      created_at TIMESTAMP WITH TIME ZONE PATH '${'$'}.createdAt' NULL ON ERROR,
                       NESTED PATH '${'$'}.items[*]' COLUMNS (
                         item_number FOR ORDINALITY,
                         item_name VARCHAR2(100) TRUNCATE PATH '${'$'}.name'
@@ -1569,7 +1571,8 @@ class OracleParserBackedTest :
                 SELECT d.id,
                   warehouse.line_number,
                   warehouse.water_access,
-                  warehouse.rail_access
+                  warehouse.rail_access,
+                  warehouse.updated_at
                 FROM departments d,
                   XMLTABLE(
                     XMLNAMESPACES(DEFAULT 'http://example.com/warehouse'),
@@ -1579,7 +1582,8 @@ class OracleParserBackedTest :
                     COLUMNS
                       line_number FOR ORDINALITY,
                       water_access VARCHAR2(6) PATH 'WaterAccess' DEFAULT 'N',
-                      rail_access VARCHAR2(6) PATH 'RailAccess'
+                      rail_access VARCHAR2(6) PATH 'RailAccess',
+                      updated_at TIMESTAMP WITH TIME ZONE PATH 'UpdatedAt'
                   ) warehouse;
 
                 SELECT warehouse_xml.COLUMN_VALUE

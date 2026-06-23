@@ -49,6 +49,36 @@ class RequireNumberPrecisionRuleTest :
                 )
         }
 
+        test("reports wildcard NUMBER precision") {
+            val diagnostics =
+                RequireNumberPrecisionRule().diagnostics(
+                    """
+                    CREATE TABLE invoice (
+                        amount NUMBER(*) NOT NULL,
+                        tax_amount NUMBER(*, 2)
+                    );
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = NUMBER_PRECISION_MESSAGE,
+                        startLine = 2,
+                        startColumn = 12,
+                        endLine = 2,
+                        endColumn = 18,
+                    ),
+                    DiagnosticSummary(
+                        message = NUMBER_PRECISION_MESSAGE,
+                        startLine = 3,
+                        startColumn = 16,
+                        endLine = 3,
+                        endColumn = 22,
+                    ),
+                )
+        }
+
         test("accepts NUMBER with precision") {
             RequireNumberPrecisionRule().diagnostics(
                 """
@@ -63,7 +93,8 @@ class RequireNumberPrecisionRuleTest :
             RequireNumberPrecisionRule().diagnostics(
                 """
                 CREATE TABLE invoice (
-                    amount NUMBER(10, 2) NOT NULL
+                    amount NUMBER(10, 2) NOT NULL,
+                    tax_amount NUMBER ( 8, 2 )
                 );
                 """,
             ) shouldBe emptyList()

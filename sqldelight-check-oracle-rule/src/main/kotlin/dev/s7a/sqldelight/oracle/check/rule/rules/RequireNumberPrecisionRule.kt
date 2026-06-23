@@ -26,7 +26,7 @@ public class RequireNumberPrecisionRule : Rule {
         val content = context.file.content
         content.sqlTokens().forEach { token ->
             if (!token.text.equals("NUMBER", ignoreCase = true)) return@forEach
-            if (content.hasPrecisionAfter(token.endOffset)) return@forEach
+            if (content.hasExplicitPrecisionAfter(token.endOffset)) return@forEach
 
             reporter.report(
                 RuleDiagnostic(
@@ -41,10 +41,16 @@ public class RequireNumberPrecisionRule : Rule {
     }
 }
 
-private fun String.hasPrecisionAfter(offset: Int): Boolean {
+private fun String.hasExplicitPrecisionAfter(offset: Int): Boolean {
     var index = offset
     while (index < length && this[index].isWhitespace()) {
         index++
     }
-    return index < length && this[index] == '('
+    if (index >= length || this[index] != '(') return false
+
+    index++
+    while (index < length && this[index].isWhitespace()) {
+        index++
+    }
+    return index < length && this[index].isDigit()
 }

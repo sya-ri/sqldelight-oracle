@@ -58,10 +58,10 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
     - [x] [`inline_external_table`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/inline_external_table.html) parser coverage for Oracle inline external column definitions, including datatype parameters and Oracle column constraints
     - [x] [`inline_external_table_properties`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/inline_external_table_properties.html) parser coverage for `DEFAULT DIRECTORY`, `ACCESS PARAMETERS`, `LOCATION`, and `REJECT LIMIT`
     - [ ] deferred semantic validation: full column-definition semantics, access-driver property ordering, and modified external table restrictions
-  - [ ] select-list details
+  - [x] select-list details
     - [x] `UNIQUE` quantifier parser support
     - [x] parser coverage for `AS` column aliases, aliases without `AS`, `*`, and `table.*`
-    - [ ] defer schema-aware object attribute/method resolution and advanced alias semantic validation
+    - [ ] deferred schema-aware object attribute/method resolution and advanced alias semantic validation
   - [x] parser coverage for named window definitions and analytic `OVER window_name` references
 - [x] [`query_block`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/query_block.html) parser support for block optimizer hints after `SELECT`
 - [x] [`hierarchical_query_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/hierarchical_query_clause.html) parser support for `START WITH`, `CONNECT BY`, `CONNECT BY NOCYCLE`, and `PRIOR` operands in representative conditions

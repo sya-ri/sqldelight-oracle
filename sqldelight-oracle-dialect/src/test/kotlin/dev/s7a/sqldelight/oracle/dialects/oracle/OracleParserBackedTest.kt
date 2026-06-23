@@ -3318,11 +3318,31 @@ class OracleParserBackedTest :
                 )
                 SELECT id, unit_name
                 FROM staged_units;
+
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe
                 ParseResult(
                     fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle subav factoring clauses through SQLDelight environment exactly") {
+            val sql =
+                """
+                WITH sales_rollup ANALYTIC VIEW AS (
+                  USING sales_av HIERARCHIES (time_hier)
+                  ADD MEASURES (
+                    lag_sales AS (LAG(sales) OVER (HIERARCHY time_hier OFFSET 1))
+                  )
+                )
+                SELECT 1;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
                     errors = emptyList(),
                 )
         }

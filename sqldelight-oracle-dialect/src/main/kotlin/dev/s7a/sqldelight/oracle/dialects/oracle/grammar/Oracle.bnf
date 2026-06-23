@@ -396,7 +396,7 @@ private oracle_approx_percentile_expr ::=
 private oracle_percentile_expr ::= ( 'PERCENTILE_CONT' | 'PERCENTILE_DISC' ) LP <<expr '-1'>> RP oracle_within_group_clause
 
 private oracle_listagg_expr ::=
-  'LISTAGG' LP [ 'DISTINCT' ] <<expr '-1'>> [ COMMA <<expr '-1'>> ] [ oracle_listagg_overflow_clause ] RP oracle_within_group_clause
+  'LISTAGG' LP [ 'ALL' | 'DISTINCT' ] <<expr '-1'>> [ COMMA <<expr '-1'>> ] [ oracle_listagg_overflow_clause ] RP oracle_within_group_clause
 
 private oracle_listagg_overflow_clause ::= 'ON' 'OVERFLOW' ( 'ERROR' | 'TRUNCATE' [ <<expr '-1'>> ] [ ( 'WITH' | 'WITHOUT' ) 'COUNT' ] )
 

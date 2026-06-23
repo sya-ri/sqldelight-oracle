@@ -193,6 +193,7 @@ class OracleDialectTest :
                 "JSON_VALUE" to "JSON_VALUE(payload, '$.id' RETURNING NUMBER ERROR ON ERROR)",
                 "JSON_OBJECT" to "JSON_OBJECT('id' VALUE id RETURNING BLOB)",
                 "JSON_MERGEPATCH" to "JSON_MERGEPATCH(payload, patch RETURNING BLOB ERROR ON ERROR)",
+                "JSON_TRANSFORM" to "JSON_TRANSFORM(payload, SET '$.name' = name RETURNING BLOB)",
                 "JSON_SERIALIZE" to "JSON_SERIALIZE(payload RETURNING BLOB ERROR ON ERROR)",
                 "XMLSERIALIZE" to "XMLSERIALIZE(CONTENT payload AS CLOB)",
                 "XMLCAST" to "XMLCAST(XMLQUERY('/Warehouse' PASSING payload RETURNING CONTENT) AS NUMBER(10, 2))",
@@ -201,6 +202,7 @@ class OracleDialectTest :
             } shouldBe
                 listOf(
                     IntermediateType(OracleType.DECIMAL_NUMBER),
+                    IntermediateType(OracleType.BINARY),
                     IntermediateType(OracleType.BINARY),
                     IntermediateType(OracleType.BINARY),
                     IntermediateType(OracleType.BINARY),

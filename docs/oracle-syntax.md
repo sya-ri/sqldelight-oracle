@@ -118,9 +118,9 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] leading `HAVING` form before `GROUP BY`
 - [x] [`ORDER BY` and `order_by_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/order_by_clause.html): positional ordering, aliases, `NULLS FIRST/LAST`, and `SIBLINGS`
 - [x] [`for_update_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/for_update_clause.html): `FOR UPDATE`, `OF`, `NOWAIT`, `WAIT`, and `SKIP LOCKED`
-- [ ] [`GRAPHQL` table function](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graphql-table-function.html)
+- [x] [`GRAPHQL` table function](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graphql-table-function.html)
   - [x] parser support for `FROM GRAPHQL('...')`, table aliases, and single or multiple `PASSING` variable bindings backed by SQL expressions, literals, and bind variables
-  - [ ] defer embedded GraphQL syntax validation, QBE clauses, directives, and GraphQL comments
+  - [ ] deferred embedded GraphQL syntax validation: QBE clauses, directives, and GraphQL comments
 
 ## DML
 

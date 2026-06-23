@@ -549,6 +549,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 ## Rules
 
 - [x] `oracle:no-empty-string-comparison` for Oracle [null semantics](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Nulls.html)
+- [x] Flag mutually exclusive Oracle [`constraint_state`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/constraint.html) clause groups such as `ENABLE` / `DISABLE`, `VALIDATE` / `NOVALIDATE`, `DEFERRABLE` / `NOT DEFERRABLE`, `INITIALLY IMMEDIATE` / `INITIALLY DEFERRED`, and `RELY` / `NORELY`
 - [x] Flag mutually exclusive [`CREATE INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-INDEX.html) and [`ALTER INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-INDEX.html) clause groups such as `UNIQUE` / `BITMAP`, `LOGGING` / `NOLOGGING`, `VISIBLE` / `INVISIBLE`, `USABLE` / `UNUSABLE`, `COMPRESS` / `NOCOMPRESS`, `PARALLEL` / `NOPARALLEL`, `ONLINE` / `OFFLINE`, and `INDEXING FULL` / `INDEXING PARTIAL`
 - [x] Flag quoted uppercase `"ROWID"` Oracle column names
 - [x] Prefer Oracle identity columns over sequence-trigger pairs

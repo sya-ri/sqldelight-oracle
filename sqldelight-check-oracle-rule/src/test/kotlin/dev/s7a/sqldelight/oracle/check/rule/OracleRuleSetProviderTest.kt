@@ -4,6 +4,7 @@ import dev.s7a.sqldelight.check.api.Severity
 import dev.s7a.sqldelight.check.rule.api.Rule
 import dev.s7a.sqldelight.check.rule.api.RuleSetProvider
 import dev.s7a.sqldelight.oracle.check.dialect.OracleDialectId
+import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingIndexClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingSequenceClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingTableClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoEmptyStringComparisonRule
@@ -31,6 +32,7 @@ class OracleRuleSetProviderTest :
                 listOf(
                     NullableNotInPredicateRule::class,
                     NoEmptyStringComparisonRule::class,
+                    NoConflictingIndexClausesRule::class,
                     NoConflictingSequenceClausesRule::class,
                     NoConflictingTableClausesRule::class,
                     PreferIdentityColumnRule::class,
@@ -46,6 +48,7 @@ class OracleRuleSetProviderTest :
                 listOf(
                     "oracle:nullable-not-in-predicate",
                     "oracle:no-empty-string-comparison",
+                    "oracle:no-conflicting-index-clauses",
                     "oracle:no-conflicting-sequence-clauses",
                     "oracle:no-conflicting-table-clauses",
                     "oracle:prefer-identity-column",

@@ -548,6 +548,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 ## Rules
 
 - [x] `oracle:no-empty-string-comparison` for Oracle [null semantics](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Nulls.html)
+- [x] Flag mutually exclusive [`CREATE INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-INDEX.html) and [`ALTER INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-INDEX.html) clause groups such as `UNIQUE` / `BITMAP`, `LOGGING` / `NOLOGGING`, `VISIBLE` / `INVISIBLE`, `USABLE` / `UNUSABLE`, `COMPRESS` / `NOCOMPRESS`, `PARALLEL` / `NOPARALLEL`, `ONLINE` / `OFFLINE`, and `INDEXING FULL` / `INDEXING PARTIAL`
 - [x] Prefer Oracle identity columns over sequence-trigger pairs
 - [x] Flag nullable `NOT IN` predicates where Oracle null semantics are likely unintended
 - [x] Flag unsafe `ALTER TABLE` / `TRUNCATE TABLE` migration DDL that rewrites, locks, or destructively changes large tables, including destructive column drops, unused column operations, segment moves, shrink operations, and required column additions/modifications without defaults

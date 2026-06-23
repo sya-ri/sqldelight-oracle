@@ -46,7 +46,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 
 ## Queries
 
-- [ ] [`SELECT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) source-scanner statement and major clause boundaries
+- [x] [`SELECT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) source-scanner statement and major clause boundaries
   - [x] `OFFSET`, `FETCH FIRST`, `FETCH NEXT`, `PERCENT`, `ONLY`, and `WITH TIES`
   - [x] parser support for representative comparison conditions
   - [x] `WITH`, query name column aliases, nested factoring, `SEARCH`, and `CYCLE` parser support

@@ -9,13 +9,17 @@ import com.intellij.psi.PsiElement
 internal abstract class OracleDeleteStmtMixin(
     node: ASTNode,
 ) : SqlDeleteStmtImpl(node) {
-    override fun queryAvailable(child: PsiElement): Collection<QueryResult> = aliasDeleteTarget(super.queryAvailable(child))
+    override fun queryAvailable(child: PsiElement): Collection<QueryResult> =
+        oracleDmlTargetAvailable(super.queryAvailable(child), child) { target, targetName ->
+            tableAvailable(target, targetName)
+        }
 }
 
 internal abstract class OracleDeleteStmtLimitedMixin(
     node: ASTNode,
 ) : SqlDeleteStmtLimitedImpl(node) {
-    override fun queryAvailable(child: PsiElement): Collection<QueryResult> = aliasDeleteTarget(super.queryAvailable(child))
+    override fun queryAvailable(child: PsiElement): Collection<QueryResult> =
+        oracleDmlTargetAvailable(super.queryAvailable(child), child) { target, targetName ->
+            tableAvailable(target, targetName)
+        }
 }
-
-private fun PsiElement.aliasDeleteTarget(base: Collection<QueryResult>): Collection<QueryResult> = oracleAliasNamedTarget(base)

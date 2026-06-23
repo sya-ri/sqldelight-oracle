@@ -16,13 +16,9 @@ import com.alecstrong.sql.psi.core.psi.SqlTableOrSubquery
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleCreateSchemaQualifiedSynonymStmt
-import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleCreateUnqualifiedSynonymStmt
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableColumnsClause
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableReference
-import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleLocalSynonymTarget
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleRowPatternClause
-import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleSynonymTarget
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleValuesTableReference
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleXmltableReference
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleTableOrSubquery
@@ -40,7 +36,9 @@ internal abstract class OracleTableOrSubqueryMixin(
 
             tableName?.let { tableNameElement ->
                 val result =
-                    oracleSynonymTargetResult(tableNameElement)
+                    oracleSynonymTargetAvailable(tableNameElement) { target, targetName ->
+                        tableAvailable(target, targetName)
+                    }
                         ?: tableAvailable(tableNameElement, tableNameElement.name)
                 if (result.isEmpty()) {
                     return@lazy emptyList()
@@ -195,54 +193,6 @@ internal abstract class OracleTableOrSubqueryMixin(
             .oracleTopLevelCommaParts()
             .mapNotNull { column -> column.oracleFirstName() }
     }
-
-    private fun oracleSynonymTargetResult(tableNameElement: SqlTableName): Collection<QueryResult>? {
-        val synonym =
-            tableNameElement.reference
-                ?.resolve()
-                ?.parent
-                ?.oracleQuerySourceSynonym()
-                ?: return null
-        return synonym.oracleSynonymTargetResult(tableNameElement, mutableSetOf())
-    }
-
-    private fun PsiElement.oracleSynonymTargetResult(
-        tableNameElement: SqlTableName,
-        seenTargetNames: MutableSet<String>,
-    ): Collection<QueryResult> {
-        val target =
-            PsiTreeUtil.findChildOfType(this, OracleOracleSynonymTarget::class.java)
-                ?: PsiTreeUtil.findChildOfType(this, OracleOracleLocalSynonymTarget::class.java)
-                ?: return emptyList()
-        val targetName = target.text.substringBefore("@").substringAfterLast(".")
-        if (!seenTargetNames.add(targetName.lowercase())) return emptyList()
-
-        val targetResult = tableAvailable(target, targetName)
-        val targetSynonym =
-            targetResult.firstNotNullOfOrNull { result ->
-                (result.table as? PsiElement)?.parent?.oracleQuerySourceSynonym()
-            }
-        if (targetSynonym != null && targetResult.all { it.columns.isEmpty() && it.synthesizedColumns.isEmpty() }) {
-            return targetSynonym.oracleSynonymTargetResult(tableNameElement, seenTargetNames)
-        }
-
-        return targetResult.map { result ->
-            result.copy(
-                table = tableNameElement,
-                synthesizedColumns =
-                    result.synthesizedColumns.map { column ->
-                        column.copy(table = tableNameElement)
-                    },
-            )
-        }
-    }
-
-    private fun PsiElement.oracleQuerySourceSynonym(): PsiElement? =
-        when (this) {
-            is OracleCreateSchemaQualifiedSynonymStmt -> this
-            is OracleCreateUnqualifiedSynonymStmt -> this
-            else -> null
-        }
 
     private fun PsiElement.tableAlias(): SqlTableAlias? = PsiTreeUtil.findChildOfType(this, SqlTableAlias::class.java)
 

@@ -22,9 +22,9 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 
 - [x] [Lexical conventions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Lexical-Conventions.html), [database object names and qualifiers](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Database-Object-Names-and-Qualifiers.html), and [reserved words](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Oracle-SQL-Reserved-Words-and-Keywords.html): publish-scope parser/source-scanner coverage for ordinary identifiers, quoted identifiers, schema qualifiers, database links, partition/subpartition qualifiers, case handling, whitespace, delimiters, statement terminators, and keyword compatibility
 - [x] [Nonquoted and quoted identifier compatibility](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Database-Object-Names-and-Qualifiers.html) parser coverage for double-quoted table names in `CREATE TABLE`, `CREATE INDEX ... ON`, and `SELECT ... FROM`
-- [ ] [Schema object reference syntax](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Syntax-for-Schema-Objects-and-Parts-in-SQL-Statements.html)
+- [x] [Schema object reference syntax](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Syntax-for-Schema-Objects-and-Parts-in-SQL-Statements.html)
   - [x] publish-scope parser support for direct schema-object references in DDL, DML, query table references, function/type references, `@dblink`, and partition/subpartition references
-  - [ ] defer object-kind restrictions, optional `"PUBLIC"` synonym qualification, database link name resolution details, identifier byte-length limits, and quoted uppercase `"ROWID"` restrictions to semantic validators
+  - [ ] deferred object-kind restrictions, optional `"PUBLIC"` synonym qualification, database link name resolution details, identifier byte-length limits, and quoted uppercase `"ROWID"` restrictions to semantic validators
 - [x] [SQL comments and optimizer hints](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comments.html)
   - [x] `--` comments
   - [x] parser boundary coverage for `--+ ...` immediately after `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `MERGE`

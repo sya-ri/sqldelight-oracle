@@ -48,6 +48,10 @@ public class OracleTypeResolver(
         functionExpr: SqlFunctionExpr,
     ): IntermediateType? =
         when (functionName.trim().uppercase()) {
+            "JSON_ARRAY",
+            "JSON_ARRAYAGG",
+            "JSON_OBJECT",
+            "JSON_OBJECTAGG",
             "JSON_VALUE",
             "JSON_QUERY",
             "JSON_SERIALIZE",

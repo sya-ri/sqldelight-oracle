@@ -208,18 +208,18 @@ class OracleParserBackedTest :
                               amount_sold NUMBER(10, 2) NOT NULL
                             );
 
-                            CREATE MATERIALIZED VIEW sales_summary
+                            CREATE MATERIALIZED VIEW sales_summary (customer_id, total_sold)
                               BUILD IMMEDIATE
                               REFRESH FAST ON DEMAND
                             AS
-                            SELECT cust_id, SUM(amount_sold) AS amount_sold
+                            SELECT cust_id, SUM(amount_sold)
                             FROM sales
                             GROUP BY cust_id;
                             """.trimIndent(),
                         "Test.sq" to
                             """
                             selectSalesSummary:
-                            SELECT cust_id, amount_sold
+                            SELECT customer_id, total_sold
                             FROM sales_summary;
                             """.trimIndent(),
                     ),

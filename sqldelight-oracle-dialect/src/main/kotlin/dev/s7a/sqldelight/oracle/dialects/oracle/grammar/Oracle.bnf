@@ -3187,7 +3187,7 @@ create_materialized_view_log_stmt ::= 'CREATE' 'MATERIALIZED' 'VIEW' 'LOG' [ 'IF
 create_materialized_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] 'MATERIALIZED' 'VIEW' [ 'IF' 'NOT' 'EXISTS' ]
   [ {database_name} DOT ] {view_name} [ LP oracle_object_name_part ( COMMA oracle_object_name_part ) * RP ]
   oracle_materialized_view_create_clause * [ oracle_annotations_clause ] 'AS' {compound_select_stmt} [ oracle_annotations_clause ] {
-  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCreateViewStmtImpl"
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleCreateMaterializedViewStmtMixin"
   implements = "com.alecstrong.sql.psi.core.psi.TableElement"
   elementTypeClass = "com.alecstrong.sql.psi.core.psi.mixins.CreateViewElementType"
   stubClass = "com.alecstrong.sql.psi.core.psi.SchemaContributorStub"

@@ -10,7 +10,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 ### Defer Until SQLDelight Core Support Exists
 
 - [x] Alternative quoted literals `q'...'` and `nq'...'`, implemented as lexer-level string tokens.
-- [ ] Bracket/operator-heavy syntax consumed differently by SQLDelight core today: `MODEL` clause, advanced `GRAPH_TABLE` value expressions, JSON array-step access, and vector shorthand operators `<->`, `<=>`, `<#>`.
+- [ ] Bracket/operator-heavy syntax consumed differently by SQLDelight core today: `MODEL` clause, JSON array-step access, and vector shorthand operators `<->`, `<=>`, `<#>`.
 - [ ] Non-named DML targets in `DML_table_expression_clause`, because SQLDelight compiler paths such as mutator handling and optimistic-lock validation currently assume a named `SqlTableName` / `SqlQualifiedTableName`.
 
 ### Defer As Semantic Validators

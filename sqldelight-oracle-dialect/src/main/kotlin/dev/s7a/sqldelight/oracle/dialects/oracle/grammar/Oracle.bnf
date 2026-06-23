@@ -1364,11 +1364,7 @@ private oracle_row_pattern_subset_clause ::= 'SUBSET' oracle_row_pattern_subset_
 
 private oracle_row_pattern_subset_item ::= oracle_object_name_part EQ LP oracle_object_name_part ( COMMA oracle_object_name_part ) * RP
 
-private oracle_row_pattern_definition ::= oracle_object_name_part 'AS' oracle_row_pattern_condition
-
-private oracle_row_pattern_condition ::= oracle_row_pattern_operand [ oracle_row_pattern_comparison_operator oracle_row_pattern_operand ]
-
-private oracle_row_pattern_comparison_operator ::= EQ | '^=' | '!=' | '<>' | '>' | '<'
+private oracle_row_pattern_definition ::= oracle_object_name_part 'AS' <<expr '-1'>>
 
 private oracle_row_pattern_operand ::= oracle_schema_object_name | {string_literal} | DIGIT | {signed_number}
 

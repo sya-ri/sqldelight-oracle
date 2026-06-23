@@ -3712,7 +3712,7 @@ class OracleParserBackedTest :
                 SELECT *
                 FROM partitioned_orders MATCH_RECOGNIZE (
                   PATTERN (start_row (rising+ | falling+) steady?)
-                  DEFINE start_row AS 1 = 1, rising AS 1 > 0, falling AS 0 < 1, steady AS 1 = 1
+                  DEFINE start_row AS 1 = 1, rising AS 1 > 0 AND 2 > 1, falling AS NOT (0 > 1), steady AS 1 = 1
                 ) alternation_matches;
 
                 selectQualify:

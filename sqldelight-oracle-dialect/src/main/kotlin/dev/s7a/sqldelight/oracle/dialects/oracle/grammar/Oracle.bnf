@@ -1131,8 +1131,46 @@ private oracle_select_query ::= 'SELECT' [ 'DISTINCT' | 'UNIQUE' | 'ALL' ]
   [ 'WHERE' <<expr '-1'>> ]
   [ oracle_hierarchical_query_clause ]
   [ oracle_group_by_having_clause ]
+  [ oracle_model_clause ]
   [ oracle_window_clause ]
   [ oracle_qualify_clause ]
+
+private oracle_model_clause ::= 'MODEL' oracle_model_clause_token +
+
+private oracle_model_clause_token ::= (
+  oracle_trigger_source_token |
+  {string_literal} |
+  {signed_number} |
+  COMMA |
+  DOT |
+  EQ |
+  GT |
+  LP |
+  RP |
+  '[' |
+  ']' |
+  '+' |
+  '-' |
+  '*' |
+  '/' |
+  'ALL' |
+  'DIMENSION' |
+  'IGNORE' |
+  'ITERATE' |
+  'MEASURES' |
+  'NAV' |
+  'ORDER' |
+  'PARTITION' |
+  'REFERENCE' |
+  'RETURN' |
+  'ROWS' |
+  'RULES' |
+  'SEQUENTIAL' |
+  'UNIQUE' |
+  'UNTIL' |
+  'UPDATED' |
+  'UPSERT'
+)
 
 private oracle_window_clause ::= 'WINDOW' oracle_window_definition ( COMMA oracle_window_definition ) *
 
@@ -1492,7 +1530,7 @@ private oracle_row_pattern_bounded_quantifier ::= (
 
 private oracle_sample_clause ::= 'SAMPLE' [ 'BLOCK' ] LP <<expr '-1'>> RP [ 'SEED' LP <<expr '-1'>> RP ]
 
-private oracle_table_alias_clause ::= [ 'AS' ] <<tableAliasExt <<table_alias_real>>>>
+private oracle_table_alias_clause ::= [ 'AS' ] !'MODEL' <<tableAliasExt <<table_alias_real>>>>
 
 private oracle_indexed_by_clause ::= (
   'INDEXED' 'BY' <<indexNameExt <<index_name_real>>>> |

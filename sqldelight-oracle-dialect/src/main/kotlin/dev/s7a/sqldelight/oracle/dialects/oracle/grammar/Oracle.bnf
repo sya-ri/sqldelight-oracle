@@ -570,7 +570,7 @@ private oracle_json_value_returning_clause ::= 'RETURNING' oracle_type_name [ 'T
 
 private oracle_json_query_expr ::= 'JSON_QUERY' LP <<expr '-1'>> [ oracle_json_format_clause ] COMMA oracle_json_path_expression oracle_json_query_clause * RP
 
-private oracle_json_query_clause ::= oracle_json_returning_clause | oracle_json_ascii_clause | oracle_json_pretty_clause | oracle_json_query_wrapper_clause | oracle_json_disallow_scalars_clause | oracle_json_query_on_error_clause | oracle_json_query_on_empty_clause | oracle_json_on_mismatch_clause
+private oracle_json_query_clause ::= oracle_json_returning_clause | oracle_json_ascii_clause | oracle_json_pretty_clause | oracle_json_query_wrapper_clause | oracle_json_query_quotes_clause | oracle_json_disallow_scalars_clause | oracle_json_query_on_error_clause | oracle_json_query_on_empty_clause | oracle_json_on_mismatch_clause | oracle_json_query_type_clause
 
 private oracle_json_serialize_expr ::= 'JSON_SERIALIZE' LP <<expr '-1'>> oracle_json_serialize_clause * RP
 
@@ -631,7 +631,11 @@ private oracle_json_query_wrapper_clause ::= (
   'WITH' [ 'UNCONDITIONAL' | 'CONDITIONAL' ] [ 'ARRAY' ] 'WRAPPER'
 )
 
+private oracle_json_query_quotes_clause ::= ( 'KEEP' | 'OMIT' ) 'QUOTES' [ 'ON' 'SCALAR' 'STRING' ]
+
 private oracle_json_disallow_scalars_clause ::= 'DISALLOW' 'SCALARS'
+
+private oracle_json_query_type_clause ::= 'TYPE' LP ( 'STRICT' | 'LAX' ) RP
 
 private oracle_json_value_on_error_clause ::= oracle_json_scalar_error_behavior 'ON' 'ERROR'
 

@@ -1098,17 +1098,7 @@ private oracle_hierarchical_query_clause ::= (
   'START' 'WITH' oracle_clause_condition 'CONNECT' 'BY' [ 'NOCYCLE' ] oracle_clause_condition
 )
 
-private oracle_clause_condition ::= oracle_clause_condition_operand [ oracle_clause_comparison_operator oracle_clause_condition_operand ]
-
-private oracle_clause_condition_operand ::= [ 'PRIOR' | 'CONNECT_BY_ROOT' ] (
-  oracle_qualified_object_name |
-  {string_literal} |
-  DIGIT |
-  {signed_number} |
-  LP oracle_clause_condition RP
-)
-
-private oracle_clause_comparison_operator ::= EQ | '^=' | '!=' | '<>' | '>' | '<'
+private oracle_clause_condition ::= <<expr '-1'>>
 
 private oracle_group_by_having_clause ::= (
   'HAVING' <<expr '-1'>> {group_by} [ 'HAVING' <<expr '-1'>> ] |

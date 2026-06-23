@@ -106,6 +106,7 @@ sqldelightCheck {
 | [`oracle:valid-row-limiting-clause`](#oraclevalid-row-limiting-clause) | Yes | Warning |  | Validate static Oracle row limiting clause values and `WITH TIES` ordering. |
 | [`oracle:valid-like-escape`](#oraclevalid-like-escape) | Yes | Warning |  | Validate static Oracle `LIKE ... ESCAPE` literals. |
 | [`oracle:valid-outer-join-operator`](#oraclevalid-outer-join-operator) | Yes | Warning |  | Validate static legacy Oracle outer join operator restrictions. |
+| [`oracle:valid-segment-creation-clause`](#oraclevalid-segment-creation-clause) | Yes | Warning |  | Avoid duplicate Oracle `SEGMENT CREATION` clauses. |
 
 ## `oracle:nullable-not-in-predicate`
 
@@ -358,6 +359,19 @@ Prefer ANSI joins:
 SELECT *
 FROM orders o
 LEFT JOIN customers c ON o.customer_id = c.id;
+```
+
+## `oracle:valid-segment-creation-clause`
+
+Reports duplicate Oracle [`deferred_segment_creation`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/deferred_segment_creation.html) clauses in one table statement.
+
+Prefer one segment creation choice:
+
+```sql
+CREATE TABLE customer (
+    id NUMBER(19) NOT NULL
+)
+SEGMENT CREATION DEFERRED;
 ```
 
 ## Notes

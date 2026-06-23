@@ -26,6 +26,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.ValidNlsParameterRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidOuterJoinOperatorRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRegexpMatchParamRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRowLimitingClauseRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.ValidSegmentCreationClauseRule
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.util.ServiceLoader
@@ -61,6 +62,7 @@ class OracleRuleSetProviderTest :
                     ValidRowLimitingClauseRule::class,
                     ValidLikeEscapeRule::class,
                     ValidOuterJoinOperatorRule::class,
+                    ValidSegmentCreationClauseRule::class,
                 )
             rules.map { rule -> "oracle:${rule.id.value}" } shouldBe
                 listOf(
@@ -86,6 +88,7 @@ class OracleRuleSetProviderTest :
                     "oracle:valid-row-limiting-clause",
                     "oracle:valid-like-escape",
                     "oracle:valid-outer-join-operator",
+                    "oracle:valid-segment-creation-clause",
                 )
             rules.map { rule -> rule.targetDialect } shouldBe
                 List(rules.size) { OracleDialectId }

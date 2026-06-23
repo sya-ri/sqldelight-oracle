@@ -58,9 +58,18 @@ private fun List<SqlToken>.hasUnsafeAlterTableOperation(): Boolean =
         containsSequence("DROP", "UNUSED", "COLUMNS") ||
         containsSequence("SET", "UNUSED", "COLUMN") ||
         containsSequence("SET", "UNUSED", "COLUMNS") ||
+        hasUnsafePartitionMaintenanceOperation() ||
         containsSequence("SHRINK", "SPACE") ||
         any { token -> token.hasText("MOVE") } ||
         changesRequiredColumnWithoutDefault()
+
+private fun List<SqlToken>.hasUnsafePartitionMaintenanceOperation(): Boolean =
+    partitionMaintenanceOperations.any { operation ->
+        containsSequence(operation, "PARTITION") ||
+            containsSequence(operation, "PARTITIONS") ||
+            containsSequence(operation, "SUBPARTITION") ||
+            containsSequence(operation, "SUBPARTITIONS")
+    }
 
 private fun List<SqlToken>.changesRequiredColumnWithoutDefault(): Boolean =
     any { token -> token.hasText("ADD") || token.hasText("MODIFY") } &&
@@ -78,3 +87,5 @@ private fun List<SqlToken>.containsSequence(vararg terms: String): Boolean =
     }
 
 private fun SqlToken?.hasText(text: String): Boolean = this?.text.equals(text, ignoreCase = true)
+
+private val partitionMaintenanceOperations = setOf("DROP", "TRUNCATE", "MOVE", "MERGE", "SPLIT", "EXCHANGE")

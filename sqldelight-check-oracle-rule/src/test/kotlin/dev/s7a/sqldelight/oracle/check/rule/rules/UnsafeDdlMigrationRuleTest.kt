@@ -117,6 +117,66 @@ class UnsafeDdlMigrationRuleTest :
                 )
         }
 
+        test("reports destructive partition maintenance operations") {
+            val diagnostics =
+                UnsafeDdlMigrationRule().diagnostics(
+                    """
+                    ALTER TABLE orders DROP PARTITION orders_2024;
+                    ALTER TABLE orders TRUNCATE SUBPARTITION orders_2024_q1;
+                    ALTER TABLE orders MOVE PARTITION orders_2024;
+                    ALTER TABLE orders MERGE PARTITIONS orders_2024_q1, orders_2024_q2 INTO PARTITION orders_2024_h1;
+                    ALTER TABLE orders SPLIT PARTITION orders_2024 AT (DATE '2024-07-01') INTO (PARTITION orders_2024_h1, PARTITION orders_2024_h2);
+                    ALTER TABLE orders EXCHANGE PARTITION orders_2024 WITH TABLE orders_stage;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 1,
+                        startColumn = 1,
+                        endLine = 1,
+                        endColumn = 12,
+                    ),
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 2,
+                        startColumn = 1,
+                        endLine = 2,
+                        endColumn = 12,
+                    ),
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 3,
+                        startColumn = 1,
+                        endLine = 3,
+                        endColumn = 12,
+                    ),
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 4,
+                        startColumn = 1,
+                        endLine = 4,
+                        endColumn = 12,
+                    ),
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 5,
+                        startColumn = 1,
+                        endLine = 5,
+                        endColumn = 12,
+                    ),
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 6,
+                        startColumn = 1,
+                        endLine = 6,
+                        endColumn = 12,
+                    ),
+                )
+        }
+
         test("accepts additive nullable and defaulted columns") {
             UnsafeDdlMigrationRule().diagnostics(
                 """

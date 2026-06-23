@@ -1108,8 +1108,12 @@ private oracle_graph_table_token ::= (
   DOT |
   EQ |
   GT |
+  '+' |
   '-' |
   '*' |
+  '?' |
+  '{' |
+  '}' |
   '!=' |
   '<>' |
   '<' |

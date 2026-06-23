@@ -3828,6 +3828,14 @@ class OracleParserBackedTest :
                   COLUMNS (employee.employee_id AS employee_id, department.department_id AS department_id)
                 ) graph_employee_departments_by_empty_edge;
 
+                selectGraphTableQuantifiedPathPattern:
+                SELECT *
+                FROM GRAPH_TABLE (
+                  employees_graph
+                  MATCH (employee IS employee_node) (-[works_at IS works_at_edge]->){2} (department IS department_node)
+                  COLUMNS (employee.employee_id AS employee_id, department.department_id AS department_id)
+                ) graph_employee_departments_by_quantified_path;
+
                 selectGraphqlTableFunction:
                 SELECT *
                 FROM GRAPHQL('

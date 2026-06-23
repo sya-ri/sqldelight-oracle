@@ -19,9 +19,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableColumnsClause
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableReference
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleRowPatternClause
-import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleRowPatternMeasureColumn
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleValuesTableReference
-import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleXmltableColumn
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleXmltableReference
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleTableOrSubquery
 
@@ -39,7 +37,7 @@ internal abstract class OracleTableOrSubqueryMixin(
             tableName?.let { tableNameElement ->
                 val result = tableAvailable(tableNameElement, tableNameElement.name)
                 if (result.isEmpty()) {
-                    return@lazy emptyList<QueryResult>()
+                    return@lazy emptyList()
                 }
                 tableAlias?.let { alias ->
                     return@lazy listOf(
@@ -133,10 +131,7 @@ internal abstract class OracleTableOrSubqueryMixin(
     private fun OracleOracleJsonTableColumnsClause.queryColumns(): List<QueryColumn> =
         PsiTreeUtil.findChildrenOfType(this, SqlColumnAlias::class.java).map(::QueryColumn)
 
-    private fun OracleOracleXmltableColumn.columnAliasQueryColumn(): QueryColumn? =
-        PsiTreeUtil.getChildOfType(this, SqlColumnAlias::class.java)?.let(::QueryColumn)
-
-    private fun OracleOracleRowPatternMeasureColumn.columnAliasQueryColumn(): QueryColumn? =
+    private fun PsiElement.columnAliasQueryColumn(): QueryColumn? =
         PsiTreeUtil.getChildOfType(this, SqlColumnAlias::class.java)?.let(::QueryColumn)
 
     private fun oracleRowPatternResult(): QueryResult? {

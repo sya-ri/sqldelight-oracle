@@ -303,11 +303,11 @@ public class OracleTypeResolver(
         private fun oracleReturningTypeRegex(keyword: String): Regex =
             Regex(
                 """(?i)\b${Regex.escape(keyword)}\s+""" +
-                    """((?:DOUBLE\s+PRECISION|TIMESTAMP(?:\s*\([^)]*\))?(?:\s+WITH(?:\s+LOCAL)?\s+TIME\s+ZONE)?|""" +
+                    """(DOUBLE\s+PRECISION|TIMESTAMP(?:\s*\([^)]*\))?(?:\s+WITH(?:\s+LOCAL)?\s+TIME\s+ZONE)?|""" +
                     """INTERVAL\s+(?:YEAR|DAY)\s+TO\s+(?:MONTH|SECOND)|""" +
                     """NATIONAL\s+CHARACTER\s+VARYING\s*\([^)]*\)|NATIONAL\s+CHAR\s+VARYING\s*\([^)]*\)|""" +
                     """CHARACTER\s+VARYING\s*\([^)]*\)|VARYING\s+ARRAY\s*(?:\([^)]*\))?|""" +
-                    """[A-Z_]+(?:\s*\([^)]*\))?))""",
+                    """[A-Z_]+(?:\s*\([^)]*\))?)""",
             )
 
         private val COMPARABLE_TYPE_ORDER: Array<DialectType> =

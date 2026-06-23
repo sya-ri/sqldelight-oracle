@@ -1603,6 +1603,8 @@ class OracleParserBackedTest :
                   XMLCOLATTVAL(d.name),
                   XMLCOMMENT(d.name),
                   XMLCONCAT(XMLELEMENT("Name", d.name), XMLELEMENT("Id", d.id)),
+                  XMLELEMENT(ENTITYESCAPING "EscapedName", d.name),
+                  XMLELEMENT(NONENTITYESCAPING "RawSpec", d.warehouse_spec),
                   XMLDIFF(d.warehouse_spec, XMLTYPE('<Warehouse/>')),
                   XMLISVALID(d.warehouse_spec),
                   XMLPATCH(d.warehouse_spec, XMLTYPE('<Warehouse/>')),

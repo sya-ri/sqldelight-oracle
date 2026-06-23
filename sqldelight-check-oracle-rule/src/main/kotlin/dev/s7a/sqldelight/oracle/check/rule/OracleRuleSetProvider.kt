@@ -7,6 +7,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingSequenceClausesRu
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoEmptyStringComparisonRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NullableNotInPredicateRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.PreferIdentityColumnRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.PreferUnifiedAuditingRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.RequireNumberPrecisionRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.UnsafeDdlMigrationRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidDmlHintPlacementRule
@@ -26,6 +27,7 @@ public class OracleRuleSetProvider : RuleSetProvider {
             RuleProvider(::NoEmptyStringComparisonRule),
             RuleProvider(::NoConflictingSequenceClausesRule),
             RuleProvider(::PreferIdentityColumnRule),
+            RuleProvider(::PreferUnifiedAuditingRule),
             RuleProvider(::RequireNumberPrecisionRule),
             RuleProvider(::UnsafeDdlMigrationRule),
             RuleProvider(::ValidRegexpMatchParamRule),

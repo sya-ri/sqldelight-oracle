@@ -2030,7 +2030,8 @@ class OracleParserBackedTest :
                   TO_NCLOB(text_value) AS national_clob_value,
                   TO_SINGLE_BYTE(text_value) AS singlebyte_text,
                   UNISTR('\3042') AS unicode_text,
-                  VALIDATE_CONVERSION(text_value AS NUMBER) AS valid_number
+                  VALIDATE_CONVERSION(text_value AS NUMBER) AS valid_number,
+                  VALIDATE_CONVERSION(text_value AS DATE, 'YYYY-MM-DD', 'NLS_DATE_LANGUAGE = American') AS valid_date
                 FROM conversion_samples;
                 """.trimIndent()
 

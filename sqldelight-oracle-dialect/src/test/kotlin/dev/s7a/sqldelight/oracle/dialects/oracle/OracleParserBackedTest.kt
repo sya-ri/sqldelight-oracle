@@ -3615,6 +3615,32 @@ class OracleParserBackedTest :
                 SELECT local_bonus(id) AS bonus
                 FROM org_units;
 
+                selectInlinePlsqlConditionalFunction:
+                WITH FUNCTION local_label(amount IN NUMBER) RETURN VARCHAR2 IS
+                BEGIN
+                  IF amount > 10 THEN
+                    RETURN 'HIGH';
+                  ELSIF amount = 10 THEN
+                    RETURN 'EVEN';
+                  ELSE
+                    RETURN 'LOW';
+                  END IF;
+                END local_label;
+                SELECT local_label(id) AS label
+                FROM org_units;
+
+                selectInlinePlsqlLoopFunction:
+                WITH FUNCTION local_sum(limit_value IN NUMBER) RETURN NUMBER IS
+                  total NUMBER := 0;
+                BEGIN
+                  FOR i IN 1..limit_value LOOP
+                    total := total + i;
+                  END LOOP;
+                  RETURN total;
+                END local_sum;
+                SELECT local_sum(id) AS total
+                FROM org_units;
+
                 selectInlinePlsqlProcedure:
                 WITH PROCEDURE touch_unit(target_id IN NUMBER) IS
                 BEGIN

@@ -34,7 +34,7 @@
   ]
 }
 
-overrides ::= stmt | type_name | column_constraint | generated_clause | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | drop_index_stmt | create_view_stmt | drop_view_stmt | insert_stmt | update_stmt | update_stmt_limited | delete_stmt | delete_stmt_limited | qualified_table_name | compound_select_stmt | select_stmt | with_clause | table_alias | table_or_subquery | group_by | join_operator | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt | extension_expr
+overrides ::= stmt | type_name | column_constraint | generated_clause | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | drop_index_stmt | create_view_stmt | drop_view_stmt | drop_table_stmt | insert_stmt | update_stmt | update_stmt_limited | delete_stmt | delete_stmt_limited | qualified_table_name | compound_select_stmt | select_stmt | with_clause | table_alias | table_or_subquery | group_by | join_operator | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt | extension_expr
 
 stmt ::= explain_plan_stmt | oracle_core_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlStmtImpl"
@@ -43,6 +43,7 @@ stmt ::= explain_plan_stmt | oracle_core_stmt {
 }
 
 private oracle_core_stmt ::= (
+  drop_table_stmt |
   drop_database_link_stmt |
   drop_database_stmt |
   drop_pluggable_database_stmt |
@@ -3131,6 +3132,14 @@ private oracle_alter_view_drop_constraint ::= 'DROP' (
   'PRIMARY' 'KEY' |
   'UNIQUE' LP oracle_object_name_part ( COMMA oracle_object_name_part ) * RP
 )
+
+drop_table_stmt ::= 'DROP' 'TABLE' [ 'IF' 'EXISTS' ] oracle_schema_object_name
+  [ 'CASCADE' 'CONSTRAINTS' ] [ 'PURGE' ] {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlDropTableStmtImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlDropTableStmt"
+  override = true
+  pin = 2
+}
 
 drop_view_stmt ::= 'DROP' 'VIEW' [ 'IF' 'EXISTS' ] oracle_schema_object_name [ 'CASCADE' 'CONSTRAINTS' ] {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlDropViewStmtImpl"

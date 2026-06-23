@@ -3763,6 +3763,13 @@ class OracleParserBackedTest :
                   FOR region IN ('WEST' AS west, 'EAST' AS east)
                 ) pivoted_orders;
 
+                selectPivotImplicitValueColumns:
+                SELECT pivoted_orders.WEST_order_count, pivoted_orders.EAST_order_count
+                FROM partitioned_orders PIVOT (
+                  COUNT(*) AS order_count
+                  FOR region IN ('WEST', 'EAST')
+                ) pivoted_orders;
+
                 selectPivotXmlAny:
                 SELECT *
                 FROM partitioned_orders PIVOT XML (

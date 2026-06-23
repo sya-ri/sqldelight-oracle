@@ -165,7 +165,8 @@ internal abstract class OracleTableOrSubqueryMixin(
         val forOffset = pivotBody.indexOfKeyword("FOR")
         val inOffset = pivotBody.indexOfKeyword("IN", startIndex = forOffset?.let { it + "FOR".length } ?: 0) ?: return emptyList()
         val aggregateAliases = pivotBody.substring(0, inOffset).oracleAliasesAfterAs()
-        val pivotAliases = pivotBody.oracleParenthesizedBodyAt(pivotBody.indexOf('(', startIndex = inOffset)).oracleAliasesAfterAs()
+        val pivotInBody = pivotBody.oracleParenthesizedBodyAt(pivotBody.indexOf('(', startIndex = inOffset))
+        val pivotAliases = pivotInBody.oracleAliasesAfterAs().ifEmpty { pivotInBody.oraclePivotImplicitValueNames() }
         if (pivotAliases.isEmpty()) return emptyList()
 
         return if (aggregateAliases.isEmpty()) {
@@ -247,7 +248,55 @@ private fun String.oracleNameList(): List<String> {
         }.toList()
 }
 
+private fun String.oraclePivotImplicitValueNames(): List<String> =
+    oracleTopLevelCommaParts()
+        .mapNotNull { part ->
+            part
+                .trim()
+                .takeUnless { it.startsWith("(") && it.endsWith(")") }
+                ?.trimOracleIdentifier()
+                ?.trimOracleStringLiteral()
+                ?.takeIf { name -> name.matches(Regex("""[A-Za-z_][A-Za-z0-9_$#]*""")) }
+        }.toList()
+
+private fun String.oracleTopLevelCommaParts(): List<String> {
+    val parts = mutableListOf<String>()
+    var start = 0
+    var depth = 0
+    var index = 0
+    var inString = false
+    while (index < length) {
+        when {
+            inString && this[index] == '\'' && index + 1 < length && this[index + 1] == '\'' -> {
+                index++
+            }
+
+            this[index] == '\'' -> {
+                inString = !inString
+            }
+
+            !inString && this[index] == '(' -> {
+                depth++
+            }
+
+            !inString && this[index] == ')' -> {
+                depth--
+            }
+
+            !inString && depth == 0 && this[index] == ',' -> {
+                parts += substring(start, index)
+                start = index + 1
+            }
+        }
+        index++
+    }
+    parts += substring(start)
+    return parts
+}
+
 private fun String.trimOracleIdentifier(): String = trim().removeSurrounding("\"")
+
+private fun String.trimOracleStringLiteral(): String = trim().removeSurrounding("'").replace("''", "'")
 
 private fun String.isOracleIdentifierBoundary(index: Int): Boolean =
     index !in indices || (!this[index].isLetterOrDigit() && this[index] != '_' && this[index] != '$' && this[index] != '#')

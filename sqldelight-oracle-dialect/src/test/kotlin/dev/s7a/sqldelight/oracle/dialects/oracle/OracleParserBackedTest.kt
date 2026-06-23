@@ -3967,6 +3967,12 @@ class OracleParserBackedTest :
                 MODIFY XMLTYPE COLUMN payload_xml XMLSCHEMA 'http://example.com/payload.xsd' ALLOW NONSCHEMA STORE AS BINARY XML;
 
                 ALTER TABLE alter_advanced_targets
+                MODIFY XMLTYPE COLUMN payload_xml XMLSCHEMA 'http://example.com/payload.xsd' ALLOW ANYSCHEMA STORE AS BINARY XML;
+
+                ALTER TABLE alter_advanced_targets
+                MODIFY XMLTYPE COLUMN payload_xml XMLSCHEMA 'http://example.com/payload.xsd' DISALLOW NONSCHEMA STORE AS BINARY XML;
+
+                ALTER TABLE alter_advanced_targets
                 MODIFY LOB (payload) (
                   CACHE
                   STORAGE (INITIAL 1M NEXT 1M)

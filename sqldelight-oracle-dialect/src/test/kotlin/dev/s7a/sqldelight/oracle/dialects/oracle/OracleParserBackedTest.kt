@@ -1586,7 +1586,7 @@ class OracleParserBackedTest :
                 SELECT XMLELEMENT(
                   NAME "Department",
                   XMLATTRIBUTES(d.id AS "ID", d.name),
-                  XMLAGG(XMLELEMENT("Employee", e.name) ORDER BY e.name)
+                  XMLAGG(XMLELEMENT("Employee", e.name "Name") ORDER BY e.name)
                 ),
                   XMLCAST(XMLQUERY('/Warehouse/Area' PASSING d.warehouse_spec RETURNING CONTENT) AS NUMBER),
                   XMLFOREST(d.name AS "Name", d.id AS "Identifier"),

@@ -4275,6 +4275,7 @@ private oracle_database_boundary_token ::= (
   'CHANGE' |
   'CLOSE' |
   'CONTROLFILE' |
+  'CREATE' |
   'DATABASE' |
   'DATAFILE' |
   'DEFAULT' |
@@ -4298,6 +4299,7 @@ private oracle_database_boundary_token ::= (
   'MAXLOGMEMBERS' |
   'MAXSIZE' |
   'MOUNT' |
+  'MOVE' |
   'NATIONAL' |
   'NEXT' |
   'NOARCHIVELOG' |
@@ -4309,6 +4311,7 @@ private oracle_database_boundary_token ::= (
   'PLUGGABLE' |
   'READ' |
   'RECOVER' |
+  'REGISTER' |
   'RELOCATION' |
   'RENAME' |
   'REUSE' |

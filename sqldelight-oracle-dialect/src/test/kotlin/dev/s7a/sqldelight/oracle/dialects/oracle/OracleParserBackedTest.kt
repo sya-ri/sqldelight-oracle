@@ -6929,6 +6929,12 @@ class OracleParserBackedTest :
                 ALTER DATABASE DATAFILE '+DATA/users05.dbf'
                   AUTOEXTEND ON NEXT 32 M MAXSIZE 2 G;
 
+                ALTER DATABASE CREATE DATAFILE '/u01/oradata/users_missing.dbf'
+                  AS '/u01/oradata/users06.dbf' SIZE 64 M REUSE;
+
+                ALTER DATABASE MOVE DATAFILE '/u01/oradata/users06.dbf'
+                  TO '+DATA/users06.dbf' REUSE KEEP;
+
                 ALTER DATABASE TEMPFILE '/u01/oradata/temp01.dbf' RESIZE 200 M;
 
                 ALTER DATABASE ADD LOGFILE GROUP 3 ('/u01/oradata/redo03.log') SIZE 100 M;
@@ -6936,6 +6942,8 @@ class OracleParserBackedTest :
                 ALTER DATABASE ADD LOGFILE GROUP 5
                   ('/u01/oradata/redo05a.log', '/u02/oradata/redo05b.log')
                   SIZE 100 M BLOCKSIZE 4096 REUSE;
+
+                ALTER DATABASE REGISTER LOGFILE '/u01/oradata/archive01.log';
 
                 ALTER DATABASE DICTIONARY ENCRYPT CREDENTIALS;
 

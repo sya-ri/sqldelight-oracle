@@ -96,6 +96,7 @@ sqldelightCheck {
 | [`oracle:no-conflicting-index-clauses`](#oracleno-conflicting-index-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE INDEX` and `ALTER INDEX` clauses. |
 | [`oracle:no-conflicting-json-storage-clauses`](#oracleno-conflicting-json-storage-clauses) | Yes | Warning |  | Avoid multiple JSON storage clauses for one column. |
 | [`oracle:no-conflicting-sequence-clauses`](#oracleno-conflicting-sequence-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE SEQUENCE` and `ALTER SEQUENCE` clauses. |
+| [`oracle:no-conflicting-synonym-clauses`](#oracleno-conflicting-synonym-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE SYNONYM` clauses. |
 | [`oracle:no-conflicting-table-clauses`](#oracleno-conflicting-table-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE TABLE` and `ALTER TABLE` clauses. |
 | [`oracle:no-uppercase-rowid-column`](#oracleno-uppercase-rowid-column) | Yes | Warning |  | Avoid quoted uppercase `"ROWID"` Oracle column names. |
 | [`oracle:prefer-identity-column`](#oracleprefer-identity-column) | Yes | Warning |  | Prefer Oracle identity columns over sequence-trigger generated keys. |
@@ -222,6 +223,19 @@ CREATE SEQUENCE invoice_seq
     NOORDER
     SCALE EXTEND
     GLOBAL;
+```
+
+## `oracle:no-conflicting-synonym-clauses`
+
+Reports mutually exclusive or repeated Oracle [`CREATE SYNONYM`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-SYNONYM.html) clauses.
+The rule checks static clause groups such as `EDITIONABLE` / `NONEDITIONABLE`, repeated `PUBLIC`, and repeated `SHARING = METADATA | NONE`.
+
+Prefer one choice per semantic group:
+
+```sql
+CREATE OR REPLACE EDITIONABLE PUBLIC SYNONYM customer_syn
+    SHARING = METADATA
+    FOR app.customer;
 ```
 
 ## `oracle:no-conflicting-table-clauses`

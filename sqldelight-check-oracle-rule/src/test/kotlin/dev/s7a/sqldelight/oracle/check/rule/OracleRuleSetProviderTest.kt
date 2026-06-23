@@ -10,6 +10,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingFlashbackClauseRu
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingIndexClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingJsonStorageClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingSequenceClausesRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingSynonymClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingTableClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoEmptyStringComparisonRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoUppercaseRowidColumnRule
@@ -52,6 +53,7 @@ class OracleRuleSetProviderTest :
                     NoConflictingIndexClausesRule::class,
                     NoConflictingJsonStorageClausesRule::class,
                     NoConflictingSequenceClausesRule::class,
+                    NoConflictingSynonymClausesRule::class,
                     NoConflictingTableClausesRule::class,
                     NoUppercaseRowidColumnRule::class,
                     PreferIdentityColumnRule::class,
@@ -82,6 +84,7 @@ class OracleRuleSetProviderTest :
                     "oracle:no-conflicting-index-clauses",
                     "oracle:no-conflicting-json-storage-clauses",
                     "oracle:no-conflicting-sequence-clauses",
+                    "oracle:no-conflicting-synonym-clauses",
                     "oracle:no-conflicting-table-clauses",
                     "oracle:no-uppercase-rowid-column",
                     "oracle:prefer-identity-column",

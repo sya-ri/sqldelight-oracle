@@ -1797,6 +1797,9 @@ class OracleParserBackedTest :
                   TRANSLATE(label USING CHAR_CS) AS translated_database_charset,
                   TRANSLATE(label USING NCHAR_CS) AS translated_national_charset,
                   TRIM(label) AS trimmed_label,
+                  TRIM(LEADING '*' FROM label) AS leading_trimmed_label,
+                  TRIM(TRAILING '*' FROM label) AS trailing_trimmed_label,
+                  TRIM(BOTH '*' FROM label) AS both_trimmed_label,
                   UPPER(label) AS upper_label,
                   ASCII(label) AS ascii_value
                 FROM names;

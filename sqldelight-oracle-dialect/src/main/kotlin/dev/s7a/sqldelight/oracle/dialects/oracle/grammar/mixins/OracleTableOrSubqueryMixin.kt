@@ -15,6 +15,9 @@ import com.alecstrong.sql.psi.core.psi.SqlTableName
 import com.alecstrong.sql.psi.core.psi.SqlTableOrSubquery
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.util.PsiTreeUtil
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableColumnsClause
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableReference
@@ -81,10 +84,17 @@ internal abstract class OracleTableOrSubqueryMixin(
     override fun queryExposed() = queryExposed.forFile(containingFile)
 
     override fun queryAvailable(child: PsiElement): Collection<QueryResult> {
-        if (child == compoundSelectStmt && oracleCanReferenceLeftQuerySources()) {
-            return super.queryAvailable(child) + oracleLateralLeftQueryExposed()
+        val queryAvailable =
+            if (child == compoundSelectStmt && oracleCanReferenceLeftQuerySources()) {
+                super.queryAvailable(child) + oracleLateralLeftQueryExposed()
+            } else {
+                super.queryAvailable(child)
+            }
+        val rowPatternClause = PsiTreeUtil.findChildOfType(this, OracleOracleRowPatternClause::class.java)
+        if (rowPatternClause == null || !PsiTreeUtil.isAncestor(rowPatternClause, child, false)) {
+            return queryAvailable
         }
-        return super.queryAvailable(child)
+        return queryAvailable + oracleRowPatternVariableResults(rowPatternClause)
     }
 
     override fun getCompoundSelectStmt(): SqlCompoundSelectStmt? = PsiTreeUtil.getChildOfType(this, SqlCompoundSelectStmt::class.java)
@@ -239,9 +249,7 @@ internal abstract class OracleTableOrSubqueryMixin(
         val rowPatternClause = PsiTreeUtil.findChildOfType(this, OracleOracleRowPatternClause::class.java) ?: return null
         val sourceColumns =
             if (rowPatternClause.text.contains("ALL ROWS PER MATCH", ignoreCase = true)) {
-                tableName?.let { tableNameElement ->
-                    tableAvailable(tableNameElement, tableNameElement.name).flatMap { it.columns }
-                } ?: emptyList()
+                oracleRowPatternSourceResults().flatMap { it.columns }
             } else {
                 emptyList()
             }
@@ -255,6 +263,31 @@ internal abstract class OracleTableOrSubqueryMixin(
             .ifEmpty { null }
             ?.let { columns -> QueryResult(tableAlias, columns) }
     }
+
+    private fun oracleRowPatternVariableResults(rowPatternClause: OracleOracleRowPatternClause): Collection<QueryResult> {
+        val sourceResults = oracleRowPatternSourceResults()
+        val sourceColumns = sourceResults.flatMap { it.columns }
+        val sourceSynthesizedColumns = sourceResults.flatMap { it.synthesizedColumns }
+        if (sourceColumns.isEmpty() && sourceSynthesizedColumns.isEmpty()) return emptyList()
+
+        return rowPatternClause
+            .let(::oracleRowPatternVariables)
+            .map { variable ->
+                QueryResult(
+                    table = OraclePatternVariableElement(rowPatternClause, variable),
+                    columns = sourceColumns,
+                    synthesizedColumns = sourceSynthesizedColumns,
+                )
+            }
+    }
+
+    private fun oracleRowPatternSourceResults(): Collection<QueryResult> =
+        tableName?.let { tableNameElement ->
+            oracleSynonymTargetAvailable(tableNameElement) { target, targetName ->
+                tableAvailable(target, targetName)
+            }
+                ?: tableAvailable(tableNameElement, tableNameElement.name)
+        } ?: emptyList()
 
     private fun oraclePivotColumns(): List<String> {
         val pivotBody = text.oracleParenthesizedBodyAfter("PIVOT") ?: return emptyList()
@@ -322,6 +355,24 @@ private fun String.startsWithOracleKeywordCall(keyword: String): Boolean {
     return drop(keyword.length).trimStart().startsWith("(")
 }
 
+private class OraclePatternVariableElement(
+    private val anchor: PsiElement,
+    private val variableName: String,
+) : LightElement(anchor.manager, anchor.language),
+    PsiNamedElement {
+    override fun getName(): String = variableName
+
+    override fun setName(name: String): PsiElement = this
+
+    override fun getText(): String = variableName
+
+    override fun getContainingFile(): PsiFile = anchor.containingFile
+
+    override fun getParent(): PsiElement = anchor
+
+    override fun toString(): String = "Oracle pattern variable: $variableName"
+}
+
 private fun String.oracleParenthesizedBodyAfter(keyword: String): String? {
     val keywordOffset = indexOfKeyword(keyword) ?: return null
     val openOffset = indexOf('(', startIndex = keywordOffset + keyword.length).takeIf { it != -1 } ?: return null
@@ -363,11 +414,43 @@ private fun String.indexOfKeyword(
 private fun String.substringBeforeKeyword(keyword: String): String =
     indexOfKeyword(keyword)?.let { keywordOffset -> substring(0, keywordOffset) } ?: this
 
+private fun String.substringAfterKeyword(keyword: String): String =
+    indexOfKeyword(keyword)?.let { keywordOffset -> substring(keywordOffset + keyword.length) } ?: ""
+
 private fun String.oracleAliasesAfterAs(): List<String> =
     Regex("""(?i)\bAS\s+("[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*)""")
         .findAll(this)
         .map { match -> match.groupValues[1].trimOracleIdentifier() }
         .toList()
+
+private fun oracleRowPatternVariables(rowPatternClause: OracleOracleRowPatternClause): List<String> {
+    val patternVariables =
+        rowPatternClause.text
+            .oracleParenthesizedBodyAfter("PATTERN")
+            ?.oracleNameList()
+            ?.filterNot { it.equals("PERMUTE", ignoreCase = true) }
+            ?: emptyList()
+    val defineVariables =
+        Regex("""(?is)(?:^|,)\s*("[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*)\s+AS\b""")
+            .findAll(rowPatternClause.text.substringAfterKeyword("DEFINE"))
+            .map { match -> match.groupValues[1].trimOracleIdentifier() }
+    val subsetVariables =
+        rowPatternClause.text
+            .substringAfterKeyword("SUBSET")
+            .substringBeforeKeyword("DEFINE")
+            .oracleTopLevelCommaParts()
+            .mapNotNull { part ->
+                part
+                    .substringBefore("=")
+                    .trim()
+                    .takeIf { it.isNotBlank() }
+                    ?.trimOracleIdentifier()
+            }
+
+    return (patternVariables.asSequence() + defineVariables + subsetVariables.asSequence())
+        .distinctBy { it.lowercase() }
+        .toList()
+}
 
 private fun String.oracleNameList(): List<String> {
     val body = trim().removeSurrounding("(", ")")

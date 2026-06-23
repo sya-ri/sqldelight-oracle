@@ -293,7 +293,7 @@ private oracle_trim_expr ::= 'TRIM' LP [ 'LEADING' | 'TRAILING' | 'BOTH' ] [ <<e
 private oracle_datetime_conversion_expr ::= ( 'TO_DATE' | 'TO_TIMESTAMP' | 'TO_TIMESTAMP_TZ' ) LP <<expr '-1'>> 'DEFAULT' <<expr '-1'>> 'ON' 'CONVERSION' 'ERROR'
   [ COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] ] RP
 
-private oracle_number_conversion_expr ::= 'TO_NUMBER' LP <<expr '-1'>> 'DEFAULT' <<expr '-1'>> 'ON' 'CONVERSION' 'ERROR'
+private oracle_number_conversion_expr ::= ( 'TO_NUMBER' | 'TO_BINARY_DOUBLE' | 'TO_BINARY_FLOAT' ) LP <<expr '-1'>> 'DEFAULT' <<expr '-1'>> 'ON' 'CONVERSION' 'ERROR'
   [ COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] ] RP
 
 private oracle_user_function_expr ::= (

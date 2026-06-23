@@ -52,12 +52,12 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] `WITH`, query name column aliases, nested factoring, `SEARCH`, and `CYCLE` parser support
   - [x] parser support for [`partition_extension_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/partition_extension_clause.html), `SAMPLE ... SEED`, [`table_collection_expression`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/table_collection_expression.html) `TABLE(collection_expression)`, table collection outer-join marker `(+)`, and `LATERAL` subqueries
   - [x] source-scanner clause boundaries for `AS OF SCN`, `AS OF TIMESTAMP`, `AS OF PERIOD`, `VERSIONS BETWEEN`, and `VERSIONS PERIOD`
-  - [ ] external table references
+  - [x] external table references
     - [x] [`table_reference`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/table_reference.html) representative parser support for `modified_external_table` and `modify_external_table_properties`
     - [x] `table_reference` representative parser support for [`inline_external_table`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/inline_external_table.html) and [`inline_external_table_properties`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/inline_external_table_properties.html)
     - [x] [`inline_external_table`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/inline_external_table.html) parser coverage for Oracle inline external column definitions, including datatype parameters and Oracle column constraints
     - [x] [`inline_external_table_properties`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/inline_external_table_properties.html) parser coverage for `DEFAULT DIRECTORY`, `ACCESS PARAMETERS`, `LOCATION`, and `REJECT LIMIT`
-    - [ ] inline/modified external table semantic validation: defer full column-definition semantics, access-driver property ordering, and modified external table restrictions
+    - [ ] deferred semantic validation: full column-definition semantics, access-driver property ordering, and modified external table restrictions
   - [ ] select-list details
     - [x] `UNIQUE` quantifier parser support
     - [x] parser coverage for `AS` column aliases, aliases without `AS`, `*`, and `table.*`

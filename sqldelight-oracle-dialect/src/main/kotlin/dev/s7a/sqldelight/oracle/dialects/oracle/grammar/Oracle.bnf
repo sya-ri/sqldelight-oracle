@@ -664,7 +664,7 @@ private oracle_json_query_on_empty_clause ::= oracle_json_query_error_behavior '
 
 private oracle_json_query_error_behavior ::= 'NULL' | 'ERROR' | 'EMPTY' [ 'ARRAY' | 'OBJECT' ]
 
-private oracle_json_serialize_on_error_clause ::= ( 'NULL' | 'ERROR' ) 'ON' 'ERROR'
+private oracle_json_serialize_on_error_clause ::= ( 'NULL' | 'ERROR' | 'EMPTY' [ 'ARRAY' | 'OBJECT' ] ) 'ON' 'ERROR'
 
 private oracle_json_on_mismatch_clause ::= ( 'NULL' | 'ERROR' | 'IGNORE' ) 'ON' 'MISMATCH' [ LP oracle_json_mismatch_kind ( COMMA oracle_json_mismatch_kind ) * RP ]
 

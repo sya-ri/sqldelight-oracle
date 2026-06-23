@@ -3236,8 +3236,10 @@ drop_materialized_zonemap_stmt ::= 'DROP' 'MATERIALIZED' 'ZONEMAP' [ 'IF' 'EXIST
 }
 
 create_synonym_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'EDITIONABLE' | 'NONEDITIONABLE' ]
-  [ 'PUBLIC' ] 'SYNONYM' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name
+  [ oracle_public_qualifier ] 'SYNONYM' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name
   [ oracle_synonym_sharing_clause ] 'FOR' oracle_synonym_target
+
+private oracle_public_qualifier ::= 'PUBLIC' | '"PUBLIC"'
 
 private oracle_synonym_sharing_clause ::= 'SHARING' EQ ( 'METADATA' | 'NONE' )
 
@@ -3702,7 +3704,7 @@ private oracle_operator_boundary_token ::= (
   'USING'
 )
 
-drop_synonym_stmt ::= 'DROP' [ 'PUBLIC' ] 'SYNONYM' [ 'IF' 'EXISTS' ] oracle_schema_object_name [ 'FORCE' ] {
+drop_synonym_stmt ::= 'DROP' [ oracle_public_qualifier ] 'SYNONYM' [ 'IF' 'EXISTS' ] oracle_schema_object_name [ 'FORCE' ] {
   pin = 2
 }
 
@@ -4885,7 +4887,7 @@ private oracle_key_identifier_value ::= {string_literal} | string
 
 private oracle_key_management_value ::= {string_literal} | string | oracle_object_name_part
 
-alter_synonym_stmt ::= 'ALTER' [ 'PUBLIC' ] 'SYNONYM' [ 'IF' 'EXISTS' ] oracle_schema_object_name
+alter_synonym_stmt ::= 'ALTER' [ oracle_public_qualifier ] 'SYNONYM' [ 'IF' 'EXISTS' ] oracle_schema_object_name
   ( 'COMPILE' | 'EDITIONABLE' | 'NONEDITIONABLE' ) {
   pin = 3
 }

@@ -5516,6 +5516,9 @@ class OracleParserBackedTest :
 
                 CREATE PUBLIC SYNONYM customers
                   FOR oe.customers;
+
+                CREATE "PUBLIC" SYNONYM quoted_public_customers
+                  FOR oe.customers;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe
@@ -5535,6 +5538,8 @@ class OracleParserBackedTest :
                 DROP PUBLIC SYNONYM customers;
 
                 DROP PUBLIC SYNONYM IF EXISTS customer_type_synonym FORCE;
+
+                DROP "PUBLIC" SYNONYM IF EXISTS quoted_public_customers FORCE;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe
@@ -5717,6 +5722,8 @@ class OracleParserBackedTest :
                 ALTER SYNONYM offices COMPILE;
 
                 ALTER PUBLIC SYNONYM emp_table COMPILE;
+
+                ALTER "PUBLIC" SYNONYM quoted_public_customers COMPILE;
 
                 ALTER TRIGGER IF EXISTS hr.salary_check DISABLE;
 

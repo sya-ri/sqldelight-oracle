@@ -73,9 +73,9 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] [`XMLTABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/XMLTABLE.html)
 - [x] Analytic view query syntax source-scanner boundaries; DDL page is tracked under `CREATE ANALYTIC VIEW`
 - [x] SQL/PGQ graph query syntax source-scanner boundaries; `GRAPH_TABLE` operator page is tracked below
-- [ ] [`with_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/with_clause.html)
+- [x] [`with_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/with_clause.html)
   - [x] [`values_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/values_clause.html) factoring parser support
-  - [ ] additions: defer recursive CTE semantic integration, inline [`plsql_declarations`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/plsql_declarations.html), and [`subav_factoring_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/subav_factoring_clause.html) until SQLDelight query analysis can model Oracle recursive factoring, inline PL/SQL declarations, and analytic view factoring sources
+  - [ ] deferred additions: recursive CTE semantic integration, inline [`plsql_declarations`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/plsql_declarations.html), and [`subav_factoring_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/subav_factoring_clause.html) until SQLDelight query analysis can model Oracle recursive factoring, inline PL/SQL declarations, and analytic view factoring sources
 - [x] [Set operators](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/The-UNION-ALL-INTERSECT-MINUS-Operators.html): `UNION`, `UNION ALL`, `INTERSECT`, `INTERSECT ALL`, `MINUS`, `MINUS ALL`, `EXCEPT`, and `EXCEPT ALL`
 - [x] [ANSI join operator](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Joins.html)
   - [x] and [`cross_outer_apply_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/cross_outer_apply_clause.html) parser support for `RIGHT OUTER JOIN`, `FULL OUTER JOIN`, `CROSS APPLY`, and `OUTER APPLY`

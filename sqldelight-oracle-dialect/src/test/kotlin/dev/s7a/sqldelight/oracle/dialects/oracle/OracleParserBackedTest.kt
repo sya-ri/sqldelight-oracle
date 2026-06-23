@@ -2028,6 +2028,7 @@ class OracleParserBackedTest :
                   TO_MULTI_BYTE(text_value) AS multibyte_text,
                   TO_NCHAR(text_value) AS national_text,
                   TO_NCLOB(text_value) AS national_clob_value,
+                  TO_NUMBER(text_value DEFAULT 0 ON CONVERSION ERROR, '999D99') AS safe_number,
                   TO_SINGLE_BYTE(text_value) AS singlebyte_text,
                   TO_DATE(text_value DEFAULT '1970-01-01' ON CONVERSION ERROR, 'YYYY-MM-DD') AS safe_date,
                   UNISTR('\3042') AS unicode_text,

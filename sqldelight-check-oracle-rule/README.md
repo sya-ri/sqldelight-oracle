@@ -100,6 +100,7 @@ sqldelightCheck {
 | [`oracle:require-number-precision`](#oraclerequire-number-precision) | Yes | Warning |  | Require explicit precision and scale for `NUMBER` declarations. |
 | [`oracle:unsafe-ddl-migration`](#oracleunsafe-ddl-migration) | Yes | Warning |  | Flag migration DDL that can rewrite, lock, or destructively change large tables. |
 | [`oracle:valid-nls-parameter`](#oraclevalid-nls-parameter) | Yes | Warning |  | Validate static Oracle NLS parameter literals in conversion functions. |
+| [`oracle:valid-json-condition-options`](#oraclevalid-json-condition-options) | Yes | Warning |  | Validate static SQL/JSON condition option combinations. |
 
 ## `oracle:nullable-not-in-predicate`
 
@@ -275,6 +276,20 @@ Prefer documented static NLS parameters:
 SELECT TO_DATE(created_text, 'Month DD, YYYY', 'NLS_DATE_LANGUAGE = American'),
        TO_NUMBER(amount_text, 'L9G999D99', 'NLS_NUMERIC_CHARACTERS = '',.'' NLS_CURRENCY = ''AusDollars''')
 FROM invoice;
+```
+
+## `oracle:valid-json-condition-options`
+
+Reports conflicting static SQL/JSON condition options.
+The rule checks documented option groups in Oracle [`IS JSON`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SQL-JSON-Conditions.html), [`JSON_EXISTS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SQL-JSON-Conditions.html), [`JSON_EQUAL`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SQL-JSON-Conditions.html), and [`JSON_TEXTCONTAINS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SQL-JSON-Conditions.html) conditions, including `STRICT` / `LAX`, `WITH UNIQUE KEYS` / `WITHOUT UNIQUE KEYS`, and repeated `ON ERROR` / `ON EMPTY` clauses.
+
+Prefer one option from each group:
+
+```sql
+SELECT *
+FROM document_store
+WHERE payload IS JSON STRICT WITH UNIQUE KEYS
+  AND JSON_EXISTS(payload, '$.items[*]' TRUE ON ERROR FALSE ON EMPTY);
 ```
 
 ## Notes

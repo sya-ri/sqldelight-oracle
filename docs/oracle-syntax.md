@@ -480,6 +480,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] [SQL/JSON `IS JSON` condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SQL-JSON-Conditions.html)
   - [x] parser coverage for `IS [NOT] JSON`, `STRICT`, `LAX`, unique-key modifiers, object/array/scalar modifiers, and schema validation
   - [x] parser coverage for `JSON_EXISTS`, `JSON_EQUAL`, `JSON_TEXTCONTAINS`, `PASSING`, `ON ERROR`, and `ON EMPTY`
+  - [x] sqldelight-check rule coverage for static SQL/JSON condition option conflicts in [`IS JSON`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SQL-JSON-Conditions.html), `JSON_EXISTS`, `JSON_EQUAL`, and `JSON_TEXTCONTAINS`
 - [x] SQL/JSON function condition type resolver and sqldelight-check source pattern coverage for `JSON_EXISTS`, `JSON_EQUAL`, and `JSON_TEXTCONTAINS`
 - [x] [Model conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Model-Conditions.html): parser coverage for `IS ANY` and `IS PRESENT`
 - [x] [XML conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/XML-Conditions.html) parser coverage for `EQUALS_PATH` and `UNDER_PATH`

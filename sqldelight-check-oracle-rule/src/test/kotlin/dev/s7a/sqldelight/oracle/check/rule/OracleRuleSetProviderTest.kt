@@ -18,6 +18,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.UnsafeDdlMigrationRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidDmlHintPlacementRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidFormatModelRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidFunctionArityRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.ValidJsonConditionOptionsRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidNlsParameterRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRegexpMatchParamRule
 import io.kotest.core.spec.style.FunSpec
@@ -49,6 +50,7 @@ class OracleRuleSetProviderTest :
                     ValidFunctionArityRule::class,
                     ValidFormatModelRule::class,
                     ValidNlsParameterRule::class,
+                    ValidJsonConditionOptionsRule::class,
                 )
             rules.map { rule -> "oracle:${rule.id.value}" } shouldBe
                 listOf(
@@ -68,6 +70,7 @@ class OracleRuleSetProviderTest :
                     "oracle:valid-function-arity",
                     "oracle:valid-format-model",
                     "oracle:valid-nls-parameter",
+                    "oracle:valid-json-condition-options",
                 )
             rules.map { rule -> rule.targetDialect } shouldBe
                 List(rules.size) { OracleDialectId }

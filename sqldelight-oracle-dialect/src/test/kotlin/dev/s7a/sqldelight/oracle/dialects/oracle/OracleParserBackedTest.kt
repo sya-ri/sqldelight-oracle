@@ -931,6 +931,7 @@ class OracleParserBackedTest :
                 FROM json_condition_samples
                 WHERE JSON_EXISTS(doc, '${'$'}.items[*]?(@.status == ${'$'}status)' PASSING 'active' AS status TRUE ON ERROR FALSE ON EMPTY)
                   AND JSON_EXISTS(doc FORMAT JSON, '${'$'}.metadata' ERROR ON ERROR ERROR ON EMPTY)
+                  AND JSON_EXISTS(doc, '${'$'}.optional' NULL ON EMPTY)
                   AND JSON_EQUAL(doc, expected_doc TRUE ON ERROR)
                   AND JSON_TEXTCONTAINS(doc, '${'$'}.description', search_text);
                 """.trimIndent()

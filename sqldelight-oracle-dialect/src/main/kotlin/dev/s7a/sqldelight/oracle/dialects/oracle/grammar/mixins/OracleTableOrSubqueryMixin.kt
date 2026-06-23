@@ -44,16 +44,24 @@ internal abstract class OracleTableOrSubqueryMixin(
                 if (result.isEmpty()) {
                     return@lazy emptyList()
                 }
+                val containersColumns = oracleContainersSynthesizedColumns()
                 tableAlias?.let { alias ->
                     return@lazy listOf(
                         QueryResult(
                             alias,
                             result.flatMap { it.columns },
-                            result.flatMap { it.synthesizedColumns },
+                            result.flatMap { it.synthesizedColumns } +
+                                containersColumns.map { name -> SynthesizedColumn(alias, listOf(name)) },
                         ),
                     )
                 }
-                return@lazy result
+                return@lazy result.map { query ->
+                    query.copy(
+                        synthesizedColumns =
+                            query.synthesizedColumns +
+                                containersColumns.map { name -> SynthesizedColumn(query.table ?: tableNameElement, listOf(name)) },
+                    )
+                }
             }
 
             compoundSelectStmt?.let {
@@ -227,6 +235,13 @@ internal abstract class OracleTableOrSubqueryMixin(
     }
 
     private fun OracleOracleJsonTableColumnsClause.queryColumns(): List<QueryColumn> = oracleColumnAliasQueryColumns()
+
+    private fun oracleContainersSynthesizedColumns(): List<String> =
+        if (text.trimStart().startsWith("CONTAINERS", ignoreCase = true)) {
+            listOf("CON_ID")
+        } else {
+            emptyList()
+        }
 
     private fun oracleRowPatternResult(): QueryResult? {
         val rowPatternClause = PsiTreeUtil.findChildOfType(this, OracleOracleRowPatternClause::class.java) ?: return null

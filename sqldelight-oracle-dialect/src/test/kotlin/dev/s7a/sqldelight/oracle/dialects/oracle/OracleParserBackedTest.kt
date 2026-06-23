@@ -2077,6 +2077,8 @@ class OracleParserBackedTest :
                   TO_MULTI_BYTE(text_value) AS multibyte_text,
                   TO_NCHAR(text_value) AS national_text,
                   TO_NCLOB(text_value) AS national_clob_value,
+                  TO_DSINTERVAL(text_value DEFAULT '10 8:00:00' ON CONVERSION ERROR) AS safe_day_second_interval,
+                  TO_YMINTERVAL(text_value DEFAULT '00-00' ON CONVERSION ERROR) AS safe_year_month_interval,
                   TO_NUMBER(text_value DEFAULT 0 ON CONVERSION ERROR, '999D99') AS safe_number,
                   TO_SINGLE_BYTE(text_value) AS singlebyte_text,
                   TO_DATE(text_value DEFAULT '1970-01-01' ON CONVERSION ERROR, 'YYYY-MM-DD') AS safe_date,

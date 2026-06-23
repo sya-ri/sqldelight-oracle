@@ -102,6 +102,7 @@ sqldelightCheck {
 | [`oracle:require-number-precision`](#oraclerequire-number-precision) | Yes | Warning |  | Require explicit precision and scale for `NUMBER` declarations. |
 | [`oracle:unsafe-ddl-migration`](#oracleunsafe-ddl-migration) | Yes | Warning |  | Flag migration DDL that can rewrite, lock, or destructively change large tables. |
 | [`oracle:valid-audit-policy-form`](#oraclevalid-audit-policy-form) | Yes | Warning |  | Validate static unified audit policy statement forms. |
+| [`oracle:valid-boolean-test-condition`](#oraclevalid-boolean-test-condition) | Yes | Warning |  | Validate static Oracle boolean test conditions. |
 | [`oracle:valid-nls-parameter`](#oraclevalid-nls-parameter) | Yes | Warning |  | Validate static Oracle NLS parameter literals in conversion functions. |
 | [`oracle:valid-json-condition-options`](#oraclevalid-json-condition-options) | Yes | Warning |  | Validate static SQL/JSON condition option combinations. |
 | [`oracle:valid-row-limiting-clause`](#oraclevalid-row-limiting-clause) | Yes | Warning |  | Validate static Oracle row limiting clause values and `WITH TIES` ordering. |
@@ -305,6 +306,19 @@ Prefer one target clause and one success filter:
 
 ```sql
 AUDIT POLICY app_policy BY hr WHENEVER SUCCESSFUL;
+```
+
+## `oracle:valid-boolean-test-condition`
+
+Reports statically invalid Oracle [`boolean test conditions`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Conditions.html).
+The rule checks malformed double-negative forms such as `IS NOT NOT TRUE`, `IS NOT NOT FALSE`, and `IS NOT NOT UNKNOWN`.
+
+Prefer the documented boolean test forms:
+
+```sql
+SELECT *
+FROM feature_flags
+WHERE enabled IS NOT FALSE;
 ```
 
 ## `oracle:valid-nls-parameter`

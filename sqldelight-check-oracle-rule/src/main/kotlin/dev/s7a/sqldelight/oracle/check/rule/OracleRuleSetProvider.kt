@@ -17,6 +17,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.PreferUnifiedAuditingRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.RequireNumberPrecisionRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.UnsafeDdlMigrationRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidAuditPolicyFormRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.ValidBooleanTestConditionRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidDmlHintPlacementRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidFormatModelRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidFunctionArityRule
@@ -51,6 +52,7 @@ public class OracleRuleSetProvider : RuleSetProvider {
             RuleProvider(::RequireNumberPrecisionRule),
             RuleProvider(::UnsafeDdlMigrationRule),
             RuleProvider(::ValidAuditPolicyFormRule),
+            RuleProvider(::ValidBooleanTestConditionRule),
             RuleProvider(::ValidRegexpMatchParamRule),
             RuleProvider(::ValidDmlHintPlacementRule),
             RuleProvider(::ValidFunctionArityRule),

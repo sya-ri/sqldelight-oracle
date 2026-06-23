@@ -479,6 +479,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] parser coverage for multi-column `IN` / `NOT IN` row-value lists and subqueries
   - [x] parser coverage for multi-column [`values_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/values_clause.html) forms
 - [x] [Boolean test conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Conditions.html) parser coverage for `IS TRUE`, `IS NOT FALSE`, `IS UNKNOWN`, and `TRUE`/`FALSE`/`UNKNOWN` literal expressions
+  - [x] sqldelight-check rule coverage for malformed static boolean test conditions such as `IS NOT NOT TRUE`
   - [x] parser coverage for `IS DANGLING` and `IS NOT DANGLING` on REF expressions
   - [x] parser, type resolver, and sqldelight-check source pattern coverage for `CONTAINS`, `CATSEARCH`, `MATCHES`, and `SCORE`
 - [x] [Floating-point conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Floating-Point-Conditions.html) parser coverage for `IS [NOT] NAN` and `IS [NOT] INFINITE`

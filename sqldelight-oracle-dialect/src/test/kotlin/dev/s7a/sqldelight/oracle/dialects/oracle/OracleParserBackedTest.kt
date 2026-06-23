@@ -1548,7 +1548,7 @@ class OracleParserBackedTest :
                       line_number FOR ORDINALITY,
                       employee_id NUMBER PATH '${'$'}.employee.id' ERROR ON ERROR DEFAULT 0 ON EMPTY,
                       employee_name VARCHAR2(100) PATH '${'$'}.employee.name' NULL ON ERROR,
-                      has_items NUMBER EXISTS PATH '${'$'}.items' TRUE ON ERROR FALSE ON EMPTY,
+                      has_items VARCHAR2(5) EXISTS PATH '${'$'}.items' TRUE ON ERROR DEFAULT 'false' ON EMPTY,
                       details JSON FORMAT JSON PATH '${'$'}.details' WITH WRAPPER NULL ON EMPTY,
                       created_at TIMESTAMP WITH TIME ZONE PATH '${'$'}.createdAt' NULL ON ERROR,
                       NESTED PATH '${'$'}.items[*]' COLUMNS (

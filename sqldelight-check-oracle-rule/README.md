@@ -99,6 +99,7 @@ sqldelightCheck {
 | [`oracle:no-conflicting-sequence-clauses`](#oracleno-conflicting-sequence-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE SEQUENCE` and `ALTER SEQUENCE` clauses. |
 | [`oracle:no-conflicting-synonym-clauses`](#oracleno-conflicting-synonym-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE SYNONYM` clauses. |
 | [`oracle:no-conflicting-table-clauses`](#oracleno-conflicting-table-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE TABLE` and `ALTER TABLE` clauses. |
+| [`oracle:no-conflicting-xmlschema-permissions`](#oracleno-conflicting-xmlschema-permissions) | Yes | Warning |  | Avoid conflicting XMLSchema permission clauses. |
 | [`oracle:no-uppercase-rowid-column`](#oracleno-uppercase-rowid-column) | Yes | Warning |  | Avoid quoted uppercase `"ROWID"` Oracle column names. |
 | [`oracle:prefer-identity-column`](#oracleprefer-identity-column) | Yes | Warning |  | Prefer Oracle identity columns over sequence-trigger generated keys. |
 | [`oracle:prefer-unified-auditing`](#oracleprefer-unified-auditing) | Yes | Warning |  | Prefer unified auditing over traditional `AUDIT` and `NOAUDIT` statements. |
@@ -261,6 +262,19 @@ Prefer one choice per semantic group:
 
 ```sql
 ALTER TABLE customer READ WRITE;
+```
+
+## `oracle:no-conflicting-xmlschema-permissions`
+
+Reports conflicting Oracle [`XMLSchema_spec`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/xmlschema_spec.html) permission clauses in XMLType table statements.
+The rule checks multiple static `ALLOW` / `DISALLOW` choices for `NONSCHEMA` and `ANYSCHEMA`.
+
+Prefer one XMLSchema permission choice:
+
+```sql
+CREATE TABLE xml_documents OF XMLTYPE
+    XMLSCHEMA 'http://example.com/doc.xsd'
+    ALLOW NONSCHEMA;
 ```
 
 ## `oracle:no-uppercase-rowid-column`

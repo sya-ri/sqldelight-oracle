@@ -13,6 +13,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingJsonStorageClause
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingSequenceClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingSynonymClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingTableClausesRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingXmlschemaPermissionsRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoEmptyStringComparisonRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoUppercaseRowidColumnRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NullableNotInPredicateRule
@@ -58,6 +59,7 @@ class OracleRuleSetProviderTest :
                     NoConflictingSequenceClausesRule::class,
                     NoConflictingSynonymClausesRule::class,
                     NoConflictingTableClausesRule::class,
+                    NoConflictingXmlschemaPermissionsRule::class,
                     NoUppercaseRowidColumnRule::class,
                     PreferIdentityColumnRule::class,
                     PreferUnifiedAuditingRule::class,
@@ -91,6 +93,7 @@ class OracleRuleSetProviderTest :
                     "oracle:no-conflicting-sequence-clauses",
                     "oracle:no-conflicting-synonym-clauses",
                     "oracle:no-conflicting-table-clauses",
+                    "oracle:no-conflicting-xmlschema-permissions",
                     "oracle:no-uppercase-rowid-column",
                     "oracle:prefer-identity-column",
                     "oracle:prefer-unified-auditing",

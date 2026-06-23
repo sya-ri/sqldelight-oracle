@@ -12,6 +12,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingJsonStorageClause
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingSequenceClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingSynonymClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingTableClausesRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingXmlschemaPermissionsRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoEmptyStringComparisonRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoUppercaseRowidColumnRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NullableNotInPredicateRule
@@ -53,6 +54,7 @@ public class OracleRuleSetProvider : RuleSetProvider {
             RuleProvider(::NoConflictingSequenceClausesRule),
             RuleProvider(::NoConflictingSynonymClausesRule),
             RuleProvider(::NoConflictingTableClausesRule),
+            RuleProvider(::NoConflictingXmlschemaPermissionsRule),
             RuleProvider(::NoUppercaseRowidColumnRule),
             RuleProvider(::PreferIdentityColumnRule),
             RuleProvider(::PreferUnifiedAuditingRule),

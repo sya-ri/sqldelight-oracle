@@ -4142,7 +4142,7 @@ class OracleParserBackedTest :
                   ONE ROW PER MATCH
                   AFTER MATCH SKIP TO LAST rising
                   PATTERN (start_row rising+)
-                  DEFINE rising AS 1 > 0
+                  DEFINE rising AS rising.created_year > start_row.created_year
                 ) matched_orders;
 
                 selectMatchRecognizeAdvancedPattern:

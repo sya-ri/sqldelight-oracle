@@ -99,6 +99,7 @@ sqldelightCheck {
 | [`oracle:prefer-unified-auditing`](#oracleprefer-unified-auditing) | Yes | Warning |  | Prefer unified auditing over traditional `AUDIT` and `NOAUDIT` statements. |
 | [`oracle:require-number-precision`](#oraclerequire-number-precision) | Yes | Warning |  | Require explicit precision and scale for `NUMBER` declarations. |
 | [`oracle:unsafe-ddl-migration`](#oracleunsafe-ddl-migration) | Yes | Warning |  | Flag migration DDL that can rewrite, lock, or destructively change large tables. |
+| [`oracle:valid-nls-parameter`](#oraclevalid-nls-parameter) | Yes | Warning |  | Validate static Oracle NLS parameter literals in conversion functions. |
 
 ## `oracle:nullable-not-in-predicate`
 
@@ -261,6 +262,20 @@ The current checks cover:
 - `ALTER TABLE ... MODIFY ... NOT NULL` without a `DEFAULT`
 
 The rule is intentionally conservative. Review the migration plan, online DDL options, backfill strategy, and deployment sequencing before suppressing the warning.
+
+## `oracle:valid-nls-parameter`
+
+Reports statically invalid Oracle NLS parameter literals in conversion functions.
+Oracle documents the datetime `nlsparam` as `NLS_DATE_LANGUAGE = language` for [`TO_DATE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TO_DATE.html), [`TO_TIMESTAMP`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TO_TIMESTAMP.html), and [`TO_TIMESTAMP_TZ`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TO_TIMESTAMP_TZ.html).
+Number conversion functions accept number NLS parameters such as `NLS_NUMERIC_CHARACTERS`, `NLS_CURRENCY`, and `NLS_ISO_CURRENCY` in [`TO_NUMBER`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TO_NUMBER.html), [`TO_BINARY_FLOAT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TO_BINARY_FLOAT.html), [`TO_BINARY_DOUBLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TO_BINARY_DOUBLE.html), and number [`TO_CHAR`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TO_CHAR-number.html).
+
+Prefer documented static NLS parameters:
+
+```sql
+SELECT TO_DATE(created_text, 'Month DD, YYYY', 'NLS_DATE_LANGUAGE = American'),
+       TO_NUMBER(amount_text, 'L9G999D99', 'NLS_NUMERIC_CHARACTERS = '',.'' NLS_CURRENCY = ''AusDollars''')
+FROM invoice;
+```
 
 ## Notes
 

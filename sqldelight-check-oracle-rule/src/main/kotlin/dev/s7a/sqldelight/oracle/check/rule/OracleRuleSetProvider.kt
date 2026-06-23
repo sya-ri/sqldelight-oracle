@@ -17,6 +17,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.UnsafeDdlMigrationRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidDmlHintPlacementRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidFormatModelRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidFunctionArityRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.ValidNlsParameterRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRegexpMatchParamRule
 
 /**
@@ -42,5 +43,6 @@ public class OracleRuleSetProvider : RuleSetProvider {
             RuleProvider(::ValidDmlHintPlacementRule),
             RuleProvider(::ValidFunctionArityRule),
             RuleProvider(::ValidFormatModelRule),
+            RuleProvider(::ValidNlsParameterRule),
         )
 }

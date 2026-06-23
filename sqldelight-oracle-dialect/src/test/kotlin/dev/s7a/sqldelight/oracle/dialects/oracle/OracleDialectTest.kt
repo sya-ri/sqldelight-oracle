@@ -114,6 +114,31 @@ class OracleDialectTest :
             } shouldBe mappings
         }
 
+        test("resolves Oracle datetime round and trunc function types exactly") {
+            val dateArguments = ArgumentTypeResolver(listOf(OracleType.DATE))
+            val timestampArguments = ArgumentTypeResolver(listOf(OracleType.TIMESTAMP, OracleType.TEXT))
+            val timestampTimeZoneArguments = ArgumentTypeResolver(listOf(OracleType.TIMESTAMP_TIME_ZONE, OracleType.TEXT))
+            val dateResolver = OracleDialect().typeResolver(dateArguments)
+            val timestampResolver = OracleDialect().typeResolver(timestampArguments)
+            val timestampTimeZoneResolver = OracleDialect().typeResolver(timestampTimeZoneArguments)
+
+            listOf(
+                "ROUND" to dateResolver.functionType(sqlFunctionExpr("ROUND", dateArguments.exprList(argumentCount = 1))),
+                "ROUND_FMT" to timestampResolver.functionType(sqlFunctionExpr("ROUND", timestampArguments.exprList(argumentCount = 2))),
+                "TRUNC" to dateResolver.functionType(sqlFunctionExpr("TRUNC", dateArguments.exprList(argumentCount = 1))),
+                "TRUNC_FMT" to
+                    timestampTimeZoneResolver.functionType(
+                        sqlFunctionExpr("TRUNC", timestampTimeZoneArguments.exprList(argumentCount = 2)),
+                    ),
+            ) shouldBe
+                listOf(
+                    "ROUND" to IntermediateType(OracleType.DATE),
+                    "ROUND_FMT" to IntermediateType(OracleType.DATE),
+                    "TRUNC" to IntermediateType(OracleType.DATE),
+                    "TRUNC_FMT" to IntermediateType(OracleType.DATE),
+                )
+        }
+
         test("resolves Oracle numeric aggregate function types exactly") {
             val integerArguments = ArgumentTypeResolver(listOf(OracleType.INTEGER_NUMBER))
             val decimalArguments = ArgumentTypeResolver(listOf(OracleType.DECIMAL_NUMBER))

@@ -107,22 +107,14 @@ public class OracleTypeResolver(
             "round", "trunc" -> {
                 when (functionExpr.exprList.size) {
                     1 -> {
-                        parentResolver
-                            .resolvedType(functionExpr.exprList.single())
-                            .takeIf { type -> type.dialectType in NUMERIC_TYPE_ORDER }
+                        parentResolver.resolvedType(functionExpr.exprList.single()).roundOrTruncSingleArgumentType()
                     }
 
                     2 -> {
                         functionExpr.exprList
                             .map { expression ->
                                 parentResolver.resolvedType(expression).dialectType
-                            }.let { argumentTypes ->
-                                if (argumentTypes.all { type -> type in NUMERIC_TYPE_ORDER }) {
-                                    IntermediateType(DECIMAL_NUMBER)
-                                } else {
-                                    null
-                                }
-                            }
+                            }.roundOrTruncTwoArgumentType()
                     }
 
                     else -> {
@@ -331,6 +323,20 @@ public class OracleTypeResolver(
                     """[A-Z_]+(?:\s*\([^)]*\))?)""",
             )
 
+        private fun IntermediateType.roundOrTruncSingleArgumentType(): IntermediateType? =
+            when (dialectType) {
+                in NUMERIC_TYPE_ORDER -> this
+                in DATETIME_TYPE_ORDER -> IntermediateType(DATE)
+                else -> null
+            }
+
+        private fun List<DialectType>.roundOrTruncTwoArgumentType(): IntermediateType? =
+            when {
+                all { type -> type in NUMERIC_TYPE_ORDER } -> IntermediateType(DECIMAL_NUMBER)
+                first() in DATETIME_TYPE_ORDER && this[1] in TEXT_TYPE_ORDER -> IntermediateType(DATE)
+                else -> null
+            }
+
         private val COMPARABLE_TYPE_ORDER: Array<DialectType> =
             arrayOf(
                 BOOLEAN,
@@ -361,6 +367,19 @@ public class OracleTypeResolver(
                 REAL,
                 BINARY_FLOAT,
                 BINARY_DOUBLE,
+            )
+
+        private val DATETIME_TYPE_ORDER: Array<DialectType> =
+            arrayOf(
+                DATE,
+                TIMESTAMP,
+                TIMESTAMP_TIME_ZONE,
+            )
+
+        private val TEXT_TYPE_ORDER: Array<DialectType> =
+            arrayOf(
+                TEXT,
+                OracleType.TEXT,
             )
 
         private val MIN_TYPE_ORDER: Array<DialectType> =

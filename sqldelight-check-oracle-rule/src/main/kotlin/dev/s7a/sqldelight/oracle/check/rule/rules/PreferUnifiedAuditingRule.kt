@@ -80,9 +80,10 @@ private fun String.maskAuditRuleCommentsAndQuotedTextPreservingOffsets(): String
     return String(chars)
 }
 
-private fun String.skipAuditRuleLineComment(start: Int): Int = indexOf('\n', startIndex = start).let {
-    if (it == -1) length else it
-}
+private fun String.skipAuditRuleLineComment(start: Int): Int =
+    indexOf('\n', startIndex = start).let {
+        if (it == -1) length else it
+    }
 
 private fun String.skipAuditRuleBlockComment(start: Int): Int =
     indexOf("*/", startIndex = start + 2).let { if (it == -1) length else it + 2 }

@@ -76,13 +76,23 @@ private fun String.functionArgumentsAt(openParenthesisOffset: Int): List<Argumen
     while (index < length) {
         index =
             when {
-                startsWith("--", index) -> skipLineComment(index)
-                startsWith("/*", index) -> skipBlockComment(index)
-                this[index] == '\'' -> skipQuotedString(index)
+                startsWith("--", index) -> {
+                    skipLineComment(index)
+                }
+
+                startsWith("/*", index) -> {
+                    skipBlockComment(index)
+                }
+
+                this[index] == '\'' -> {
+                    skipQuotedString(index)
+                }
+
                 this[index] == '(' -> {
                     depth++
                     index + 1
                 }
+
                 this[index] == ')' -> {
                     if (depth == 0) {
                         trimmedArgumentRange(argumentStart, index)?.let { arguments += it }
@@ -91,12 +101,16 @@ private fun String.functionArgumentsAt(openParenthesisOffset: Int): List<Argumen
                     depth--
                     index + 1
                 }
+
                 this[index] == ',' && depth == 0 -> {
                     arguments += trimmedArgumentRange(argumentStart, index) ?: ArgumentRange(index, index)
                     argumentStart = index + 1
                     index + 1
                 }
-                else -> index + 1
+
+                else -> {
+                    index + 1
+                }
             }
     }
     return null
@@ -143,11 +157,9 @@ private fun String.maskSqlCommentsAndQuotedTextPreservingOffsets(): String {
     return String(chars)
 }
 
-private fun String.skipLineComment(start: Int): Int =
-    indexOf('\n', startIndex = start).let { if (it == -1) length else it }
+private fun String.skipLineComment(start: Int): Int = indexOf('\n', startIndex = start).let { if (it == -1) length else it }
 
-private fun String.skipBlockComment(start: Int): Int =
-    indexOf("*/", startIndex = start + 2).let { if (it == -1) length else it + 2 }
+private fun String.skipBlockComment(start: Int): Int = indexOf("*/", startIndex = start + 2).let { if (it == -1) length else it + 2 }
 
 private fun String.skipQuotedString(start: Int): Int {
     var index = start + 1

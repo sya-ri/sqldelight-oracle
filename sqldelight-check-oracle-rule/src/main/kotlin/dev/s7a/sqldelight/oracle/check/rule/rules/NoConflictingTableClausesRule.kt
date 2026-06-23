@@ -80,30 +80,37 @@ private fun List<SqlToken>.conflictingTableClauses(): List<TableClauseConflict> 
 private fun List<SqlToken>.tableClauseOccurrences(): List<TableClauseOccurrence> =
     mapIndexedNotNull { index, token ->
         when {
-            token.tableClauseRuleHasText("LOGGING") || token.tableClauseRuleHasText("NOLOGGING") ->
+            token.tableClauseRuleHasText("LOGGING") || token.tableClauseRuleHasText("NOLOGGING") -> {
                 token.tableClauseOccurrence("LOGGING/NOLOGGING")
+            }
 
-            token.tableClauseRuleHasText("CACHE") || token.tableClauseRuleHasText("NOCACHE") ->
+            token.tableClauseRuleHasText("CACHE") || token.tableClauseRuleHasText("NOCACHE") -> {
                 token.tableClauseOccurrence("CACHE/NOCACHE")
+            }
 
-            token.tableClauseRuleHasText("COMPRESS") || token.tableClauseRuleHasText("NOCOMPRESS") ->
+            token.tableClauseRuleHasText("COMPRESS") || token.tableClauseRuleHasText("NOCOMPRESS") -> {
                 token.tableClauseOccurrence("COMPRESS/NOCOMPRESS")
+            }
 
-            token.tableClauseRuleHasText("READ") && getOrNull(index + 1).tableClauseRuleHasText("ONLY") ->
+            token.tableClauseRuleHasText("READ") && getOrNull(index + 1).tableClauseRuleHasText("ONLY") -> {
                 tableClauseOccurrence(
                     group = "READ ONLY/READ WRITE",
                     start = token,
                     end = get(index + 1),
                 )
+            }
 
-            token.tableClauseRuleHasText("READ") && getOrNull(index + 1).tableClauseRuleHasText("WRITE") ->
+            token.tableClauseRuleHasText("READ") && getOrNull(index + 1).tableClauseRuleHasText("WRITE") -> {
                 tableClauseOccurrence(
                     group = "READ ONLY/READ WRITE",
                     start = token,
                     end = get(index + 1),
                 )
+            }
 
-            else -> null
+            else -> {
+                null
+            }
         }
     }
 

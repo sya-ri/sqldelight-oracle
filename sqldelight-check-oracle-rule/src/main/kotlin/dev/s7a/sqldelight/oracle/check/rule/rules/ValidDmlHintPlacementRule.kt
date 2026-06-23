@@ -70,12 +70,16 @@ private fun String.oracleHintComments(range: IntRange): List<OracleHintComment> 
                     hints += OracleHintComment(substring(index, end), index, end)
                     end
                 }
+
                 startsWith("--+", index) -> {
                     val end = indexOf('\n', startIndex = index + 3).let { if (it == -1) length else it }
                     hints += OracleHintComment(substring(index, end), index, end)
                     end
                 }
-                else -> index + 1
+
+                else -> {
+                    index + 1
+                }
             }
     }
     return hints

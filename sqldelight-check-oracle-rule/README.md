@@ -101,6 +101,7 @@ sqldelightCheck {
 | [`oracle:unsafe-ddl-migration`](#oracleunsafe-ddl-migration) | Yes | Warning |  | Flag migration DDL that can rewrite, lock, or destructively change large tables. |
 | [`oracle:valid-nls-parameter`](#oraclevalid-nls-parameter) | Yes | Warning |  | Validate static Oracle NLS parameter literals in conversion functions. |
 | [`oracle:valid-json-condition-options`](#oraclevalid-json-condition-options) | Yes | Warning |  | Validate static SQL/JSON condition option combinations. |
+| [`oracle:valid-row-limiting-clause`](#oraclevalid-row-limiting-clause) | Yes | Warning |  | Validate static Oracle row limiting clause values and `WITH TIES` ordering. |
 
 ## `oracle:nullable-not-in-predicate`
 
@@ -290,6 +291,20 @@ SELECT *
 FROM document_store
 WHERE payload IS JSON STRICT WITH UNIQUE KEYS
   AND JSON_EXISTS(payload, '$.items[*]' TRUE ON ERROR FALSE ON EMPTY);
+```
+
+## `oracle:valid-row-limiting-clause`
+
+Reports statically invalid Oracle [`row_limiting_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) forms.
+The rule checks static `OFFSET` and `FETCH FIRST` / `FETCH NEXT` numeric literals, `PERCENT` range literals, and `FETCH ... WITH TIES` without an `ORDER BY`.
+
+Prefer positive row counts, percentages from 0 through 100, and deterministic ordering with ties:
+
+```sql
+SELECT *
+FROM orders
+ORDER BY created_at
+OFFSET 10 ROWS FETCH NEXT 25 ROWS WITH TIES;
 ```
 
 ## Notes

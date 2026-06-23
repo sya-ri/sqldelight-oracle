@@ -21,6 +21,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.ValidFunctionArityRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidJsonConditionOptionsRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidNlsParameterRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRegexpMatchParamRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRowLimitingClauseRule
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.util.ServiceLoader
@@ -51,6 +52,7 @@ class OracleRuleSetProviderTest :
                     ValidFormatModelRule::class,
                     ValidNlsParameterRule::class,
                     ValidJsonConditionOptionsRule::class,
+                    ValidRowLimitingClauseRule::class,
                 )
             rules.map { rule -> "oracle:${rule.id.value}" } shouldBe
                 listOf(
@@ -71,6 +73,7 @@ class OracleRuleSetProviderTest :
                     "oracle:valid-format-model",
                     "oracle:valid-nls-parameter",
                     "oracle:valid-json-condition-options",
+                    "oracle:valid-row-limiting-clause",
                 )
             rules.map { rule -> rule.targetDialect } shouldBe
                 List(rules.size) { OracleDialectId }

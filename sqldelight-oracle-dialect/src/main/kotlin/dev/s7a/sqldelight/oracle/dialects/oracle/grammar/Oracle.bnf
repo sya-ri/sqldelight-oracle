@@ -769,7 +769,7 @@ private oracle_json_exists_clause ::= oracle_json_passing_clause | oracle_json_e
 
 private oracle_json_exists_on_error_clause ::= ( 'ERROR' | 'TRUE' | 'FALSE' ) 'ON' 'ERROR'
 
-private oracle_json_exists_on_empty_clause ::= ( 'NULL' | 'ERROR' | 'TRUE' | 'FALSE' ) 'ON' 'EMPTY'
+private oracle_json_exists_on_empty_clause ::= ( 'NULL' | 'ERROR' | 'TRUE' | 'FALSE' | 'DEFAULT' <<expr '-1'>> ) 'ON' 'EMPTY'
 
 private oracle_json_equal_condition_expr ::= 'JSON_EQUAL' LP <<expr '-1'>> COMMA <<expr '-1'>>
   [ ( 'ERROR' | 'TRUE' | 'FALSE' ) 'ON' 'ERROR' ] RP

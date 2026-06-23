@@ -3,9 +3,6 @@ package dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins
 import com.alecstrong.sql.psi.core.SqlAnnotationHolder
 import com.alecstrong.sql.psi.core.psi.AlterTableApplier
 import com.alecstrong.sql.psi.core.psi.LazyQuery
-import com.alecstrong.sql.psi.core.psi.NamedElement
-import com.alecstrong.sql.psi.core.psi.QueryElement
-import com.alecstrong.sql.psi.core.psi.SqlColumnName
 import com.alecstrong.sql.psi.core.psi.SqlCompositeElementImpl
 import com.alecstrong.sql.psi.core.psi.alterStmt
 import com.intellij.lang.ASTNode
@@ -19,14 +16,8 @@ internal abstract class AlterTableModifyColumnsMixin(
     override fun applyTo(lazyQuery: LazyQuery): LazyQuery =
         lazyQuery.withOracleColumns { columns ->
             val columnDefinitions = oracleColumnDefinitions()
-            columns.map { queryColumn ->
-                val columnName = queryColumn.element as NamedElement
-                val replacement = columnDefinitions.singleOrNull { columnName.textMatches(it.columnName) }
-                if (replacement != null) {
-                    QueryElement.QueryColumn(replacement.columnName)
-                } else {
-                    queryColumn
-                }
+            columnDefinitions.fold(columns) { currentColumns, columnDef ->
+                currentColumns.replaceOracleColumn(columnDef.columnName, columnDef.oracleQueryColumn())
             }
         }
 
@@ -34,13 +25,10 @@ internal abstract class AlterTableModifyColumnsMixin(
         super.annotate(annotationHolder)
 
         val columnDefinitions = oracleColumnDefinitions()
-        val availableColumns =
-            tablesAvailable(this)
-                .filter { it.tableName.textMatches(alterStmt.tableName) }
-                .flatMap { it.query.columns }
+        val availableColumns = tablesAvailable(this).oracleColumnsFor(alterStmt.tableName)
 
         columnDefinitions.forEach { columnDef ->
-            if (availableColumns.none { (it.element as? SqlColumnName)?.textMatches(columnDef.columnName) == true }) {
+            if (!availableColumns.hasOracleColumn(columnDef.columnName)) {
                 annotationHolder.createErrorAnnotation(
                     element = columnDef.columnName,
                     message = "No column found to modify with name ${columnDef.columnName.text}",

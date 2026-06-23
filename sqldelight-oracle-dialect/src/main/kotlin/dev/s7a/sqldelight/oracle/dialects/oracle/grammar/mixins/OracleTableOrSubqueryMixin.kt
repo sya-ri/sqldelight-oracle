@@ -94,16 +94,14 @@ internal abstract class OracleTableOrSubqueryMixin(
         PsiTreeUtil.findChildOfType(this, OracleOracleXmltableReference::class.java)?.let { xmltable ->
             return xmltable.oracleXmltableColumnsClause
                 ?.oracleXmltableColumnList
-                ?.mapNotNull { column ->
-                    PsiTreeUtil.getChildOfType(column, SqlColumnAlias::class.java)?.let(::QueryColumn)
-                }?.ifEmpty { null }
+                ?.mapNotNull { column -> column.oracleColumnAliasQueryColumn() }
+                ?.ifEmpty { null }
                 ?.let { columns -> QueryResult(xmltable.tableAlias() ?: tableAlias(), columns) }
         }
 
         PsiTreeUtil.findChildOfType(this, OracleOracleValuesTableReference::class.java)?.let { valuesTable ->
-            return PsiTreeUtil
-                .findChildrenOfType(valuesTable, SqlColumnAlias::class.java)
-                .map(::QueryColumn)
+            return valuesTable
+                .oracleColumnAliasQueryColumns()
                 .ifEmpty { null }
                 ?.let { columns -> QueryResult(valuesTable.tableAlias() ?: tableAlias(), columns) }
         }
@@ -129,8 +127,7 @@ internal abstract class OracleTableOrSubqueryMixin(
 
     private fun PsiElement.tableAlias(): SqlTableAlias? = PsiTreeUtil.findChildOfType(this, SqlTableAlias::class.java)
 
-    private fun OracleOracleJsonTableColumnsClause.queryColumns(): List<QueryColumn> =
-        PsiTreeUtil.findChildrenOfType(this, SqlColumnAlias::class.java).map(::QueryColumn)
+    private fun OracleOracleJsonTableColumnsClause.queryColumns(): List<QueryColumn> = oracleColumnAliasQueryColumns()
 
     private fun oracleRowPatternResult(): QueryResult? {
         val rowPatternClause = PsiTreeUtil.findChildOfType(this, OracleOracleRowPatternClause::class.java) ?: return null
@@ -146,9 +143,7 @@ internal abstract class OracleTableOrSubqueryMixin(
             rowPatternClause
                 .oracleRowPatternMeasuresClause
                 ?.oracleRowPatternMeasureColumnList
-                ?.mapNotNull { column ->
-                    PsiTreeUtil.getChildOfType(column, SqlColumnAlias::class.java)?.let(::QueryColumn)
-                }
+                ?.mapNotNull { column -> column.oracleColumnAliasQueryColumn() }
                 ?: emptyList()
         return (sourceColumns + measureColumns)
             .ifEmpty { null }

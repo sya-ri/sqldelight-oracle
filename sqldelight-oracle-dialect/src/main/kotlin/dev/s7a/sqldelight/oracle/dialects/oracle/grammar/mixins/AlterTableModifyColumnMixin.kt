@@ -3,9 +3,6 @@ package dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins
 import com.alecstrong.sql.psi.core.SqlAnnotationHolder
 import com.alecstrong.sql.psi.core.psi.AlterTableApplier
 import com.alecstrong.sql.psi.core.psi.LazyQuery
-import com.alecstrong.sql.psi.core.psi.NamedElement
-import com.alecstrong.sql.psi.core.psi.QueryElement
-import com.alecstrong.sql.psi.core.psi.SqlColumnName
 import com.alecstrong.sql.psi.core.psi.SqlCompositeElementImpl
 import com.alecstrong.sql.psi.core.psi.alterStmt
 import com.intellij.lang.ASTNode
@@ -19,14 +16,7 @@ internal abstract class AlterTableModifyColumnMixin(
     override fun applyTo(lazyQuery: LazyQuery): LazyQuery =
         lazyQuery.withOracleColumns { columns ->
             val columnDef = oracleSingleColumnDefinition()
-            columns.map { queryColumn ->
-                val columnName = queryColumn.element as NamedElement
-                if (columnName.textMatches(columnDef.columnName)) {
-                    QueryElement.QueryColumn(columnDef.columnName)
-                } else {
-                    queryColumn
-                }
-            }
+            columns.replaceOracleColumn(columnDef.columnName, columnDef.oracleQueryColumn())
         }
 
     override fun annotate(annotationHolder: SqlAnnotationHolder) {
@@ -34,9 +24,9 @@ internal abstract class AlterTableModifyColumnMixin(
 
         val columnDef = oracleSingleColumnDefinition()
         if (tablesAvailable(this)
-                .filter { it.tableName.textMatches(alterStmt.tableName) }
-                .flatMap { it.query.columns }
-                .none { (it.element as? SqlColumnName)?.textMatches(columnDef.columnName) == true }
+                .oracleColumnsFor(alterStmt.tableName)
+                .hasOracleColumn(columnDef.columnName)
+                .not()
         ) {
             annotationHolder.createErrorAnnotation(
                 element = columnDef.columnName,

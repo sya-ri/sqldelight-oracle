@@ -15,7 +15,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 
 ### Defer As Semantic Validators
 
-- [ ] Schema-aware validation that needs SQLDelight PSI/schema/type analysis rather than accepting syntax: pivot/unpivot generated columns, object/REF attribute rules, domain function return types, row-value type validation, and clause-order/mutual-exclusion checks.
+- [ ] Schema-aware validation that needs SQLDelight PSI/schema/type analysis rather than accepting syntax: pivot/unpivot generated-column inference beyond explicit aliases, object/REF attribute rules, domain function return types, row-value type validation, and clause-order/mutual-exclusion checks.
 - [ ] Runtime and database-kind restrictions: object kind checks, privileges, release-specific limits, optimizer hint semantics/validation, hint-driven behavior, and format-model correctness.
 
 ## Lexical Syntax And Names
@@ -24,7 +24,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] [Nonquoted and quoted identifier compatibility](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Database-Object-Names-and-Qualifiers.html) parser coverage for double-quoted table names in `CREATE TABLE`, `CREATE INDEX ... ON`, and `SELECT ... FROM`
 - [x] [Schema object reference syntax](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Syntax-for-Schema-Objects-and-Parts-in-SQL-Statements.html)
   - [x] publish-scope parser support for direct schema-object references in DDL, DML, query table references, function/type references, `@dblink`, and partition/subpartition references
-  - [ ] deferred object-kind restrictions, optional `"PUBLIC"` synonym qualification, database link name resolution details, identifier byte-length limits, and quoted uppercase `"ROWID"` restrictions to semantic validators
+  - [ ] deferred object-kind restrictions, database link name resolution details, identifier byte-length limits, and quoted uppercase `"ROWID"` restrictions to semantic validators
     - [x] sqldelight-check rule coverage for quoted uppercase `"ROWID"` used as a [`CREATE TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html) or [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html) column name, based on Oracle [database object naming rules](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Database-Object-Names-and-Qualifiers.html)
 - [x] [SQL comments and optimizer hints](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comments.html)
   - [x] `--` comments
@@ -115,6 +115,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] `table_reference`
     - [x] representative [`pivot_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/pivot_clause.html), [`pivot_for_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/pivot_for_clause.html), and [`pivot_in_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/pivot_in_clause.html) parser support, including `PIVOT XML`, `ANY`, pivot subquery forms, composite pivot columns, and literal tuple aliases
     - [x] [`unpivot_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/unpivot_clause.html) and [`unpivot_in_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/unpivot_in_clause.html) parser support for representative scalar and composite forms
+    - [ ] deferred SQLDelight generated-column inference for `PIVOT` / `UNPIVOT` output names beyond explicit table aliases, because Oracle derives names from aggregate aliases, pivot values, measure columns, and source column visibility
     - [x] representative [`row_pattern_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_clause.html) parser support for `MATCH_RECOGNIZE`, [`row_pattern_partition_by`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_partition_by.html), [`row_pattern_order_by`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_order_by.html), [`row_pattern_measures`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_measures.html), [`row_pattern_rows_per_match`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_rows_per_match.html), [`row_pattern_skip_to`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_skip_to.html), [`row_pattern`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern.html), and [`row_pattern_definition_list`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_definition_list.html)
     - [x] SQLDelight column resolution for `MATCH_RECOGNIZE` `MEASURES` output aliases
   - [x] [`values_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) parser support for `FROM (VALUES (...), (...)) alias(column_alias, ...)`, including SQLDelight column resolution for the table alias column list
@@ -126,7 +127,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] parser coverage for [`row_pattern`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern.html) alternation with `|`
   - [x] parser coverage for row-pattern exclusion groups with `{- ... -}`
   - [x] parser coverage for bounded quantifiers `{n}`, `{n,}`, `{,m}`, and `{n,m}` including reluctant suffixes
-  - [ ] deferred semantic remainder: pattern variable placement rules
+  - [ ] deferred semantic remainder: pattern variable placement rules that need `PATTERN`, `SUBSET`, `DEFINE`, and measure-reference cross-checking after parse
 - [x] [`CONTAINERS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/containers_clause.html) and [`SHARDS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) query clauses
 - [x] [`group_by_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/group_by_clause.html)
   - [x] aggregation parser support: `ROLLUP`, `CUBE`, `GROUPING SETS`, composite columns, `GROUP BY ALL`, and `HAVING` after `GROUP BY`
@@ -210,7 +211,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] `CREATE TABLE AS SELECT`
     - [x] parser support for `FOR STAGING` before `AS subquery`
     - [x] parser support for SQLDelight query files
-- [ ] DDL semantic validation: defer object-kind checks, view column alias count/duplicate validation, CTAS-only restrictions, JSON collection expression-column semantics, clause-order and mutually-exclusive-form validation, drop/truncate side effects, recycle-bin behavior, release-specific restrictions, and privilege/runtime restrictions
+- [ ] DDL semantic validation: defer object-kind checks, CTAS-only restrictions, JSON collection expression-column semantics, clause-order and mutually-exclusive-form validation, drop/truncate side effects, recycle-bin behavior, release-specific restrictions, and privilege/runtime restrictions
 - [x] [`create_table`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/create_table.html) and [`relational_table`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/relational_table.html) parser support for `SHARDED`, `DUPLICATED`, `IMMUTABLE BLOCKCHAIN`, `SHARING`, `MEMOPTIMIZE`, `PARENT`, `REFRESH INTERVAL`, `SYNCHRONOUS`, `DEFAULT COLLATION`, and `ON COMMIT ... DEFINITION`
   - [x] parser support for [`JSON_Collection_table`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/json_collection_table.html): `WITH ETAG`, physical properties, and table properties
 - [x] [`object_table`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/object_table.html) parser support for representative `CREATE TABLE ... OF object_type`, [`object_table_substitution`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/object_table_substitution.html), [`oid_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/oid_clause.html), and [`oid_index_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/oid_index_clause.html)
@@ -482,13 +483,14 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
     - [x] parser support for object attribute access outside `CALL` on type-constructor, user-function, and parenthesized receivers
     - [x] parser support for schema-object and table-alias-qualified object method/attribute receivers
     - [x] publish-scope dot-access parser support for object method/attribute receivers and JSON generation expression receivers that do not require schema-aware object-field or generated-column resolution
-    - [ ] deferred schema-aware object-field validation and JSON array-step access until SQLDelight core/schema support is available
+    - [ ] deferred schema-aware object-field validation until SQLDelight schema analysis can model object type attributes and methods
+    - [ ] deferred JSON array-step access until SQLDelight core exposes bracket token parsing to dialect extensions without conflicting with indexed expressions
   - [ ] deferred analytic-view semantic checks and model/bracketed cell references to the MODEL/core-bracket work
 - [x] Type conversion expressions parser support for [`CAST`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CAST.html) and [`TREAT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TREAT.html)
 - [x] [User-defined function expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Function-Expressions.html): package, standalone, and remote `@dblink` function calls with positional, named, and mixed argument notation
 - [x] [Simple expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Simple-Expressions.html)
   - [x] publish-scope parser coverage for direct schema/object qualification in expression operands
-  - [ ] deferred `PUBLIC` synonym qualification and `ROWID` restrictions to semantic validators
+  - [ ] deferred `ROWID` restrictions to semantic validators
 - [x] [Type constructor expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Type-Constructor-Expressions.html) parser coverage for `NEW type_name(...)`, optional-`NEW` object constructors, collection constructors without `NEW`, and empty collection constructors
 - [x] [BOOLEAN expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/boolean-expressions.html)
   - [x] parser support for parenthesized boolean test expressions in result-column expression positions: `(expr IS [NOT] TRUE/FALSE/UNKNOWN)`

@@ -10,6 +10,8 @@ Artifacts:
 
 The first planned release version is `0.1.0`.
 
+Release notes are tracked in [CHANGELOG.md](CHANGELOG.md).
+
 ## Modules
 
 - [`sqldelight-oracle-dialect`](sqldelight-oracle-dialect/README.md): SQLDelight dialect artifact.

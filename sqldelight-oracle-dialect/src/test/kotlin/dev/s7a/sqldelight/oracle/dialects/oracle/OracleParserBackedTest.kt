@@ -6532,9 +6532,18 @@ class OracleParserBackedTest :
                   DATAFILE '/u01/reusable_data01.dbf' SIZE 500 M REUSE
                   AUTOEXTEND OFF;
 
+                CREATE TABLESPACE managed_files
+                  DATAFILE SIZE 50 M
+                  AUTOEXTEND ON NEXT 5 M MAXSIZE 500 M
+                  BLOCKSIZE 8 K;
+
                 CREATE TEMPORARY TABLESPACE temp_ts
                   TEMPFILE '/u01/temp_ts01.dbf' SIZE 100 M
                   AUTOEXTEND ON NEXT 10 M MAXSIZE UNLIMITED;
+
+                CREATE TEMPORARY TABLESPACE temp_asm
+                  TEMPFILE '+DATA/temp_asm01.dbf' SIZE 64 M REUSE
+                  AUTOEXTEND ON NEXT 8 M MAXSIZE 2 G;
 
                 CREATE TABLESPACE SET ts1
                   IN SHARDSPACE sgr1
@@ -6687,6 +6696,12 @@ class OracleParserBackedTest :
 
                 ALTER TABLESPACE users ADD DATAFILE '/u01/oradata/users03.dbf'
                   SIZE 10 M REUSE AUTOEXTEND OFF;
+
+                ALTER TABLESPACE users ADD DATAFILE '+DATA/users04.dbf'
+                  SIZE 128 M AUTOEXTEND ON NEXT 16 M MAXSIZE UNLIMITED;
+
+                ALTER TABLESPACE users ADD TEMPFILE SIZE 32 M
+                  AUTOEXTEND ON NEXT 4 M MAXSIZE 1 G;
 
                 ALTER TABLESPACE users DROP DATAFILE '/u01/oradata/users02.dbf';
 

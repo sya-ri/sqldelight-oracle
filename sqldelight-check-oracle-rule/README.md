@@ -99,6 +99,7 @@ sqldelightCheck {
 | [`oracle:no-conflicting-index-clauses`](#oracleno-conflicting-index-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE INDEX` and `ALTER INDEX` clauses. |
 | [`oracle:no-conflicting-json-storage-clauses`](#oracleno-conflicting-json-storage-clauses) | Yes | Warning |  | Avoid multiple JSON storage clauses for one column. |
 | [`oracle:no-conflicting-rollback-clauses`](#oracleno-conflicting-rollback-clauses) | Yes | Warning |  | Avoid conflicting `ROLLBACK` target clauses. |
+| [`oracle:no-conflicting-role-clauses`](#oracleno-conflicting-role-clauses) | Yes | Warning |  | Avoid conflicting role DDL clauses. |
 | [`oracle:no-conflicting-sequence-clauses`](#oracleno-conflicting-sequence-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE SEQUENCE` and `ALTER SEQUENCE` clauses. |
 | [`oracle:no-conflicting-set-role-clauses`](#oracleno-conflicting-set-role-clauses) | Yes | Warning |  | Avoid conflicting `SET ROLE` forms. |
 | [`oracle:no-conflicting-set-constraints-clauses`](#oracleno-conflicting-set-constraints-clauses) | Yes | Warning |  | Avoid conflicting `SET CONSTRAINTS` timing clauses. |
@@ -265,6 +266,17 @@ Prefer one rollback target:
 
 ```sql
 ROLLBACK TO SAVEPOINT before_update;
+```
+
+## `oracle:no-conflicting-role-clauses`
+
+Reports conflicting Oracle [`CREATE ROLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-ROLE.html) and [`ALTER ROLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-ROLE.html) clauses.
+The rule checks repeated or opposing role identification variants and repeated `CONTAINER` clauses.
+
+Prefer one identification form and one container choice:
+
+```sql
+CREATE ROLE app_role IDENTIFIED BY secret CONTAINER = CURRENT;
 ```
 
 ## `oracle:no-conflicting-sequence-clauses`

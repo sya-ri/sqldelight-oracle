@@ -195,6 +195,156 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("resolves Oracle migration-created materialized views from query files exactly") {
+            parseOracleSqlFiles(
+                deriveSchemaFromMigrations = true,
+                files =
+                    mapOf(
+                        "1.sqm" to
+                            """
+                            CREATE TABLE sales (
+                              cust_id NUMBER NOT NULL,
+                              prod_id NUMBER NOT NULL,
+                              amount_sold NUMBER(10, 2) NOT NULL
+                            );
+
+                            CREATE MATERIALIZED VIEW sales_summary
+                              BUILD IMMEDIATE
+                              REFRESH FAST ON DEMAND
+                            AS
+                            SELECT cust_id, SUM(amount_sold) AS amount_sold
+                            FROM sales
+                            GROUP BY cust_id;
+                            """.trimIndent(),
+                        "Test.sq" to
+                            """
+                            selectSalesSummary:
+                            SELECT cust_id, amount_sold
+                            FROM sales_summary;
+                            """.trimIndent(),
+                    ),
+            ) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
+        test("resolves Oracle migration-created view query sources from query files exactly") {
+            parseOracleSqlFiles(
+                deriveSchemaFromMigrations = true,
+                files =
+                    mapOf(
+                        "1.sqm" to
+                            """
+                            CREATE TABLE sales (
+                              cust_id NUMBER NOT NULL,
+                              prod_id NUMBER NOT NULL,
+                              amount_sold NUMBER(10, 2) NOT NULL,
+                              payload XMLTYPE
+                            );
+
+                            CREATE VIEW sales_view AS
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM sales;
+
+                            CREATE OR REPLACE EDITIONING VIEW sales_editioning_view AS
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM sales;
+
+                            CREATE VIEW sales_object_view
+                              OF sales_object_type
+                              WITH OBJECT IDENTIFIER (cust_id)
+                            AS
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM sales;
+
+                            CREATE VIEW sales_xml_view
+                              OF XMLTYPE
+                              XMLSCHEMA 'http://example.com/sales.xsd'
+                              ELEMENT 'Sales'
+                              WITH OBJECT ID (cust_id)
+                            AS
+                            SELECT payload
+                            FROM sales;
+
+                            CREATE JSON COLLECTION VIEW sales_json_collection_view AS
+                            SELECT JSON_OBJECT(
+                              'cust_id' VALUE cust_id,
+                              'prod_id' VALUE prod_id,
+                              'amount_sold' VALUE amount_sold
+                            ) AS DATA
+                            FROM sales;
+                            """.trimIndent(),
+                        "Test.sq" to
+                            """
+                            selectSalesView:
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM sales_view;
+
+                            selectSalesEditioningView:
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM sales_editioning_view;
+
+                            selectSalesObjectView:
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM sales_object_view;
+
+                            selectSalesXmlView:
+                            SELECT payload
+                            FROM sales_xml_view;
+
+                            selectSalesJsonCollectionView:
+                            SELECT DATA
+                            FROM sales_json_collection_view;
+                            """.trimIndent(),
+                    ),
+            ) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
+        test("resolves Oracle migration-created synonym query sources from query files exactly") {
+            parseOracleSqlFiles(
+                deriveSchemaFromMigrations = true,
+                files =
+                    mapOf(
+                        "1.sqm" to
+                            """
+                            CREATE TABLE sales (
+                              cust_id NUMBER NOT NULL,
+                              prod_id NUMBER NOT NULL,
+                              amount_sold NUMBER(10, 2) NOT NULL
+                            );
+
+                            CREATE VIEW sales_view AS
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM sales;
+
+                            CREATE SYNONYM sales_synonym FOR sales;
+
+                            CREATE SYNONYM sales_view_synonym FOR sales_view;
+                            """.trimIndent(),
+                        "Test.sq" to
+                            """
+                            selectSalesSynonym:
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM sales_synonym;
+
+                            selectSalesViewSynonym:
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM sales_view_synonym;
+                            """.trimIndent(),
+                    ),
+            ) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle datetime and interval literals exactly") {
             val sql =
                 """
@@ -8073,10 +8223,22 @@ private data class ParseResult(
 private fun parseOracleSql(
     sql: String,
     fileName: String = "Test.sq",
+    deriveSchemaFromMigrations: Boolean = false,
+): ParseResult =
+    parseOracleSqlFiles(
+        files = mapOf(fileName to sql),
+        deriveSchemaFromMigrations = deriveSchemaFromMigrations,
+    )
+
+private fun parseOracleSqlFiles(
+    files: Map<String, String>,
+    deriveSchemaFromMigrations: Boolean = false,
 ): ParseResult {
     val root = Files.createTempDirectory("sqldelight-oracle-parser-test").toFile()
     val sourceDirectory = File(root, "com/example").apply { mkdirs() }
-    File(sourceDirectory, fileName).writeText(sql)
+    files.forEach { (fileName, sql) ->
+        File(sourceDirectory, fileName).writeText(sql)
+    }
 
     val errors = mutableListOf<String>()
     val compilationUnit = OracleParserTestCompilationUnit(File(root, "output"))
@@ -8084,7 +8246,12 @@ private fun parseOracleSql(
         SqlDelightEnvironment(
             sourceFolders = listOf(root),
             dependencyFolders = emptyList(),
-            properties = OracleParserTestDatabaseProperties(root, compilationUnit),
+            properties =
+                OracleParserTestDatabaseProperties(
+                    rootDirectory = root,
+                    compilationUnit = compilationUnit,
+                    deriveSchemaFromMigrations = deriveSchemaFromMigrations,
+                ),
             dialect = OracleDialect(),
             verifyMigrations = true,
             moduleName = "oracle-parser-test",
@@ -8118,12 +8285,12 @@ private data class OracleParserTestCompilationUnit(
 private data class OracleParserTestDatabaseProperties(
     override val rootDirectory: File,
     private val compilationUnit: SqlDelightCompilationUnit,
+    override val deriveSchemaFromMigrations: Boolean = false,
 ) : SqlDelightDatabaseProperties {
     override val packageName: String = "com.example"
     override val className: String = "TestDatabase"
     override val dependencies: List<SqlDelightDatabaseName> = emptyList()
     override val compilationUnits: List<SqlDelightCompilationUnit> = listOf(compilationUnit)
-    override val deriveSchemaFromMigrations: Boolean = false
     override val generateAsync: Boolean = false
     override val expandSelectStar: Boolean = true
     override val treatNullAsUnknownForEquality: Boolean = false

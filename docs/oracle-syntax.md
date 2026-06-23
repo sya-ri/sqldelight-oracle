@@ -431,14 +431,14 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] [`CURSOR` expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CURSOR-Expressions.html) parser support for `CURSOR(subquery)`
 - [x] [`CASE` expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CASE-Expressions.html) parser support for simple and searched `CASE`
 - [x] [Scalar subquery expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Scalar-Subquery-Expressions.html) parser support
-- [ ] [Placeholder expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Expressions.html)
+- [x] [Placeholder expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Expressions.html)
   - [x] parser support for SQLDelight `?` bind parameters and Oracle `:name` / `:1` bind placeholders
   - [x] Object access expressions
     - [x] parser support for object method invocation outside `CALL` on type-constructor, user-function, and parenthesized receivers
     - [x] parser support for object attribute access outside `CALL` on type-constructor, user-function, and parenthesized receivers
     - [x] publish-scope dot-access parser support for object method/attribute receivers and JSON generation expression receivers that do not require schema-aware object-field or generated-column resolution
     - [ ] deferred table-alias-qualified object resolution and JSON array-step access until SQLDelight core/schema support is available
-  - [ ] defer analytic-view semantic checks and model/bracketed cell references to the MODEL/core-bracket work
+  - [ ] deferred analytic-view semantic checks and model/bracketed cell references to the MODEL/core-bracket work
 - [x] Type conversion expressions parser support for [`CAST`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CAST.html) and [`TREAT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TREAT.html)
 - [x] [User-defined function expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Function-Expressions.html): package, standalone, and remote `@dblink` function calls with positional, named, and mixed argument notation
 - [x] [Simple expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Simple-Expressions.html)

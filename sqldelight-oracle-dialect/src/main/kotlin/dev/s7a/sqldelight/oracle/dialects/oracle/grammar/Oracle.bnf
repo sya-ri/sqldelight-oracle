@@ -462,7 +462,7 @@ private oracle_xmlforest_expr ::= 'XMLFOREST' LP oracle_xml_element_content ( CO
 
 private oracle_xmlparse_expr ::= 'XMLPARSE' LP ( 'DOCUMENT' | 'CONTENT' ) <<expr '-1'>> [ 'WELLFORMED' ] RP
 
-private oracle_xmlpi_expr ::= 'XMLPI' LP [ 'NAME' ] oracle_xml_name [ COMMA <<expr '-1'>> ] RP
+private oracle_xmlpi_expr ::= 'XMLPI' LP ( 'EVALNAME' <<expr '-1'>> | [ 'NAME' ] oracle_xml_name ) [ COMMA <<expr '-1'>> ] RP
 
 private oracle_xmlquery_expr ::= 'XMLQUERY' LP {string_literal} [ oracle_xml_passing_clause ] 'RETURNING' 'CONTENT' [ 'NULL' 'ON' 'EMPTY' ] RP
 

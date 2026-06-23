@@ -1290,6 +1290,7 @@ class OracleParserBackedTest :
                 SELECT CAST(name AS VARCHAR2(200)),
                   CAST(id AS BINARY_DOUBLE),
                   CAST(active AS NUMBER),
+                  CAST(name AS NUMBER DEFAULT 0 ON CONVERSION ERROR),
                   TREAT(payload AS JSON)
                 FROM employees;
                 """.trimIndent()

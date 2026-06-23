@@ -109,7 +109,7 @@ private fun SqlDialectSourcePatterns.shouldMatchExactly(
     role: SqlDialectSourcePatternRole,
     syntax: Syntax,
 ) {
-    matchPrefix(role, syntax.terms) shouldBe syntax.terms.size
+    matches(role, syntax.terms) shouldBe true
 }
 
 private val oracleStatementStarts =

@@ -295,9 +295,9 @@ private oracle_user_function_named_argument ::= oracle_schema_object_name EQ GT 
 
 private oracle_object_method_expr ::= oracle_object_access_method_receiver DOT oracle_object_method_invocation
 
-private oracle_object_access_method_receiver ::= oracle_type_constructor_expr | oracle_user_function_expr | LP <<expr '-1'>> RP
+private oracle_object_access_method_receiver ::= oracle_type_constructor_expr | oracle_user_function_expr | oracle_schema_object_name | LP <<expr '-1'>> RP
 
-private oracle_object_attribute_receiver ::= oracle_object_access_method_receiver | oracle_sql_json_expr
+private oracle_object_attribute_receiver ::= oracle_sql_json_expr | oracle_object_access_method_receiver
 
 private oracle_object_method_invocation ::= oracle_object_name_part LP [ oracle_user_function_argument ( COMMA oracle_user_function_argument ) * ] RP
 

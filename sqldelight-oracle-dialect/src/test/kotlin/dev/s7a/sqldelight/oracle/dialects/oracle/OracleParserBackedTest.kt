@@ -970,12 +970,15 @@ class OracleParserBackedTest :
                 CREATE TABLE object_method_samples (
                   id NUMBER PRIMARY KEY,
                   warehouse_id NUMBER,
-                  warehouse_name VARCHAR2(100)
+                  warehouse_name VARCHAR2(100),
+                  warehouse_ref OBJECT
                 );
 
                 SELECT warehouse_typ(warehouse_id, warehouse_name).ret_name() AS constructed_name,
                   hr.warehouse_api.lookup_warehouse(warehouse_id).ret_name() AS lookup_name,
                   hr.warehouse_api.lookup_warehouse(warehouse_id).set_name(new_name => warehouse_name) AS renamed_warehouse,
+                  object_method_samples.warehouse_ref.ret_name() AS table_object_method,
+                  object_method_samples.warehouse_ref.location.city AS table_object_attribute,
                   (warehouse_typ(warehouse_id, warehouse_name)).ret_name() AS parenthesized_name,
                   warehouse_typ(warehouse_id, warehouse_name).warehouse_id AS constructed_attribute,
                   hr.warehouse_api.lookup_warehouse(warehouse_id).warehouse_name AS function_attribute,

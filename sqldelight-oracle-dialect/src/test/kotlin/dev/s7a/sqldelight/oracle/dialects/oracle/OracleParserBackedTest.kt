@@ -4114,6 +4114,10 @@ class OracleParserBackedTest :
                 SELECT 1
                 FROM TABLE(ODCINUMBERLIST(1, 2)) numbers;
 
+                selectTableCollectionColumnValue:
+                SELECT numbers.COLUMN_VALUE
+                FROM TABLE(ODCINUMBERLIST(1, 2)) numbers;
+
                 selectLegacyTheCollection:
                 SELECT 1
                 FROM THE (

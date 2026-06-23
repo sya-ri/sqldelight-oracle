@@ -435,7 +435,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
     - [x] ANSI, DB2, and SQL/DS data type aliases
     - [x] `ANYTYPE`, `ANYDATA`, `ANYDATASET`, `URIType`, `DBURIType`, `XDBURIType`, `HTTPURIType`
     - [x] `SDO_TOPO_GEOMETRY`, `SDO_GEORASTER`
-- [x] Data use case domains: [`CREATE DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/create-domain.html), [`ALTER DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/alter-domain.html), [`DROP DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/drop-domain.html)
+- [x] Data use case domains: [`CREATE DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/create-domain.html), [`ALTER DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/alter-domain.html), [`DROP DOMAIN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/drop-domain.html) parser coverage for single-column, multicolumn, `USECASE`, `IF [NOT] EXISTS`, constraint, display/order, annotation, and `FORCE [PRESERVE]` forms
 - [x] SQLDelight type resolver mapping for Oracle scalar data types, including `NUMBER` precision/scale, ANSI character/numeric aliases, `BINARY_INTEGER`, `PLS_INTEGER`, `DATE`, `TIMESTAMP`, text, binary, JSON/XML, spatial, collection, URI, and vector names
 - [x] SQLDelight parser `type_name` hook for Oracle scalar, multi-word, and parameterized data type names
 - [x] SQLDelight parser-backed `.sq` tests with exact success/failure results for representative Oracle type names in `CREATE TABLE`

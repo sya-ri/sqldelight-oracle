@@ -395,6 +395,46 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle domain statements exactly") {
+            val sql =
+                """
+                CREATE DOMAIN IF NOT EXISTS year_of_birth AS NUMBER(4) STRICT
+                  CONSTRAINT year_of_birth_ck CHECK (year_of_birth >= 1900)
+                  DISPLAY TO_CHAR(year_of_birth)
+                  ORDER year_of_birth
+                  ANNOTATIONS (Title 'Year of birth');
+
+                CREATE USECASE DOMAIN day_of_week AS CHAR(3 CHAR)
+                  CONSTRAINT day_of_week_ck CHECK (VALUE IN ('MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'))
+                  INITIALLY DEFERRED;
+
+                CREATE DOMAIN us_city AS (
+                  city AS VARCHAR2(30) ANNOTATIONS (Address),
+                  state AS CHAR(2) ANNOTATIONS (Address),
+                  zip AS NUMBER ANNOTATIONS (Address)
+                )
+                  CONSTRAINT us_city_ck CHECK (zip < 100000)
+                  DISPLAY city || ', ' || state
+                  ANNOTATIONS (Title 'US City');
+
+                ALTER DOMAIN year_of_birth MODIFY DISPLAY TO_CHAR(year_of_birth);
+
+                ALTER USECASE DOMAIN IF EXISTS year_of_birth DROP ORDER;
+
+                ALTER DOMAIN day_of_week ANNOTATIONS (ADD IF NOT EXISTS Display 'Day of week');
+
+                DROP DOMAIN IF EXISTS year_of_birth FORCE PRESERVE;
+
+                DROP USECASE DOMAIN day_of_week FORCE;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle single-row utility functions exactly") {
             val sql =
                 """

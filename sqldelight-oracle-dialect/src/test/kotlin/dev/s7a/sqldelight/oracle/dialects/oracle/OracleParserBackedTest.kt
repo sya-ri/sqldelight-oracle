@@ -3577,7 +3577,7 @@ class OracleParserBackedTest :
                 )
                 SEARCH DEPTH FIRST BY id SET traversal_order
                 CYCLE id SET is_cycle TO 'Y' DEFAULT 'N'
-                SELECT id, parent_id
+                SELECT id, parent_id, traversal_order, is_cycle
                 FROM unit_tree;
 
                 selectValuesFactored:

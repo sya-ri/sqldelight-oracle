@@ -1059,7 +1059,7 @@ compound_select_stmt ::= [ {with_clause} ] {select_stmt}
   [ 'ORDER' [ 'SIBLINGS' ] 'BY' {ordering_term} ( COMMA {ordering_term} ) * ]
   [ {limit_stmt} ]
   [ oracle_for_update_clause ] {
-  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCompoundSelectStmtImpl"
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleCompoundSelectStmtMixin"
   implements = "com.alecstrong.sql.psi.core.psi.SqlCompoundSelectStmt"
   override = true
 }

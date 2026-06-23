@@ -5253,10 +5253,30 @@ class OracleParserBackedTest :
                   FOR EACH ROW
                   BEGIN NULL END customer_audit_trigger;
 
+                CREATE OR REPLACE TRIGGER customer_update_trigger
+                  BEFORE UPDATE OF name ON customer
+                  REFERENCING OLD AS old_customer NEW AS new_customer
+                  FOR EACH ROW
+                  WHEN (new_customer.name IS NOT NULL)
+                  BEGIN NULL END customer_update_trigger;
+
+                CREATE OR REPLACE TRIGGER customer_view_trigger
+                  INSTEAD OF INSERT OR UPDATE OR DELETE ON customer_view
+                  FOR EACH ROW
+                  BEGIN NULL END customer_view_trigger;
+
                 CREATE OR REPLACE TRIGGER compound_customer_trigger
                   FOR INSERT OR UPDATE ON customer
                   COMPOUND TRIGGER
                   END compound_customer_trigger;
+
+                CREATE OR REPLACE TRIGGER logon_audit_trigger
+                  AFTER LOGON ON DATABASE
+                  BEGIN NULL END logon_audit_trigger;
+
+                CREATE OR REPLACE TRIGGER schema_ddl_trigger
+                  BEFORE CREATE OR ALTER OR DROP ON SCHEMA
+                  BEGIN NULL END schema_ddl_trigger;
 
                 CREATE OR REPLACE PACKAGE emp_mgmt
                   AS END emp_mgmt;

@@ -4738,15 +4738,18 @@ private oracle_trigger_source_token ::= (
   '*' |
   '/' |
   'AFTER' |
+  'ALTER' |
   'BEFORE' |
   'CALL' |
   'COMPOUND' |
+  'CREATE' |
   'CROSSEDITION' |
   'DATABASE' |
   'DECLARE' |
   'DELETE' |
   'DELETING' |
   'DISABLE' |
+  'DROP' |
   'EACH' |
   'ELSE' |
   'ELSIF' |
@@ -4762,7 +4765,9 @@ private oracle_trigger_source_token ::= (
   'INSTEAD' |
   'INTO' |
   'LOOP' |
+  'LOGON' |
   'NEW' |
+  'NOT' |
   'NEXTVAL' |
   'OLD' |
   'ON' |

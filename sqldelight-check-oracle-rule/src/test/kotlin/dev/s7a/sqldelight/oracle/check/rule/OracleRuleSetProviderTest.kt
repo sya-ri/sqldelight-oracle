@@ -30,6 +30,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.RequireNumberPrecisionRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.UnsafeDdlMigrationRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidAuditPolicyFormRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidBooleanTestConditionRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.ValidCreateViewColumnAliasesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidDmlHintPlacementRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidFormatModelRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidFunctionArityRule
@@ -83,6 +84,7 @@ class OracleRuleSetProviderTest :
                     UnsafeDdlMigrationRule::class,
                     ValidAuditPolicyFormRule::class,
                     ValidBooleanTestConditionRule::class,
+                    ValidCreateViewColumnAliasesRule::class,
                     ValidRegexpMatchParamRule::class,
                     ValidDmlHintPlacementRule::class,
                     ValidFunctionArityRule::class,
@@ -126,6 +128,7 @@ class OracleRuleSetProviderTest :
                     "oracle:unsafe-ddl-migration",
                     "oracle:valid-audit-policy-form",
                     "oracle:valid-boolean-test-condition",
+                    "oracle:valid-create-view-column-aliases",
                     "oracle:valid-regexp-match-param",
                     "oracle:valid-dml-hint-placement",
                     "oracle:valid-function-arity",

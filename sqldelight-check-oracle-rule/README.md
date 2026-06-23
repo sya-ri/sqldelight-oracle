@@ -114,6 +114,7 @@ sqldelightCheck {
 | [`oracle:unsafe-ddl-migration`](#oracleunsafe-ddl-migration) | Yes | Warning |  | Flag migration DDL that can rewrite, lock, or destructively change large tables. |
 | [`oracle:valid-audit-policy-form`](#oraclevalid-audit-policy-form) | Yes | Warning |  | Validate static unified audit policy statement forms. |
 | [`oracle:valid-boolean-test-condition`](#oraclevalid-boolean-test-condition) | Yes | Warning |  | Validate static Oracle boolean test conditions. |
+| [`oracle:valid-create-view-column-aliases`](#oraclevalid-create-view-column-aliases) | Yes | Warning |  | Validate static `CREATE VIEW` column alias lists. |
 | [`oracle:valid-nls-parameter`](#oraclevalid-nls-parameter) | Yes | Warning |  | Validate static Oracle NLS parameter literals in conversion functions. |
 | [`oracle:valid-json-condition-options`](#oraclevalid-json-condition-options) | Yes | Warning |  | Validate static SQL/JSON condition option combinations. |
 | [`oracle:valid-returning-clause`](#oraclevalid-returning-clause) | Yes | Warning |  | Validate static Oracle `RETURNING` clause forms. |
@@ -492,6 +493,18 @@ SELECT *
 FROM document_store
 WHERE payload IS JSON STRICT WITH UNIQUE KEYS
   AND JSON_EXISTS(payload, '$.items[*]' TRUE ON ERROR FALSE ON EMPTY);
+```
+
+## `oracle:valid-create-view-column-aliases`
+
+Reports Oracle [`CREATE VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-VIEW.html) statements whose static column alias list has duplicates or does not match the `SELECT` list arity.
+
+Prefer one unique alias per selected column:
+
+```sql
+CREATE VIEW order_summary(order_id, order_total) AS
+SELECT id, total
+FROM orders;
 ```
 
 ## `oracle:valid-returning-clause`

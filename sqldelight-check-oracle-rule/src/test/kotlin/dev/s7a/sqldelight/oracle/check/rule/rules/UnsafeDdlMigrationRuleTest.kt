@@ -94,7 +94,21 @@ class UnsafeDdlMigrationRuleTest :
             UnsafeDdlMigrationRule().diagnostics(
                 """
                 -- ALTER TABLE customer DROP COLUMN legacy_code;
-                SELECT 'TRUNCATE TABLE customer_event' AS ddl_text
+                /* ALTER TABLE customer DROP COLUMN legacy_code; */
+                SELECT /*+ PARALLEL(customer) */ 'TRUNCATE TABLE customer_event' AS ddl_text
+                FROM dual;
+                """,
+            ) shouldBe emptyList()
+        }
+
+        test("ignores unsafe DDL text in multiline block comments") {
+            UnsafeDdlMigrationRule().diagnostics(
+                """
+                /*
+                  ALTER TABLE customer DROP COLUMN legacy_code;
+                  TRUNCATE TABLE customer_event;
+                */
+                SELECT 'ALTER TABLE customer MOVE' AS ddl_text
                 FROM dual;
                 """,
             ) shouldBe emptyList()

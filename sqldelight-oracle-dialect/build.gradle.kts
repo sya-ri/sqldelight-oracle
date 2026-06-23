@@ -33,6 +33,7 @@ afterEvaluate {
 }
 
 dependencies {
+    compileOnly(libs.sqldelight.core)
     api(libs.sqldelight.dialect.api)
     compileOnly(libs.sqldelight.compiler.env)
     testCompileOnly(libs.sqldelight.compiler.env)

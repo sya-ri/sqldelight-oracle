@@ -73,6 +73,21 @@ class RequireNumberPrecisionRuleTest :
             RequireNumberPrecisionRule().diagnostics(
                 """
                 -- amount NUMBER NOT NULL
+                /* amount NUMBER NOT NULL */
+                SELECT /*+ NO_INDEX(invoice) */ 'NUMBER' AS label
+                FROM dual;
+                """,
+            ) shouldBe emptyList()
+        }
+
+        test("ignores NUMBER in multiline block comments") {
+            RequireNumberPrecisionRule().diagnostics(
+                """
+                /*
+                  CREATE TABLE invoice (
+                    amount NUMBER NOT NULL
+                  );
+                */
                 SELECT 'NUMBER' AS label
                 FROM dual;
                 """,

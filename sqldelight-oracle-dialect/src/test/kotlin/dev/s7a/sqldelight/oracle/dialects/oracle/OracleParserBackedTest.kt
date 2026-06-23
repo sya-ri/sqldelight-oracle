@@ -122,6 +122,79 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle block comments through SQLDelight environment exactly") {
+            val sql =
+                """
+                /* Leading file block comment. */
+                CREATE TABLE comment_samples (
+                  id NUMBER /* Column block comment. */ PRIMARY KEY,
+                  name VARCHAR2(64)
+                );
+
+                /* Between statement block comment. */
+                selectWithBlockComments:
+                SELECT /* Result-column block comment. */ id, name
+                FROM /* Table-reference block comment. */ comment_samples
+                WHERE id = 1 /* Predicate block comment. */;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle block optimizer hint comments exactly") {
+            val sql =
+                """
+                /* Migration leading block comment. */
+                CREATE TABLE hint_samples (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(64)
+                );
+
+                SELECT /*+ FULL(hint_samples) */
+                  id, name
+                FROM hint_samples
+                WHERE id = 1;
+
+                INSERT /*+ APPEND */
+                INTO hint_samples (id, name)
+                VALUES (2, 'inserted');
+
+                UPDATE /*+ INDEX(hint_samples) */
+                  hint_samples
+                SET name = 'updated'
+                WHERE id = 2;
+
+                DELETE /*+ INDEX(hint_samples) */
+                FROM hint_samples
+                WHERE id = 2;
+
+                MERGE /*+ USE_HASH(source_samples) */
+                INTO hint_samples
+                USING (
+                  SELECT /*+
+                    LEADING(source_samples)
+                  */ 3 AS id, 'merged' AS name
+                  FROM hint_samples source_samples
+                ) source_samples
+                ON (1 = 0)
+                WHEN MATCHED THEN
+                  UPDATE SET name = 'merged'
+                WHEN NOT MATCHED THEN
+                  INSERT (id, name)
+                  VALUES (3, 'merged');
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle datetime and interval literals exactly") {
             val sql =
                 """

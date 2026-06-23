@@ -59,7 +59,26 @@ class PreferIdentityColumnRuleTest :
             PreferIdentityColumnRule().diagnostics(
                 """
                 -- CREATE SEQUENCE customer_id_seq;
-                SELECT 'CREATE TRIGGER t BEFORE INSERT BEGIN SELECT s.NEXTVAL INTO :NEW.id FROM dual; END;' AS sql_text
+                /* CREATE SEQUENCE customer_id_seq; */
+                SELECT /*+ RESULT_CACHE */ 'CREATE TRIGGER t BEFORE INSERT BEGIN SELECT s.NEXTVAL INTO :NEW.id FROM dual; END;' AS sql_text
+                FROM dual;
+                """,
+            ) shouldBe emptyList()
+        }
+
+        test("ignores sequence-trigger text in multiline block comments") {
+            PreferIdentityColumnRule().diagnostics(
+                """
+                /*
+                  CREATE SEQUENCE customer_id_seq;
+                  CREATE TRIGGER customer_id_trigger
+                    BEFORE INSERT ON customer
+                    FOR EACH ROW
+                    BEGIN
+                      SELECT customer_id_seq.NEXTVAL INTO :NEW.id FROM dual;
+                    END;
+                */
+                SELECT 'CREATE SEQUENCE customer_id_seq' AS sql_text
                 FROM dual;
                 """,
             ) shouldBe emptyList()

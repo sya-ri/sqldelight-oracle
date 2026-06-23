@@ -9,7 +9,6 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 
 ### Defer Until SQLDelight Core Support Exists
 
-- [ ] [`/* ... */` and `/*+ ... */` block comments and hints](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comments.html), because SQLDelight constructs the core lexer/parser definition before dialect setup hooks can add block-comment tokens.
 - [ ] [Alternative quoted literals](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html) `q'...'` and `nq'...'`, because delimiter-aware literal handling belongs in lexer-level tokens.
 - [ ] Bracket/operator-heavy syntax consumed differently by SQLDelight core today: [`MODEL` clause](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/model_clause.html), [`GRAPH_TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graph_table-operator.html) edge patterns, JSON array-step access, and vector shorthand operators `<->`, `<=>`, `<#>`.
 - [ ] Non-named DML targets in [`DML_table_expression_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html), because SQLDelight compiler paths such as mutator handling and optimistic-lock validation currently assume a named `SqlTableName` / `SqlQualifiedTableName`.
@@ -17,7 +16,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 ### Defer As Semantic Validators
 
 - [ ] Schema-aware validation that needs SQLDelight PSI/schema/type analysis rather than accepting syntax: `JSON_TABLE` generated columns, pivot/unpivot generated columns, row pattern output columns, object/REF attribute rules, domain function return types, row-value arity/type validation, and clause-order/mutual-exclusion checks.
-- [ ] Runtime and database-kind restrictions: object kind checks, privileges, release-specific limits, statement-position restrictions, hint-driven behavior, and format-model correctness.
+- [ ] Runtime and database-kind restrictions: object kind checks, privileges, release-specific limits, optimizer hint semantics/validation, hint-driven behavior, and format-model correctness.
 
 ## Lexical Syntax And Names
 
@@ -27,7 +26,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [ ] [Schema object reference semantic validation](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Syntax-for-Schema-Objects-and-Parts-in-SQL-Statements.html): defer object-kind restrictions, optional `"PUBLIC"` synonym qualification, database link name resolution details, identifier byte-length limits, and quoted uppercase `"ROWID"` restrictions to semantic validators
 - [x] [SQL line comments](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comments.html): `--` comments
 - [x] [Single-line optimizer hint comments](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comments.html): parser boundary coverage for `--+ ...` immediately after `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `MERGE`
-- [ ] [SQL block comments and optimizer hints](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comments.html): `/* ... */`, `/*+ ... */`, full hint syntax validation, and block hint placement immediately after `INSERT`, `UPDATE`, `DELETE`, `SELECT`, or `MERGE`; SQLDelight's current `SqlParserDefinition` creates the core `SqlLexerAdapter`, so dialect `setup()` parser overrides cannot add these tokens by themselves
+- [x] [SQL block comments and optimizer hints](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comments.html): `/* ... */`, `/** ... */`, and `/*+ ... */` comments through Oracle parser-definition lexer replacement, including block hint placement immediately after `INSERT`, `UPDATE`, `DELETE`, `SELECT`, and `MERGE`
 
 ## Source Scanner
 
@@ -45,7 +44,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 ## Queries
 
 - [x] [`SELECT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) source-scanner statement and major clause boundaries
-- [ ] [`query_block`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/query_block.html) parser support for block optimizer hints after `SELECT`; core `comment` currently tokenizes only `--` line comments, so Oracle `/*+ ... */` hints need lexer support before parser coverage
+- [x] [`query_block`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/query_block.html) parser support for block optimizer hints after `SELECT`
 - [x] [`hierarchical_query_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/hierarchical_query_clause.html) parser support for `START WITH`, `CONNECT BY`, `CONNECT BY NOCYCLE`, and `PRIOR` operands in representative conditions
 - [x] [`row_limiting_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html): `OFFSET`, `FETCH FIRST`, `FETCH NEXT`, `PERCENT`, `ONLY`, and `WITH TIES`
 - [x] [`row_limiting_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_limiting_clause.html) 26ai boundary/token parser coverage for [`row_limiting_partition_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_limiting_partition_clause.html), approximate row limiting, and [`accuracy_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/accuracy_clause.html)
@@ -143,7 +142,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] [`INSERT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html) parser support for direct named remote view targets with `@dblink`
 - [ ] [`DML_table_expression_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html) deferred parser/compiler work: subquery targets with [`subquery_restriction_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/subquery_restriction_clause.html), `table_collection_expression`, remote materialized-view schema integration, and non-named object table/object view targets across `INSERT`, `UPDATE`, and `DELETE`; these need mixin/schema/compiler changes because `OracleInsertStmtMixin`, `qualified_table_name`, core `MutatorMixin`, and SQLDelight `OptimisticLockValidator` currently assume a named `SqlTableName` / `SqlQualifiedTableName`
 - [x] [DML single-line optimizer hint comments](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comments.html): parser boundary coverage for statement-level `--+ ...` hint comments in `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `MERGE`
-- [ ] [DML block optimizer hints](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comments.html): defer statement-level and query-block `/*+ ... */` hints in `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `MERGE` until block-comment lexer support exists
+- [x] [DML block optimizer hints](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comments.html): statement-level and query-block `/*+ ... */` hints in `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `MERGE`
 - [x] [DML error logging clause](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html): `LOG ERRORS INTO`, `REJECT LIMIT`, and reusable DML clause parsing for `INSERT` and `MERGE`
 - [x] [DML error logging clause](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/error_logging_clause.html) parser coverage for `UPDATE` and `DELETE`
 

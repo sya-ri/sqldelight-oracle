@@ -58,6 +58,22 @@ class NullableNotInPredicateRuleTest :
             NullableNotInPredicateRule().diagnostics(
                 """
                 -- WHERE id NOT IN (SELECT customer_id FROM invoice)
+                /* WHERE id NOT IN (SELECT customer_id FROM invoice) */
+                SELECT /*+ FULL(invoice) */ 'NOT IN (SELECT customer_id FROM invoice)' AS label
+                FROM dual;
+                """,
+            ) shouldBe emptyList()
+        }
+
+        test("ignores NOT IN in multiline block comments") {
+            NullableNotInPredicateRule().diagnostics(
+                """
+                /*
+                  WHERE id NOT IN (
+                    SELECT customer_id
+                    FROM invoice
+                  )
+                */
                 SELECT 'NOT IN (SELECT customer_id FROM invoice)' AS label
                 FROM dual;
                 """,

@@ -66,6 +66,21 @@ class NoEmptyStringComparisonRuleTest :
             NoEmptyStringComparisonRule().diagnostics(
                 """
                 -- WHERE name = '';
+                /* WHERE name = ''; */
+                SELECT /*+ INDEX(customers) */ *
+                FROM customers
+                WHERE id = :id;
+                """,
+            ) shouldBe emptyList()
+        }
+
+        test("ignores comparisons in multiline block comments") {
+            NoEmptyStringComparisonRule().diagnostics(
+                """
+                /*
+                  WHERE name = ''
+                  OR nickname <> ''
+                */
                 SELECT *
                 FROM customers
                 WHERE id = :id;

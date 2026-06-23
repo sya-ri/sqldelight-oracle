@@ -5,6 +5,7 @@ import dev.s7a.sqldelight.check.rule.api.RuleProvider
 import dev.s7a.sqldelight.check.rule.api.RuleSetProvider
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingConstraintStateRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingCreateViewClausesRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingDropClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingFlashbackClauseRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingIndexClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingJsonStorageClausesRule
@@ -44,6 +45,7 @@ public class OracleRuleSetProvider : RuleSetProvider {
             RuleProvider(::NoEmptyStringComparisonRule),
             RuleProvider(::NoConflictingConstraintStateRule),
             RuleProvider(::NoConflictingCreateViewClausesRule),
+            RuleProvider(::NoConflictingDropClausesRule),
             RuleProvider(::NoConflictingFlashbackClauseRule),
             RuleProvider(::NoConflictingIndexClausesRule),
             RuleProvider(::NoConflictingJsonStorageClausesRule),

@@ -6,6 +6,7 @@ import dev.s7a.sqldelight.check.rule.api.RuleSetProvider
 import dev.s7a.sqldelight.oracle.check.dialect.OracleDialectId
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingConstraintStateRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingCreateViewClausesRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingDropClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingFlashbackClauseRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingIndexClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingJsonStorageClausesRule
@@ -49,6 +50,7 @@ class OracleRuleSetProviderTest :
                     NoEmptyStringComparisonRule::class,
                     NoConflictingConstraintStateRule::class,
                     NoConflictingCreateViewClausesRule::class,
+                    NoConflictingDropClausesRule::class,
                     NoConflictingFlashbackClauseRule::class,
                     NoConflictingIndexClausesRule::class,
                     NoConflictingJsonStorageClausesRule::class,
@@ -80,6 +82,7 @@ class OracleRuleSetProviderTest :
                     "oracle:no-empty-string-comparison",
                     "oracle:no-conflicting-constraint-state",
                     "oracle:no-conflicting-create-view-clauses",
+                    "oracle:no-conflicting-drop-clauses",
                     "oracle:no-conflicting-flashback-clause",
                     "oracle:no-conflicting-index-clauses",
                     "oracle:no-conflicting-json-storage-clauses",

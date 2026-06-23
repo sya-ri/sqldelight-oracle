@@ -7437,6 +7437,40 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle bind placeholders exactly") {
+            val sql =
+                """
+                CREATE TABLE sample (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(100),
+                  amount NUMBER(10, 2)
+                );
+
+                selectByNamedBind:
+                SELECT id, name, amount
+                FROM sample
+                WHERE id = :id
+                  AND name = :name
+                  AND amount > :1;
+
+                updateByBinds:
+                UPDATE sample
+                SET name = :new_name,
+                    amount = :2
+                WHERE id = :id;
+
+                deleteByBind:
+                DELETE FROM sample
+                WHERE id = :1;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

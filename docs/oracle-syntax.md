@@ -428,7 +428,8 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] [`CURSOR` expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CURSOR-Expressions.html) parser support for `CURSOR(subquery)`
 - [x] [`CASE` expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CASE-Expressions.html) parser support for simple and searched `CASE`
 - [x] [Scalar subquery expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Scalar-Subquery-Expressions.html) parser support
-- [ ] [Placeholder expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Expressions.html) parser support for SQLDelight `?` bind parameters and Oracle `:name` / `:1` bind placeholders
+- [ ] [Placeholder expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Expressions.html)
+  - [x] parser support for SQLDelight `?` bind parameters and Oracle `:name` / `:1` bind placeholders
   - [ ] Object access expressions
     - [x] parser support for object method invocation outside `CALL` on type-constructor, user-function, and parenthesized receivers
     - [x] parser support for object attribute access outside `CALL` on type-constructor, user-function, and parenthesized receivers

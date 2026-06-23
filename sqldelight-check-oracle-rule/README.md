@@ -91,6 +91,7 @@ sqldelightCheck {
 | [`oracle:nullable-not-in-predicate`](#oraclenullable-not-in-predicate) | Yes | Warning |  | Flag `NOT IN (subquery)` predicates that do not explicitly filter nullable values. |
 | [`oracle:no-empty-string-comparison`](#oracleno-empty-string-comparison) | Yes | Warning |  | Avoid comparing to `''`, because Oracle treats zero-length strings as `NULL`. |
 | [`oracle:no-conflicting-annotation-operations`](#oracleno-conflicting-annotation-operations) | Yes | Warning |  | Avoid conflicting annotation operations for the same annotation name. |
+| [`oracle:no-conflicting-commit-write-clauses`](#oracleno-conflicting-commit-write-clauses) | Yes | Warning |  | Avoid conflicting `COMMIT WRITE` clauses. |
 | [`oracle:no-conflicting-constraint-state`](#oracleno-conflicting-constraint-state) | Yes | Warning |  | Avoid mutually exclusive Oracle constraint state clauses. |
 | [`oracle:no-conflicting-create-view-clauses`](#oracleno-conflicting-create-view-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE VIEW` clauses. |
 | [`oracle:no-conflicting-drop-clauses`](#oracleno-conflicting-drop-clauses) | Yes | Warning |  | Avoid conflicting Oracle `DROP` clauses. |
@@ -162,6 +163,17 @@ ALTER TABLE customer
         ADD sensitive,
         ADD owner
     );
+```
+
+## `oracle:no-conflicting-commit-write-clauses`
+
+Reports conflicting Oracle [`COMMIT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/COMMIT.html) `WRITE` clauses.
+The rule checks repeated `WRITE`, `WAIT` / `NOWAIT`, and `IMMEDIATE` / `BATCH` combinations.
+
+Prefer one write behavior and one write mode:
+
+```sql
+COMMIT WRITE WAIT IMMEDIATE;
 ```
 
 ## `oracle:no-conflicting-constraint-state`

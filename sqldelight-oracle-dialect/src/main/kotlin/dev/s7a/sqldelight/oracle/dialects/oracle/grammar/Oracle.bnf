@@ -558,7 +558,9 @@ private oracle_sql_json_query_expr ::= oracle_json_value_expr | oracle_json_quer
 
 private oracle_json_value_expr ::= 'JSON_VALUE' LP <<expr '-1'>> [ oracle_json_format_clause ] COMMA oracle_json_path_expression oracle_json_value_clause * RP
 
-private oracle_json_value_clause ::= oracle_json_returning_clause | oracle_json_ascii_clause | oracle_json_value_on_error_clause | oracle_json_value_on_empty_clause | oracle_json_on_mismatch_clause
+private oracle_json_value_clause ::= oracle_json_value_returning_clause | oracle_json_ascii_clause | oracle_json_value_on_error_clause | oracle_json_value_on_empty_clause | oracle_json_on_mismatch_clause
+
+private oracle_json_value_returning_clause ::= 'RETURNING' oracle_type_name [ 'TRUNCATE' ]
 
 private oracle_json_query_expr ::= 'JSON_QUERY' LP <<expr '-1'>> [ oracle_json_format_clause ] COMMA oracle_json_path_expression oracle_json_query_clause * RP
 

@@ -1419,6 +1419,12 @@ class OracleParserBackedTest :
                   ERROR ON ERROR
                   DEFAULT 0 ON EMPTY
                 ),
+                  JSON_VALUE(
+                    payload,
+                    '$.employee.name'
+                    RETURNING VARCHAR2(5) TRUNCATE
+                    NULL ON ERROR
+                  ),
                   JSON_QUERY(
                     payload FORMAT JSON,
                     '$.items[*]'

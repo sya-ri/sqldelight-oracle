@@ -1269,7 +1269,14 @@ class OracleParserBackedTest :
                   payload JSON
                 );
 
-                SELECT d.id
+                SELECT d.id,
+                  jt.line_number,
+                  jt.employee_id,
+                  jt.employee_name,
+                  jt.has_items,
+                  jt.details,
+                  jt.item_number,
+                  jt.item_name
                 FROM documents d,
                   JSON_TABLE(
                     '{"employee":{"id":1,"name":"Ada"},"items":[{"name":"Keyboard"}]}' FORMAT JSON,
@@ -1344,7 +1351,10 @@ class OracleParserBackedTest :
                   AND XMLEXISTS('/Warehouse[Area > 50000]' PASSING d.warehouse_spec)
                 GROUP BY d.id, d.name, d.warehouse_spec;
 
-                SELECT d.id
+                SELECT d.id,
+                  warehouse.line_number,
+                  warehouse.water_access,
+                  warehouse.rail_access
                 FROM departments d,
                   XMLTABLE(
                     XMLNAMESPACES(DEFAULT 'http://example.com/warehouse'),
@@ -1353,8 +1363,8 @@ class OracleParserBackedTest :
                     RETURNING SEQUENCE BY REF
                     COLUMNS
                       line_number FOR ORDINALITY,
-                      "Water" VARCHAR2(6) PATH 'WaterAccess' DEFAULT 'N',
-                      "Rail" VARCHAR2(6) PATH 'RailAccess'
+                      water_access VARCHAR2(6) PATH 'WaterAccess' DEFAULT 'N',
+                      rail_access VARCHAR2(6) PATH 'RailAccess'
                   ) warehouse;
                 """.trimIndent()
 
@@ -3764,7 +3774,7 @@ class OracleParserBackedTest :
                 ) unpivoted_orders;
 
                 selectMatchRecognize:
-                SELECT *
+                SELECT matched_orders.first_id, matched_orders.last_id
                 FROM partitioned_orders MATCH_RECOGNIZE (
                   PARTITION BY 1
                   ORDER BY 1
@@ -3776,7 +3786,7 @@ class OracleParserBackedTest :
                 ) matched_orders;
 
                 selectMatchRecognizeAdvancedPattern:
-                SELECT *
+                SELECT advanced_matches.running_id, advanced_matches.final_id
                 FROM partitioned_orders MATCH_RECOGNIZE (
                   MEASURES RUNNING 1 AS running_id, FINAL 2 AS final_id
                   ALL ROWS PER MATCH WITH UNMATCHED ROWS
@@ -3856,7 +3866,7 @@ class OracleParserBackedTest :
                      TABLE(ODCINUMBERLIST(1))(+) numbers;
 
                 selectValuesTable:
-                SELECT *
+                SELECT value_employees.employee_id, value_employees.first_name
                 FROM (
                   VALUES (1, 'SCOTT'),
                          (2, 'SMITH')

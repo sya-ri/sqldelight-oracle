@@ -15,7 +15,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 
 ### Defer As Semantic Validators
 
-- [ ] Schema-aware validation that needs SQLDelight PSI/schema/type analysis rather than accepting syntax: `JSON_TABLE` generated columns, pivot/unpivot generated columns, row pattern output columns, object/REF attribute rules, domain function return types, row-value arity/type validation, and clause-order/mutual-exclusion checks.
+- [ ] Schema-aware validation that needs SQLDelight PSI/schema/type analysis rather than accepting syntax: pivot/unpivot generated columns, object/REF attribute rules, domain function return types, row-value arity/type validation, and clause-order/mutual-exclusion checks.
 - [ ] Runtime and database-kind restrictions: object kind checks, privileges, release-specific limits, optimizer hint semantics/validation, hint-driven behavior, and format-model correctness.
 
 ## Lexical Syntax And Names
@@ -73,8 +73,10 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [ ] [`MODEL` query clauses](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/model_clause.html): defer parser and semantic coverage until SQLDelight core exposes bracket tokens and the dialect can represent model cell references, `cell_reference_options`, `reference_model`, `main_model`, `model_rules_clause`, for-loop forms, `ITERATE`, and MODEL-only validation reliably
 - [x] [`JSON_TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/JSON_TABLE.html)
   - [x] parser support for table references with `FORMAT JSON`, `PASSING`, `COLUMNS`, ordinality columns, value columns, exists columns, query-style `FORMAT JSON` columns, and nested path columns
-  - [ ] deferred query generated-column semantic validation: SQLDelight column resolution for [`JSON_TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/JSON_TABLE.html), `PIVOT`, `UNPIVOT`, and `MATCH_RECOGNIZE` output columns, including wrapper/error/empty clause ordering, nested path scoping, pivot aliases, and row-pattern variable placement
+  - [x] SQLDelight column resolution for [`JSON_TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/JSON_TABLE.html) output columns, including ordinality, value, exists, query-style `FORMAT JSON`, and nested path columns
+  - [ ] deferred semantic validation: wrapper/error/empty clause ordering and nested path scoping
 - [x] [`XMLTABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/XMLTABLE.html)
+  - [x] SQLDelight column resolution for `XMLTABLE` `COLUMNS` output columns
 - [x] Analytic view query syntax source-scanner boundaries; DDL page is tracked under `CREATE ANALYTIC VIEW`
 - [x] SQL/PGQ graph query syntax source-scanner boundaries; `GRAPH_TABLE` operator page is tracked below
 - [x] [`with_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/with_clause.html)
@@ -113,7 +115,8 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
     - [x] representative [`pivot_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/pivot_clause.html), [`pivot_for_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/pivot_for_clause.html), and [`pivot_in_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/pivot_in_clause.html) parser support, including `PIVOT XML`, `ANY`, pivot subquery forms, composite pivot columns, and literal tuple aliases
     - [x] [`unpivot_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/unpivot_clause.html) and [`unpivot_in_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/unpivot_in_clause.html) parser support for representative scalar and composite forms
     - [x] representative [`row_pattern_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_clause.html) parser support for `MATCH_RECOGNIZE`, [`row_pattern_partition_by`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_partition_by.html), [`row_pattern_order_by`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_order_by.html), [`row_pattern_measures`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_measures.html), [`row_pattern_rows_per_match`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_rows_per_match.html), [`row_pattern_skip_to`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_skip_to.html), [`row_pattern`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern.html), and [`row_pattern_definition_list`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_definition_list.html)
-  - [x] [`values_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) parser support for `FROM (VALUES (...), (...)) alias(column_alias, ...)`
+    - [x] SQLDelight column resolution for `MATCH_RECOGNIZE` `MEASURES` output aliases
+  - [x] [`values_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) parser support for `FROM (VALUES (...), (...)) alias(column_alias, ...)`, including SQLDelight column resolution for the table alias column list
 - [x] [`row_pattern_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_clause.html)
   - [x] parser coverage for nested [`row_pattern_term`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_term.html) groups, [`row_pattern_subset_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_subset_clause.html), [`row_pattern_definition_list`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_definition_list.html) expression conditions, `RUNNING` / `FINAL` measures, and `ALL ROWS PER MATCH` detail forms
   - [x] parser coverage for `?` and reluctant `+?` / `*?` / `??` quantifier boundaries
@@ -121,7 +124,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] parser coverage for [`row_pattern`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern.html) alternation with `|`
   - [x] parser coverage for row-pattern exclusion groups with `{- ... -}`
   - [x] parser coverage for bounded quantifiers `{n}`, `{n,}`, `{,m}`, and `{n,m}` including reluctant suffixes
-  - [ ] deferred semantic remainder: generated output columns and pattern variable placement rules
+  - [ ] deferred semantic remainder: pattern variable placement rules
 - [x] [`CONTAINERS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/containers_clause.html) and [`SHARDS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) query clauses
 - [x] [`group_by_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/group_by_clause.html)
   - [x] aggregation parser support: `ROLLUP`, `CUBE`, `GROUPING SETS`, composite columns, `GROUP BY ALL`, and `HAVING` after `GROUP BY`

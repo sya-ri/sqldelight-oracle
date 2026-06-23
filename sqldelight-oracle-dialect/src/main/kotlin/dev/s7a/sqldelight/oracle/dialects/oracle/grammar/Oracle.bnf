@@ -1098,7 +1098,7 @@ private oracle_group_by_having_clause ::= (
 )
 
 table_or_subquery ::= oracle_graph_table_reference | oracle_graphql_table_reference | oracle_json_table_reference | oracle_xmltable_reference | oracle_inline_external_table_reference | oracle_containers_table_reference | oracle_collection_table_reference | oracle_values_table_reference | oracle_subquery_table_reference | oracle_join_to_one_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
-  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlTableOrSubqueryImpl"
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleTableOrSubqueryMixin"
   implements = "com.alecstrong.sql.psi.core.psi.SqlTableOrSubquery"
   override = true
 }
@@ -1178,28 +1178,28 @@ private oracle_graphql_passing_clause ::= 'PASSING' oracle_graphql_variable_bind
 
 private oracle_graphql_variable_binding ::= <<expr '-1'>> 'AS' oracle_object_name_part
 
-private oracle_json_table_reference ::= 'JSON_TABLE' LP <<expr '-1'>> [ oracle_json_format_clause ]
+oracle_json_table_reference ::= 'JSON_TABLE' LP <<expr '-1'>> [ oracle_json_format_clause ]
   COMMA oracle_json_path_expression [ oracle_json_passing_clause ] oracle_json_table_columns_clause RP
   [ oracle_table_alias_clause ]
 
-private oracle_json_table_columns_clause ::= 'COLUMNS' LP oracle_json_table_column ( COMMA oracle_json_table_column ) * RP
+oracle_json_table_columns_clause ::= 'COLUMNS' LP oracle_json_table_column ( COMMA oracle_json_table_column ) * RP
 
-private oracle_json_table_column ::= (
+oracle_json_table_column ::= (
   oracle_json_table_nested_column |
   oracle_json_table_ordinality_column |
   oracle_json_table_exists_column |
   oracle_json_table_regular_column
 )
 
-private oracle_json_table_ordinality_column ::= oracle_object_name_part 'FOR' 'ORDINALITY'
+oracle_json_table_ordinality_column ::= <<columnAliasExt <<column_alias_real>>>> 'FOR' 'ORDINALITY'
 
-private oracle_json_table_regular_column ::= oracle_object_name_part oracle_json_table_datatype [ 'TRUNCATE' ]
+oracle_json_table_regular_column ::= <<columnAliasExt <<column_alias_real>>>> oracle_json_table_datatype [ 'TRUNCATE' ]
   [ oracle_json_format_clause ] [ oracle_json_table_path_clause ] oracle_json_table_value_clause *
 
-private oracle_json_table_exists_column ::= oracle_object_name_part [ oracle_json_table_datatype ]
+oracle_json_table_exists_column ::= <<columnAliasExt <<column_alias_real>>>> [ oracle_json_table_datatype ]
   'EXISTS' [ oracle_json_table_path_clause ] ( oracle_json_exists_on_error_clause | oracle_json_exists_on_empty_clause ) *
 
-private oracle_json_table_nested_column ::= 'NESTED' [ 'PATH' ] oracle_json_path_expression oracle_json_table_columns_clause
+oracle_json_table_nested_column ::= 'NESTED' [ 'PATH' ] oracle_json_path_expression oracle_json_table_columns_clause
 
 private oracle_json_table_datatype ::= oracle_object_name_part [ oracle_type_parameters ]
 
@@ -1214,7 +1214,7 @@ private oracle_json_table_value_clause ::= (
   oracle_json_on_mismatch_clause
 )
 
-private oracle_xmltable_reference ::= 'XMLTABLE' LP [ oracle_xmlnamespaces_clause COMMA ] {string_literal}
+oracle_xmltable_reference ::= 'XMLTABLE' LP [ oracle_xmlnamespaces_clause COMMA ] {string_literal}
   [ oracle_xml_passing_clause ] [ 'RETURNING' 'SEQUENCE' 'BY' 'REF' ] [ oracle_xmltable_columns_clause ] RP
   [ oracle_table_alias_clause ]
 
@@ -1225,9 +1225,9 @@ private oracle_xml_namespace ::= (
   {string_literal} 'AS' oracle_xml_name
 )
 
-private oracle_xmltable_columns_clause ::= 'COLUMNS' oracle_xmltable_column ( COMMA oracle_xmltable_column ) *
+oracle_xmltable_columns_clause ::= 'COLUMNS' oracle_xmltable_column ( COMMA oracle_xmltable_column ) *
 
-private oracle_xmltable_column ::= oracle_xml_name (
+oracle_xmltable_column ::= <<columnAliasExt <<column_alias_real>>>> (
   'FOR' 'ORDINALITY' |
   oracle_xmltable_datatype [ oracle_xmltype_sequence_clause ] [ 'PATH' {string_literal} ] [ 'DEFAULT' <<expr '-1'>> ]
 )
@@ -1262,7 +1262,7 @@ private oracle_collection_table_reference ::= (
   'THE' LP <<compoundSelectStmtExt <<compound_select_stmt_real>>>> RP
 ) [ LP '+' RP ] [ oracle_table_alias_clause ]
 
-private oracle_values_table_reference ::= LP 'VALUES'
+oracle_values_table_reference ::= LP 'VALUES'
   <<valuesExpressionExt <<values_expression_real>>>> ( COMMA <<valuesExpressionExt <<values_expression_real>>>> ) *
   RP [ oracle_table_alias_with_columns_clause ]
 
@@ -1363,7 +1363,7 @@ private oracle_unpivot_literal_group ::= oracle_unpivot_literal | LP oracle_unpi
 
 private oracle_unpivot_literal ::= {string_literal} | string | DIGIT | {signed_number}
 
-private oracle_row_pattern_clause ::= 'MATCH_RECOGNIZE' LP
+oracle_row_pattern_clause ::= 'MATCH_RECOGNIZE' LP
   [ oracle_row_pattern_partition_by_clause ]
   [ oracle_row_pattern_order_by_clause ]
   [ oracle_row_pattern_measures_clause ]
@@ -1378,9 +1378,9 @@ private oracle_row_pattern_partition_by_clause ::= 'PARTITION' 'BY' oracle_row_p
 
 private oracle_row_pattern_order_by_clause ::= 'ORDER' 'BY' <<orderingTermExt <<ordering_term_real>>>> ( COMMA <<orderingTermExt <<ordering_term_real>>>> ) *
 
-private oracle_row_pattern_measures_clause ::= 'MEASURES' oracle_row_pattern_measure_column ( COMMA oracle_row_pattern_measure_column ) *
+oracle_row_pattern_measures_clause ::= 'MEASURES' oracle_row_pattern_measure_column ( COMMA oracle_row_pattern_measure_column ) *
 
-private oracle_row_pattern_measure_column ::= [ 'RUNNING' | 'FINAL' ] oracle_row_pattern_operand [ [ 'AS' ] <<columnAliasExt <<column_alias_real>>>> ]
+oracle_row_pattern_measure_column ::= [ 'RUNNING' | 'FINAL' ] oracle_row_pattern_operand [ [ 'AS' ] <<columnAliasExt <<column_alias_real>>>> ]
 
 private oracle_row_pattern_rows_per_match_clause ::= (
   'ONE' 'ROW' 'PER' 'MATCH' |

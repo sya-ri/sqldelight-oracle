@@ -3836,6 +3836,15 @@ class OracleParserBackedTest :
                   COLUMNS (employee.employee_id AS employee_id, department.department_id AS department_id)
                 ) graph_employee_departments_by_quantified_path;
 
+                selectGraphTablePatternWhere:
+                SELECT *
+                FROM GRAPH_TABLE (
+                  employees_graph
+                  MATCH (employee IS employee_node) -[]-> (department IS department_node)
+                  WHERE employee.employee_id <> department.department_id
+                  COLUMNS (employee.employee_id AS employee_id, department.department_id AS department_id)
+                ) graph_employee_departments_filtered;
+
                 selectGraphqlTableFunction:
                 SELECT *
                 FROM GRAPHQL('

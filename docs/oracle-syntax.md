@@ -95,11 +95,11 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
     - [x] representative analytic view and [`hierarchies_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/hierarchies_clause.html) table reference parser support
     - [x] hierarchy table reference parser support through object-name table references
     - [x] subquery [`subquery_restriction_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/subquery_restriction_clause.html) parser support for `WITH CHECK OPTION` and `WITH READ ONLY` in table references
-- [ ] [`table_reference`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/table_reference.html)
+- [x] [`table_reference`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/table_reference.html)
   - [x] parser support for direct `ONLY (table)` table references
   - [x] parser support for remote `ONLY (table@dblink)` table references
   - [x] parser support for representative `ONLY ((subquery))` table expressions
-  - [ ] semantic validation: defer object-kind checks for `ONLY`, analytic views, hierarchies, `CONTAINERS`, `SHARDS`, inline analytic views, and `VALUES` alias/column counts
+  - [ ] deferred semantic validation: object-kind checks for `ONLY`, analytic views, hierarchies, `CONTAINERS`, `SHARDS`, inline analytic views, and `VALUES` alias/column counts
   - [x] [`flashback_query_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) parser support for `AS OF SCN`, `AS OF TIMESTAMP`, `VERSIONS BETWEEN SCN`, `VERSIONS BETWEEN TIMESTAMP`, `MINVALUE` / `MAXVALUE` version boundaries, period-qualified table references, and combined `VERSIONS` plus `AS OF` forms
   - [x] `table_reference`
     - [x] representative [`pivot_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/pivot_clause.html), [`pivot_for_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/pivot_for_clause.html), and [`pivot_in_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/pivot_in_clause.html) parser support, including `PIVOT XML`, `ANY`, pivot subquery forms, composite pivot columns, and literal tuple aliases

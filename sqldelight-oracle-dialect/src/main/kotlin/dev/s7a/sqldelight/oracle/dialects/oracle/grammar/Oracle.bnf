@@ -210,6 +210,10 @@ private oracle_core_stmt ::= (
   {drop_trigger_stmt} |
   {drop_view_stmt} |
   {drop_index_stmt} |
+  create_materialized_view_log_stmt |
+  create_materialized_view_stmt |
+  create_unqualified_synonym_stmt |
+  create_synonym_stmt |
   {extension_stmt} |
   {alter_table_stmt} |
   {analyze_stmt} |
@@ -3180,8 +3184,12 @@ create_materialized_view_log_stmt ::= 'CREATE' 'MATERIALIZED' 'VIEW' 'LOG' [ 'IF
 }
 
 create_materialized_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] 'MATERIALIZED' 'VIEW' [ 'IF' 'NOT' 'EXISTS' ]
-  oracle_schema_object_name [ LP oracle_object_name_part ( COMMA oracle_object_name_part ) * RP ]
+  [ {database_name} DOT ] {view_name} [ LP oracle_object_name_part ( COMMA oracle_object_name_part ) * RP ]
   oracle_materialized_view_create_clause * [ oracle_annotations_clause ] 'AS' {compound_select_stmt} [ oracle_annotations_clause ] {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCreateViewStmtImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.TableElement"
+  elementTypeClass = "com.alecstrong.sql.psi.core.psi.mixins.CreateViewElementType"
+  stubClass = "com.alecstrong.sql.psi.core.psi.SchemaContributorStub"
   pin = 4
 }
 
@@ -3245,11 +3253,20 @@ create_synonym_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'EDITIONABLE' | 'NONEDITIO
   [ oracle_public_qualifier ] 'SYNONYM' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name
   [ oracle_synonym_sharing_clause ] 'FOR' oracle_synonym_target
 
+create_unqualified_synonym_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'EDITIONABLE' | 'NONEDITIONABLE' ]
+  [ oracle_public_qualifier ] 'SYNONYM' [ 'IF' 'NOT' 'EXISTS' ] {view_name}
+  [ oracle_synonym_sharing_clause ] 'FOR' oracle_synonym_target {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCreateViewStmtImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.TableElement"
+  elementTypeClass = "com.alecstrong.sql.psi.core.psi.mixins.CreateViewElementType"
+  stubClass = "com.alecstrong.sql.psi.core.psi.SchemaContributorStub"
+}
+
 private oracle_public_qualifier ::= 'PUBLIC' | '"PUBLIC"'
 
 private oracle_synonym_sharing_clause ::= 'SHARING' EQ ( 'METADATA' | 'NONE' )
 
-private oracle_synonym_target ::= oracle_schema_object_name [ '@' oracle_database_link_reference ]
+oracle_synonym_target ::= oracle_schema_object_name [ '@' oracle_database_link_reference ]
 
 private oracle_database_link_reference ::= oracle_object_name_part ( DOT oracle_object_name_part ) *
 

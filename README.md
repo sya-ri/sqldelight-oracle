@@ -51,11 +51,6 @@ Run the sqldelight-check tasks from the SQLDelight project:
 ./gradlew sqldelightFix
 ```
 
-## Oracle Syntax Coverage
-
-Oracle syntax coverage is tracked in [docs/oracle-syntax.md](docs/oracle-syntax.md).
-The baseline reference is [Oracle AI Database 26ai SQL Language Reference](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/index.html).
-
 ## License
 
 MIT License. See [LICENSE](LICENSE).

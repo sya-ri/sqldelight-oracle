@@ -42,8 +42,6 @@ sqldelightCheck {
 The source scanner patterns include Oracle-specific statement starts, clause boundaries, transaction statements, data type names, and common function names.
 They are conservative source-text metadata for sqldelight-check rules; SQLDelight remains responsible for parsing concrete `.sq` and `.sqm` files.
 
-Coverage is tracked in [../docs/oracle-syntax.md](../docs/oracle-syntax.md).
-
 ## ServiceLoader
 
 The artifact publishes:

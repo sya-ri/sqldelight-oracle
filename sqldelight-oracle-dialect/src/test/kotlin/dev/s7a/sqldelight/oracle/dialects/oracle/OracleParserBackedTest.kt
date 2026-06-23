@@ -1425,6 +1425,7 @@ class OracleParserBackedTest :
                     '$.employee.name'
                     RETURNING VARCHAR2(5) TRUNCATE
                     NULL ON ERROR
+                    TYPE (LAX)
                   ),
                   JSON_QUERY(
                     payload FORMAT JSON,

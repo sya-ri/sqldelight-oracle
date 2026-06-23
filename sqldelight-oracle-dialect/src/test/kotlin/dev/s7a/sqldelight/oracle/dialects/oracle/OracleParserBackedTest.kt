@@ -4971,6 +4971,8 @@ class OracleParserBackedTest :
         test("parses Oracle drop view statements through SQLDelight environment exactly") {
             val sql =
                 """
+                DROP TABLE obsolete_accounts CASCADE CONSTRAINTS PURGE;
+
                 DROP VIEW account_view;
 
                 DROP VIEW IF EXISTS reporting.account_view CASCADE CONSTRAINTS;

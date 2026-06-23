@@ -147,6 +147,14 @@ internal abstract class OracleTableOrSubqueryMixin(
             )
         }
 
+        oracleGraphTableColumns().ifEmpty { null }?.let { columns ->
+            return QueryResult(
+                table = tableAlias,
+                columns = emptyList(),
+                synthesizedColumns = columns.map { name -> SynthesizedColumn(tableAlias ?: this, listOf(name)) },
+            )
+        }
+
         oraclePivotColumns().ifEmpty { null }?.let { columns ->
             return QueryResult(
                 table = tableAlias,
@@ -268,6 +276,14 @@ internal abstract class OracleTableOrSubqueryMixin(
         } else {
             emptyList()
         }
+
+    private fun oracleGraphTableColumns(): List<String> {
+        if (!text.trimStart().startsWith("GRAPH_TABLE", ignoreCase = true)) return emptyList()
+        return text
+            .oracleParenthesizedBodyAfter("COLUMNS")
+            ?.oracleAliasesAfterAs()
+            ?: emptyList()
+    }
 
     private fun oracleRowPatternResult(): QueryResult? {
         val rowPatternClause = PsiTreeUtil.findChildOfType(this, OracleOracleRowPatternClause::class.java) ?: return null

@@ -4268,6 +4268,14 @@ class OracleParserBackedTest :
                   COLUMNS (employee.employee_id AS employee_id, employee.name AS employee_name)
                 ) graph_employees;
 
+                selectGraphTableColumns:
+                SELECT graph_employees.employee_id, graph_employees.employee_name
+                FROM GRAPH_TABLE (
+                  employees_graph
+                  MATCH (employee IS employee_node WHERE employee.status = 'ACTIVE')
+                  COLUMNS (employee.employee_id AS employee_id, employee.name AS employee_name)
+                ) graph_employees;
+
                 selectGraphTableAsOfTimestamp:
                 SELECT *
                 FROM GRAPH_TABLE (

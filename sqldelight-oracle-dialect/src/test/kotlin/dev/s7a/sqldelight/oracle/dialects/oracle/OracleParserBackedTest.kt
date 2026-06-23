@@ -907,6 +907,7 @@ class OracleParserBackedTest :
                 SELECT id
                 FROM json_samples
                 WHERE doc IS JSON STRICT WITH UNIQUE KEYS
+                  AND doc IS JSON (ALLOW SCALARS)
                   AND expected_doc IS NOT JSON VALIDATE USING '{"type":"object"}';
                 """.trimIndent()
 

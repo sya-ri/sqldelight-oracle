@@ -772,7 +772,9 @@ private oracle_sql_json_condition_expr ::= (
   oracle_json_textcontains_condition_expr
 )
 
-private oracle_is_json_condition_expr ::= oracle_condition_operand [ oracle_json_format_clause ] 'IS' [ 'NOT' ] 'JSON' oracle_is_json_modifier *
+private oracle_is_json_condition_expr ::= oracle_condition_operand [ oracle_json_format_clause ] 'IS' [ 'NOT' ] 'JSON' ( oracle_is_json_args | oracle_is_json_modifier * )
+
+private oracle_is_json_args ::= LP [ oracle_json_format_clause ] [ LP ( 'STRICT' | 'LAX' ) RP ] [ ( 'ALLOW' | 'DISALLOW' ) 'SCALARS' ] [ ( 'WITH' | 'WITHOUT' ) 'UNIQUE' 'KEYS' ] RP
 
 private oracle_is_json_modifier ::= (
   'STRICT' |

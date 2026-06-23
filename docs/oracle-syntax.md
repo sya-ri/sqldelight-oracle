@@ -169,6 +169,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] DML optimizer hint comments
   - [x] parser boundary coverage for statement-level `--+ ...` hint comments in `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `MERGE`
   - [x] statement-level and query-block `/*+ ... */` hints in `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `MERGE`
+  - [x] sqldelight-check rule coverage for static `APPEND` and `APPEND_VALUES` DML hint placement in Oracle hint comments
 - [x] [DML error logging clause](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/error_logging_clause.html) parser coverage for `UPDATE` and `DELETE`
 
 ## DDL

@@ -9,6 +9,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.NullableNotInPredicateRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.PreferIdentityColumnRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.RequireNumberPrecisionRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.UnsafeDdlMigrationRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.ValidDmlHintPlacementRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRegexpMatchParamRule
 
 /**
@@ -26,5 +27,6 @@ public class OracleRuleSetProvider : RuleSetProvider {
             RuleProvider(::RequireNumberPrecisionRule),
             RuleProvider(::UnsafeDdlMigrationRule),
             RuleProvider(::ValidRegexpMatchParamRule),
+            RuleProvider(::ValidDmlHintPlacementRule),
         )
 }

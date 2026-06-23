@@ -4293,7 +4293,23 @@ class OracleParserBackedTest :
                 selectLateralSubquery:
                 SELECT region, derived_year
                 FROM partitioned_orders po, LATERAL (
-                  SELECT created_year AS derived_year
+                  SELECT po.created_year AS derived_year
+                  FROM partitioned_orders
+                ) years;
+
+                selectCrossApplySubquery:
+                SELECT po.region, years.derived_year
+                FROM partitioned_orders po
+                CROSS APPLY (
+                  SELECT po.created_year AS derived_year
+                  FROM partitioned_orders
+                ) years;
+
+                selectOuterApplySubquery:
+                SELECT po.region, years.derived_year
+                FROM partitioned_orders po
+                OUTER APPLY (
+                  SELECT po.created_year AS derived_year
                   FROM partitioned_orders
                 ) years;
 

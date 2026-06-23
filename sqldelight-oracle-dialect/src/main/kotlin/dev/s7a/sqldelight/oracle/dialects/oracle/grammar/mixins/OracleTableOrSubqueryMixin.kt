@@ -73,6 +73,13 @@ internal abstract class OracleTableOrSubqueryMixin(
 
     override fun queryExposed() = queryExposed.forFile(containingFile)
 
+    override fun queryAvailable(child: PsiElement): Collection<QueryResult> {
+        if (child == compoundSelectStmt && oracleCanReferenceLeftQuerySources()) {
+            return super.queryAvailable(child) + oracleLateralLeftQueryExposed()
+        }
+        return super.queryAvailable(child)
+    }
+
     override fun getCompoundSelectStmt(): SqlCompoundSelectStmt? = PsiTreeUtil.getChildOfType(this, SqlCompoundSelectStmt::class.java)
 
     override fun getDatabaseName(): SqlDatabaseName? = PsiTreeUtil.getChildOfType(this, SqlDatabaseName::class.java)
@@ -196,6 +203,28 @@ internal abstract class OracleTableOrSubqueryMixin(
         }
 
     private fun PsiElement.tableAlias(): SqlTableAlias? = PsiTreeUtil.findChildOfType(this, SqlTableAlias::class.java)
+
+    private fun oracleCanReferenceLeftQuerySources(): Boolean {
+        if (text.trimStart().startsWith("LATERAL", ignoreCase = true)) return true
+
+        val joinClause = parent as? SqlJoinClause ?: return false
+        val index = joinClause.tableOrSubqueryList.indexOf(this)
+        if (index <= 0) return false
+
+        return joinClause.joinOperatorList
+            .getOrNull(index - 1)
+            ?.text
+            ?.contains("APPLY", ignoreCase = true) == true
+    }
+
+    private fun oracleLateralLeftQueryExposed(): Collection<QueryResult> {
+        val joinClause = parent as? SqlJoinClause ?: return emptyList()
+        val siblings = joinClause.tableOrSubqueryList
+        val index = siblings.indexOf(this)
+        if (index <= 0) return emptyList()
+
+        return siblings.take(index).flatMap { it.queryExposed() }
+    }
 
     private fun OracleOracleJsonTableColumnsClause.queryColumns(): List<QueryColumn> = oracleColumnAliasQueryColumns()
 

@@ -13,6 +13,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingFlashbackClauseRu
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingIndexClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingJsonStorageClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingSequenceClausesRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingSetConstraintsClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingSetTransactionClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingSynonymClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingTableClausesRule
@@ -63,6 +64,7 @@ class OracleRuleSetProviderTest :
                     NoConflictingIndexClausesRule::class,
                     NoConflictingJsonStorageClausesRule::class,
                     NoConflictingSequenceClausesRule::class,
+                    NoConflictingSetConstraintsClausesRule::class,
                     NoConflictingSetTransactionClausesRule::class,
                     NoConflictingSynonymClausesRule::class,
                     NoConflictingTableClausesRule::class,
@@ -101,6 +103,7 @@ class OracleRuleSetProviderTest :
                     "oracle:no-conflicting-index-clauses",
                     "oracle:no-conflicting-json-storage-clauses",
                     "oracle:no-conflicting-sequence-clauses",
+                    "oracle:no-conflicting-set-constraints-clauses",
                     "oracle:no-conflicting-set-transaction-clauses",
                     "oracle:no-conflicting-synonym-clauses",
                     "oracle:no-conflicting-table-clauses",

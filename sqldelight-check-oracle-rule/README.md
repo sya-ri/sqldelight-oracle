@@ -99,6 +99,7 @@ sqldelightCheck {
 | [`oracle:no-conflicting-index-clauses`](#oracleno-conflicting-index-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE INDEX` and `ALTER INDEX` clauses. |
 | [`oracle:no-conflicting-json-storage-clauses`](#oracleno-conflicting-json-storage-clauses) | Yes | Warning |  | Avoid multiple JSON storage clauses for one column. |
 | [`oracle:no-conflicting-sequence-clauses`](#oracleno-conflicting-sequence-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE SEQUENCE` and `ALTER SEQUENCE` clauses. |
+| [`oracle:no-conflicting-set-constraints-clauses`](#oracleno-conflicting-set-constraints-clauses) | Yes | Warning |  | Avoid conflicting `SET CONSTRAINTS` timing clauses. |
 | [`oracle:no-conflicting-set-transaction-clauses`](#oracleno-conflicting-set-transaction-clauses) | Yes | Warning |  | Avoid conflicting `SET TRANSACTION` clauses. |
 | [`oracle:no-conflicting-synonym-clauses`](#oracleno-conflicting-synonym-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE SYNONYM` clauses. |
 | [`oracle:no-conflicting-table-clauses`](#oracleno-conflicting-table-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE TABLE` and `ALTER TABLE` clauses. |
@@ -268,6 +269,17 @@ CREATE SEQUENCE invoice_seq
     NOORDER
     SCALE EXTEND
     GLOBAL;
+```
+
+## `oracle:no-conflicting-set-constraints-clauses`
+
+Reports conflicting Oracle [`SET CONSTRAINTS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SET-CONSTRAINTS.html) timing clauses.
+The rule checks repeated or opposing `IMMEDIATE` and `DEFERRED` timing choices in one statement.
+
+Prefer one timing choice:
+
+```sql
+SET CONSTRAINTS ALL IMMEDIATE;
 ```
 
 ## `oracle:no-conflicting-set-transaction-clauses`

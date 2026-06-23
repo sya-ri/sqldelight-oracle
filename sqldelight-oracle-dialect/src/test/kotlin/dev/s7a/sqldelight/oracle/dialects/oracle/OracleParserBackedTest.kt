@@ -2071,6 +2071,8 @@ class OracleParserBackedTest :
                   TO_NUMBER(text_value DEFAULT 0 ON CONVERSION ERROR, '999D99') AS safe_number,
                   TO_SINGLE_BYTE(text_value) AS singlebyte_text,
                   TO_DATE(text_value DEFAULT '1970-01-01' ON CONVERSION ERROR, 'YYYY-MM-DD') AS safe_date,
+                  TO_TIMESTAMP(text_value DEFAULT NULL ON CONVERSION ERROR, 'YYYY-MM-DD HH24:MI:SS') AS safe_timestamp,
+                  TO_TIMESTAMP_TZ(text_value DEFAULT NULL ON CONVERSION ERROR, 'YYYY-MM-DD HH24:MI:SS TZH:TZM') AS safe_timestamp_tz,
                   UNISTR('\3042') AS unicode_text,
                   VALIDATE_CONVERSION(text_value AS NUMBER) AS valid_number,
                   VALIDATE_CONVERSION(text_value AS DATE, 'YYYY-MM-DD', 'NLS_DATE_LANGUAGE = American') AS valid_date

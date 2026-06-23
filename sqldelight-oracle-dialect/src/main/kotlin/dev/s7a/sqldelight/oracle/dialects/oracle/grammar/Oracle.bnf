@@ -2260,7 +2260,7 @@ private oracle_table_compression ::= (
 
 private oracle_parallel_clause ::= 'NOPARALLEL' | 'PARALLEL' [ DIGIT | {signed_number} ]
 
-alter_table_stmt ::= 'ALTER' 'TABLE' [ {database_name} DOT ] {table_name} {alter_table_rules} ( COMMA {alter_table_rules} ) * {
+alter_table_stmt ::= 'ALTER' 'TABLE' [ 'IF' 'EXISTS' ] [ {database_name} DOT ] {table_name} {alter_table_rules} ( COMMA {alter_table_rules} ) * {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlAlterTableStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlAlterTableStmt"
   elementTypeClass = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.AlterTableElementType"

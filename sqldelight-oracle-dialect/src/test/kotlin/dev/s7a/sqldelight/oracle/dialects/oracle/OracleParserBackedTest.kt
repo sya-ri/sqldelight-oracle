@@ -3909,6 +3909,7 @@ class OracleParserBackedTest :
                 );
 
                 ALTER TABLE alter_targets ADD created_at TIMESTAMP;
+                ALTER TABLE IF EXISTS alter_targets ADD optional_created_at TIMESTAMP;
                 ALTER TABLE alter_targets ADD (
                   updated_at TIMESTAMP,
                   archived_at TIMESTAMP INVISIBLE

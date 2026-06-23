@@ -43,6 +43,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.ValidReturningClauseRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRowLimitingClauseRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidSegmentCreationClauseRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidSubqueryRestrictionClauseRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.ValidValuesAliasColumnCountRule
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.util.ServiceLoader
@@ -95,6 +96,7 @@ class OracleRuleSetProviderTest :
                     ValidOuterJoinOperatorRule::class,
                     ValidSegmentCreationClauseRule::class,
                     ValidSubqueryRestrictionClauseRule::class,
+                    ValidValuesAliasColumnCountRule::class,
                 )
             rules.map { rule -> "oracle:${rule.id.value}" } shouldBe
                 listOf(
@@ -137,6 +139,7 @@ class OracleRuleSetProviderTest :
                     "oracle:valid-outer-join-operator",
                     "oracle:valid-segment-creation-clause",
                     "oracle:valid-subquery-restriction-clause",
+                    "oracle:valid-values-alias-column-count",
                 )
             rules.map { rule -> rule.targetDialect } shouldBe
                 List(rules.size) { OracleDialectId }

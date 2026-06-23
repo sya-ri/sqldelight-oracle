@@ -42,6 +42,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.ValidReturningClauseRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRowLimitingClauseRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidSegmentCreationClauseRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidSubqueryRestrictionClauseRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.ValidValuesAliasColumnCountRule
 
 /**
  * Provides Oracle-specific sqldelight-check rules.
@@ -90,5 +91,6 @@ public class OracleRuleSetProvider : RuleSetProvider {
             RuleProvider(::ValidOuterJoinOperatorRule),
             RuleProvider(::ValidSegmentCreationClauseRule),
             RuleProvider(::ValidSubqueryRestrictionClauseRule),
+            RuleProvider(::ValidValuesAliasColumnCountRule),
         )
 }

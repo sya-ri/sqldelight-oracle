@@ -123,6 +123,7 @@ sqldelightCheck {
 | [`oracle:valid-outer-join-operator`](#oraclevalid-outer-join-operator) | Yes | Warning |  | Validate static legacy Oracle outer join operator restrictions. |
 | [`oracle:valid-segment-creation-clause`](#oraclevalid-segment-creation-clause) | Yes | Warning |  | Avoid duplicate Oracle `SEGMENT CREATION` clauses. |
 | [`oracle:valid-subquery-restriction-clause`](#oraclevalid-subquery-restriction-clause) | Yes | Warning |  | Avoid conflicting Oracle subquery restriction clauses. |
+| [`oracle:valid-values-alias-column-count`](#oraclevalid-values-alias-column-count) | Yes | Warning |  | Validate Oracle `VALUES` table alias column counts. |
 
 ## `oracle:nullable-not-in-predicate`
 
@@ -519,6 +520,17 @@ SELECT *
 FROM orders
 ORDER BY created_at
 OFFSET 10 ROWS FETCH NEXT 25 ROWS WITH TIES;
+```
+
+## `oracle:valid-values-alias-column-count`
+
+Reports Oracle [`VALUES`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) table expressions whose row arity or alias column list does not match the first row.
+
+Prefer one alias column per value expression:
+
+```sql
+SELECT source.order_id, source.order_total
+FROM (VALUES (1, 100), (2, 200)) source(order_id, order_total);
 ```
 
 ## `oracle:valid-like-escape`

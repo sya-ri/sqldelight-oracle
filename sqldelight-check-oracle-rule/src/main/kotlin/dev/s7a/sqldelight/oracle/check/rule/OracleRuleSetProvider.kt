@@ -4,6 +4,7 @@ import dev.s7a.sqldelight.check.api.RuleSetId
 import dev.s7a.sqldelight.check.rule.api.RuleProvider
 import dev.s7a.sqldelight.check.rule.api.RuleSetProvider
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingConstraintStateRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingFlashbackClauseRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingIndexClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingSequenceClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingTableClausesRule
@@ -33,6 +34,7 @@ public class OracleRuleSetProvider : RuleSetProvider {
             RuleProvider(::NullableNotInPredicateRule),
             RuleProvider(::NoEmptyStringComparisonRule),
             RuleProvider(::NoConflictingConstraintStateRule),
+            RuleProvider(::NoConflictingFlashbackClauseRule),
             RuleProvider(::NoConflictingIndexClausesRule),
             RuleProvider(::NoConflictingSequenceClausesRule),
             RuleProvider(::NoConflictingTableClausesRule),

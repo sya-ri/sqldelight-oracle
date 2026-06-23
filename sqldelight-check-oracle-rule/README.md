@@ -91,6 +91,7 @@ sqldelightCheck {
 | [`oracle:nullable-not-in-predicate`](#oraclenullable-not-in-predicate) | Yes | Warning |  | Flag `NOT IN (subquery)` predicates that do not explicitly filter nullable values. |
 | [`oracle:no-empty-string-comparison`](#oracleno-empty-string-comparison) | Yes | Warning |  | Avoid comparing to `''`, because Oracle treats zero-length strings as `NULL`. |
 | [`oracle:no-conflicting-constraint-state`](#oracleno-conflicting-constraint-state) | Yes | Warning |  | Avoid mutually exclusive Oracle constraint state clauses. |
+| [`oracle:no-conflicting-flashback-clause`](#oracleno-conflicting-flashback-clause) | Yes | Warning |  | Avoid duplicate Oracle flashback query clauses on one table reference. |
 | [`oracle:no-conflicting-index-clauses`](#oracleno-conflicting-index-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE INDEX` and `ALTER INDEX` clauses. |
 | [`oracle:no-conflicting-sequence-clauses`](#oracleno-conflicting-sequence-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE SEQUENCE` and `ALTER SEQUENCE` clauses. |
 | [`oracle:no-conflicting-table-clauses`](#oracleno-conflicting-table-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE TABLE` and `ALTER TABLE` clauses. |
@@ -146,6 +147,18 @@ Prefer one choice per semantic group:
 ALTER TABLE customer
     ADD CONSTRAINT customer_name_check CHECK (name IS NOT NULL)
     ENABLE VALIDATE;
+```
+
+## `oracle:no-conflicting-flashback-clause`
+
+Reports duplicate Oracle flashback query clauses on one table reference.
+Oracle [`flashback_query_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) forms allow an `AS OF` point and `VERSIONS` range in documented combinations, but repeating the same flashback clause group on the same table reference is ambiguous.
+
+Prefer one `AS OF` clause and one `VERSIONS` clause at most:
+
+```sql
+SELECT *
+FROM orders VERSIONS BETWEEN SCN MINVALUE AND MAXVALUE AS OF SCN 123456;
 ```
 
 ## `oracle:no-conflicting-index-clauses`

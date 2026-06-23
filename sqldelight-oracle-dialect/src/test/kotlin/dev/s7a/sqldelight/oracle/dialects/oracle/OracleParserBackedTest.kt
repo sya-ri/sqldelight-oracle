@@ -1483,6 +1483,7 @@ class OracleParserBackedTest :
                       SET '$.active' = 1
                     )
                   END
+                  TYPE (LAX)
                   RETURNING JSON
                   PASSING threshold AS ${'$'}threshold
                 )

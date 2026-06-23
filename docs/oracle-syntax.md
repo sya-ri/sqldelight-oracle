@@ -9,14 +9,14 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 
 ### Defer Until SQLDelight Core Support Exists
 
-- [x] Alternative quoted literals `q'...'` and `nq'...'`, implemented as lexer-level string tokens.
-- [ ] Bracket/operator-heavy syntax consumed differently by SQLDelight core today: `MODEL` clause and JSON array-step access.
-- [ ] Non-named DML targets in `DML_table_expression_clause`, because SQLDelight compiler paths such as mutator handling and optimistic-lock validation currently assume a named `SqlTableName` / `SqlQualifiedTableName`.
+- Alternative quoted literals `q'...'` and `nq'...'` are implemented as lexer-level string tokens.
+- Bracket/operator-heavy syntax consumed differently by SQLDelight core today is deferred where tracked below: `MODEL` clause and JSON array-step access.
+- Non-named DML targets in `DML_table_expression_clause` are deferred where tracked below, because SQLDelight compiler paths such as mutator handling and optimistic-lock validation currently assume a named `SqlTableName` / `SqlQualifiedTableName`.
 
 ### Defer As Semantic Validators
 
-- [ ] Schema-aware validation that needs SQLDelight PSI/schema/type analysis rather than accepting syntax: pivot/unpivot generated-column inference beyond explicit aliases, object/REF attribute rules, domain function return types, row-value type validation, and clause-order/mutual-exclusion checks.
-- [ ] Runtime and database-kind restrictions: object kind checks, privileges, release-specific limits, optimizer hint semantics/validation, hint-driven behavior, and format-model correctness.
+- Schema-aware validation that needs SQLDelight PSI/schema/type analysis rather than accepting syntax is deferred where tracked below: pivot/unpivot generated-column inference beyond explicit aliases, object/REF attribute rules, domain function return types, row-value type validation, and clause-order/mutual-exclusion checks.
+- Runtime and database-kind restrictions are deferred where tracked below: object kind checks, privileges, release-specific limits, optimizer hint semantics/validation, hint-driven behavior, and format-model correctness.
 
 ## Lexical Syntax And Names
 
@@ -24,7 +24,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] [Nonquoted and quoted identifier compatibility](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Database-Object-Names-and-Qualifiers.html) parser coverage for double-quoted table names in `CREATE TABLE`, `CREATE INDEX ... ON`, and `SELECT ... FROM`
 - [x] [Schema object reference syntax](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Syntax-for-Schema-Objects-and-Parts-in-SQL-Statements.html)
   - [x] publish-scope parser support for direct schema-object references in DDL, DML, query table references, function/type references, `@dblink`, and partition/subpartition references
-  - [ ] deferred object-kind restrictions, database link name resolution details, identifier byte-length limits, and quoted uppercase `"ROWID"` restrictions to semantic validators
+  - [ ] deferred object-kind restrictions, database link name resolution details, and identifier byte-length limits to semantic validators
     - [x] sqldelight-check rule coverage for quoted uppercase `"ROWID"` used as a [`CREATE TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html) or [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html) column name, based on Oracle [database object naming rules](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Database-Object-Names-and-Qualifiers.html)
 - [x] [SQL comments and optimizer hints](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comments.html)
   - [x] `--` comments
@@ -64,7 +64,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] select-list details
     - [x] `UNIQUE` quantifier parser support
     - [x] parser coverage for `AS` column aliases, aliases without `AS`, `*`, and `table.*`
-    - [ ] deferred schema-aware object attribute/method resolution and advanced alias semantic validation
+    - [ ] deferred advanced alias semantic validation
   - [x] parser coverage for named window definitions and analytic `OVER window_name` references
 - [x] [`query_block`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/query_block.html) parser support for block optimizer hints after `SELECT`
 - [x] [`hierarchical_query_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/hierarchical_query_clause.html) parser support for `START WITH`, `CONNECT BY`, `CONNECT BY NOCYCLE`, and `PRIOR` operands in representative conditions
@@ -102,11 +102,10 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] parser accepts subquery factoring `query_name` references through table-name references
   - [x] parser support for remote `view @dblink` and remote `materialized view @dblink` forms
   - [ ] deferred object-kind semantic validation: remote view/materialized-view checks, `query_name` versus schema object disambiguation, analytic-view/hierarchy object checks, and `sample_clause` placement restrictions
-  - [x] `query_table_expression`
-    - [x] representative analytic view and [`hierarchies_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/hierarchies_clause.html) table reference parser support
-    - [x] hierarchy table reference parser support through object-name table references
-    - [x] subquery [`subquery_restriction_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/subquery_restriction_clause.html) parser support for `WITH CHECK OPTION` and `WITH READ ONLY` in table references
-    - [x] sqldelight-check rule coverage for conflicting [`subquery_restriction_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/subquery_restriction_clause.html) forms
+  - [x] representative analytic view and [`hierarchies_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/hierarchies_clause.html) table reference parser support
+  - [x] hierarchy table reference parser support through object-name table references
+  - [x] subquery [`subquery_restriction_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/subquery_restriction_clause.html) parser support for `WITH CHECK OPTION` and `WITH READ ONLY` in table references
+  - [x] sqldelight-check rule coverage for conflicting [`subquery_restriction_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/subquery_restriction_clause.html) forms
 - [x] [`table_reference`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/table_reference.html)
   - [x] parser support for direct `ONLY (table)` table references
   - [x] parser support for remote `ONLY (table@dblink)` table references
@@ -114,13 +113,10 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [ ] deferred semantic validation: object-kind checks for `ONLY`, analytic views, hierarchies, `CONTAINERS`, `SHARDS`, and inline analytic views
   - [x] [`flashback_query_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) parser support for `AS OF SCN`, `AS OF TIMESTAMP`, `VERSIONS BETWEEN SCN`, `VERSIONS BETWEEN TIMESTAMP`, `MINVALUE` / `MAXVALUE` version boundaries, period-qualified table references, and combined `VERSIONS` plus `AS OF` forms
     - [x] sqldelight-check rule coverage for duplicate `AS OF` or `VERSIONS` flashback query clause groups on one table reference
-  - [x] `table_reference`
-    - [x] representative [`pivot_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/pivot_clause.html), [`pivot_for_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/pivot_for_clause.html), and [`pivot_in_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/pivot_in_clause.html) parser support, including `PIVOT XML`, `ANY`, pivot subquery forms, composite pivot columns, and literal tuple aliases
-    - [x] [`unpivot_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/unpivot_clause.html) and [`unpivot_in_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/unpivot_in_clause.html) parser support for representative scalar and composite forms
-    - [x] SQLDelight synthesized-column resolution for explicit `PIVOT` aggregate aliases plus explicit pivot value aliases or simple literal pivot values, and explicit `UNPIVOT` measure/for columns
-    - [ ] deferred SQLDelight generated-column inference for complex implicit `PIVOT` / `UNPIVOT` output names and source column visibility, because Oracle derives names from aggregate expressions, composite pivot values, measure columns, and source column visibility
-    - [x] representative [`row_pattern_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_clause.html) parser support for `MATCH_RECOGNIZE`, [`row_pattern_partition_by`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_partition_by.html), [`row_pattern_order_by`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_order_by.html), [`row_pattern_measures`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_measures.html), [`row_pattern_rows_per_match`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_rows_per_match.html), [`row_pattern_skip_to`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_skip_to.html), [`row_pattern`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern.html), and [`row_pattern_definition_list`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_definition_list.html)
-    - [x] SQLDelight column resolution for `MATCH_RECOGNIZE` `MEASURES` output aliases
+  - [x] representative [`pivot_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/pivot_clause.html), [`pivot_for_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/pivot_for_clause.html), and [`pivot_in_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/pivot_in_clause.html) parser support, including `PIVOT XML`, `ANY`, pivot subquery forms, composite pivot columns, and literal tuple aliases
+  - [x] [`unpivot_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/unpivot_clause.html) and [`unpivot_in_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/unpivot_in_clause.html) parser support for representative scalar and composite forms
+  - [x] SQLDelight synthesized-column resolution for explicit `PIVOT` aggregate aliases plus explicit pivot value aliases or simple literal pivot values, and explicit `UNPIVOT` measure/for columns
+  - [ ] deferred SQLDelight generated-column inference for complex implicit `PIVOT` / `UNPIVOT` output names and source column visibility, because Oracle derives names from aggregate expressions, composite pivot values, measure columns, and source column visibility
   - [x] [`values_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) parser support for `FROM (VALUES (...), (...)) alias(column_alias, ...)`, including SQLDelight column resolution for the table alias column list
     - [x] sqldelight-check rule coverage for `VALUES` row arity and alias column counts
 - [x] [`row_pattern_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_clause.html)
@@ -130,7 +126,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] parser coverage for [`row_pattern`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern.html) alternation with `|`
   - [x] parser coverage for row-pattern exclusion groups with `{- ... -}`
   - [x] parser coverage for bounded quantifiers `{n}`, `{n,}`, `{,m}`, and `{n,m}` including reluctant suffixes
-  - [x] SQLDelight column resolution for `ALL ROWS PER MATCH` source columns plus `MEASURES` output aliases
+  - [x] SQLDelight column resolution for `MEASURES` output aliases and `ALL ROWS PER MATCH` source columns
   - [ ] deferred semantic remainder: pattern variable placement rules that need `PATTERN`, `SUBSET`, `DEFINE`, and measure-reference cross-checking after parse
 - [x] [`CONTAINERS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/containers_clause.html) and [`SHARDS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) query clauses
 - [x] [`group_by_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/group_by_clause.html)
@@ -168,25 +164,25 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] [`WHERE CURRENT OF`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/where_clause.html) source-scanner predicate boundary coverage for positioned `UPDATE` and `DELETE`
 - [x] [`by_name_position_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/by_name_position_clause.html) source-scanner clause boundaries for `BY NAME` and `BY POSITION`
 - [x] [`UPDATE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/UPDATE.html) baseline SQLDelight mutator parser coverage
-  - [x] `UPDATE`
+  - `UPDATE`
     - [x] [`partition_extension_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/partition_extension_clause.html) parser support for target tables
     - [x] parser support for [`where_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/where_clause.html) `WHERE CURRENT OF`, [`returning_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/returning_clause.html), [`wait_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/wait_clause.html), [`error_logging_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/error_logging_clause.html), and [`from_using_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/from_using_clause.html)
     - [x] SQLDelight column resolution for `UPDATE ... FROM` target aliases and source table aliases
     - [x] [`update_set_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/update_set_clause.html) parser support for tuple assignment from subquery, single-column `DEFAULT`, multi-column `DEFAULT`, and `VALUE(alias)` object-row assignment
 - [x] [`DELETE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DELETE.html) baseline SQLDelight mutator parser coverage
-  - [x] `DELETE`
+  - `DELETE`
     - [x] [`partition_extension_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/partition_extension_clause.html) parser support for target tables
     - [x] parser support for [`where_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/where_clause.html) `WHERE CURRENT OF`, correlated `EXISTS` subqueries, [`returning_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/returning_clause.html), and [`error_logging_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/error_logging_clause.html)
 - [x] [`CALL`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CALL.html)
   - [x] parser support for positional-argument [`routine_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/routine_clause.html)
   - [x] parser support for named and mixed argument notation with `=>`
-- [x] [`CALL`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/call.html)
   - [x] parser support for `object_access_expression` method invocations
   - [x] parser support for `INTO :host_variable`
-  - [x] [`LOCK TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/LOCK-TABLE.html) and [`EXPLAIN PLAN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/EXPLAIN-PLAN.html) parser support for database link references with `@dblink_name`, including period-qualified database link names
 - [x] [`LOCK TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/LOCK-TABLE.html) parser support for multiple table references, [`partition_extension_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/partition_extension_clause.html), lock modes, `NOWAIT`, and `WAIT`
+  - [x] parser support for database link references with `@dblink_name`, including period-qualified database link names
   - [x] rule coverage for conflicting `NOWAIT` / `WAIT` clauses and invalid static `WAIT` values
 - [x] [`EXPLAIN PLAN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/EXPLAIN-PLAN.html) parser support for `SET STATEMENT_ID`, `INTO`, and `FOR` `SELECT` / `INSERT` / `UPDATE` / `DELETE` / `MERGE` / `CREATE TABLE` / `CREATE INDEX` / `ALTER INDEX ... REBUILD` statements
+  - [x] parser support for database link references with `@dblink_name`, including period-qualified database link names
 - [ ] DML semantic validation: defer direct-path restrictions, `APPEND`/`APPEND_VALUES` hint-driven behavior, trigger/constraint/IOT restrictions, multi-table insert parallelization rules, object-table restrictions, remote object privilege requirements, updatable view/materialized view behavior, and `WITH CHECK OPTION` placement rules
   - [x] SQLDelight column resolution for named `INSERT`, `UPDATE`, and `DELETE` target aliases in `RETURNING` clauses
   - [x] SQLDelight column resolution for `UPDATE ... FROM` source aliases
@@ -200,11 +196,11 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 
 - [x] [`CREATE TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html) publish-scope parser coverage for type names and statement baseline
   - [x] parser support for `IF NOT EXISTS`, `GLOBAL TEMPORARY`, `PRIVATE TEMPORARY`, and `ON COMMIT`
-  - [x] `CREATE TABLE`
+  - `CREATE TABLE`
     - [x] parser support for [`immutable_table_clauses`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/immutable_table_clauses.html) and [`blockchain_table_clauses`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/blockchain_table_clauses.html): `CREATE IMMUTABLE TABLE`, `CREATE BLOCKCHAIN TABLE`, [`blockchain_drop_table_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/blockchain_drop_table_clause.html), [`blockchain_row_retention_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/blockchain_row_retention_clause.html), [`blockchain_hash_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/blockchain_hash_clause.html), `blockchain_row_version_user_chain_clause`, `AND USER CHAIN`, and `blockchain_data_format_clause`
     - [x] column clause parser coverage for [`column_definition`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/column_definition.html), explicit `DOMAIN` forms of [`datatype_domain`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/datatype_domain.html), identity columns, [`virtual_column_definition`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/virtual_column_definition.html), [`evaluation_edition_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/evaluation_edition_clause.html), [`unusable_editions_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/unusable_editions_clause.html), default values including `DEFAULT ON NULL FOR (...)`, column collation, `RESERVABLE`, `SORT`, visible/invisible columns, `VIRTUAL`, and `MATERIALIZED`
   - [x] table property parser coverage for [`table_compression`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/table_compression.html), [`read_only_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/read_only_clause.html), [`result_cache_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/result_cache_clause.html), [`parallel_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/parallel_clause.html), cache, row dependency, [`enable_disable_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/enable_disable_clause.html), [`using_index_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/using_index_clause.html), [`row_movement_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_movement_clause.html), [`logical_replication_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/logical_replication_clause.html), [`flashback_archive_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/flashback_archive_clause.html), `FOR STAGING`, In-Memory, row archival, and indexing clauses
-  - [x] `CREATE TABLE`
+  - `CREATE TABLE`
     - [x] parser support for [`consistent_hash_partitions`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/consistent_hash_partitions.html): `PARTITION BY CONSISTENT HASH (...) [PARTITIONS AUTO] TABLESPACE SET ...`
     - [x] parser support for [`directory_based_partitions`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/directory_based_partitions.html): `PARTITION BY DIRECTORY (...) (PARTITION ... TABLESPACE ...)`
     - [x] parser support for representative composite partitioning forms from `table_partitioning_clauses`: `composite_range_partitions` with `SUBPARTITION BY RANGE`, `SUBPARTITION BY LIST`, and `SUBPARTITION BY HASH`; `composite_list_partitions` with `SUBPARTITION BY HASH`; `composite_hash_partitions` with `SUBPARTITION BY LIST`; range/list/hash subpartition templates; and hash subpartitions by quantity
@@ -212,7 +208,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] inline visibility and inline constraint state parser support for `CREATE TABLE` columns
   - [x] parser support for `ON COMMIT` temporary table variants
   - [x] parser support for [`parallel_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/parallel_clause.html) before `AS subquery`
-  - [x] `CREATE TABLE AS SELECT`
+  - `CREATE TABLE AS SELECT`
     - [x] parser support for `FOR STAGING` before `AS subquery`
     - [x] parser support for SQLDelight query files
 - [ ] DDL semantic validation: defer object-kind checks, CTAS-only restrictions, JSON collection expression-column semantics, clause-order and mutually-exclusive-form validation, drop/truncate side effects, recycle-bin behavior, release-specific restrictions, and privilege/runtime restrictions
@@ -242,7 +238,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] [`CREATE TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/table_partitioning_clauses.html) parser support for basic [`range_partitions`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/range_partitions.html), [`list_partitions`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/list_partitions.html), and [`hash_partitions`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/hash_partitions.html), including interval range partitions, automatic list partitions, individual hash partitions, and hash partitions by quantity
 - [x] [`CREATE TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/table_properties.html) parser support for [`attribute_clustering_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/attribute_clustering_clause.html): `CLUSTERING BY LINEAR ORDER`, `CLUSTERING BY INTERLEAVED ORDER`, `YES/NO ON LOAD`, `YES/NO ON DATA MOVEMENT`, and `WITH MATERIALIZED ZONEMAP`
   - [x] parser support for table-level [`table_compression`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/table_compression.html), including backward-compatible `COMPRESS FOR QUERY` / `COMPRESS FOR ARCHIVE`, before `AS subquery`
-  - [x] `CREATE TABLE AS SELECT`
+  - `CREATE TABLE AS SELECT`
     - [x] parser support for [`read_only_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/read_only_clause.html) and [`row_movement_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_movement_clause.html) before `AS subquery`
     - [x] parser support for [`logical_replication_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/logical_replication_clause.html) and [`flashback_archive_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/flashback_archive_clause.html) before `AS subquery`
     - [x] parser support for [`table_partitioning_clauses`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/table_partitioning_clauses.html) before `AS subquery`
@@ -335,7 +331,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/supplemental_table_logging.html) parser coverage for `ADD` and representative `DROP` [`supplemental_log_grp_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/supplemental_log_grp_clause.html) / [`supplemental_id_key_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/supplemental_id_key_clause.html) forms
 - [x] [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/alter_iot_clauses.html) parser coverage for representative index-organized table clauses: [`add_overflow_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/add_overflow_clause.html), [`alter_overflow_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/alter_overflow_clause.html), and [`alter_mapping_table_clauses`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/alter_mapping_table_clauses.html)
 - [x] [`ALTER INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-INDEX.html)
-  - [x] `ALTER INDEX`
+  - `ALTER INDEX`
   - [x] parser support for [`rebuild_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/rebuild_clause.html), `PARTITION`, `SUBPARTITION`, and reusable index attributes
 - [x] [`ALTER SEQUENCE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-SEQUENCE.html) parser support for schema-qualified names, `IF EXISTS`, `RESTART`, and sequence option clauses shared with `CREATE SEQUENCE`
 - [x] [`ALTER VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-VIEW.html) parser support for `IF EXISTS`, out-of-line constraint add/modify/drop clauses, column and view annotation changes, `COMPILE` / `RECOMPILE`, `READ ONLY` / `READ WRITE`, and editioning clauses
@@ -593,18 +589,6 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] Legacy table compression and storage forms: tracked by backward-compatible table compression, BasicFiles LOB, SecureFiles/BasicFiles restrictions deferral, storage clause, and segment attributes coverage above
   - [x] Legacy materialized view terminology and administrative forms: tracked by materialized-view log, materialized zonemap, `TRUNCATE ... SNAPSHOT LOG`, rollback segment, profile, and traditional administrative statement coverage above
   - [x] Older standard conformance differences without dedicated syntax: documented as non-parser surface; concrete accepted constructs are tracked in the feature rows above
-
-## Rules
-
-- [x] `oracle:no-empty-string-comparison` for Oracle [null semantics](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Nulls.html)
-- [x] Flag mutually exclusive Oracle [`constraint_state`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/constraint.html) clause groups such as `ENABLE` / `DISABLE`, `VALIDATE` / `NOVALIDATE`, `DEFERRABLE` / `NOT DEFERRABLE`, `INITIALLY IMMEDIATE` / `INITIALLY DEFERRED`, and `RELY` / `NORELY`
-- [x] Flag mutually exclusive [`CREATE INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-INDEX.html) and [`ALTER INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-INDEX.html) clause groups such as `UNIQUE` / `BITMAP`, `LOGGING` / `NOLOGGING`, `VISIBLE` / `INVISIBLE`, `USABLE` / `UNUSABLE`, `COMPRESS` / `NOCOMPRESS`, `PARALLEL` / `NOPARALLEL`, `ONLINE` / `OFFLINE`, and `INDEXING FULL` / `INDEXING PARTIAL`
-- [x] Flag quoted uppercase `"ROWID"` Oracle column names
-- [x] Prefer Oracle identity columns over sequence-trigger pairs
-- [x] Flag nullable `NOT IN` predicates where Oracle null semantics are likely unintended
-- [x] Flag unsafe `ALTER TABLE` / `TRUNCATE TABLE` migration DDL that rewrites, locks, or destructively changes large tables, including destructive column drops, unused column operations, partition/subpartition maintenance, segment moves, shrink operations, and required column additions/modifications without defaults
-- [x] Require explicit precision for `NUMBER` where generated Kotlin type would be ambiguous
-- [x] Flag mutually exclusive [`CREATE TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html) and [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html) clause groups such as `LOGGING` / `NOLOGGING`, `CACHE` / `NOCACHE`, `COMPRESS` / `NOCOMPRESS`, and `READ ONLY` / `READ WRITE`
 
 ## Database Verification
 

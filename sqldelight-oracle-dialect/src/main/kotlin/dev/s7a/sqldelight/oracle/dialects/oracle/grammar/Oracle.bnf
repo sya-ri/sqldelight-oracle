@@ -432,6 +432,7 @@ private oracle_xml_expr ::= (
   oracle_xmlparse_expr |
   oracle_xmlpi_expr |
   oracle_xmlquery_expr |
+  oracle_xmlroot_expr |
   oracle_xmlserialize_expr |
   oracle_xmlexists_expr |
   oracle_simple_xml_function_expr
@@ -466,6 +467,12 @@ private oracle_xmlpi_expr ::= 'XMLPI' LP [ 'NAME' ] oracle_xml_name [ COMMA <<ex
 private oracle_xmlquery_expr ::= 'XMLQUERY' LP {string_literal} [ oracle_xml_passing_clause ] 'RETURNING' 'CONTENT' [ 'NULL' 'ON' 'EMPTY' ] RP
 
 private oracle_xmlexists_expr ::= 'XMLEXISTS' LP {string_literal} [ oracle_xml_passing_clause ] RP
+
+private oracle_xmlroot_expr ::= 'XMLROOT' LP <<expr '-1'>> COMMA 'VERSION' oracle_xmlroot_version [ COMMA 'STANDALONE' oracle_xmlroot_standalone ] RP
+
+private oracle_xmlroot_version ::= 'NO' 'VALUE' | <<expr '-1'>>
+
+private oracle_xmlroot_standalone ::= 'NO' 'VALUE' | 'YES' | 'NO'
 
 private oracle_xmlserialize_expr ::= 'XMLSERIALIZE' LP ( 'DOCUMENT' | 'CONTENT' ) <<expr '-1'>> [ 'AS' oracle_type_name ] oracle_xmlserialize_option * RP
 

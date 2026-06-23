@@ -1592,6 +1592,7 @@ class OracleParserBackedTest :
                   XMLFOREST(d.name AS "Name", d.id AS "Identifier"),
                   XMLPARSE(CONTENT '<Warehouse/>' WELLFORMED),
                   XMLPI(NAME "Department", d.name),
+                  XMLROOT(d.warehouse_spec, VERSION NO VALUE, STANDALONE NO VALUE),
                   XMLSERIALIZE(CONTENT d.warehouse_spec AS CLOB INDENT SIZE = 2 HIDE DEFAULTS),
                   DEPTH(1),
                   EXISTSNODE(d.warehouse_spec, '/Warehouse'),

@@ -323,7 +323,7 @@ public enum class OracleType(
             mapOf(
                 "CURRENT_DATE" to DATE,
                 "SYSDATE" to DATE,
-                "CURRENT_TIMESTAMP" to TIMESTAMP,
+                "CURRENT_TIMESTAMP" to TIMESTAMP_TIME_ZONE,
                 "LOCALTIMESTAMP" to TIMESTAMP,
                 "SYSTIMESTAMP" to TIMESTAMP_TIME_ZONE,
                 "DBTIMEZONE" to TEXT,

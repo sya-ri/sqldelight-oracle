@@ -95,7 +95,7 @@ class OracleTypeTest :
                 listOf(
                     "CURRENT_DATE" to OracleType.DATE,
                     "SYSDATE" to OracleType.DATE,
-                    "CURRENT_TIMESTAMP" to OracleType.TIMESTAMP,
+                    "CURRENT_TIMESTAMP" to OracleType.TIMESTAMP_TIME_ZONE,
                     "LOCALTIMESTAMP" to OracleType.TIMESTAMP,
                     "SYSTIMESTAMP" to OracleType.TIMESTAMP_TIME_ZONE,
                     "DBTIMEZONE" to OracleType.TEXT,

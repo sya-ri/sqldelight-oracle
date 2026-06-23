@@ -454,7 +454,9 @@ private oracle_xmlattributes_expr ::= 'XMLATTRIBUTES' LP [ oracle_xml_escaping_c
 
 private oracle_xml_schema_check_clause ::= 'SCHEMACHECK' | 'NOSCHEMACHECK'
 
-private oracle_xml_attribute ::= <<expr '-1'>> [ 'AS' oracle_xml_name ]
+private oracle_xml_attribute ::= <<expr '-1'>> [ oracle_xml_attribute_alias ]
+
+private oracle_xml_attribute_alias ::= [ 'AS' ] oracle_xml_alias_name | 'AS' 'EVALNAME' <<expr '-1'>>
 
 private oracle_xmlagg_expr ::= 'XMLAGG' LP <<expr '-1'>> [ 'ORDER' 'BY' <<orderingTermExt <<ordering_term_real>>>> ( COMMA <<orderingTermExt <<ordering_term_real>>>> ) * ] RP
 

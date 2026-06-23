@@ -4683,6 +4683,12 @@ class OracleParserBackedTest :
                 WHEN NOT MATCHED THEN INSERT (id, payload)
                   VALUES (1, 'CREATED');
 
+                MERGE INTO ONLY (account_balance@orders.remote.example) target
+                USING account_delta@orders.remote.example source
+                ON (1 = 0)
+                WHEN MATCHED THEN UPDATE SET
+                  balance = 1;
+
                 MERGE INTO account_balance target
                 USING account_delta source
                 ON (1 = 0)

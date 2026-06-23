@@ -5698,7 +5698,10 @@ private oracle_merge_using_clause ::= 'USING' (
   oracle_merge_values_clause [ {table_alias} ]
 )
 
-private oracle_merge_table_reference ::= oracle_schema_object_name [ {table_alias} ]
+private oracle_merge_table_reference ::= (
+  'ONLY' LP oracle_schema_object_name [ oracle_dblink_clause ] RP |
+  oracle_schema_object_name [ oracle_dblink_clause ]
+) [ oracle_partition_extension_clause ] [ {table_alias} ]
 
 private oracle_merge_values_clause ::= 'VALUES' {values_expression} ( COMMA {values_expression} ) *
 

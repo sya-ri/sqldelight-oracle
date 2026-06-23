@@ -94,8 +94,9 @@ internal abstract class OracleTableOrSubqueryMixin(
         PsiTreeUtil.findChildOfType(this, OracleOracleXmltableReference::class.java)?.let { xmltable ->
             return xmltable.oracleXmltableColumnsClause
                 ?.oracleXmltableColumnList
-                ?.mapNotNull { it.columnAliasQueryColumn() }
-                ?.ifEmpty { null }
+                ?.mapNotNull { column ->
+                    PsiTreeUtil.getChildOfType(column, SqlColumnAlias::class.java)?.let(::QueryColumn)
+                }?.ifEmpty { null }
                 ?.let { columns -> QueryResult(xmltable.tableAlias() ?: tableAlias(), columns) }
         }
 
@@ -131,9 +132,6 @@ internal abstract class OracleTableOrSubqueryMixin(
     private fun OracleOracleJsonTableColumnsClause.queryColumns(): List<QueryColumn> =
         PsiTreeUtil.findChildrenOfType(this, SqlColumnAlias::class.java).map(::QueryColumn)
 
-    private fun PsiElement.columnAliasQueryColumn(): QueryColumn? =
-        PsiTreeUtil.getChildOfType(this, SqlColumnAlias::class.java)?.let(::QueryColumn)
-
     private fun oracleRowPatternResult(): QueryResult? {
         val rowPatternClause = PsiTreeUtil.findChildOfType(this, OracleOracleRowPatternClause::class.java) ?: return null
         val sourceColumns =
@@ -148,7 +146,9 @@ internal abstract class OracleTableOrSubqueryMixin(
             rowPatternClause
                 .oracleRowPatternMeasuresClause
                 ?.oracleRowPatternMeasureColumnList
-                ?.mapNotNull { it.columnAliasQueryColumn() }
+                ?.mapNotNull { column ->
+                    PsiTreeUtil.getChildOfType(column, SqlColumnAlias::class.java)?.let(::QueryColumn)
+                }
                 ?: emptyList()
         return (sourceColumns + measureColumns)
             .ifEmpty { null }

@@ -5,7 +5,6 @@ import com.alecstrong.sql.psi.core.psi.AlterTableApplier
 import com.alecstrong.sql.psi.core.psi.LazyQuery
 import com.alecstrong.sql.psi.core.psi.NamedElement
 import com.alecstrong.sql.psi.core.psi.QueryElement
-import com.alecstrong.sql.psi.core.psi.SqlColumnDef
 import com.alecstrong.sql.psi.core.psi.SqlColumnName
 import com.alecstrong.sql.psi.core.psi.SqlCompositeElementImpl
 import com.alecstrong.sql.psi.core.psi.alterStmt
@@ -17,29 +16,23 @@ internal abstract class AlterTableModifyColumnMixin(
 ) : SqlCompositeElementImpl(node),
     OracleAlterTableModifyColumn,
     AlterTableApplier {
-    private val columnDef: SqlColumnDef
-        get() = children.filterIsInstance<SqlColumnDef>().single()
-
     override fun applyTo(lazyQuery: LazyQuery): LazyQuery =
-        LazyQuery(
-            tableName = lazyQuery.tableName,
-            query = {
-                val columns =
-                    lazyQuery.query.columns.map { queryColumn ->
-                        val columnName = queryColumn.element as NamedElement
-                        if (columnName.textMatches(columnDef.columnName)) {
-                            QueryElement.QueryColumn(columnDef.columnName)
-                        } else {
-                            queryColumn
-                        }
-                    }
-                lazyQuery.query.copy(columns = columns)
-            },
-        )
+        lazyQuery.withOracleColumns { columns ->
+            val columnDef = oracleSingleColumnDefinition()
+            columns.map { queryColumn ->
+                val columnName = queryColumn.element as NamedElement
+                if (columnName.textMatches(columnDef.columnName)) {
+                    QueryElement.QueryColumn(columnDef.columnName)
+                } else {
+                    queryColumn
+                }
+            }
+        }
 
     override fun annotate(annotationHolder: SqlAnnotationHolder) {
         super.annotate(annotationHolder)
 
+        val columnDef = oracleSingleColumnDefinition()
         if (tablesAvailable(this)
                 .filter { it.tableName.textMatches(alterStmt.tableName) }
                 .flatMap { it.query.columns }

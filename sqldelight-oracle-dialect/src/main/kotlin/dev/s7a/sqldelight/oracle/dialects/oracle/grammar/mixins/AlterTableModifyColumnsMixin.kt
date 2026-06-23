@@ -5,7 +5,6 @@ import com.alecstrong.sql.psi.core.psi.AlterTableApplier
 import com.alecstrong.sql.psi.core.psi.LazyQuery
 import com.alecstrong.sql.psi.core.psi.NamedElement
 import com.alecstrong.sql.psi.core.psi.QueryElement
-import com.alecstrong.sql.psi.core.psi.SqlColumnDef
 import com.alecstrong.sql.psi.core.psi.SqlColumnName
 import com.alecstrong.sql.psi.core.psi.SqlCompositeElementImpl
 import com.alecstrong.sql.psi.core.psi.alterStmt
@@ -17,30 +16,24 @@ internal abstract class AlterTableModifyColumnsMixin(
 ) : SqlCompositeElementImpl(node),
     OracleAlterTableModifyColumns,
     AlterTableApplier {
-    private val columnDefinitions: List<SqlColumnDef>
-        get() = children.filterIsInstance<SqlColumnDef>()
-
     override fun applyTo(lazyQuery: LazyQuery): LazyQuery =
-        LazyQuery(
-            tableName = lazyQuery.tableName,
-            query = {
-                val columns =
-                    lazyQuery.query.columns.map { queryColumn ->
-                        val columnName = queryColumn.element as NamedElement
-                        val replacement = columnDefinitions.singleOrNull { columnName.textMatches(it.columnName) }
-                        if (replacement != null) {
-                            QueryElement.QueryColumn(replacement.columnName)
-                        } else {
-                            queryColumn
-                        }
-                    }
-                lazyQuery.query.copy(columns = columns)
-            },
-        )
+        lazyQuery.withOracleColumns { columns ->
+            val columnDefinitions = oracleColumnDefinitions()
+            columns.map { queryColumn ->
+                val columnName = queryColumn.element as NamedElement
+                val replacement = columnDefinitions.singleOrNull { columnName.textMatches(it.columnName) }
+                if (replacement != null) {
+                    QueryElement.QueryColumn(replacement.columnName)
+                } else {
+                    queryColumn
+                }
+            }
+        }
 
     override fun annotate(annotationHolder: SqlAnnotationHolder) {
         super.annotate(annotationHolder)
 
+        val columnDefinitions = oracleColumnDefinitions()
         val availableColumns =
             tablesAvailable(this)
                 .filter { it.tableName.textMatches(alterStmt.tableName) }

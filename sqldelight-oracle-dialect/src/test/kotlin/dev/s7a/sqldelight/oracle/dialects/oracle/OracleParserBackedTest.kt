@@ -1582,7 +1582,7 @@ class OracleParserBackedTest :
                 );
 
                 SELECT XMLELEMENT(
-                  "Department",
+                  NAME "Department",
                   XMLATTRIBUTES(d.id AS "ID", d.name),
                   XMLAGG(XMLELEMENT("Employee", e.name) ORDER BY e.name)
                 ),

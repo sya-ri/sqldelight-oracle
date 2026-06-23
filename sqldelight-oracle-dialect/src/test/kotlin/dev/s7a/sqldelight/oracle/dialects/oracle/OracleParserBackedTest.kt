@@ -4910,6 +4910,11 @@ class OracleParserBackedTest :
                 VALUES (?, ?, ?)
                 RETURN NEW order_id INTO ?;
 
+                insertTargetAliasReturning:
+                INSERT INTO import_orders AS target (order_id, customer_name, order_total)
+                VALUES (?, ?, ?)
+                RETURNING target.order_id, target.order_total INTO ?, ?;
+
                 insertValuesReturningWait:
                 INSERT INTO import_orders (order_id, customer_name, order_total)
                 VALUES (?, ?, ?)
@@ -5127,6 +5132,12 @@ class OracleParserBackedTest :
                 WHERE order_id = ?
                 RETURN NEW order_total INTO ?;
 
+                updateTargetAliasReturning:
+                UPDATE partitioned_order_updates target
+                SET order_total = target.order_total + ?
+                WHERE target.order_id = ?
+                RETURNING target.order_total INTO ?;
+
                 updateWithWaitAndErrorLogging:
                 UPDATE partitioned_order_updates
                 SET archived_at = CURRENT_TIMESTAMP
@@ -5188,6 +5199,11 @@ class OracleParserBackedTest :
                 DELETE FROM partitioned_order_updates
                 WHERE order_id = ?
                 RETURN OLD order_total INTO ?;
+
+                deleteTargetAliasReturning:
+                DELETE FROM partitioned_order_updates target
+                WHERE target.order_id = ?
+                RETURNING target.order_total INTO ?;
 
                 deleteWithErrorLogging:
                 DELETE FROM partitioned_order_updates

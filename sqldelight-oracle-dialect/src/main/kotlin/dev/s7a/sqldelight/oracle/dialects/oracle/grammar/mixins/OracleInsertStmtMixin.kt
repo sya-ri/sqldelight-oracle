@@ -27,7 +27,7 @@ internal abstract class OracleInsertStmtMixin(
 
     override fun queryAvailable(child: PsiElement): Collection<QueryResult> =
         if (child !is SqlWithClause) {
-            super.queryAvailable(child) + tableAvailable(child, tableName.name)
+            super.queryAvailable(child) + insertTargetAvailable(child)
         } else {
             super.queryAvailable(child)
         }
@@ -37,4 +37,17 @@ internal abstract class OracleInsertStmtMixin(
     override fun getTableName(): SqlTableName = notNullChild(PsiTreeUtil.getChildOfType(this, SqlTableName::class.java))
 
     override fun getWithClause(): SqlWithClause? = PsiTreeUtil.getChildOfType(this, SqlWithClause::class.java)
+
+    private fun insertTargetAvailable(child: PsiElement): Collection<QueryResult> {
+        val target = tableAvailable(child, tableName.name)
+        val alias = tableAlias ?: return target
+
+        return listOf(
+            QueryResult(
+                alias,
+                target.flatMap { it.columns },
+                target.flatMap { it.synthesizedColumns },
+            ),
+        )
+    }
 }

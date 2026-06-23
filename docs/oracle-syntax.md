@@ -181,7 +181,9 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] [`LOCK TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/LOCK-TABLE.html) parser support for multiple table references, [`partition_extension_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/partition_extension_clause.html), lock modes, `NOWAIT`, and `WAIT`
   - [x] rule coverage for conflicting `NOWAIT` / `WAIT` clauses and invalid static `WAIT` values
 - [x] [`EXPLAIN PLAN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/EXPLAIN-PLAN.html) parser support for `SET STATEMENT_ID`, `INTO`, and `FOR` `SELECT` / `INSERT` / `UPDATE` / `DELETE` / `MERGE` / `CREATE TABLE` / `CREATE INDEX` / `ALTER INDEX ... REBUILD` statements
-- [ ] DML semantic validation: defer direct-path restrictions, `APPEND`/`APPEND_VALUES` hint-driven behavior, trigger/constraint/IOT restrictions, multi-table insert parallelization rules, object-table restrictions, target/source alias resolution, returning-column resolution, remote object privilege requirements, updatable view/materialized view behavior, and `WITH CHECK OPTION` placement rules
+- [ ] DML semantic validation: defer direct-path restrictions, `APPEND`/`APPEND_VALUES` hint-driven behavior, trigger/constraint/IOT restrictions, multi-table insert parallelization rules, object-table restrictions, remote object privilege requirements, updatable view/materialized view behavior, and `WITH CHECK OPTION` placement rules
+  - [x] SQLDelight column resolution for named `INSERT`, `UPDATE`, and `DELETE` target aliases in `RETURNING` clauses
+  - [x] SQLDelight column resolution for `UPDATE ... FROM` source aliases
 - [x] DML optimizer hint comments
   - [x] parser boundary coverage for statement-level `--+ ...` hint comments in `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `MERGE`
   - [x] statement-level and query-block `/*+ ... */` hints in `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `MERGE`

@@ -1597,14 +1597,14 @@ private oracle_update_set_clause ::= (
 private oracle_update_set_expr ::= 'DEFAULT' | {setter_expression}
 
 delete_stmt ::= oracle_delete_stmt {
-  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlDeleteStmtImpl"
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleDeleteStmtMixin"
   implements = "com.alecstrong.sql.psi.core.psi.SqlDeleteStmt"
   override = true
   pin = 2
 }
 
 delete_stmt_limited ::= oracle_delete_stmt {
-  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlDeleteStmtLimitedImpl"
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleDeleteStmtLimitedMixin"
   implements = "com.alecstrong.sql.psi.core.psi.SqlDeleteStmtLimited"
   override = true
   pin = 2

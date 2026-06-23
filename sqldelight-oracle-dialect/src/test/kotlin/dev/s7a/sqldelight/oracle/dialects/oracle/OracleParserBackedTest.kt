@@ -4776,6 +4776,10 @@ class OracleParserBackedTest :
                 FROM view_accounts
                 WITH READ ONLY;
 
+                CREATE VIEW renamed_account_view (account_id, account_status) AS
+                SELECT id, status
+                FROM view_accounts;
+
                 CREATE VIEW IF NOT EXISTS constrained_account_view
                   SHARING = EXTENDED DATA
                   (
@@ -4817,6 +4821,10 @@ class OracleParserBackedTest :
                 selectAll:
                 SELECT account_id, account_status, account_created_at
                 FROM account_status_view;
+
+                selectRenamedColumns:
+                SELECT account_id, account_status
+                FROM renamed_account_view;
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe

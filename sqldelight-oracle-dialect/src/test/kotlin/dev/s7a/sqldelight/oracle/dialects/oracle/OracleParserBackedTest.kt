@@ -923,13 +923,15 @@ class OracleParserBackedTest :
                 CREATE TABLE json_condition_samples (
                   id NUMBER PRIMARY KEY,
                   doc CLOB,
+                  doc_blob BLOB,
                   expected_doc CLOB,
                   search_text VARCHAR2(100)
                 );
 
                 SELECT id
                 FROM json_condition_samples
-                WHERE JSON_EXISTS(doc, '${'$'}.items[*]?(@.status == ${'$'}status)' PASSING 'active' AS status TRUE ON ERROR FALSE ON EMPTY)
+                WHERE doc_blob FORMAT JSON IS JSON STRICT
+                  AND JSON_EXISTS(doc, '${'$'}.items[*]?(@.status == ${'$'}status)' PASSING 'active' AS status TRUE ON ERROR FALSE ON EMPTY)
                   AND JSON_EXISTS(doc FORMAT JSON, '${'$'}.metadata' ERROR ON ERROR ERROR ON EMPTY)
                   AND JSON_EXISTS(doc, '${'$'}.optional' NULL ON EMPTY)
                   AND JSON_EQUAL(doc, expected_doc TRUE ON ERROR)

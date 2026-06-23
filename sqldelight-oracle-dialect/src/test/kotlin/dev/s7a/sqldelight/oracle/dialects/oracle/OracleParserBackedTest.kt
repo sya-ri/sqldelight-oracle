@@ -5074,6 +5074,34 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("resolves Oracle merge target and source aliases exactly") {
+            val sql =
+                """
+                CREATE TABLE account_balance (
+                  account_id NUMBER PRIMARY KEY,
+                  balance NUMBER
+                );
+
+                CREATE TABLE account_delta (
+                  account_id NUMBER PRIMARY KEY,
+                  delta NUMBER
+                );
+
+                MERGE INTO account_balance target
+                USING account_delta source
+                ON (target.account_id = source.account_id)
+                WHEN MATCHED THEN UPDATE SET balance = source.delta
+                WHEN NOT MATCHED THEN INSERT (account_id, balance)
+                  VALUES (source.account_id, source.delta);
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle insert default values through SQLDelight environment exactly") {
             val sql =
                 """

@@ -4229,7 +4229,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleLo
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
-public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleMergeStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleMergeStmt {
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleMergeStmtImpl : dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleMergeStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V

@@ -5294,6 +5294,12 @@ class OracleParserBackedTest :
         test("parses Oracle materialized drop statements through SQLDelight environment exactly") {
             val sql =
                 """
+                DROP MATERIALIZED VIEW sales_summary;
+
+                DROP MATERIALIZED VIEW IF EXISTS reporting.sales_summary PRESERVE TABLE;
+
+                DROP SNAPSHOT legacy_sales_snapshot;
+
                 DROP MATERIALIZED VIEW LOG ON customers;
 
                 DROP MATERIALIZED VIEW LOG IF EXISTS ON oe.customers;

@@ -98,6 +98,7 @@ sqldelightCheck {
 | [`oracle:no-conflicting-flashback-clause`](#oracleno-conflicting-flashback-clause) | Yes | Warning |  | Avoid duplicate Oracle flashback query clauses on one table reference. |
 | [`oracle:no-conflicting-index-clauses`](#oracleno-conflicting-index-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE INDEX` and `ALTER INDEX` clauses. |
 | [`oracle:no-conflicting-json-storage-clauses`](#oracleno-conflicting-json-storage-clauses) | Yes | Warning |  | Avoid multiple JSON storage clauses for one column. |
+| [`oracle:no-conflicting-rollback-clauses`](#oracleno-conflicting-rollback-clauses) | Yes | Warning |  | Avoid conflicting `ROLLBACK` target clauses. |
 | [`oracle:no-conflicting-sequence-clauses`](#oracleno-conflicting-sequence-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE SEQUENCE` and `ALTER SEQUENCE` clauses. |
 | [`oracle:no-conflicting-set-role-clauses`](#oracleno-conflicting-set-role-clauses) | Yes | Warning |  | Avoid conflicting `SET ROLE` forms. |
 | [`oracle:no-conflicting-set-constraints-clauses`](#oracleno-conflicting-set-constraints-clauses) | Yes | Warning |  | Avoid conflicting `SET CONSTRAINTS` timing clauses. |
@@ -253,6 +254,17 @@ Prefer one storage choice per JSON column:
 ```sql
 ALTER TABLE documents
   MODIFY JSON COLUMN payload STORE AS JSON;
+```
+
+## `oracle:no-conflicting-rollback-clauses`
+
+Reports conflicting Oracle [`ROLLBACK`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ROLLBACK.html) target clauses.
+The rule checks repeated or mixed `TO SAVEPOINT` and `FORCE` target forms.
+
+Prefer one rollback target:
+
+```sql
+ROLLBACK TO SAVEPOINT before_update;
 ```
 
 ## `oracle:no-conflicting-sequence-clauses`

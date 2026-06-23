@@ -383,6 +383,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] [`COMMIT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/COMMIT.html) parser support for [`commit`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/commit.html): `WORK`, `COMMENT`, `WRITE`, and `FORCE`
   - [x] rule coverage for conflicting `COMMIT WRITE` `WAIT` / `NOWAIT`, `IMMEDIATE` / `BATCH`, and repeated `WRITE` clauses
 - [x] [`ROLLBACK`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ROLLBACK.html) parser support for [`rollback`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/rollback.html): `WORK`, `TO SAVEPOINT`, and `FORCE`
+  - [x] rule coverage for conflicting `TO SAVEPOINT` / `FORCE` target clauses and repeated rollback targets
 - [x] [`SAVEPOINT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SAVEPOINT.html) parser support for [`savepoint`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/savepoint.html)
 - [x] [`SET TRANSACTION`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SET-TRANSACTION.html) parser support for [`set_transaction`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/set_transaction.html): `READ ONLY`, `READ WRITE`, isolation levels, rollback segments, and transaction names
   - [x] rule coverage for conflicting `READ ONLY` / `READ WRITE`, repeated isolation levels, and repeated rollback segment clauses

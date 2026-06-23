@@ -3032,7 +3032,11 @@ class OracleParserBackedTest :
                 )
                 LOB (document_blob) STORE AS BASICFILE (
                   TABLESPACE users
+                  DISABLE STORAGE IN ROW
                   NOCACHE
+                  NOCOMPRESS
+                  NODEDUPLICATE
+                  FILESYSTEM_LIKE_LOGGING
                   PCTVERSION 10
                 )
                 LOB (document_text) STORE AS SECUREFILE (

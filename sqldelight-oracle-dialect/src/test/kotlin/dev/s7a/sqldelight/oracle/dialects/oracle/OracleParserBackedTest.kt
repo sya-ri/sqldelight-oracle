@@ -581,6 +581,28 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle model conditions exactly") {
+            val sql =
+                """
+                CREATE TABLE model_condition_samples (
+                  id NUMBER PRIMARY KEY,
+                  dimension_value NUMBER,
+                  measure_value NUMBER
+                );
+
+                SELECT id
+                FROM model_condition_samples
+                WHERE dimension_value IS ANY
+                  OR measure_value IS PRESENT;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle IS JSON conditions exactly") {
             val sql =
                 """

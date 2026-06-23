@@ -2997,6 +2997,12 @@ class OracleParserBackedTest :
                   NOCACHE
                   PCTVERSION 10
                 )
+                LOB (document_text) STORE AS SECUREFILE (
+                  TABLESPACE users
+                ) (
+                  CACHE READS
+                  LOGGING
+                )
                 XMLTYPE COLUMN document_xml XMLSCHEMA 'http://example.com/document.xsd' ELEMENT 'Document' STORE AS BINARY XML
                 XMLTYPE COLUMN archive_xml STORE AS BASICFILE CLOB archive_xml_lob (
                   NOCACHE

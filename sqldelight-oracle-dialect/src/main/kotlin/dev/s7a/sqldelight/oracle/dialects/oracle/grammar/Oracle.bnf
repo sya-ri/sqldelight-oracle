@@ -2013,7 +2013,21 @@ private oracle_varray_col_properties ::= 'VARRAY' oracle_schema_object_name 'STO
   [ 'SECUREFILE' | 'BASICFILE' ] 'LOB' [ oracle_column_property_storage_target ]
 
 private oracle_lob_storage_clause ::= 'LOB' LP oracle_schema_object_name ( COMMA oracle_schema_object_name ) * RP
-  'STORE' 'AS' [ 'SECUREFILE' | 'BASICFILE' ] [ oracle_column_property_storage_target ]
+  'STORE' 'AS' oracle_lob_storage_option +
+
+private oracle_lob_storage_option ::= 'SECUREFILE' | 'BASICFILE' | oracle_lob_storage_target
+
+private oracle_lob_storage_target ::= (
+  oracle_column_property_boundary |
+  !'BLOCKCHAIN' !'CACHE' !'CLUSTERING' !'COLUMN' !'COMPRESS' !'DEFAULT' !'DISABLE' !'ENABLE'
+    !'FLASHBACK' !'FOR' !'HASHING' !'ILM' !'INDEXING' !'INMEMORY' !'JSON' !'LOB'
+    !'LOGGING' !'MEMOPTIMIZE' !'NESTED' !'NO' !'NOCACHE' !'NOCOMPRESS' !'NOLOGGING'
+    !'NOPARALLEL' !'NOROWDEPENDENCIES' !'NOT' !'OIDINDEX' !'ORGANIZATION' !'PARALLEL'
+    !'PARENT' !'PARTITION' !'PCTFREE' !'PCTUSED' !'READ' !'REFRESH' !'RESULT_CACHE'
+    !'ROW' !'ROWDEPENDENCIES' !'SEGMENT' !'STORAGE' !'STORE' !'SUBPARTITION' !'SYNCHRONOUS'
+    !'TABLESPACE' !'VARRAY' !'VIRTUAL' !'WITH' !'XMLTYPE'
+    oracle_object_name_part [ oracle_column_property_boundary ]
+)
 
 private oracle_column_property_storage_target ::= oracle_column_property_boundary | oracle_object_name_part [ oracle_column_property_boundary ]
 

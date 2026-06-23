@@ -1136,10 +1136,14 @@ private oracle_graph_table_token ::= (
   'NULL' |
   'OF' |
   'OR' |
+  'PER' |
   'PROPERTY' |
+  'ROW' |
   'SCN' |
+  'STEP' |
   'TIMESTAMP' |
   'TRUE' |
+  'VERTEX' |
   'WHERE'
 )
 

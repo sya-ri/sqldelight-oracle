@@ -3845,6 +3845,20 @@ class OracleParserBackedTest :
                   COLUMNS (employee.employee_id AS employee_id, department.department_id AS department_id)
                 ) graph_employee_departments_filtered;
 
+                selectGraphTableRowIteratorValueFunctions:
+                SELECT *
+                FROM GRAPH_TABLE (
+                  employees_graph
+                  MATCH (employee IS employee_node) -[works_at IS works_at_edge]-> (department IS department_node)
+                  ONE ROW PER STEP (employee, works_at, department)
+                  COLUMNS (
+                    MATCHNUM() AS match_number,
+                    ELEMENT_NUMBER(works_at) AS edge_number,
+                    VERTEX_ID(employee) AS employee_vertex_id,
+                    EDGE_ID(works_at) AS works_at_edge_id
+                  )
+                ) graph_employee_department_steps;
+
                 selectGraphqlTableFunction:
                 SELECT *
                 FROM GRAPHQL('

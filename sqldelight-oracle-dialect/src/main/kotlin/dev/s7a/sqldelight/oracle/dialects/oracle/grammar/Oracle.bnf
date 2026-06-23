@@ -2045,8 +2045,12 @@ private oracle_lob_partition_storage ::= 'LOB' LP oracle_schema_object_name RP '
 private oracle_xmltype_column_properties ::= 'XMLTYPE' 'COLUMN' oracle_schema_object_name
   ( oracle_xmlschema_spec | oracle_xmltype_storage | oracle_column_property_boundary ) *
 
-private oracle_json_storage_clause ::= 'JSON' 'COLUMN' oracle_schema_object_name 'STORE' 'AS'
-  ( 'TEXT' | 'BLOB' | 'CLOB' | 'JSON' ) [ oracle_column_property_boundary ]
+private oracle_json_storage_clause ::= (
+  'JSON' 'COLUMN' oracle_schema_object_name 'STORE' 'AS'
+    ( 'TEXT' | 'BLOB' | 'CLOB' | 'JSON' ) [ oracle_column_property_boundary ] |
+  'JSON' LP oracle_schema_object_name ( COMMA oracle_schema_object_name ) * RP
+    'STORE' 'AS' [ oracle_object_name_part ] [ oracle_column_property_boundary ]
+)
 
 private oracle_column_property_boundary ::= LP oracle_column_property_token * RP
 

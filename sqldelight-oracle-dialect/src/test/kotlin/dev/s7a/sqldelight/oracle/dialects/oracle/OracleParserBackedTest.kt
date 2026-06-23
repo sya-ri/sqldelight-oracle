@@ -2980,6 +2980,7 @@ class OracleParserBackedTest :
                   typed_attachments VARRAY(10),
                   fixed_attachments VARRAY(10),
                   document_json JSON,
+                  archive_json JSON,
                   contact OBJECT,
                   preferred_contact OBJECT,
                   alternate_contact OBJECT
@@ -3036,6 +3037,9 @@ class OracleParserBackedTest :
                 )
                 VARRAY fixed_attachments NOT SUBSTITUTABLE AT ALL LEVELS
                 JSON COLUMN document_json STORE AS BLOB (CACHE)
+                JSON (document_json, archive_json) STORE AS account_json_lob (
+                  CACHE
+                )
                 COLUMN preferred_contact ELEMENT IS OF TYPE (ONLY account_contact_type)
                 COLUMN alternate_contact SUBSTITUTABLE AT ALL LEVELS
                 COLUMN contact NOT SUBSTITUTABLE AT ALL LEVELS;

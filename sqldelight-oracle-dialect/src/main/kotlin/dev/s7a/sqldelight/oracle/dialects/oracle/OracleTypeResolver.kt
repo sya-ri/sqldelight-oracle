@@ -55,6 +55,7 @@ public class OracleTypeResolver(
             "JSON_VALUE",
             "JSON_QUERY",
             "JSON_SERIALIZE",
+            "JSON_MERGEPATCH",
             "XMLSERIALIZE",
             -> {
                 functionExpr.text.oracleReturningTypeName()?.let { typeName -> IntermediateType(OracleType.fromSqlTypeName(typeName)) }

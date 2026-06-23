@@ -532,9 +532,11 @@ private oracle_vector_dimension_format ::= 'INT8' | 'BINARY' | 'FLOAT32' | 'FLOA
 
 private oracle_vector_embedding_expr ::= 'VECTOR_EMBEDDING' LP oracle_schema_object_name 'USING' <<expr '-1'>> 'AS' 'DATA' RP
 
-private oracle_vector_serialize_expr ::= 'VECTOR_SERIALIZE' LP <<expr '-1'>> [ 'RETURNING' oracle_vector_returning_type ] RP
+private oracle_vector_serialize_expr ::= 'VECTOR_SERIALIZE' LP <<expr '-1'>> [ 'RETURNING' oracle_vector_returning_type [ 'FORMAT' oracle_vector_serialize_format ] ] RP
 
 private oracle_vector_returning_type ::= oracle_object_name_part [ oracle_type_parameters ]
+
+private oracle_vector_serialize_format ::= 'SPARSE' | 'DENSE'
 
 private oracle_sql_json_expr ::= oracle_sql_json_generation_expr | oracle_sql_json_query_expr | oracle_json_mergepatch_expr | oracle_json_dataguide_expr
 

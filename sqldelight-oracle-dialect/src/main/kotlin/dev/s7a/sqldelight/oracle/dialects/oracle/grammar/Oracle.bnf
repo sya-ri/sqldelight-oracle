@@ -1092,7 +1092,9 @@ private oracle_hierarchical_query_clause ::= (
   'START' 'WITH' oracle_clause_condition 'CONNECT' 'BY' [ 'NOCYCLE' ] oracle_clause_condition
 )
 
-private oracle_clause_condition ::= oracle_clause_condition_operand [ oracle_clause_comparison_operator oracle_clause_condition_operand ]
+private oracle_clause_condition ::= oracle_clause_condition_term ( ( 'AND' | 'OR' ) oracle_clause_condition_term ) *
+
+private oracle_clause_condition_term ::= oracle_clause_condition_operand [ oracle_clause_comparison_operator oracle_clause_condition_operand ]
 
 private oracle_clause_condition_operand ::= [ 'PRIOR' | 'CONNECT_BY_ROOT' ] (
   oracle_qualified_object_name |

@@ -1674,7 +1674,7 @@ class OracleParserBackedTest :
                   VECTOR_DIMENSION_FORMAT(embedding) AS embedding_dimension_format,
                   VECTOR_NORM(embedding) AS embedding_norm,
                   VECTOR_EMBEDDING(all_minilm_l12 USING body AS DATA),
-                  VECTOR_SERIALIZE(embedding RETURNING CLOB),
+                  VECTOR_SERIALIZE(embedding RETURNING CLOB FORMAT DENSE),
                   embedding <-> TO_VECTOR('[1,2,3]', 3, FLOAT32) AS euclidean_distance,
                   embedding <=> TO_VECTOR('[1,2,3]', 3, FLOAT32) AS cosine_distance_shorthand,
                   embedding <#> TO_VECTOR('[1,2,3]', 3, FLOAT32) AS negative_inner_product

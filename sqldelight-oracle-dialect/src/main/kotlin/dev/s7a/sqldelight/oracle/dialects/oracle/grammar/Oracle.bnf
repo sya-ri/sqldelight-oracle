@@ -1216,7 +1216,7 @@ oracle_json_table_exists_column ::= <<columnAliasExt <<column_alias_real>>>> [ o
 
 oracle_json_table_nested_column ::= 'NESTED' [ 'PATH' ] oracle_json_path_expression oracle_json_table_columns_clause
 
-private oracle_json_table_datatype ::= oracle_object_name_part [ oracle_type_parameters ]
+private oracle_json_table_datatype ::= oracle_object_name_part [ oracle_type_parameters ] [ 'WITH' [ 'LOCAL' ] 'TIME' 'ZONE' ]
 
 private oracle_json_table_path_clause ::= 'PATH' oracle_json_path_expression
 
@@ -1247,7 +1247,7 @@ oracle_xmltable_column ::= <<columnAliasExt <<column_alias_real>>>> (
   oracle_xmltable_datatype [ oracle_xmltype_sequence_clause ] [ 'PATH' {string_literal} ] [ 'DEFAULT' <<expr '-1'>> ]
 )
 
-private oracle_xmltable_datatype ::= oracle_object_name_part [ oracle_type_parameters ]
+private oracle_xmltable_datatype ::= oracle_object_name_part [ oracle_type_parameters ] [ 'WITH' [ 'LOCAL' ] 'TIME' 'ZONE' ]
 
 private oracle_xmltype_sequence_clause ::= [ 'SEQUENCE' ] 'BY' 'REF'
 

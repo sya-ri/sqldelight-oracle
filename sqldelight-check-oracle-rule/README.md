@@ -114,6 +114,7 @@ sqldelightCheck {
 | [`oracle:valid-returning-clause`](#oraclevalid-returning-clause) | Yes | Warning |  | Validate static Oracle `RETURNING` clause forms. |
 | [`oracle:valid-row-limiting-clause`](#oraclevalid-row-limiting-clause) | Yes | Warning |  | Validate static Oracle row limiting clause values and `WITH TIES` ordering. |
 | [`oracle:valid-like-escape`](#oraclevalid-like-escape) | Yes | Warning |  | Validate static Oracle `LIKE ... ESCAPE` literals. |
+| [`oracle:valid-lock-table-wait-clause`](#oraclevalid-lock-table-wait-clause) | Yes | Warning |  | Validate static Oracle `LOCK TABLE` wait clauses. |
 | [`oracle:valid-outer-join-operator`](#oraclevalid-outer-join-operator) | Yes | Warning |  | Validate static legacy Oracle outer join operator restrictions. |
 | [`oracle:valid-segment-creation-clause`](#oraclevalid-segment-creation-clause) | Yes | Warning |  | Avoid duplicate Oracle `SEGMENT CREATION` clauses. |
 | [`oracle:valid-subquery-restriction-clause`](#oraclevalid-subquery-restriction-clause) | Yes | Warning |  | Avoid conflicting Oracle subquery restriction clauses. |
@@ -471,6 +472,17 @@ Prefer a one-character static escape literal:
 SELECT *
 FROM customer
 WHERE name LIKE 'A\_%' ESCAPE '\';
+```
+
+## `oracle:valid-lock-table-wait-clause`
+
+Reports statically invalid Oracle [`LOCK TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/LOCK-TABLE.html) wait clauses.
+The rule checks conflicting `NOWAIT` / `WAIT` clauses, repeated wait clauses, and non-numeric static `WAIT` values.
+
+Prefer one lock wait behavior:
+
+```sql
+LOCK TABLE customer IN EXCLUSIVE MODE WAIT 5;
 ```
 
 ## `oracle:valid-outer-join-operator`

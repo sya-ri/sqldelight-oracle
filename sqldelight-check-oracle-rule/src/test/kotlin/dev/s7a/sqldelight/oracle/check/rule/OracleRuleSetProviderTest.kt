@@ -30,6 +30,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.ValidFormatModelRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidFunctionArityRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidJsonConditionOptionsRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidLikeEscapeRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.ValidLockTableWaitClauseRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidNlsParameterRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidOuterJoinOperatorRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRegexpMatchParamRule
@@ -80,6 +81,7 @@ class OracleRuleSetProviderTest :
                     ValidReturningClauseRule::class,
                     ValidRowLimitingClauseRule::class,
                     ValidLikeEscapeRule::class,
+                    ValidLockTableWaitClauseRule::class,
                     ValidOuterJoinOperatorRule::class,
                     ValidSegmentCreationClauseRule::class,
                     ValidSubqueryRestrictionClauseRule::class,
@@ -116,6 +118,7 @@ class OracleRuleSetProviderTest :
                     "oracle:valid-returning-clause",
                     "oracle:valid-row-limiting-clause",
                     "oracle:valid-like-escape",
+                    "oracle:valid-lock-table-wait-clause",
                     "oracle:valid-outer-join-operator",
                     "oracle:valid-segment-creation-clause",
                     "oracle:valid-subquery-restriction-clause",

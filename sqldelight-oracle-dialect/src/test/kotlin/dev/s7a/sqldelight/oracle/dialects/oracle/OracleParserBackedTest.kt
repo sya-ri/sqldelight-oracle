@@ -2347,7 +2347,7 @@ class OracleParserBackedTest :
                 GROUP BY department_id;
 
                 SELECT department_id,
-                  LISTAGG(last_name, ', ') WITHIN GROUP (ORDER BY hire_date) OVER (PARTITION BY department_id) AS analytic_employee_names
+                  LISTAGG(last_name, ', ') WITHIN GROUP (ORDER BY hire_date) OVER (PARTITION BY department_id) FILTER (WHERE last_name IS NOT NULL) AS analytic_employee_names
                 FROM employees;
                 """.trimIndent()
 

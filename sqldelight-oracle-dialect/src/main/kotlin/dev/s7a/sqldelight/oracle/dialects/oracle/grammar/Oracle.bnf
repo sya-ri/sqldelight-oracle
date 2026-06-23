@@ -450,7 +450,9 @@ private oracle_xml_content_alias ::= [ 'AS' ] oracle_xml_alias_name | 'AS' 'EVAL
 
 private oracle_xml_alias_name ::= {string_literal} | string | oracle_object_name_part
 
-private oracle_xmlattributes_expr ::= 'XMLATTRIBUTES' LP oracle_xml_attribute ( COMMA oracle_xml_attribute ) * RP
+private oracle_xmlattributes_expr ::= 'XMLATTRIBUTES' LP [ oracle_xml_escaping_clause ] [ oracle_xml_schema_check_clause ] oracle_xml_attribute ( COMMA oracle_xml_attribute ) * RP
+
+private oracle_xml_schema_check_clause ::= 'SCHEMACHECK' | 'NOSCHEMACHECK'
 
 private oracle_xml_attribute ::= <<expr '-1'>> [ 'AS' oracle_xml_name ]
 

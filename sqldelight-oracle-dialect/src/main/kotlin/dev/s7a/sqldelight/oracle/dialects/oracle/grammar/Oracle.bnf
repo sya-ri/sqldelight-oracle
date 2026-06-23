@@ -1374,9 +1374,11 @@ private oracle_row_pattern_term ::= oracle_row_pattern_token +
 
 private oracle_row_pattern_token ::= oracle_row_pattern_atom [ oracle_row_pattern_quantifier ]
 
-private oracle_row_pattern_atom ::= oracle_row_pattern_permute | oracle_row_pattern_group | oracle_object_name_part
+private oracle_row_pattern_atom ::= oracle_row_pattern_permute | oracle_row_pattern_exclusion | oracle_row_pattern_group | oracle_object_name_part
 
 private oracle_row_pattern_permute ::= 'PERMUTE' LP oracle_row_pattern_token ( COMMA oracle_row_pattern_token ) + RP
+
+private oracle_row_pattern_exclusion ::= '{' '-' oracle_row_pattern '-' '}'
 
 private oracle_row_pattern_group ::= LP [ oracle_row_pattern ] RP
 

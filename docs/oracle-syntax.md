@@ -111,7 +111,8 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] parser coverage for `?` and reluctant `+?` / `*?` / `??` quantifier boundaries
   - [x] parser coverage for [`row_pattern_permute`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern_permute.html) `PERMUTE(...)` alternatives
   - [x] parser coverage for [`row_pattern`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern.html) alternation with `|`
-  - [ ] deferred parser/semantic remainder: exclusion groups, bounded quantifiers, generated output columns, and pattern variable placement rules
+  - [x] parser coverage for row-pattern exclusion groups with `{- ... -}`
+  - [ ] deferred parser/semantic remainder: bounded quantifiers, generated output columns, and pattern variable placement rules
 - [x] [`CONTAINERS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/containers_clause.html) and [`SHARDS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) query clauses
 - [x] [`group_by_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/group_by_clause.html)
   - [x] aggregation parser support: `ROLLUP`, `CUBE`, `GROUPING SETS`, composite columns, `GROUP BY ALL`, and `HAVING` after `GROUP BY`

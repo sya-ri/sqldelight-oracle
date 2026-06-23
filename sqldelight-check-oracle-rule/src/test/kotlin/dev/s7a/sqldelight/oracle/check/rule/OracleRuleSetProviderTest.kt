@@ -8,6 +8,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingIndexClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingSequenceClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingTableClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoEmptyStringComparisonRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.NoUppercaseRowidColumnRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NullableNotInPredicateRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.PreferIdentityColumnRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.PreferUnifiedAuditingRule
@@ -35,6 +36,7 @@ class OracleRuleSetProviderTest :
                     NoConflictingIndexClausesRule::class,
                     NoConflictingSequenceClausesRule::class,
                     NoConflictingTableClausesRule::class,
+                    NoUppercaseRowidColumnRule::class,
                     PreferIdentityColumnRule::class,
                     PreferUnifiedAuditingRule::class,
                     RequireNumberPrecisionRule::class,
@@ -51,6 +53,7 @@ class OracleRuleSetProviderTest :
                     "oracle:no-conflicting-index-clauses",
                     "oracle:no-conflicting-sequence-clauses",
                     "oracle:no-conflicting-table-clauses",
+                    "oracle:no-uppercase-rowid-column",
                     "oracle:prefer-identity-column",
                     "oracle:prefer-unified-auditing",
                     "oracle:require-number-precision",

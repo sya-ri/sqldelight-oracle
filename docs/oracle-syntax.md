@@ -25,6 +25,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] [Schema object reference syntax](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Syntax-for-Schema-Objects-and-Parts-in-SQL-Statements.html)
   - [x] publish-scope parser support for direct schema-object references in DDL, DML, query table references, function/type references, `@dblink`, and partition/subpartition references
   - [ ] deferred object-kind restrictions, optional `"PUBLIC"` synonym qualification, database link name resolution details, identifier byte-length limits, and quoted uppercase `"ROWID"` restrictions to semantic validators
+    - [x] sqldelight-check rule coverage for quoted uppercase `"ROWID"` used as a [`CREATE TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html) or [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html) column name, based on Oracle [database object naming rules](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Database-Object-Names-and-Qualifiers.html)
 - [x] [SQL comments and optimizer hints](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Comments.html)
   - [x] `--` comments
   - [x] parser boundary coverage for `--+ ...` immediately after `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `MERGE`
@@ -549,6 +550,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 
 - [x] `oracle:no-empty-string-comparison` for Oracle [null semantics](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Nulls.html)
 - [x] Flag mutually exclusive [`CREATE INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-INDEX.html) and [`ALTER INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-INDEX.html) clause groups such as `UNIQUE` / `BITMAP`, `LOGGING` / `NOLOGGING`, `VISIBLE` / `INVISIBLE`, `USABLE` / `UNUSABLE`, `COMPRESS` / `NOCOMPRESS`, `PARALLEL` / `NOPARALLEL`, `ONLINE` / `OFFLINE`, and `INDEXING FULL` / `INDEXING PARTIAL`
+- [x] Flag quoted uppercase `"ROWID"` Oracle column names
 - [x] Prefer Oracle identity columns over sequence-trigger pairs
 - [x] Flag nullable `NOT IN` predicates where Oracle null semantics are likely unintended
 - [x] Flag unsafe `ALTER TABLE` / `TRUNCATE TABLE` migration DDL that rewrites, locks, or destructively changes large tables, including destructive column drops, unused column operations, segment moves, shrink operations, and required column additions/modifications without defaults

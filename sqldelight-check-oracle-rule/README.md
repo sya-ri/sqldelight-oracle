@@ -93,6 +93,7 @@ sqldelightCheck {
 | [`oracle:no-conflicting-index-clauses`](#oracleno-conflicting-index-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE INDEX` and `ALTER INDEX` clauses. |
 | [`oracle:no-conflicting-sequence-clauses`](#oracleno-conflicting-sequence-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE SEQUENCE` and `ALTER SEQUENCE` clauses. |
 | [`oracle:no-conflicting-table-clauses`](#oracleno-conflicting-table-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE TABLE` and `ALTER TABLE` clauses. |
+| [`oracle:no-uppercase-rowid-column`](#oracleno-uppercase-rowid-column) | Yes | Warning |  | Avoid quoted uppercase `"ROWID"` Oracle column names. |
 | [`oracle:prefer-identity-column`](#oracleprefer-identity-column) | Yes | Warning |  | Prefer Oracle identity columns over sequence-trigger generated keys. |
 | [`oracle:prefer-unified-auditing`](#oracleprefer-unified-auditing) | Yes | Warning |  | Prefer unified auditing over traditional `AUDIT` and `NOAUDIT` statements. |
 | [`oracle:require-number-precision`](#oraclerequire-number-precision) | Yes | Warning |  | Require explicit precision and scale for `NUMBER` declarations. |
@@ -170,6 +171,19 @@ Prefer one choice per semantic group:
 
 ```sql
 ALTER TABLE customer READ WRITE;
+```
+
+## `oracle:no-uppercase-rowid-column`
+
+Reports quoted uppercase `"ROWID"` identifiers when they are used as Oracle column names.
+Oracle's [database object naming rules](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Database-Object-Names-and-Qualifiers.html) treat uppercase `ROWID` as a special exception: it cannot be used as a column name even when quoted.
+
+Prefer a different column name or mixed-case quoted spelling:
+
+```sql
+CREATE TABLE audit_event (
+    row_id NUMBER(19) NOT NULL
+);
 ```
 
 ## `oracle:prefer-identity-column`

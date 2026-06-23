@@ -7,6 +7,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingIndexClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingSequenceClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingTableClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoEmptyStringComparisonRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.NoUppercaseRowidColumnRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NullableNotInPredicateRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.PreferIdentityColumnRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.PreferUnifiedAuditingRule
@@ -30,6 +31,7 @@ public class OracleRuleSetProvider : RuleSetProvider {
             RuleProvider(::NoConflictingIndexClausesRule),
             RuleProvider(::NoConflictingSequenceClausesRule),
             RuleProvider(::NoConflictingTableClausesRule),
+            RuleProvider(::NoUppercaseRowidColumnRule),
             RuleProvider(::PreferIdentityColumnRule),
             RuleProvider(::PreferUnifiedAuditingRule),
             RuleProvider(::RequireNumberPrecisionRule),

@@ -3993,6 +3993,12 @@ class OracleParserBackedTest :
                   PCTVERSION 10
                 );
 
+                ALTER TABLE alter_advanced_targets
+                MODIFY VARRAY attachments (
+                  RETENTION
+                  CACHE READS
+                );
+
                 ALTER TABLE alter_advanced_targets UPGRADE INCLUDING DATA;
                 ALTER TABLE alter_advanced_targets UPGRADE NOT INCLUDING DATA;
 

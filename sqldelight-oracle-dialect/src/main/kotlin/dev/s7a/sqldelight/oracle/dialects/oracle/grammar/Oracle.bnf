@@ -2397,8 +2397,10 @@ private alter_table_modify_xmltype_storage ::= 'MODIFY' 'XMLTYPE' 'COLUMN' oracl
 private alter_table_modify_lob_storage ::= 'MODIFY' 'LOB' LP oracle_schema_object_name ( COMMA oracle_schema_object_name ) * RP
   oracle_alter_table_property_token *
 
-private alter_table_modify_varray_storage ::= 'MODIFY' 'VARRAY' oracle_schema_object_name
-  'STORE' 'AS' [ 'SECUREFILE' | 'BASICFILE' ] 'LOB' [ oracle_column_property_storage_target ]
+private alter_table_modify_varray_storage ::= 'MODIFY' 'VARRAY' oracle_schema_object_name (
+  'STORE' 'AS' [ 'SECUREFILE' | 'BASICFILE' ] 'LOB' [ oracle_column_property_storage_target ] |
+  oracle_column_property_boundary
+)
 
 private alter_table_modify_default_attributes ::= 'MODIFY' 'DEFAULT' 'ATTRIBUTES'
   [ 'FOR' ( 'PARTITION' | 'SUBPARTITION' ) oracle_object_name_part ]

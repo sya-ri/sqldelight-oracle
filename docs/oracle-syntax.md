@@ -506,10 +506,10 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [ ] defer vector distance shorthand parser/type-resolver support until SQLDelight core comparison parsing can expose these Oracle operators before consuming `<`
 - [x] [`EXTRACT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/EXTRACT-datetime.html) parser, sqldelight-check source pattern, and baseline numeric type resolver coverage for datetime fields
 - [x] [`TO_LOB`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TO_LOB.html) parser, sqldelight-check source pattern, and argument-dependent type resolver coverage for SQLDelight `TEXT`/`BINARY` mappings of `LONG` to `CLOB` and `LONG RAW` to `BLOB`
-- [ ] [Object reference functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Functions.html)
+- [x] [Object reference functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Functions.html)
   - [x] parser, type resolver, and sqldelight-check source pattern coverage for `REF`, `DEREF`, `MAKE_REF`, and `VALUE`
   - [x] type resolver and sqldelight-check source pattern coverage for `CV`, `ITERATION_NUMBER`, `PRESENTNNV`, `PRESENTV`, and `PREVIOUS`
-  - [ ] defer model cell references, `CV` dimension return types, `PRESENT*`/`PREVIOUS` argument-dependent return types, extensible index functions, and release-specific OLAP function names
+  - [ ] deferred model cell references, `CV` dimension return types, `PRESENT*`/`PREVIOUS` argument-dependent return types, extensible index functions, and release-specific OLAP function names
 - [x] Non-parenthesized environment and datetime functions: parser and sqldelight-check source pattern coverage for `DBTIMEZONE`, `SESSIONTIMEZONE`, `UID`, `USER`, `ORA_INVOKING_USER`, and `ORA_INVOKING_USERID`
 - [x] Non-parenthesized environment and datetime function fixed type resolver coverage for `DBTIMEZONE`, `SESSIONTIMEZONE`, `UID`, `USER`, `ORA_INVOKING_USER`, and `ORA_INVOKING_USERID`
 - [x] [`USERENV`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/USERENV.html) argument-dependent numeric return handling for `SESSIONID`, `SID`, and `ENTRYID`

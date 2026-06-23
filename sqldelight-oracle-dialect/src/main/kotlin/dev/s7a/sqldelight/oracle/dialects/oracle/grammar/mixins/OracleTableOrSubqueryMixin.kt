@@ -130,18 +130,35 @@ internal abstract class OracleTableOrSubqueryMixin(
 
     private fun oracleSynonymTargetResult(tableNameElement: SqlTableName): Collection<QueryResult>? {
         val synonym = tableNameElement.reference?.resolve()?.parent as? OracleCreateUnqualifiedSynonymStmt ?: return null
-        val target = PsiTreeUtil.findChildOfType(synonym, OracleOracleSynonymTarget::class.java) ?: return emptyList()
+        return synonym.oracleSynonymTargetResult(tableNameElement, mutableSetOf())
+    }
+
+    private fun OracleCreateUnqualifiedSynonymStmt.oracleSynonymTargetResult(
+        tableNameElement: SqlTableName,
+        seenTargetNames: MutableSet<String>,
+    ): Collection<QueryResult> {
+        val target = PsiTreeUtil.findChildOfType(this, OracleOracleSynonymTarget::class.java) ?: return emptyList()
         val targetName = target.text.substringBefore("@").substringAfterLast(".")
-        return tableAvailable(target, targetName)
-            .map { result ->
-                result.copy(
-                    table = tableNameElement,
-                    synthesizedColumns =
-                        result.synthesizedColumns.map { column ->
-                            column.copy(table = tableNameElement)
-                        },
-                )
+        if (!seenTargetNames.add(targetName.lowercase())) return emptyList()
+
+        val targetResult = tableAvailable(target, targetName)
+        val targetSynonym =
+            targetResult.firstNotNullOfOrNull { result ->
+                (result.table as? PsiElement)?.parent as? OracleCreateUnqualifiedSynonymStmt
             }
+        if (targetSynonym != null && targetResult.all { it.columns.isEmpty() && it.synthesizedColumns.isEmpty() }) {
+            return targetSynonym.oracleSynonymTargetResult(tableNameElement, seenTargetNames)
+        }
+
+        return targetResult.map { result ->
+            result.copy(
+                table = tableNameElement,
+                synthesizedColumns =
+                    result.synthesizedColumns.map { column ->
+                        column.copy(table = tableNameElement)
+                    },
+            )
+        }
     }
 
     private fun PsiElement.tableAlias(): SqlTableAlias? = PsiTreeUtil.findChildOfType(this, SqlTableAlias::class.java)

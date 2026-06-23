@@ -108,6 +108,7 @@ sqldelightCheck {
 | [`oracle:valid-boolean-test-condition`](#oraclevalid-boolean-test-condition) | Yes | Warning |  | Validate static Oracle boolean test conditions. |
 | [`oracle:valid-nls-parameter`](#oraclevalid-nls-parameter) | Yes | Warning |  | Validate static Oracle NLS parameter literals in conversion functions. |
 | [`oracle:valid-json-condition-options`](#oraclevalid-json-condition-options) | Yes | Warning |  | Validate static SQL/JSON condition option combinations. |
+| [`oracle:valid-returning-clause`](#oraclevalid-returning-clause) | Yes | Warning |  | Validate static Oracle `RETURNING` clause forms. |
 | [`oracle:valid-row-limiting-clause`](#oraclevalid-row-limiting-clause) | Yes | Warning |  | Validate static Oracle row limiting clause values and `WITH TIES` ordering. |
 | [`oracle:valid-like-escape`](#oraclevalid-like-escape) | Yes | Warning |  | Validate static Oracle `LIKE ... ESCAPE` literals. |
 | [`oracle:valid-outer-join-operator`](#oraclevalid-outer-join-operator) | Yes | Warning |  | Validate static legacy Oracle outer join operator restrictions. |
@@ -387,6 +388,20 @@ SELECT *
 FROM document_store
 WHERE payload IS JSON STRICT WITH UNIQUE KEYS
   AND JSON_EXISTS(payload, '$.items[*]' TRUE ON ERROR FALSE ON EMPTY);
+```
+
+## `oracle:valid-returning-clause`
+
+Reports statically invalid Oracle [`returning_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/returning_clause.html) forms in `INSERT`, `UPDATE`, `DELETE`, and `MERGE` statements.
+The rule checks repeated `RETURN` / `RETURNING` keywords, repeated `INTO` targets in one returning clause, and mixed `OLD` / `NEW` returning expressions.
+
+Prefer one returning clause with one target list:
+
+```sql
+UPDATE customer
+SET name = :name
+WHERE id = :id
+RETURNING id INTO :updated_id;
 ```
 
 ## `oracle:valid-row-limiting-clause`

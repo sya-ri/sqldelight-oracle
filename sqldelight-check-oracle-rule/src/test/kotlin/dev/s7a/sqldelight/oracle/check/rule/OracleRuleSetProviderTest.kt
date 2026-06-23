@@ -30,6 +30,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.ValidLikeEscapeRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidNlsParameterRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidOuterJoinOperatorRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRegexpMatchParamRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.ValidReturningClauseRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRowLimitingClauseRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidSegmentCreationClauseRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidSubqueryRestrictionClauseRule
@@ -70,6 +71,7 @@ class OracleRuleSetProviderTest :
                     ValidFormatModelRule::class,
                     ValidNlsParameterRule::class,
                     ValidJsonConditionOptionsRule::class,
+                    ValidReturningClauseRule::class,
                     ValidRowLimitingClauseRule::class,
                     ValidLikeEscapeRule::class,
                     ValidOuterJoinOperatorRule::class,
@@ -102,6 +104,7 @@ class OracleRuleSetProviderTest :
                     "oracle:valid-format-model",
                     "oracle:valid-nls-parameter",
                     "oracle:valid-json-condition-options",
+                    "oracle:valid-returning-clause",
                     "oracle:valid-row-limiting-clause",
                     "oracle:valid-like-escape",
                     "oracle:valid-outer-join-operator",

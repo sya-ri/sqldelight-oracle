@@ -1282,6 +1282,8 @@ class OracleParserBackedTest :
                     '{"employee":{"id":1,"name":"Ada"},"items":[{"name":"Keyboard"}]}' FORMAT JSON,
                     '${'$'}'
                     PASSING 1 AS document_id
+                    ERROR ON ERROR
+                    DEFAULT 'missing' ON EMPTY
                     COLUMNS (
                       line_number FOR ORDINALITY,
                       employee_id NUMBER PATH '${'$'}.employee.id' ERROR ON ERROR DEFAULT 0 ON EMPTY,

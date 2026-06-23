@@ -1187,8 +1187,14 @@ private oracle_graphql_passing_clause ::= 'PASSING' oracle_graphql_variable_bind
 private oracle_graphql_variable_binding ::= <<expr '-1'>> 'AS' oracle_object_name_part
 
 oracle_json_table_reference ::= 'JSON_TABLE' LP <<expr '-1'>> [ oracle_json_format_clause ]
-  COMMA oracle_json_path_expression [ oracle_json_passing_clause ] oracle_json_table_columns_clause RP
+  COMMA oracle_json_path_expression [ oracle_json_passing_clause ] oracle_json_table_row_clause * oracle_json_table_columns_clause RP
   [ oracle_table_alias_clause ]
+
+private oracle_json_table_row_clause ::= oracle_json_table_on_error_clause | oracle_json_table_on_empty_clause
+
+private oracle_json_table_on_error_clause ::= ( 'NULL' | 'ERROR' ) 'ON' 'ERROR'
+
+private oracle_json_table_on_empty_clause ::= oracle_json_scalar_error_behavior 'ON' 'EMPTY'
 
 oracle_json_table_columns_clause ::= 'COLUMNS' LP oracle_json_table_column ( COMMA oracle_json_table_column ) * RP
 

@@ -9,6 +9,7 @@ import app.cash.sqldelight.dialect.api.PrimitiveType.REAL
 import app.cash.sqldelight.dialect.api.PrimitiveType.TEXT
 import app.cash.sqldelight.dialect.api.TypeResolver
 import app.cash.sqldelight.dialect.api.encapsulatingTypePreferringKotlin
+import com.alecstrong.sql.psi.core.psi.SqlExpr
 import com.alecstrong.sql.psi.core.psi.SqlFunctionExpr
 import com.alecstrong.sql.psi.core.psi.SqlTypeName
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.BINARY
@@ -26,6 +27,13 @@ public class OracleTypeResolver(
     private val parentResolver: TypeResolver,
 ) : TypeResolver by parentResolver {
     override fun definitionType(typeName: SqlTypeName): IntermediateType = IntermediateType(OracleType.fromSqlTypeName(typeName.text))
+
+    override fun resolvedType(expr: SqlExpr): IntermediateType =
+        if (expr.text.hasOracleVectorDistanceShorthand()) {
+            IntermediateType(BINARY_DOUBLE)
+        } else {
+            parentResolver.resolvedType(expr)
+        }
 
     override fun functionType(functionExpr: SqlFunctionExpr): IntermediateType? {
         val functionName = functionExpr.functionName.text
@@ -255,6 +263,11 @@ public class OracleTypeResolver(
         }
 
     private companion object {
+        private val VECTOR_DISTANCE_SHORTHAND_OPERATORS = listOf("<->", "<=>", "<#>")
+
+        private fun String.hasOracleVectorDistanceShorthand(): Boolean =
+            VECTOR_DISTANCE_SHORTHAND_OPERATORS.any { operator -> contains(operator) }
+
         private val COMPARABLE_TYPE_ORDER: Array<DialectType> =
             arrayOf(
                 BOOLEAN,

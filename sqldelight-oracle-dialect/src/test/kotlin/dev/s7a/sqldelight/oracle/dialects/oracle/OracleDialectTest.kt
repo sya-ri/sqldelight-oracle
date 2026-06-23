@@ -118,6 +118,21 @@ class OracleDialectTest :
                 )
         }
 
+        test("resolves Oracle vector distance shorthand result types exactly") {
+            val resolver = OracleDialect().typeResolver(ArgumentTypeResolver(listOf(OracleType.TEXT)))
+
+            listOf(
+                "embedding <-> TO_VECTOR('[1,2,3]', 3, FLOAT32)",
+                "embedding <=> TO_VECTOR('[1,2,3]', 3, FLOAT32)",
+                "embedding <#> TO_VECTOR('[1,2,3]', 3, FLOAT32)",
+            ).map { expression -> resolver.resolvedType(sqlExpr(expression)) } shouldBe
+                listOf(
+                    IntermediateType(OracleType.BINARY_DOUBLE),
+                    IntermediateType(OracleType.BINARY_DOUBLE),
+                    IntermediateType(OracleType.BINARY_DOUBLE),
+                )
+        }
+
         test("keeps optional dialect services explicit") {
             val dialect = OracleDialect()
 

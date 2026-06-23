@@ -1548,6 +1548,7 @@ class OracleParserBackedTest :
                     '${'$'}'
                     PASSING 1 AS document_id
                     ERROR ON ERROR
+                    TYPE (STRICT)
                     DEFAULT 'missing' ON EMPTY
                     COLUMNS (
                       line_number FOR ORDINALITY,

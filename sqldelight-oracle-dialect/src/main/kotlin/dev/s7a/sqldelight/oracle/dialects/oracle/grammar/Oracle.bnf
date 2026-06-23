@@ -1230,9 +1230,11 @@ oracle_json_table_reference ::= 'JSON_TABLE' LP <<expr '-1'>> [ oracle_json_form
   COMMA oracle_json_path_expression [ oracle_json_passing_clause ] oracle_json_table_row_clause * oracle_json_table_columns_clause RP
   [ oracle_table_alias_clause ]
 
-private oracle_json_table_row_clause ::= oracle_json_table_on_error_clause | oracle_json_table_on_empty_clause
+private oracle_json_table_row_clause ::= oracle_json_table_on_error_clause | oracle_json_table_type_clause | oracle_json_table_on_empty_clause
 
 private oracle_json_table_on_error_clause ::= ( 'NULL' | 'ERROR' ) 'ON' 'ERROR'
+
+private oracle_json_table_type_clause ::= 'TYPE' LP ( 'STRICT' | 'LAX' ) RP
 
 private oracle_json_table_on_empty_clause ::= oracle_json_scalar_error_behavior 'ON' 'EMPTY'
 

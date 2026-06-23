@@ -598,7 +598,9 @@ private oracle_json_dataguide_expr ::= 'JSON_DATAGUIDE' LP <<expr '-1'>> [ COMMA
 
 private oracle_json_transform_expr ::= 'JSON_TRANSFORM' LP <<expr '-1'>> COMMA oracle_json_transform_operation ( COMMA oracle_json_transform_operation ) * oracle_json_transform_clause * RP
 
-private oracle_json_transform_clause ::= oracle_json_returning_clause | oracle_json_passing_clause
+private oracle_json_transform_clause ::= oracle_json_transform_type_clause | oracle_json_returning_clause | oracle_json_passing_clause
+
+private oracle_json_transform_type_clause ::= 'TYPE' LP ( 'STRICT' | 'LAX' ) RP
 
 private oracle_json_passing_clause ::= 'PASSING' oracle_json_passing_binding ( COMMA oracle_json_passing_binding ) *
 

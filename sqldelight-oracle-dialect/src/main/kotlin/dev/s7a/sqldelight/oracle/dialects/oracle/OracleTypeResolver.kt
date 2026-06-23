@@ -275,9 +275,23 @@ public class OracleTypeResolver(
             }
 
             "extract" -> {
-                functionExpr.exprList
-                    .takeIf { exprList -> exprList.size == 2 }
-                    ?.let { IntermediateType(OracleType.TEXT) }
+                when (functionExpr.exprList.size) {
+                    1 -> {
+                        when (functionExpr.text.oracleExtractDatetimeField()) {
+                            "TIMEZONE_REGION", "TIMEZONE_ABBR" -> IntermediateType(OracleType.TEXT)
+                            null -> null
+                            else -> IntermediateType(DECIMAL_NUMBER)
+                        }
+                    }
+
+                    2 -> {
+                        IntermediateType(OracleType.TEXT)
+                    }
+
+                    else -> {
+                        null
+                    }
+                }
             }
 
             else -> {
@@ -294,6 +308,13 @@ public class OracleTypeResolver(
         private fun String.oracleReturningTypeName(): String? = oracleTypeNameAfterKeyword("RETURNING")
 
         private fun String.oracleCastTypeName(): String? = oracleTypeNameAfterKeyword("AS")
+
+        private fun String.oracleExtractDatetimeField(): String? =
+            Regex("""(?i)^\s*EXTRACT\s*\(\s*([A-Z_]+)\s+FROM\b""")
+                .find(this)
+                ?.groupValues
+                ?.get(1)
+                ?.uppercase()
 
         private fun String.oracleTypeNameAfterKeyword(keyword: String): String? {
             val match = oracleReturningTypeRegex(keyword).find(this)

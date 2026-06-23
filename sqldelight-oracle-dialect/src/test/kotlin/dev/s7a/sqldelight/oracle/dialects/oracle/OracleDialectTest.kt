@@ -56,6 +56,34 @@ class OracleDialectTest :
                 IntermediateType(OracleType.TEXT)
         }
 
+        test("resolves Oracle datetime EXTRACT field types exactly") {
+            val resolver = OracleDialect().typeResolver(ParentTypeResolver)
+
+            listOf(
+                "EXTRACT(YEAR FROM hire_date)",
+                "EXTRACT(MONTH FROM hire_date)",
+                "EXTRACT(TIMEZONE_HOUR FROM shift_time_tz)",
+            ).map { text ->
+                resolver.functionType(sqlFunctionExpr("EXTRACT", exprList = listOf(sqlExpr("argument")), text = text))
+            } shouldBe
+                listOf(
+                    IntermediateType(OracleType.DECIMAL_NUMBER),
+                    IntermediateType(OracleType.DECIMAL_NUMBER),
+                    IntermediateType(OracleType.DECIMAL_NUMBER),
+                )
+
+            listOf(
+                "EXTRACT(TIMEZONE_REGION FROM shift_time_tz)",
+                "EXTRACT(TIMEZONE_ABBR FROM shift_time_tz)",
+            ).map { text ->
+                resolver.functionType(sqlFunctionExpr("EXTRACT", exprList = listOf(sqlExpr("argument")), text = text))
+            } shouldBe
+                listOf(
+                    IntermediateType(OracleType.TEXT),
+                    IntermediateType(OracleType.TEXT),
+                )
+        }
+
         test("resolves Oracle argument-dependent function types exactly") {
             val parentResolver =
                 ArgumentTypeResolver(

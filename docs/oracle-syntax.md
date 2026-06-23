@@ -523,7 +523,15 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 
 ## SQL Standards And Compatibility
 
-- [ ] [Oracle and Standard SQL](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Oracle-and-Standard-SQL.html): defer an exhaustive standards-conformance matrix; concrete Oracle extensions, optional SQL/Foundation features, SQL/XML, SQL/JSON, and SQL/PGQ syntax are tracked in the feature rows above
+- [x] [Oracle and Standard SQL](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Oracle-and-Standard-SQL.html): standards-conformance tracking matrix mapped to publish-scope dialect support
+  - [x] SQL/Framework: no parser surface; document baseline only
+  - [x] SQL/Foundation Core SQL: tracked by lexical syntax, literals, queries, DML, DDL, data types, expressions, conditions, functions, transactions, privileges, and common DDL clauses above
+  - [x] SQL/Schemata: tracked by schema-object references, DDL, metadata object statements, grants, roles, users, comments, and common DDL clauses above
+  - [x] SQL/CLI, SQL/PSM, SQL/MED, SQL/OLB, SQL/JRT, SQL/MDA: no `.sq` parser surface beyond SQL text accepted through Oracle statement/source scanner coverage; runtime API/procedural/language bindings stay outside publish scope
+  - [x] SQL/XML: tracked by `XMLTYPE`, `XMLTABLE`, XML conditions, XML functions, XMLType table/column/storage clauses, XML schema clauses, and XML serialization/parser coverage above
+  - [x] SQL/JSON: tracked by JSON data type, JSON conditions, JSON functions, `JSON_TABLE`, JSON collection tables, JSON storage clauses, JSON relational duality statements, and JSON source-scanner patterns above
+  - [x] SQL/PGQ: tracked by SQL/PGQ graph query source-scanner boundaries, `GRAPH_TABLE`, property graph DDL/drop/alter statements, graph patterns, graph table shapes, and graph value expressions above
+  - [x] Oracle extensions to standard SQL: tracked in the corresponding Oracle-specific rows above rather than as a separate implementation surface
 - [ ] [Older Oracle SQL compatibility](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Oracle-Compliance-with-Older-Standards.html): defer an exhaustive release-by-release compatibility matrix; concrete legacy syntax such as outer joins and older type aliases is tracked in the corresponding query/type rows above
 
 ## Rules

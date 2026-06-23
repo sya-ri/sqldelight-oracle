@@ -21,6 +21,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.ValidDmlHintPlacementRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidFormatModelRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidFunctionArityRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidJsonConditionOptionsRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.ValidLikeEscapeRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidNlsParameterRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRegexpMatchParamRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRowLimitingClauseRule
@@ -57,6 +58,7 @@ class OracleRuleSetProviderTest :
                     ValidNlsParameterRule::class,
                     ValidJsonConditionOptionsRule::class,
                     ValidRowLimitingClauseRule::class,
+                    ValidLikeEscapeRule::class,
                 )
             rules.map { rule -> "oracle:${rule.id.value}" } shouldBe
                 listOf(
@@ -80,6 +82,7 @@ class OracleRuleSetProviderTest :
                     "oracle:valid-nls-parameter",
                     "oracle:valid-json-condition-options",
                     "oracle:valid-row-limiting-clause",
+                    "oracle:valid-like-escape",
                 )
             rules.map { rule -> rule.targetDialect } shouldBe
                 List(rules.size) { OracleDialectId }

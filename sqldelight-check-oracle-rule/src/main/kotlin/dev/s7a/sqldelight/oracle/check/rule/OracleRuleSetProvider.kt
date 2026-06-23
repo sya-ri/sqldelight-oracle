@@ -20,6 +20,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.ValidDmlHintPlacementRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidFormatModelRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidFunctionArityRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidJsonConditionOptionsRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.ValidLikeEscapeRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidNlsParameterRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRegexpMatchParamRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRowLimitingClauseRule
@@ -52,5 +53,6 @@ public class OracleRuleSetProvider : RuleSetProvider {
             RuleProvider(::ValidNlsParameterRule),
             RuleProvider(::ValidJsonConditionOptionsRule),
             RuleProvider(::ValidRowLimitingClauseRule),
+            RuleProvider(::ValidLikeEscapeRule),
         )
 }

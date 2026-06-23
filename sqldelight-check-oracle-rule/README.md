@@ -104,6 +104,7 @@ sqldelightCheck {
 | [`oracle:valid-nls-parameter`](#oraclevalid-nls-parameter) | Yes | Warning |  | Validate static Oracle NLS parameter literals in conversion functions. |
 | [`oracle:valid-json-condition-options`](#oraclevalid-json-condition-options) | Yes | Warning |  | Validate static SQL/JSON condition option combinations. |
 | [`oracle:valid-row-limiting-clause`](#oraclevalid-row-limiting-clause) | Yes | Warning |  | Validate static Oracle row limiting clause values and `WITH TIES` ordering. |
+| [`oracle:valid-like-escape`](#oraclevalid-like-escape) | Yes | Warning |  | Validate static Oracle `LIKE ... ESCAPE` literals. |
 
 ## `oracle:nullable-not-in-predicate`
 
@@ -330,6 +331,19 @@ SELECT *
 FROM orders
 ORDER BY created_at
 OFFSET 10 ROWS FETCH NEXT 25 ROWS WITH TIES;
+```
+
+## `oracle:valid-like-escape`
+
+Reports static Oracle pattern-matching `ESCAPE` literals that are not exactly one character.
+Oracle [`LIKE`, `LIKEC`, `LIKE2`, and `LIKE4`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Pattern-matching-Conditions.html) conditions use a single-character escape expression to treat wildcard characters literally.
+
+Prefer a one-character static escape literal:
+
+```sql
+SELECT *
+FROM customer
+WHERE name LIKE 'A\_%' ESCAPE '\';
 ```
 
 ## Notes

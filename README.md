@@ -55,7 +55,6 @@ Run the sqldelight-check tasks from the SQLDelight project:
 
 Oracle syntax coverage is tracked in [docs/oracle-syntax.md](docs/oracle-syntax.md).
 The baseline reference is [Oracle AI Database 26ai SQL Language Reference](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/index.html).
-SQLDelight dialect implementation work is tracked in [docs/sqldelight-dialect-implementation.md](docs/sqldelight-dialect-implementation.md).
 
 ## License
 

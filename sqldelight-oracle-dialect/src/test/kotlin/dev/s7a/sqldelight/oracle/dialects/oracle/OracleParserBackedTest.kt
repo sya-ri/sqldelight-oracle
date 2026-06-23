@@ -1434,8 +1434,10 @@ class OracleParserBackedTest :
                     RETURNING JSON
                     WITH CONDITIONAL WRAPPER
                     DISALLOW SCALARS
+                    KEEP QUOTES ON SCALAR STRING
                     EMPTY ARRAY ON ERROR
                     NULL ON EMPTY
+                    TYPE (STRICT)
                   ),
                   JSON_SERIALIZE(
                     payload

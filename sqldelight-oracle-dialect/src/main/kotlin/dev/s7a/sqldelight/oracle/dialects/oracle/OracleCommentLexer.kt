@@ -74,6 +74,14 @@ internal class OracleCommentLexer : LexerBase() {
             return
         }
 
+        val bracketDelimitedIdentifierEnd = bracketDelimitedIdentifierEnd(offset)
+        if (bracketDelimitedIdentifierEnd != null) {
+            tokenStart = offset
+            tokenEnd = bracketDelimitedIdentifierEnd
+            tokenType = SqlTypes.ID
+            return
+        }
+
         delegate.start(buffer, offset, endOffset, 0)
         tokenStart = delegate.tokenStart
         tokenEnd = delegate.tokenEnd
@@ -134,6 +142,17 @@ internal class OracleCommentLexer : LexerBase() {
             buffer[offset].equals('n', ignoreCase = true) &&
             buffer[offset + 1].equals('q', ignoreCase = true) &&
             buffer[offset + 2] == '\''
+
+    private fun bracketDelimitedIdentifierEnd(offset: Int): Int? {
+        if (buffer[offset] != '[') return null
+
+        var index = offset + 1
+        while (index < endOffset) {
+            if (buffer[index] == ']') return index + 1
+            index += 1
+        }
+        return null
+    }
 
     private data class OracleLexerPosition(
         private val offset: Int,

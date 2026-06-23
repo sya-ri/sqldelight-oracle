@@ -3820,6 +3820,14 @@ class OracleParserBackedTest :
                   COLUMNS (employee.employee_id AS employee_id, department.department_id AS department_id)
                 ) graph_employee_departments;
 
+                selectGraphTableEmptyEdgePattern:
+                SELECT *
+                FROM GRAPH_TABLE (
+                  employees_graph
+                  MATCH (employee IS employee_node) -[]-> (department IS department_node)
+                  COLUMNS (employee.employee_id AS employee_id, department.department_id AS department_id)
+                ) graph_employee_departments_by_empty_edge;
+
                 selectGraphqlTableFunction:
                 SELECT *
                 FROM GRAPHQL('

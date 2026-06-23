@@ -579,7 +579,7 @@ private oracle_sql_json_query_expr ::= oracle_json_value_expr | oracle_json_quer
 
 private oracle_json_value_expr ::= 'JSON_VALUE' LP <<expr '-1'>> [ oracle_json_format_clause ] COMMA oracle_json_path_expression oracle_json_value_clause * RP
 
-private oracle_json_value_clause ::= oracle_json_value_returning_clause | oracle_json_ascii_clause | oracle_json_value_on_error_clause | oracle_json_value_on_empty_clause | oracle_json_on_mismatch_clause
+private oracle_json_value_clause ::= oracle_json_value_returning_clause | oracle_json_ascii_clause | oracle_json_value_on_error_clause | oracle_json_value_on_empty_clause | oracle_json_on_mismatch_clause | oracle_json_value_type_clause
 
 private oracle_json_value_returning_clause ::= 'RETURNING' oracle_type_name [ 'TRUNCATE' ]
 
@@ -669,6 +669,8 @@ private oracle_json_serialize_on_error_clause ::= ( 'NULL' | 'ERROR' ) 'ON' 'ERR
 private oracle_json_on_mismatch_clause ::= ( 'NULL' | 'ERROR' | 'IGNORE' ) 'ON' 'MISMATCH' [ LP oracle_json_mismatch_kind ( COMMA oracle_json_mismatch_kind ) * RP ]
 
 private oracle_json_mismatch_kind ::= 'MISSING' 'DATA' | 'EXTRA' 'DATA' | 'TYPE' 'ERROR'
+
+private oracle_json_value_type_clause ::= 'TYPE' LP ( 'STRICT' | 'LAX' ) RP
 
 private oracle_type_conversion_expr ::= oracle_cast_expr | oracle_treat_expr
 

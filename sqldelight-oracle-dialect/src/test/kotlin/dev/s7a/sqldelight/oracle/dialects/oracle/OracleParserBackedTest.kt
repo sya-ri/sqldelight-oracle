@@ -2344,7 +2344,7 @@ class OracleParserBackedTest :
                 );
 
                 SELECT department_id,
-                  LISTAGG(last_name, '; ') WITHIN GROUP (ORDER BY hire_date, last_name) AS employee_names,
+                  LISTAGG(ALL last_name, '; ') WITHIN GROUP (ORDER BY hire_date, last_name) AS employee_names,
                   LISTAGG(DISTINCT last_name, ', ' ON OVERFLOW TRUNCATE '...' WITH COUNT) WITHIN GROUP (ORDER BY last_name) AS distinct_employee_names
                 FROM employees
                 GROUP BY department_id;

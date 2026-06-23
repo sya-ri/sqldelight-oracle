@@ -481,6 +481,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] [Pattern-matching `LIKE` conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Pattern-matching-Conditions.html)
   - [x] parser coverage for Oracle-specific `LIKEC`, `LIKE2`, `LIKE4`, `NOT`, and `ESCAPE`
   - [x] parser, type resolver, and sqldelight-check source pattern coverage for `source_char`, `pattern`, and optional `match_param`
+  - [x] sqldelight-check rule coverage for static `REGEXP_*` [`match_param`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Pattern-matching-Conditions.html) literals, accepting only documented `i`, `c`, `n`, `m`, and `x` flags
 - [ ] [Regular expression syntax](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Oracle-Regular-Expression-Support.html): defer POSIX, Unicode multilingual, and Perl-influenced pattern validation used by `REGEXP_*`
 
 ## Functions

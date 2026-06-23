@@ -10,6 +10,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.NullableNotInPredicateRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.PreferIdentityColumnRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.RequireNumberPrecisionRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.UnsafeDdlMigrationRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRegexpMatchParamRule
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.util.ServiceLoader
@@ -29,6 +30,7 @@ class OracleRuleSetProviderTest :
                     PreferIdentityColumnRule::class,
                     RequireNumberPrecisionRule::class,
                     UnsafeDdlMigrationRule::class,
+                    ValidRegexpMatchParamRule::class,
                 )
             rules.map { rule -> "oracle:${rule.id.value}" } shouldBe
                 listOf(
@@ -38,6 +40,7 @@ class OracleRuleSetProviderTest :
                     "oracle:prefer-identity-column",
                     "oracle:require-number-precision",
                     "oracle:unsafe-ddl-migration",
+                    "oracle:valid-regexp-match-param",
                 )
             rules.map { rule -> rule.targetDialect } shouldBe
                 List(rules.size) { OracleDialectId }

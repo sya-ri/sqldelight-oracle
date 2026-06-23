@@ -439,7 +439,7 @@ private oracle_xml_expr ::= (
 
 private oracle_xmlelement_expr ::= 'XMLELEMENT' LP [ oracle_xml_escaping_clause ] oracle_xml_name ( COMMA oracle_xml_element_content ) * RP
 
-private oracle_xml_escaping_clause ::= 'ENTITYESCAPING' | 'NONENTITYESCAPING'
+private oracle_xml_escaping_clause ::= 'ENTITYESCAPING' | 'NOENTITYESCAPING'
 
 private oracle_xml_element_content ::= oracle_xmlattributes_expr | <<expr '-1'>> [ 'AS' oracle_xml_name ]
 

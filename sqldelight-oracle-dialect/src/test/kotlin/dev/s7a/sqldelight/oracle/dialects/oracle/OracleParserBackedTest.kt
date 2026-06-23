@@ -4282,6 +4282,10 @@ class OracleParserBackedTest :
                 SELECT 1
                 FROM CONTAINERS(partitioned_orders) container_orders;
 
+                selectContainersTableConId:
+                SELECT container_orders.id, container_orders.CON_ID
+                FROM CONTAINERS(partitioned_orders) container_orders;
+
                 selectShardsTable:
                 SELECT 1
                 FROM SHARDS(partitioned_orders) shard_orders;

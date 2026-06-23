@@ -520,8 +520,8 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 ## Functions
 
 - [x] [Aggregate functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Aggregate-Functions.html)
-  - [x] parser, type resolver, and sqldelight-check source pattern coverage for ordinary `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `MEDIAN`, `STDDEV`, and `VARIANCE`
-  - [x] parser, type resolver, and sqldelight-check source pattern coverage for `STDDEV_POP`, `STDDEV_SAMP`, `VAR_POP`, `VAR_SAMP`, `CORR`, `COVAR_POP`, `COVAR_SAMP`, `KURTOSIS_POP`, `KURTOSIS_SAMP`, `SKEWNESS_POP`, and `SKEWNESS_SAMP`
+  - [x] parser, type resolver, and sqldelight-check source pattern coverage for ordinary `COUNT`, `SUM`, [`AVG`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/AVG.html), `MIN`, `MAX`, `MEDIAN`, [`STDDEV`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/STDDEV.html), and [`VARIANCE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/VARIANCE.html), including argument-dependent numeric aggregate return types for `AVG`, `MEDIAN`, `STDDEV`, and `VARIANCE`
+  - [x] parser, type resolver, and sqldelight-check source pattern coverage for `STDDEV_POP`, `STDDEV_SAMP`, `VAR_POP`, `VAR_SAMP`, `CORR`, `COVAR_POP`, `COVAR_SAMP`, `KURTOSIS_POP`, `KURTOSIS_SAMP`, `SKEWNESS_POP`, and `SKEWNESS_SAMP`, including argument-dependent numeric aggregate return types for `STDDEV_POP`, `STDDEV_SAMP`, `VAR_POP`, and `VAR_SAMP`
   - [x] parser, type resolver, and sqldelight-check source pattern coverage for `APPROX_COUNT`, `APPROX_COUNT_DISTINCT`, `APPROX_SUM`, `APPROX_MEDIAN`, and `APPROX_PERCENTILE ... WITHIN GROUP`
   - [x] parser, type resolver, and sqldelight-check source pattern coverage for `BIT_AND_AGG`, `BIT_OR_AGG`, `BIT_XOR_AGG`, `BOOLEAN_AND_AGG`, `BOOLEAN_OR_AGG`, and `CHECKSUM`
   - [x] Ordered-set percentile aggregate functions

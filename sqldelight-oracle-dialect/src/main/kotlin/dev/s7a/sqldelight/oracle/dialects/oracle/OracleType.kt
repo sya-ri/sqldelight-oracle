@@ -213,6 +213,34 @@ public enum class OracleType(
             argumentType: OracleType,
         ): OracleType? =
             when (functionName.trim().uppercase()) {
+                "AVG",
+                "MEDIAN",
+                "STDDEV",
+                "STDDEV_POP",
+                "STDDEV_SAMP",
+                "VARIANCE",
+                "VAR_POP",
+                "VAR_SAMP",
+                -> {
+                    when (argumentType) {
+                        INTEGER_NUMBER, LONG_NUMBER, DECIMAL_NUMBER -> {
+                            DECIMAL_NUMBER
+                        }
+
+                        BINARY_FLOAT -> {
+                            BINARY_FLOAT
+                        }
+
+                        BINARY_DOUBLE -> {
+                            BINARY_DOUBLE
+                        }
+
+                        else -> {
+                            null
+                        }
+                    }
+                }
+
                 "SUM" -> {
                     when (argumentType) {
                         INTEGER_NUMBER, LONG_NUMBER -> {

@@ -161,6 +161,40 @@ public class OracleTypeResolver(
                 }
             }
 
+            "avg",
+            "median",
+            "stddev",
+            "stddev_pop",
+            "stddev_samp",
+            "variance",
+            "var_pop",
+            "var_samp",
+            -> {
+                functionExpr.exprList.singleOrNull()?.let { expression ->
+                    when (parentResolver.resolvedType(expression).dialectType) {
+                        INTEGER, INTEGER_NUMBER, LONG_NUMBER, DECIMAL_NUMBER -> {
+                            IntermediateType(DECIMAL_NUMBER).asNullable()
+                        }
+
+                        REAL -> {
+                            IntermediateType(REAL).asNullable()
+                        }
+
+                        BINARY_FLOAT -> {
+                            IntermediateType(BINARY_FLOAT).asNullable()
+                        }
+
+                        BINARY_DOUBLE -> {
+                            IntermediateType(BINARY_DOUBLE).asNullable()
+                        }
+
+                        else -> {
+                            null
+                        }
+                    }
+                }
+            }
+
             "sum" -> {
                 functionExpr.exprList.singleOrNull()?.let { expression ->
                     when (parentResolver.resolvedType(expression).dialectType) {

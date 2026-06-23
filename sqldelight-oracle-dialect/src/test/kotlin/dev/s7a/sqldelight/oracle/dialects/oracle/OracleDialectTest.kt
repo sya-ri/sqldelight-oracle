@@ -86,6 +86,38 @@ class OracleDialectTest :
             } shouldBe mappings
         }
 
+        test("resolves Oracle numeric aggregate function types exactly") {
+            val integerArguments = ArgumentTypeResolver(listOf(OracleType.INTEGER_NUMBER))
+            val decimalArguments = ArgumentTypeResolver(listOf(OracleType.DECIMAL_NUMBER))
+            val binaryFloatArguments = ArgumentTypeResolver(listOf(OracleType.BINARY_FLOAT))
+            val binaryDoubleArguments = ArgumentTypeResolver(listOf(OracleType.BINARY_DOUBLE))
+            val integerResolver = OracleDialect().typeResolver(integerArguments)
+            val decimalResolver = OracleDialect().typeResolver(decimalArguments)
+            val binaryFloatResolver = OracleDialect().typeResolver(binaryFloatArguments)
+            val binaryDoubleResolver = OracleDialect().typeResolver(binaryDoubleArguments)
+
+            listOf(
+                resolvedAggregate("AVG", integerResolver, integerArguments),
+                resolvedAggregate("MEDIAN", decimalResolver, decimalArguments),
+                resolvedAggregate("STDDEV", binaryFloatResolver, binaryFloatArguments),
+                resolvedAggregate("STDDEV_POP", binaryDoubleResolver, binaryDoubleArguments),
+                resolvedAggregate("STDDEV_SAMP", binaryFloatResolver, binaryFloatArguments),
+                resolvedAggregate("VARIANCE", binaryDoubleResolver, binaryDoubleArguments),
+                resolvedAggregate("VAR_POP", binaryFloatResolver, binaryFloatArguments),
+                resolvedAggregate("VAR_SAMP", binaryDoubleResolver, binaryDoubleArguments),
+            ) shouldBe
+                listOf(
+                    "AVG" to IntermediateType(OracleType.DECIMAL_NUMBER).asNullable(),
+                    "MEDIAN" to IntermediateType(OracleType.DECIMAL_NUMBER).asNullable(),
+                    "STDDEV" to IntermediateType(OracleType.BINARY_FLOAT).asNullable(),
+                    "STDDEV_POP" to IntermediateType(OracleType.BINARY_DOUBLE).asNullable(),
+                    "STDDEV_SAMP" to IntermediateType(OracleType.BINARY_FLOAT).asNullable(),
+                    "VARIANCE" to IntermediateType(OracleType.BINARY_DOUBLE).asNullable(),
+                    "VAR_POP" to IntermediateType(OracleType.BINARY_FLOAT).asNullable(),
+                    "VAR_SAMP" to IntermediateType(OracleType.BINARY_DOUBLE).asNullable(),
+                )
+        }
+
         test("keeps optional dialect services explicit") {
             val dialect = OracleDialect()
 
@@ -145,6 +177,13 @@ private class ArgumentTypeResolver(
 
     override fun queryWithResults(sqlStmt: SqlStmt): QueryWithResults? = error("queryWithResults is not used by this test")
 }
+
+private fun resolvedAggregate(
+    functionName: String,
+    resolver: TypeResolver,
+    arguments: ArgumentTypeResolver,
+): Pair<String, IntermediateType?> =
+    functionName to resolver.functionType(sqlFunctionExpr(functionName, arguments.exprList(argumentCount = 1)))
 
 private fun serviceResource(path: String): String =
     requireNotNull(OracleDialectTest::class.java.classLoader.getResource(path)) {

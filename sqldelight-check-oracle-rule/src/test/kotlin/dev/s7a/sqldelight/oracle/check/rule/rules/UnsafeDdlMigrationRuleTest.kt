@@ -25,6 +25,26 @@ class UnsafeDdlMigrationRuleTest :
                 )
         }
 
+        test("reports required column modifications without default values") {
+            val diagnostics =
+                UnsafeDdlMigrationRule().diagnostics(
+                    """
+                    ALTER TABLE customer MODIFY status VARCHAR2(20) NOT NULL;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 1,
+                        startColumn = 1,
+                        endLine = 1,
+                        endColumn = 12,
+                    ),
+                )
+        }
+
         test("reports destructive ALTER TABLE operations") {
             val diagnostics =
                 UnsafeDdlMigrationRule().diagnostics(
@@ -86,6 +106,7 @@ class UnsafeDdlMigrationRuleTest :
                 """
                 ALTER TABLE customer ADD display_name VARCHAR2(200);
                 ALTER TABLE customer ADD status VARCHAR2(20) DEFAULT 'active' NOT NULL;
+                ALTER TABLE customer MODIFY status VARCHAR2(20) DEFAULT 'active' NOT NULL;
                 """,
             ) shouldBe emptyList()
         }

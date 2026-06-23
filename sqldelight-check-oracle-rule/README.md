@@ -174,6 +174,7 @@ CREATE TABLE invoice (
 ## `oracle:unsafe-ddl-migration`
 
 Reports migration DDL that can rewrite, lock, or destructively change large Oracle tables.
+The checked `ALTER TABLE` column forms are based on Oracle's [`column_clauses`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html#GUID-7D361BC5-2B09-4BBE-8D8E-1CBA20C5363C__BABGAABA) syntax.
 The current checks cover:
 
 - `TRUNCATE TABLE`
@@ -182,6 +183,7 @@ The current checks cover:
 - `ALTER TABLE ... MOVE`
 - `ALTER TABLE ... SHRINK SPACE`
 - `ALTER TABLE ... ADD ... NOT NULL` without a `DEFAULT`
+- `ALTER TABLE ... MODIFY ... NOT NULL` without a `DEFAULT`
 
 The rule is intentionally conservative. Review the migration plan, online DDL options, backfill strategy, and deployment sequencing before suppressing the warning.
 

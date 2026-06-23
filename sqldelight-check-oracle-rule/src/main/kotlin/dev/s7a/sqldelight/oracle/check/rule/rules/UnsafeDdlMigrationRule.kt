@@ -57,10 +57,10 @@ private fun List<SqlToken>.hasUnsafeAlterTableOperation(): Boolean =
         containsSequence("DROP", "COLUMNS") ||
         containsSequence("SHRINK", "SPACE") ||
         any { token -> token.hasText("MOVE") } ||
-        addsRequiredColumnWithoutDefault()
+        changesRequiredColumnWithoutDefault()
 
-private fun List<SqlToken>.addsRequiredColumnWithoutDefault(): Boolean =
-    any { token -> token.hasText("ADD") } &&
+private fun List<SqlToken>.changesRequiredColumnWithoutDefault(): Boolean =
+    any { token -> token.hasText("ADD") || token.hasText("MODIFY") } &&
         containsSequence("NOT", "NULL") &&
         none { token -> token.hasText("DEFAULT") }
 

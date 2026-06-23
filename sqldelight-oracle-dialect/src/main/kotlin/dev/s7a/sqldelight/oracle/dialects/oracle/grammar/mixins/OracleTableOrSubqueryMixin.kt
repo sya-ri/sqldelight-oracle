@@ -15,9 +15,11 @@ import com.alecstrong.sql.psi.core.psi.SqlTableOrSubquery
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleCreateSchemaQualifiedSynonymStmt
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleCreateUnqualifiedSynonymStmt
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableColumnsClause
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableReference
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleLocalSynonymTarget
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleRowPatternClause
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleSynonymTarget
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleValuesTableReference
@@ -129,22 +131,30 @@ internal abstract class OracleTableOrSubqueryMixin(
     }
 
     private fun oracleSynonymTargetResult(tableNameElement: SqlTableName): Collection<QueryResult>? {
-        val synonym = tableNameElement.reference?.resolve()?.parent as? OracleCreateUnqualifiedSynonymStmt ?: return null
+        val synonym =
+            tableNameElement.reference
+                ?.resolve()
+                ?.parent
+                ?.oracleQuerySourceSynonym()
+                ?: return null
         return synonym.oracleSynonymTargetResult(tableNameElement, mutableSetOf())
     }
 
-    private fun OracleCreateUnqualifiedSynonymStmt.oracleSynonymTargetResult(
+    private fun PsiElement.oracleSynonymTargetResult(
         tableNameElement: SqlTableName,
         seenTargetNames: MutableSet<String>,
     ): Collection<QueryResult> {
-        val target = PsiTreeUtil.findChildOfType(this, OracleOracleSynonymTarget::class.java) ?: return emptyList()
+        val target =
+            PsiTreeUtil.findChildOfType(this, OracleOracleSynonymTarget::class.java)
+                ?: PsiTreeUtil.findChildOfType(this, OracleOracleLocalSynonymTarget::class.java)
+                ?: return emptyList()
         val targetName = target.text.substringBefore("@").substringAfterLast(".")
         if (!seenTargetNames.add(targetName.lowercase())) return emptyList()
 
         val targetResult = tableAvailable(target, targetName)
         val targetSynonym =
             targetResult.firstNotNullOfOrNull { result ->
-                (result.table as? PsiElement)?.parent as? OracleCreateUnqualifiedSynonymStmt
+                (result.table as? PsiElement)?.parent?.oracleQuerySourceSynonym()
             }
         if (targetSynonym != null && targetResult.all { it.columns.isEmpty() && it.synthesizedColumns.isEmpty() }) {
             return targetSynonym.oracleSynonymTargetResult(tableNameElement, seenTargetNames)
@@ -160,6 +170,13 @@ internal abstract class OracleTableOrSubqueryMixin(
             )
         }
     }
+
+    private fun PsiElement.oracleQuerySourceSynonym(): PsiElement? =
+        when (this) {
+            is OracleCreateSchemaQualifiedSynonymStmt -> this
+            is OracleCreateUnqualifiedSynonymStmt -> this
+            else -> null
+        }
 
     private fun PsiElement.tableAlias(): SqlTableAlias? = PsiTreeUtil.findChildOfType(this, SqlTableAlias::class.java)
 

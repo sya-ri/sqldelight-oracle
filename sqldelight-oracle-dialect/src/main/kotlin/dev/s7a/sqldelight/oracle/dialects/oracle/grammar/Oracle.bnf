@@ -788,9 +788,11 @@ private oracle_is_json_modifier ::= (
 private oracle_json_exists_condition_expr ::= 'JSON_EXISTS' LP <<expr '-1'>> [ oracle_json_format_clause ]
   COMMA oracle_json_path_expression oracle_json_exists_clause * RP
 
-private oracle_json_exists_clause ::= oracle_json_passing_clause | oracle_json_exists_on_error_clause | oracle_json_exists_on_empty_clause
+private oracle_json_exists_clause ::= oracle_json_passing_clause | oracle_json_exists_on_error_clause | oracle_json_exists_type_clause | oracle_json_exists_on_empty_clause
 
 private oracle_json_exists_on_error_clause ::= ( 'ERROR' | 'TRUE' | 'FALSE' ) 'ON' 'ERROR'
+
+private oracle_json_exists_type_clause ::= 'TYPE' LP ( 'STRICT' | 'LAX' ) RP
 
 private oracle_json_exists_on_empty_clause ::= ( 'NULL' | 'ERROR' | 'TRUE' | 'FALSE' | 'DEFAULT' <<expr '-1'>> ) 'ON' 'EMPTY'
 

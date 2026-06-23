@@ -4136,6 +4136,7 @@ class OracleParserBackedTest :
                   CACHE READS
                 );
 
+                ALTER TABLE alter_advanced_targets UPGRADE;
                 ALTER TABLE alter_advanced_targets UPGRADE INCLUDING DATA;
                 ALTER TABLE alter_advanced_targets UPGRADE NOT INCLUDING DATA;
 

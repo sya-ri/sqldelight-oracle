@@ -532,7 +532,14 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] SQL/JSON: tracked by JSON data type, JSON conditions, JSON functions, `JSON_TABLE`, JSON collection tables, JSON storage clauses, JSON relational duality statements, and JSON source-scanner patterns above
   - [x] SQL/PGQ: tracked by SQL/PGQ graph query source-scanner boundaries, `GRAPH_TABLE`, property graph DDL/drop/alter statements, graph patterns, graph table shapes, and graph value expressions above
   - [x] Oracle extensions to standard SQL: tracked in the corresponding Oracle-specific rows above rather than as a separate implementation surface
-- [ ] [Older Oracle SQL compatibility](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Oracle-Compliance-with-Older-Standards.html): defer an exhaustive release-by-release compatibility matrix; concrete legacy syntax such as outer joins and older type aliases is tracked in the corresponding query/type rows above
+- [x] [Older Oracle SQL compatibility](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Oracle-Compliance-with-Older-Standards.html): compatibility tracking matrix for older recognized Oracle forms kept as vendor extensions
+  - [x] Legacy outer joins: tracked by `(+)` predicate parser coverage and join semantic deferral above
+  - [x] Deprecated collection unnesting: tracked by `THE (subquery)` table collection expression parser coverage above
+  - [x] Traditional auditing: tracked by 26ai desupported/migrated database notes plus 19c traditional auditing syntax coverage above
+  - [x] Legacy data type names and aliases: tracked by ANSI, DB2, SQL/DS aliases, `LONG`, `LONG RAW`, `VARCHAR`, `STRING`, `BINARY_INTEGER`, and `PLS_INTEGER` type resolver/parser coverage above
+  - [x] Legacy table compression and storage forms: tracked by backward-compatible table compression, BasicFiles LOB, SecureFiles/BasicFiles restrictions deferral, storage clause, and segment attributes coverage above
+  - [x] Legacy materialized view terminology and administrative forms: tracked by materialized-view log, materialized zonemap, `TRUNCATE ... SNAPSHOT LOG`, rollback segment, profile, and traditional administrative statement coverage above
+  - [x] Older standard conformance differences without dedicated syntax: documented as non-parser surface; concrete accepted constructs are tracked in the feature rows above
 
 ## Rules
 

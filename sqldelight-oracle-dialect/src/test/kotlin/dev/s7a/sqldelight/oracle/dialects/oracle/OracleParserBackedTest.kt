@@ -3870,6 +3870,19 @@ class OracleParserBackedTest :
                   )
                 ) graph_employee_department_directions;
 
+                selectGraphTableAggregationAndJsonObjectAccess:
+                SELECT *
+                FROM GRAPH_TABLE (
+                  employees_graph
+                  MATCH (employee IS employee_node) -[works_at IS works_at_edge]-> (department IS department_node)
+                  COLUMNS (
+                    COUNT(EDGE_ID(works_at)) AS edge_count,
+                    LISTAGG(works_at.relationship_name, ', ') WITHIN GROUP (ORDER BY works_at.relationship_name) AS relationship_names,
+                    JSON_ARRAYAGG(department.department_id ORDER BY department.department_id) AS department_ids,
+                    employee.person_data.role.string() AS employee_role
+                  )
+                ) graph_employee_department_summary;
+
                 selectGraphqlTableFunction:
                 SELECT *
                 FROM GRAPHQL('

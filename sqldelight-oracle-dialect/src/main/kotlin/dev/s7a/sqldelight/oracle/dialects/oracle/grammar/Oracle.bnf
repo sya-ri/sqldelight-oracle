@@ -1126,6 +1126,7 @@ private oracle_graph_table_token ::= (
   'BY' |
   'CASE' |
   'COLUMNS' |
+  'COUNT' |
   'CURRENT_DATE' |
   'CURRENT_TIMESTAMP' |
   'CURRENT_TIME' |
@@ -1134,12 +1135,16 @@ private oracle_graph_table_token ::= (
   'ELSE' |
   'END' |
   'FALSE' |
+  'GROUP' |
   'IS' |
+  'JSON_ARRAYAGG' |
+  'LISTAGG' |
   'MATCH' |
   'NOT' |
   'NULL' |
   'OF' |
   'OR' |
+  'ORDER' |
   'PER' |
   'PROPERTY' |
   'ROW' |
@@ -1151,6 +1156,7 @@ private oracle_graph_table_token ::= (
   'TRUE' |
   'VERTEX' |
   'WHEN' |
+  'WITHIN' |
   'WHERE'
 )
 

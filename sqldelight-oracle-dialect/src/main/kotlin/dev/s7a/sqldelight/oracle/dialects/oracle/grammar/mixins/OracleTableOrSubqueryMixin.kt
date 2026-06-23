@@ -1,6 +1,7 @@
 package dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins
 
 import com.alecstrong.sql.psi.core.ModifiableFileLazy
+import com.alecstrong.sql.psi.core.psi.NamedElement
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryColumn
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryResult
 import com.alecstrong.sql.psi.core.psi.QueryElement.SynthesizedColumn
@@ -141,7 +142,7 @@ internal abstract class OracleTableOrSubqueryMixin(
         oraclePivotColumns().ifEmpty { null }?.let { columns ->
             return QueryResult(
                 table = tableAlias,
-                columns = emptyList(),
+                columns = oraclePivotSourceColumns(),
                 synthesizedColumns = columns.map { name -> SynthesizedColumn(tableAlias ?: this, listOf(name)) },
             )
         }
@@ -149,7 +150,7 @@ internal abstract class OracleTableOrSubqueryMixin(
         oracleUnpivotColumns().ifEmpty { null }?.let { columns ->
             return QueryResult(
                 table = tableAlias,
-                columns = emptyList(),
+                columns = oracleUnpivotSourceColumns(),
                 synthesizedColumns = columns.map { name -> SynthesizedColumn(tableAlias ?: this, listOf(name)) },
             )
         }
@@ -288,6 +289,18 @@ internal abstract class OracleTableOrSubqueryMixin(
         }
     }
 
+    private fun oraclePivotSourceColumns(): List<QueryColumn> {
+        val pivotBody = text.oracleParenthesizedBodyAfter("PIVOT") ?: return emptyList()
+        val forOffset = pivotBody.indexOfKeyword("FOR") ?: return emptyList()
+        val inOffset = pivotBody.indexOfKeyword("IN", startIndex = forOffset + "FOR".length) ?: return emptyList()
+        val consumedColumns =
+            (
+                pivotBody.substring(0, forOffset).oracleNameList() +
+                    pivotBody.substring(forOffset + "FOR".length, inOffset).oracleNameList()
+            ).toSet()
+        return oracleSourceColumnsExcept(consumedColumns)
+    }
+
     private fun oracleUnpivotColumns(): List<String> {
         val unpivotBody = text.oracleParenthesizedBodyAfter("UNPIVOT") ?: return emptyList()
         val forOffset = unpivotBody.indexOfKeyword("FOR") ?: return emptyList()
@@ -299,6 +312,22 @@ internal abstract class OracleTableOrSubqueryMixin(
                 .oracleNameList()
 
         return (measureColumns + forColumns).distinct()
+    }
+
+    private fun oracleUnpivotSourceColumns(): List<QueryColumn> {
+        val unpivotBody = text.oracleParenthesizedBodyAfter("UNPIVOT") ?: return emptyList()
+        val inOffset = unpivotBody.indexOfKeyword("IN") ?: return emptyList()
+        return oracleSourceColumnsExcept(unpivotBody.substring(inOffset + "IN".length).oracleNameList().toSet())
+    }
+
+    private fun oracleSourceColumnsExcept(consumedColumns: Set<String>): List<QueryColumn> {
+        val tableNameElement = tableName ?: return emptyList()
+        return tableAvailable(tableNameElement, tableNameElement.name)
+            .flatMap { result -> result.columns }
+            .filterNot { column ->
+                val name = (column.element as? NamedElement)?.name ?: return@filterNot false
+                consumedColumns.any { consumed -> consumed.equals(name, ignoreCase = true) }
+            }
     }
 }
 

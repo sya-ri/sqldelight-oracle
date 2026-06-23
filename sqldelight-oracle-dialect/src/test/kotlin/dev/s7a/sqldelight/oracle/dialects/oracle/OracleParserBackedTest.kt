@@ -345,6 +345,37 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("resolves Oracle migration-created chained synonym query sources from query files exactly") {
+            parseOracleSqlFiles(
+                deriveSchemaFromMigrations = true,
+                files =
+                    mapOf(
+                        "1.sqm" to
+                            """
+                            CREATE TABLE sales (
+                              cust_id NUMBER NOT NULL,
+                              prod_id NUMBER NOT NULL,
+                              amount_sold NUMBER(10, 2) NOT NULL
+                            );
+
+                            CREATE SYNONYM sales_synonym FOR sales;
+
+                            CREATE SYNONYM sales_synonym_alias FOR sales_synonym;
+                            """.trimIndent(),
+                        "Test.sq" to
+                            """
+                            selectSalesSynonymAlias:
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM sales_synonym_alias;
+                            """.trimIndent(),
+                    ),
+            ) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle datetime and interval literals exactly") {
             val sql =
                 """

@@ -2351,7 +2351,10 @@ private alter_table_annotations ::= oracle_annotations_clause
 
 private alter_table_modify_column_annotations ::= 'MODIFY' [ 'COLUMN' ] {column_name} oracle_annotations_clause
 
-private alter_table_enable_disable ::= oracle_table_enable_disable_clause
+private alter_table_enable_disable ::= oracle_table_enable_disable_clause | oracle_alter_table_enable_disable_clause
+
+private oracle_alter_table_enable_disable_clause ::= ( 'ENABLE' | 'DISABLE' )
+  ( 'TABLE' 'LOCK' | 'ALL' 'TRIGGERS' | 'CONTAINER_MAP' | 'CONTAINERS_DEFAULT' )
 
 private alter_table_result_cache ::= oracle_result_cache_clause
 

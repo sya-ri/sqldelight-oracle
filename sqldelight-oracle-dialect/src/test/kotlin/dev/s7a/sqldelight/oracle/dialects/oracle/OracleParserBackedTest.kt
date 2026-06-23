@@ -4050,6 +4050,10 @@ class OracleParserBackedTest :
                 ALTER TABLE alter_advanced_targets ENABLE VALIDATE PRIMARY KEY USING INDEX TABLESPACE users;
                 ALTER TABLE alter_advanced_targets DISABLE NOVALIDATE CONSTRAINT alter_targets_status_check CASCADE KEEP INDEX;
                 ALTER TABLE alter_advanced_targets ENABLE UNIQUE (id) DROP INDEX;
+                ALTER TABLE alter_advanced_targets ENABLE TABLE LOCK;
+                ALTER TABLE alter_advanced_targets DISABLE ALL TRIGGERS;
+                ALTER TABLE alter_advanced_targets ENABLE CONTAINER_MAP;
+                ALTER TABLE alter_advanced_targets DISABLE CONTAINERS_DEFAULT;
 
                 ALTER TABLE alter_advanced_targets RESULT_CACHE (MODE FORCE, STANDBY ENABLE);
                 ALTER TABLE alter_advanced_targets FLASHBACK ARCHIVE account_archive;

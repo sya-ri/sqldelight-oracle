@@ -82,6 +82,14 @@ internal class OracleCommentLexer : LexerBase() {
             return
         }
 
+        val vectorDistanceOperatorEnd = vectorDistanceOperatorEnd(offset)
+        if (vectorDistanceOperatorEnd != null) {
+            tokenStart = offset
+            tokenEnd = vectorDistanceOperatorEnd
+            tokenType = SqlTypes.ID
+            return
+        }
+
         delegate.start(buffer, offset, endOffset, 0)
         tokenStart = delegate.tokenStart
         tokenEnd = delegate.tokenEnd
@@ -152,6 +160,14 @@ internal class OracleCommentLexer : LexerBase() {
             index += 1
         }
         return null
+    }
+
+    private fun vectorDistanceOperatorEnd(offset: Int): Int? {
+        if (offset + 2 >= endOffset || buffer[offset] != '<' || buffer[offset + 2] != '>') return null
+        return when (buffer[offset + 1]) {
+            '-', '=', '#' -> offset + 3
+            else -> null
+        }
     }
 
     private data class OracleLexerPosition(

@@ -10,7 +10,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 ### Defer Until SQLDelight Core Support Exists
 
 - [x] Alternative quoted literals `q'...'` and `nq'...'`, implemented as lexer-level string tokens.
-- [ ] Bracket/operator-heavy syntax consumed differently by SQLDelight core today: `MODEL` clause, JSON array-step access, and vector shorthand operators `<->`, `<=>`, `<#>`.
+- [ ] Bracket/operator-heavy syntax consumed differently by SQLDelight core today: `MODEL` clause and JSON array-step access.
 - [ ] Non-named DML targets in `DML_table_expression_clause`, because SQLDelight compiler paths such as mutator handling and optimistic-lock validation currently assume a named `SqlTableName` / `SqlQualifiedTableName`.
 
 ### Defer As Semantic Validators
@@ -545,10 +545,10 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] remaining conversion functions, large object functions, collection functions, environment functions, identifier functions, `LNNVL`, and `NULLIF`
   - [x] SQL/JSON scalar, generation, query, serialization, modification, aggregate, dataguide, mergepatch, and JSON constructor functions
   - [x] XML aggregate, cast, element, exists, query, serialization, table, extraction, path, URI, generation, concat, diff, forest, parse, patch, PI, sequence, and transform functions
-  - [x] Vector functions, vector distance functions, vector type parameters, and source pattern coverage for `<->`, `<=>`, and `<#>`
+  - [x] Vector functions, vector distance functions, vector type parameters, parser support for vector distance shorthand operators `<->`, `<=>`, and `<#>`, and sqldelight-check source pattern coverage for those shorthand operators
   - [x] Oracle Machine Learning functions, model-based `USING` clauses, analytic scoring forms, and fixed-return OML type mappings
   - [x] Domain functions and UUID functions
-  - [ ] defer vector distance shorthand parser/type-resolver support until SQLDelight core comparison parsing can expose these Oracle operators before consuming `<`
+  - [ ] deferred type resolver support for vector distance shorthand result types
 - [x] [`EXTRACT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/EXTRACT-datetime.html) parser, sqldelight-check source pattern, and baseline numeric type resolver coverage for datetime fields
 - [x] [`TO_LOB`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TO_LOB.html) parser, sqldelight-check source pattern, and argument-dependent type resolver coverage for SQLDelight `TEXT`/`BINARY` mappings of `LONG` to `CLOB` and `LONG RAW` to `BLOB`
 - [x] [Object reference functions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Functions.html)

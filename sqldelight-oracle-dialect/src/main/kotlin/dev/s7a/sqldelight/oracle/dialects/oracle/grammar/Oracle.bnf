@@ -483,7 +483,15 @@ private oracle_vector_expr ::= oracle_to_vector_expr | oracle_vector_distance_ex
 
 private oracle_to_vector_expr ::= 'TO_VECTOR' LP <<expr '-1'>> [ COMMA <<expr '-1'>> [ COMMA oracle_vector_dimension_format ] ] RP
 
-private oracle_vector_distance_expr ::= 'VECTOR_DISTANCE' LP <<expr '-1'>> COMMA <<expr '-1'>> [ COMMA oracle_vector_distance_metric ] RP
+private oracle_vector_distance_expr ::= oracle_vector_distance_function_expr | oracle_vector_distance_shorthand_expr
+
+private oracle_vector_distance_function_expr ::= 'VECTOR_DISTANCE' LP <<expr '-1'>> COMMA <<expr '-1'>> [ COMMA oracle_vector_distance_metric ] RP
+
+private oracle_vector_distance_shorthand_expr ::= oracle_vector_distance_operand oracle_vector_distance_operator oracle_vector_distance_operand
+
+private oracle_vector_distance_operand ::= oracle_to_vector_expr | oracle_condition_operand
+
+private oracle_vector_distance_operator ::= '<->' | '<=>' | '<#>'
 
 private oracle_vector_distance_metric ::= 'COSINE' | 'DOT' | 'EUCLIDEAN' | 'EUCLIDEAN_SQUARED' | 'HAMMING' | 'JACCARD' | 'MANHATTAN' | oracle_object_name_part
 

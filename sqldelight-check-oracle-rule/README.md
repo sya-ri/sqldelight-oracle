@@ -105,6 +105,7 @@ sqldelightCheck {
 | [`oracle:valid-json-condition-options`](#oraclevalid-json-condition-options) | Yes | Warning |  | Validate static SQL/JSON condition option combinations. |
 | [`oracle:valid-row-limiting-clause`](#oraclevalid-row-limiting-clause) | Yes | Warning |  | Validate static Oracle row limiting clause values and `WITH TIES` ordering. |
 | [`oracle:valid-like-escape`](#oraclevalid-like-escape) | Yes | Warning |  | Validate static Oracle `LIKE ... ESCAPE` literals. |
+| [`oracle:valid-outer-join-operator`](#oraclevalid-outer-join-operator) | Yes | Warning |  | Validate static legacy Oracle outer join operator restrictions. |
 
 ## `oracle:nullable-not-in-predicate`
 
@@ -344,6 +345,19 @@ Prefer a one-character static escape literal:
 SELECT *
 FROM customer
 WHERE name LIKE 'A\_%' ESCAPE '\';
+```
+
+## `oracle:valid-outer-join-operator`
+
+Reports legacy Oracle outer join operator `(+)` usages in statically invalid `OR` or `IN` conditions.
+Oracle documents these restrictions in the [`Joins`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Joins.html) reference and recommends ANSI outer joins for clearer semantics.
+
+Prefer ANSI joins:
+
+```sql
+SELECT *
+FROM orders o
+LEFT JOIN customers c ON o.customer_id = c.id;
 ```
 
 ## Notes

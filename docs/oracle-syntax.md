@@ -84,6 +84,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] [ANSI join operator](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Joins.html)
   - [x] and [`cross_outer_apply_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/cross_outer_apply_clause.html) parser support for `RIGHT OUTER JOIN`, `FULL OUTER JOIN`, `CROSS APPLY`, and `OUTER APPLY`
   - [x] parser support for legacy `(+)` predicates in `WHERE` comparisons
+  - [x] sqldelight-check rule coverage for static legacy `(+)` outer join operator restrictions with `OR` and `IN` conditions
   - [x] parser support for partitioned outer joins through `PARTITION BY (...)` before outer `JOIN`
   - [ ] deferred semantic validation: partitioned outer join, lateral inline view, correlated `APPLY`, legacy `(+)`, `JOIN TO ONE`, and row-widened table eligibility rules
 - [x] [`join_to_one_from_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/join_to_one_from_clause.html) and [`row_widened_table_expression`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_widened_table_expression.html) source-scanner clause boundaries for `JOIN TO ONE` and `ROW WIDENED`

@@ -2004,10 +2004,14 @@ private oracle_substitutable_column_clause ::= (
   [ 'NOT' ] 'SUBSTITUTABLE' 'AT' 'ALL' 'LEVELS'
 )
 
-private oracle_nested_table_col_properties ::= 'NESTED' 'TABLE' oracle_schema_object_name 'STORE' 'AS' oracle_object_name_part
-  [ oracle_nested_table_return_clause ] [ oracle_column_property_boundary ]
+private oracle_nested_table_col_properties ::= 'NESTED' 'TABLE' ( oracle_schema_object_name | 'COLUMN_VALUE' )
+  [ oracle_substitutable_column_clause ]
+  [ 'LOCAL' | 'GLOBAL' ]
+  'STORE' 'AS' oracle_object_name_part
+  [ oracle_column_property_boundary ]
+  [ oracle_nested_table_return_clause ]
 
-private oracle_nested_table_return_clause ::= 'RETURN' 'AS' ( 'LOCATOR' | 'VALUE' )
+private oracle_nested_table_return_clause ::= 'RETURN' [ 'AS' ] ( 'LOCATOR' | 'VALUE' )
 
 private oracle_varray_col_properties ::= 'VARRAY' oracle_schema_object_name 'STORE' 'AS'
   [ 'SECUREFILE' | 'BASICFILE' ] 'LOB' [ oracle_column_property_storage_target ]

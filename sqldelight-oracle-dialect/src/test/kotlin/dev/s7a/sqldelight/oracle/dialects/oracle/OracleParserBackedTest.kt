@@ -2973,6 +2973,8 @@ class OracleParserBackedTest :
                   archive_xml XMLTYPE,
                   line_items NESTED TABLE,
                   audit_items NESTED TABLE,
+                  scalar_items NESTED TABLE,
+                  contact_items NESTED TABLE,
                   attachments VARRAY(10),
                   attachment_archive VARRAY(10),
                   document_json JSON,
@@ -3016,6 +3018,12 @@ class OracleParserBackedTest :
                 )
                 NESTED TABLE line_items STORE AS account_line_items RETURN AS LOCATOR
                 NESTED TABLE audit_items STORE AS account_audit_items RETURN AS VALUE
+                NESTED TABLE COLUMN_VALUE STORE AS account_scalar_items (
+                  TABLESPACE users
+                ) RETURN LOCATOR
+                NESTED TABLE contact_items ELEMENT IS OF TYPE (ONLY account_contact_type) LOCAL STORE AS account_contact_items (
+                  TABLESPACE users
+                ) RETURN VALUE
                 VARRAY attachments STORE AS BASICFILE LOB account_attachments_lob
                 VARRAY attachment_archive STORE AS SECUREFILE LOB (
                   CACHE

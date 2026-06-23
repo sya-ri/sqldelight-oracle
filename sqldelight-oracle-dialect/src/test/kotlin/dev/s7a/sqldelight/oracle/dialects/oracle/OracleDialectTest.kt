@@ -154,8 +154,7 @@ private fun serviceResource(path: String): String =
 private fun sqlFunctionExpr(
     name: String,
     argumentCount: Int,
-): SqlFunctionExpr =
-    sqlFunctionExpr(name, List(argumentCount) { sqlExpr() })
+): SqlFunctionExpr = sqlFunctionExpr(name, List(argumentCount) { sqlExpr() })
 
 private fun sqlFunctionExpr(
     name: String,

@@ -6437,6 +6437,58 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle PL/SQL object headers through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE OR REPLACE FUNCTION app.full_name(
+                  first_name IN VARCHAR2 DEFAULT 'Ada',
+                  last_name IN OUT NOCOPY VARCHAR2
+                ) RETURN VARCHAR2
+                AUTHID CURRENT_USER
+                DETERMINISTIC
+                RESULT_CACHE
+                AS LANGUAGE JAVA NAME 'Customer.fullName(java.lang.String, java.lang.String) return java.lang.String';
+
+                CREATE OR REPLACE PROCEDURE app.rename_customer(
+                  customer_id IN NUMBER,
+                  new_name IN VARCHAR2
+                )
+                AUTHID DEFINER
+                AS LANGUAGE JAVA NAME 'Customer.rename(int, java.lang.String)';
+
+                CREATE OR REPLACE PACKAGE app.customer_api
+                AUTHID CURRENT_USER
+                AS
+                  END
+                END;
+
+                CREATE OR REPLACE PACKAGE BODY app.customer_api
+                AS
+                  END
+                END;
+
+                CREATE OR REPLACE TYPE app.customer_name
+                AUTHID CURRENT_USER
+                AS OBJECT (
+                  value VARCHAR2(100)
+                );
+
+                CREATE OR REPLACE TYPE BODY app.customer_name
+                AS
+                  END
+                END;
+
+                CREATE OR REPLACE LIBRARY app.customer_lib
+                AS '/opt/oracle/customer.so';
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle create logical partition tracking statement through SQLDelight environment exactly") {
             val sql =
                 """

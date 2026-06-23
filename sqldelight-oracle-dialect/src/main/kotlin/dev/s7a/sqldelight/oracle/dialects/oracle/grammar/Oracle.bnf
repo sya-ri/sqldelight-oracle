@@ -1000,6 +1000,11 @@ private oracle_row_limiting_fetch_token ::= (
   COMMA |
   DOT |
   EQ |
+  '+' |
+  '-' |
+  '*' |
+  '/' |
+  '||' |
   LP |
   RP |
   'APPROX' |
@@ -4761,11 +4766,13 @@ private oracle_java_resolver_clause ::= 'RESOLVER' oracle_parenthesized_clause
 
 private oracle_invoker_rights_clause ::= 'AUTHID' ( 'CURRENT_USER' | 'DEFINER' )
 
-create_function_stmt ::= 'CREATE' oracle_create_replace_or_edition_clause * 'FUNCTION' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name oracle_plsql_source_token + {
+create_function_stmt ::= 'CREATE' oracle_create_replace_or_edition_clause * 'FUNCTION' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name
+  [ oracle_plsql_parameter_list ] 'RETURN' oracle_type_name oracle_plsql_unit_property * oracle_plsql_source_token * {
   pin = 3
 }
 
-create_procedure_stmt ::= 'CREATE' oracle_create_replace_or_edition_clause * 'PROCEDURE' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name oracle_plsql_source_token + {
+create_procedure_stmt ::= 'CREATE' oracle_create_replace_or_edition_clause * 'PROCEDURE' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name
+  [ oracle_plsql_parameter_list ] oracle_plsql_unit_property * oracle_plsql_source_token + {
   pin = 3
 }
 
@@ -4775,23 +4782,49 @@ create_trigger_stmt ::= 'CREATE' oracle_create_replace_or_edition_clause * 'TRIG
   pin = 3
 }
 
-create_package_body_stmt ::= 'CREATE' oracle_create_replace_or_edition_clause * 'PACKAGE' 'BODY' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name oracle_plsql_source_token + {
+create_package_body_stmt ::= 'CREATE' oracle_create_replace_or_edition_clause * 'PACKAGE' 'BODY' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name
+  oracle_plsql_unit_property * oracle_plsql_source_token + {
   pin = 4
 }
 
-create_package_stmt ::= 'CREATE' oracle_create_replace_or_edition_clause * 'PACKAGE' !'BODY' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name oracle_plsql_source_token +
+create_package_stmt ::= 'CREATE' oracle_create_replace_or_edition_clause * 'PACKAGE' !'BODY' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name
+  oracle_plsql_unit_property * oracle_plsql_source_token +
 
-create_type_body_stmt ::= 'CREATE' oracle_create_replace_or_edition_clause * 'TYPE' 'BODY' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name oracle_plsql_source_token + {
+create_type_body_stmt ::= 'CREATE' oracle_create_replace_or_edition_clause * 'TYPE' 'BODY' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name
+  oracle_plsql_unit_property * oracle_plsql_source_token + {
   pin = 4
 }
 
-create_type_stmt ::= 'CREATE' oracle_create_replace_or_edition_clause * 'TYPE' !'BODY' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name oracle_plsql_source_token +
+create_type_stmt ::= 'CREATE' oracle_create_replace_or_edition_clause * 'TYPE' !'BODY' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name
+  oracle_plsql_unit_property * oracle_plsql_source_token +
 
-create_library_stmt ::= 'CREATE' oracle_create_replace_or_edition_clause * 'LIBRARY' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name oracle_plsql_source_token + {
+create_library_stmt ::= 'CREATE' oracle_create_replace_or_edition_clause * 'LIBRARY' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name
+  oracle_plsql_library_property * oracle_plsql_source_token * {
   pin = 3
 }
 
 private oracle_create_replace_or_edition_clause ::= 'OR' 'REPLACE' | 'EDITIONABLE' | 'NONEDITIONABLE'
+
+private oracle_plsql_parameter_list ::= LP [ oracle_plsql_parameter ( COMMA oracle_plsql_parameter ) * ] RP
+
+private oracle_plsql_parameter ::= oracle_object_name_part [ 'IN' 'OUT' | 'INOUT' | 'IN' | 'OUT' ] [ 'NOCOPY' ] oracle_type_name [ 'DEFAULT' <<expr '-1'>> | ':' EQ <<expr '-1'>> ]
+
+private oracle_plsql_unit_property ::= (
+  oracle_invoker_rights_clause |
+  'DETERMINISTIC' |
+  'PARALLEL_ENABLE' |
+  'PIPELINED' |
+  'RESULT_CACHE' |
+  'ACCESSIBLE' 'BY' oracle_parenthesized_clause |
+  'DEFAULT' 'COLLATION' oracle_object_name_part
+)
+
+private oracle_plsql_library_property ::= (
+  'AS' {string_literal} |
+  'IS' {string_literal} |
+  'AGENT' 'IN' LP oracle_object_name_part RP |
+  'CREDENTIAL' oracle_schema_object_name
+)
 
 private oracle_plsql_source_token ::= (
   oracle_object_name_part |
@@ -4804,12 +4837,26 @@ private oracle_plsql_source_token ::= (
   EQ |
   LP |
   RP |
+  'ACCESSIBLE' |
   'AS' |
+  'AUTHID' |
   'IS' |
   'BEGIN' |
+  'BY' |
+  'CURRENT_USER' |
   'DATA' |
+  'DEFAULT' |
+  'DEFINER' |
+  'DETERMINISTIC' |
   'END' |
+  'IN' |
+  'INOUT' |
   'NULL' |
+  'NOCOPY' |
+  'OUT' |
+  'PARALLEL_ENABLE' |
+  'PIPELINED' |
+  'RESULT_CACHE' |
   'RETURN' |
   'INCLUDING' |
   'LANGUAGE' |

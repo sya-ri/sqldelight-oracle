@@ -15,7 +15,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 
 ### Defer As Semantic Validators
 
-- [ ] Schema-aware validation that needs SQLDelight PSI/schema/type analysis rather than accepting syntax: pivot/unpivot generated columns, object/REF attribute rules, domain function return types, row-value arity/type validation, and clause-order/mutual-exclusion checks.
+- [ ] Schema-aware validation that needs SQLDelight PSI/schema/type analysis rather than accepting syntax: pivot/unpivot generated columns, object/REF attribute rules, domain function return types, row-value type validation, and clause-order/mutual-exclusion checks.
 - [ ] Runtime and database-kind restrictions: object kind checks, privileges, release-specific limits, optimizer hint semantics/validation, hint-driven behavior, and format-model correctness.
 
 ## Lexical Syntax And Names
@@ -456,7 +456,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 
 - [x] [Pseudocolumns](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Pseudocolumns.html) parser support for [hierarchical query pseudocolumns](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Hierarchical-Query-Pseudocolumns.html), [`Sequence` pseudocolumns](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Sequence-Pseudocolumns.html), [`COLUMN_VALUE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/COLUMN_VALUE-Pseudocolumn.html), [`OBJECT_ID`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/OBJECT_ID-Pseudocolumn.html), [`OBJECT_VALUE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/OBJECT_VALUE-Pseudocolumn.html), [`ORA_ROWSCN`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ORA_ROWSCN-Pseudocolumn.html), [`ROWID`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ROWID-Pseudocolumn.html), [`ROWNUM`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ROWNUM-Pseudocolumn.html), `ORA_SHARDSPACE_NAME`, and [`XMLDATA`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/XMLDATA-Pseudocolumn.html)
 - [x] [Version Query Pseudocolumns](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Version-Query-Pseudocolumns.html) parser support for `VERSIONS_STARTSCN`, `VERSIONS_STARTTIME`, `VERSIONS_ENDSCN`, `VERSIONS_ENDTIME`, `VERSIONS_XID`, and `VERSIONS_OPERATION`
-- [ ] Expression semantic validation: defer pseudocolumn statement-position rules, hierarchical/flashback/object/XML table context checks, row-value arity/type validation, condition-valued expression integration beyond covered parser forms, and type-constructor argument-count/object-vs-collection validation
+- [ ] Expression semantic validation: defer pseudocolumn statement-position rules, hierarchical/flashback/object/XML table context checks, row-value type validation, condition-valued expression integration beyond covered parser forms, and type-constructor argument-count/object-vs-collection validation
 - [x] [Hierarchical operators](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Operators.html) parser support for `PRIOR` and `CONNECT_BY_ROOT`
 - [x] [`SHARD_CHUNK_ID`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/shard_chunk_id-operator.html) operator parser support
 - [x] [`COLLATE` operator](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/COLLATE-Operator.html) parser coverage for postfix expression collation in select lists, predicates, and `ORDER BY`
@@ -504,6 +504,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] [IN condition](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/IN-Condition.html)
   - [x] parser coverage for single-column `IN`, expression lists, and subqueries
   - [x] parser coverage for multi-column `IN` / `NOT IN` row-value lists and subqueries
+  - [x] sqldelight-check rule coverage for static row-value arity in comparisons and literal row-value `IN` lists
   - [x] parser coverage for multi-column [`values_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/values_clause.html) forms
 - [x] [Boolean test conditions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/About-SQL-Conditions.html) parser coverage for `IS TRUE`, `IS NOT FALSE`, `IS UNKNOWN`, and `TRUE`/`FALSE`/`UNKNOWN` literal expressions
   - [x] sqldelight-check rule coverage for malformed static boolean test conditions such as `IS NOT NOT TRUE`

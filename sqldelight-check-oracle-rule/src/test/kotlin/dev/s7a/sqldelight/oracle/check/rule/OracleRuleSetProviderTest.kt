@@ -42,6 +42,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.ValidOuterJoinOperatorRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRegexpMatchParamRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidReturningClauseRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRowLimitingClauseRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRowValueArityRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidSegmentCreationClauseRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidSubqueryRestrictionClauseRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidValuesAliasColumnCountRule
@@ -92,6 +93,7 @@ class OracleRuleSetProviderTest :
                     ValidNlsParameterRule::class,
                     ValidJsonConditionOptionsRule::class,
                     ValidReturningClauseRule::class,
+                    ValidRowValueArityRule::class,
                     ValidRowLimitingClauseRule::class,
                     ValidLikeEscapeRule::class,
                     ValidLockTableWaitClauseRule::class,
@@ -136,6 +138,7 @@ class OracleRuleSetProviderTest :
                     "oracle:valid-nls-parameter",
                     "oracle:valid-json-condition-options",
                     "oracle:valid-returning-clause",
+                    "oracle:valid-row-value-arity",
                     "oracle:valid-row-limiting-clause",
                     "oracle:valid-like-escape",
                     "oracle:valid-lock-table-wait-clause",

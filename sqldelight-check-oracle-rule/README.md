@@ -118,6 +118,7 @@ sqldelightCheck {
 | [`oracle:valid-nls-parameter`](#oraclevalid-nls-parameter) | Yes | Warning |  | Validate static Oracle NLS parameter literals in conversion functions. |
 | [`oracle:valid-json-condition-options`](#oraclevalid-json-condition-options) | Yes | Warning |  | Validate static SQL/JSON condition option combinations. |
 | [`oracle:valid-returning-clause`](#oraclevalid-returning-clause) | Yes | Warning |  | Validate static Oracle `RETURNING` clause forms. |
+| [`oracle:valid-row-value-arity`](#oraclevalid-row-value-arity) | Yes | Warning |  | Validate static Oracle row-value arity. |
 | [`oracle:valid-row-limiting-clause`](#oraclevalid-row-limiting-clause) | Yes | Warning |  | Validate static Oracle row limiting clause values and `WITH TIES` ordering. |
 | [`oracle:valid-like-escape`](#oraclevalid-like-escape) | Yes | Warning |  | Validate static Oracle `LIKE ... ESCAPE` literals. |
 | [`oracle:valid-lock-table-wait-clause`](#oraclevalid-lock-table-wait-clause) | Yes | Warning |  | Validate static Oracle `LOCK TABLE` wait clauses. |
@@ -533,6 +534,18 @@ SELECT *
 FROM orders
 ORDER BY created_at
 OFFSET 10 ROWS FETCH NEXT 25 ROWS WITH TIES;
+```
+
+## `oracle:valid-row-value-arity`
+
+Reports static Oracle row-value comparisons and `IN` lists whose right-hand row arity does not match the left-hand row.
+
+Prefer the same number of expressions on both sides:
+
+```sql
+SELECT *
+FROM orders
+WHERE (customer_id, status) IN ((1, 'ACTIVE'), (2, 'PENDING'));
 ```
 
 ## `oracle:valid-values-alias-column-count`

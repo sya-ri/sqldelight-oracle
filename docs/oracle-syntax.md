@@ -441,9 +441,9 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [ ] defer analytic-view semantic checks and model/bracketed cell references to the MODEL/core-bracket work
 - [x] Type conversion expressions parser support for [`CAST`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CAST.html) and [`TREAT`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/TREAT.html)
 - [x] [User-defined function expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Function-Expressions.html): package, standalone, and remote `@dblink` function calls with positional, named, and mixed argument notation
-- [ ] [Simple expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Simple-Expressions.html)
+- [x] [Simple expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Simple-Expressions.html)
   - [x] publish-scope parser coverage for direct schema/object qualification in expression operands
-  - [ ] defer `PUBLIC` synonym qualification and `ROWID` restrictions to semantic validators
+  - [ ] deferred `PUBLIC` synonym qualification and `ROWID` restrictions to semantic validators
 - [x] [Type constructor expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Type-Constructor-Expressions.html) parser coverage for `NEW type_name(...)`, optional-`NEW` object constructors, collection constructors without `NEW`, and empty collection constructors
 - [x] [BOOLEAN expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/boolean-expressions.html)
   - [x] parser support for parenthesized boolean test expressions in result-column expression positions: `(expr IS [NOT] TRUE/FALSE/UNKNOWN)`

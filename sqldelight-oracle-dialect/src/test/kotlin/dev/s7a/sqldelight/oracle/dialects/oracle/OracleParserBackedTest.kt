@@ -3859,6 +3859,17 @@ class OracleParserBackedTest :
                   )
                 ) graph_employee_department_steps;
 
+                selectGraphTableSourceDestinationPredicates:
+                SELECT *
+                FROM GRAPH_TABLE (
+                  employees_graph
+                  MATCH (employee IS employee_node) -[works_at IS works_at_edge]-> (department IS department_node)
+                  COLUMNS (
+                    CASE WHEN employee IS SOURCE OF works_at THEN employee.employee_id ELSE department.department_id END AS source_id,
+                    CASE WHEN department IS DESTINATION OF works_at THEN department.department_id ELSE employee.employee_id END AS destination_id
+                  )
+                ) graph_employee_department_directions;
+
                 selectGraphqlTableFunction:
                 SELECT *
                 FROM GRAPHQL('

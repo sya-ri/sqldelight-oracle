@@ -1124,11 +1124,15 @@ private oracle_graph_table_token ::= (
   'AS' |
   'ASC' |
   'BY' |
+  'CASE' |
   'COLUMNS' |
   'CURRENT_DATE' |
   'CURRENT_TIMESTAMP' |
   'CURRENT_TIME' |
   'DESC' |
+  'DESTINATION' |
+  'ELSE' |
+  'END' |
   'FALSE' |
   'IS' |
   'MATCH' |
@@ -1140,10 +1144,13 @@ private oracle_graph_table_token ::= (
   'PROPERTY' |
   'ROW' |
   'SCN' |
+  'SOURCE' |
   'STEP' |
+  'THEN' |
   'TIMESTAMP' |
   'TRUE' |
   'VERTEX' |
+  'WHEN' |
   'WHERE'
 )
 

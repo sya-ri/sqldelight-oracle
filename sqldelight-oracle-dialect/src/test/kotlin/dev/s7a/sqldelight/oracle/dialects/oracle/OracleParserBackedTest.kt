@@ -1578,6 +1578,9 @@ class OracleParserBackedTest :
                       water_access VARCHAR2(6) PATH 'WaterAccess' DEFAULT 'N',
                       rail_access VARCHAR2(6) PATH 'RailAccess'
                   ) warehouse;
+
+                SELECT warehouse_xml.COLUMN_VALUE
+                FROM XMLTABLE('/Warehouse' PASSING XMLTYPE('<Warehouse/>')) warehouse_xml;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe

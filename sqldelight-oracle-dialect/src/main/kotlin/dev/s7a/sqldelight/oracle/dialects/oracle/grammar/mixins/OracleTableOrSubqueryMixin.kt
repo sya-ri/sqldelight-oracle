@@ -102,6 +102,14 @@ internal abstract class OracleTableOrSubqueryMixin(
                 ?.mapNotNull { column -> column.oracleColumnAliasQueryColumn() }
                 ?.ifEmpty { null }
                 ?.let { columns -> QueryResult(xmltable.tableAlias() ?: tableAlias(), columns) }
+                ?: QueryResult(
+                    table = xmltable.tableAlias() ?: tableAlias(),
+                    columns = emptyList(),
+                    synthesizedColumns =
+                        listOf(
+                            SynthesizedColumn(xmltable.tableAlias() ?: tableAlias() ?: this, listOf("COLUMN_VALUE")),
+                        ),
+                )
         }
 
         PsiTreeUtil.findChildOfType(this, OracleOracleValuesTableReference::class.java)?.let { valuesTable ->

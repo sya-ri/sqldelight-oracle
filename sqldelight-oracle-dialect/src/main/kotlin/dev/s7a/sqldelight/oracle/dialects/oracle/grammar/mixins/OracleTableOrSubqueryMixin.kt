@@ -139,6 +139,14 @@ internal abstract class OracleTableOrSubqueryMixin(
             return it
         }
 
+        oracleInlineExternalColumns().ifEmpty { null }?.let { columns ->
+            return QueryResult(
+                table = tableAlias,
+                columns = emptyList(),
+                synthesizedColumns = columns.map { name -> SynthesizedColumn(tableAlias ?: this, listOf(name)) },
+            )
+        }
+
         oraclePivotColumns().ifEmpty { null }?.let { columns ->
             return QueryResult(
                 table = tableAlias,
@@ -169,6 +177,15 @@ internal abstract class OracleTableOrSubqueryMixin(
             columns = emptyList(),
             synthesizedColumns = listOf(SynthesizedColumn(tableAlias ?: this, listOf("COLUMN_VALUE"))),
         )
+    }
+
+    private fun oracleInlineExternalColumns(): List<String> {
+        if (!text.trimStart().startsWith("EXTERNAL", ignoreCase = true)) return emptyList()
+        val externalBody = text.oracleParenthesizedBodyAfter("EXTERNAL") ?: return emptyList()
+        return externalBody
+            .oracleParenthesizedBodyAt(externalBody.indexOf('('))
+            .oracleTopLevelCommaParts()
+            .mapNotNull { column -> column.oracleFirstName() }
     }
 
     private fun oracleSynonymTargetResult(tableNameElement: SqlTableName): Collection<QueryResult>? {
@@ -396,6 +413,12 @@ private fun String.oracleNameList(): List<String> {
                 name.equals("NULLS", ignoreCase = true)
         }.toList()
 }
+
+private fun String.oracleFirstName(): String? =
+    Regex(""""[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*""")
+        .find(this)
+        ?.value
+        ?.trimOracleIdentifier()
 
 private fun String.oraclePivotImplicitValueNames(): List<String> =
     oracleTopLevelCommaParts()

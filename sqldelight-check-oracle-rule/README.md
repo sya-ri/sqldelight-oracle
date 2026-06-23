@@ -116,8 +116,8 @@ Or use `NOT EXISTS` when that better expresses the relationship.
 
 ## `oracle:no-empty-string-comparison`
 
-Reports equality and inequality comparisons against `''`.
-Oracle treats a zero-length string as `NULL`, so `= ''`, `'' =`, `<> ''`, `!= ''`, and their reversed forms are misleading.
+Reports equality and inequality comparisons against zero-length text literals.
+Oracle treats a zero-length [text literal](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html) as `NULL`, so `= ''`, `= N''`, `'' =`, `<> ''`, `!= ''`, and their reversed forms are misleading.
 
 Prefer null predicates:
 

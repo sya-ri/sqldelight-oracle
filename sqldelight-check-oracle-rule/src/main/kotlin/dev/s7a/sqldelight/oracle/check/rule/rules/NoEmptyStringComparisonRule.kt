@@ -23,7 +23,7 @@ public class NoEmptyStringComparisonRule : Rule {
         reporter: DiagnosticReporter,
     ) {
         val content = context.file.content
-        val masked = content.maskSqlCommentsPreservingOffsets()
+        val masked = content.maskSqlCommentsAndNonEmptyQuotedTextPreservingOffsets()
         comparisonPattern.findAll(masked).forEach { match ->
             reporter.report(
                 RuleDiagnostic(
@@ -38,9 +38,9 @@ public class NoEmptyStringComparisonRule : Rule {
     }
 }
 
-private val comparisonPattern = Regex("""(?i)(?:=\s*''|''\s*=|(?:<>|!=)\s*''|''\s*(?:<>|!=))""")
+private val comparisonPattern = Regex("""(?i)(?:=\s*n?''|n?''\s*=|(?:<>|!=)\s*n?''|n?''\s*(?:<>|!=))""")
 
-private fun String.maskSqlCommentsPreservingOffsets(): String {
+private fun String.maskSqlCommentsAndNonEmptyQuotedTextPreservingOffsets(): String {
     val chars = toCharArray()
     var index = 0
     while (index < chars.size) {
@@ -48,6 +48,7 @@ private fun String.maskSqlCommentsPreservingOffsets(): String {
             when {
                 startsWith("--", index) -> maskLineComment(chars, index)
                 startsWith("/*", index) -> maskBlockComment(chars, index)
+                chars[index] == '\'' -> maskQuotedTextUnlessEmpty(chars, index)
                 else -> index + 1
             }
     }
@@ -70,4 +71,28 @@ private fun String.maskBlockComment(
     val end = indexOf("*/", startIndex = start + 2).let { if (it == -1) length else it + 2 }
     for (index in start until end) chars[index] = ' '
     return end
+}
+
+private fun String.maskQuotedTextUnlessEmpty(
+    chars: CharArray,
+    start: Int,
+): Int {
+    var index = start + 1
+    while (index < length) {
+        if (chars[index] == '\'') {
+            if (index + 1 < length && chars[index + 1] == '\'') {
+                index += 2
+            } else {
+                val end = index + 1
+                if (end - start > 2) {
+                    for (maskIndex in start until end) chars[maskIndex] = ' '
+                }
+                return end
+            }
+        } else {
+            index++
+        }
+    }
+    for (maskIndex in start until length) chars[maskIndex] = ' '
+    return length
 }

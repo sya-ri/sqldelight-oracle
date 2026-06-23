@@ -51,6 +51,29 @@ class NoEmptyStringComparisonRuleTest :
                 )
         }
 
+        test("reports equality with an empty national string literal") {
+            val diagnostics =
+                NoEmptyStringComparisonRule().diagnostics(
+                    """
+                    findBlank:
+                    SELECT *
+                    FROM customers
+                    WHERE name = N'';
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = EMPTY_STRING_MESSAGE,
+                        startLine = 4,
+                        startColumn = 12,
+                        endLine = 4,
+                        endColumn = 17,
+                    ),
+                )
+        }
+
         test("accepts null predicates") {
             NoEmptyStringComparisonRule().diagnostics(
                 """
@@ -58,6 +81,16 @@ class NoEmptyStringComparisonRuleTest :
                 SELECT *
                 FROM customers
                 WHERE name IS NULL;
+                """,
+            ) shouldBe emptyList()
+        }
+
+        test("ignores comparison text inside string literals") {
+            NoEmptyStringComparisonRule().diagnostics(
+                """
+                SELECT 'WHERE name = ''' AS sql_text,
+                  'WHERE nickname <> ''' AS other_sql_text
+                FROM dual;
                 """,
             ) shouldBe emptyList()
         }

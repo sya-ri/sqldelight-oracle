@@ -1750,6 +1750,8 @@ class OracleParserBackedTest :
                   SOUNDEX(label) AS soundex_value,
                   SUBSTR(label, 1, 3) AS label_prefix,
                   TRANSLATE(label, 'abc', 'xyz') AS translated_label,
+                  TRANSLATE(label USING CHAR_CS) AS translated_database_charset,
+                  TRANSLATE(label USING NCHAR_CS) AS translated_national_charset,
                   TRIM(label) AS trimmed_label,
                   UPPER(label) AS upper_label,
                   ASCII(label) AS ascii_value

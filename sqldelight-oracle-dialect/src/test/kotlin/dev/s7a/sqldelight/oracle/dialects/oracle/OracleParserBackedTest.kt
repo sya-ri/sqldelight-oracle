@@ -5136,9 +5136,9 @@ class OracleParserBackedTest :
 
                 updateFromUsing:
                 UPDATE partitioned_order_updates target
-                SET order_total = order_total + 1
+                SET order_total = source.adjustment_total
                 FROM partitioned_order_adjustments source
-                WHERE order_id = ?;
+                WHERE target.order_id = source.order_id;
 
                 updateTupleFromSubquery:
                 UPDATE partitioned_order_updates target

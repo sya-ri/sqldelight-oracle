@@ -1567,14 +1567,14 @@ private oracle_multi_table_insert_into_clause ::= 'INTO' oracle_insert_target_ta
 private oracle_multi_table_insert_value ::= 'DEFAULT' | <<expr '-1'>>
 
 update_stmt ::= oracle_update_stmt {
-  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlUpdateStmtImpl"
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleUpdateStmtMixin"
   implements = "com.alecstrong.sql.psi.core.psi.SqlUpdateStmt"
   override = true
   pin = 2
 }
 
 update_stmt_limited ::= oracle_update_stmt {
-  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlUpdateStmtLimitedImpl"
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleUpdateStmtLimitedMixin"
   implements = "com.alecstrong.sql.psi.core.psi.SqlUpdateStmtLimited"
   override = true
   pin = 2
@@ -1617,7 +1617,7 @@ private oracle_delete_stmt ::= [ {with_clause} ] 'DELETE' [ 'FROM' ] {qualified_
 
 private oracle_dml_where_clause ::= 'WHERE' ( 'CURRENT' 'OF' oracle_object_name_part | <<expr '-1'>> )
 
-private oracle_from_using_clause ::= 'FROM' oracle_from_using_source ( COMMA oracle_from_using_source ) *
+oracle_from_using_clause ::= 'FROM' oracle_from_using_source ( COMMA oracle_from_using_source ) *
 
 private oracle_from_using_source ::= <<tableOrSubqueryExt <<table_or_subquery_real>>>> | <<joinClauseExt <<join_clause_real>>>>
 

@@ -165,6 +165,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] `UPDATE`
     - [x] [`partition_extension_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/partition_extension_clause.html) parser support for target tables
     - [x] parser support for [`where_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/where_clause.html) `WHERE CURRENT OF`, [`returning_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/returning_clause.html), [`wait_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/wait_clause.html), [`error_logging_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/error_logging_clause.html), and [`from_using_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/from_using_clause.html)
+    - [x] SQLDelight column resolution for `UPDATE ... FROM` target aliases and source table aliases
     - [x] [`update_set_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/update_set_clause.html) parser support for tuple assignment from subquery, single-column `DEFAULT`, multi-column `DEFAULT`, and `VALUE(alias)` object-row assignment
 - [x] [`DELETE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DELETE.html) baseline SQLDelight mutator parser coverage
   - [x] `DELETE`

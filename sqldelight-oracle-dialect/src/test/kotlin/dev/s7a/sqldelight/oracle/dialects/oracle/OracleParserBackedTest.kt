@@ -14,11 +14,20 @@ import com.intellij.lang.LanguageParserDefinitions
 import com.intellij.psi.PsiDocumentManager
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import org.testcontainers.containers.OracleContainer
+import org.testcontainers.utility.DockerImageName
 import java.io.File
 import java.nio.file.Files
+import java.sql.Connection
+import java.sql.DriverManager
+import java.sql.Statement
 
 class OracleParserBackedTest :
     FunSpec({
+        afterSpec {
+            OracleParserBackedValidationContainer.stop()
+        }
+
         test("parses Oracle create table type names through SQLDelight environment exactly") {
             val sql =
                 """
@@ -8518,7 +8527,10 @@ class OracleParserBackedTest :
                   name VARCHAR2(100)
                 """.trimIndent()
 
-            parseOracleSql(sql) shouldBe
+            parseOracleSql(
+                sql,
+                oracleValidation = rejectOracleSql(sql),
+            ) shouldBe
                 ParseResult(
                     fileNames = listOf("Test.sq"),
                     errors =
@@ -8538,15 +8550,18 @@ private fun parseOracleSql(
     sql: String,
     fileName: String = "Test.sq",
     deriveSchemaFromMigrations: Boolean = false,
+    oracleValidation: OracleValidation = validateOracleSql(fileName, sql),
 ): ParseResult =
     parseOracleSqlFiles(
         files = mapOf(fileName to sql),
         deriveSchemaFromMigrations = deriveSchemaFromMigrations,
+        oracleValidation = oracleValidation,
     )
 
 private fun parseOracleSqlFiles(
     files: Map<String, String>,
     deriveSchemaFromMigrations: Boolean = false,
+    oracleValidation: OracleValidation = validateOracleSqlFiles(files),
 ): ParseResult {
     val root = Files.createTempDirectory("sqldelight-oracle-parser-test").toFile()
     val sourceDirectory = File(root, "com/example").apply { mkdirs() }
@@ -8582,12 +8597,192 @@ private fun parseOracleSqlFiles(
             fileNames += psiFile.name
         }
     }
+    oracleValidation.validate()
 
     return ParseResult(
         fileNames = fileNames.sorted(),
         errors = errors,
     )
 }
+
+private data class OracleValidation(
+    val setupSql: List<String> = emptyList(),
+    val statements: List<OracleValidationStatement>,
+) {
+    fun validate() {
+        if (!oracleParserBackedValidationEnabled) return
+
+        OracleParserBackedValidationContainer.connection().use { connection ->
+            connection.autoCommit = false
+            val failures = mutableListOf<String>()
+            try {
+                connection.createStatement().use { statement ->
+                    setupSql.forEach { sql ->
+                        statement.executeUpdate(sql.toJdbcSql())
+                    }
+                    statements.forEach { validationStatement ->
+                        validationStatement.validate(statement)?.let { failure ->
+                            failures += failure
+                        }
+                    }
+                }
+            } finally {
+                connection.rollback()
+            }
+            if (failures.isNotEmpty()) {
+                val message =
+                    buildString {
+                        appendLine("Oracle validation reported ${failures.size} failure(s):")
+                        failures.take(oracleParserBackedValidationFailureLimit).forEach { failure ->
+                            appendLine(failure)
+                        }
+                        if (failures.size > oracleParserBackedValidationFailureLimit) {
+                            appendLine("... ${failures.size - oracleParserBackedValidationFailureLimit} more failure(s)")
+                        }
+                    }
+                if (oracleParserBackedValidationStrict) {
+                    error(message)
+                } else {
+                    System.err.print(message)
+                }
+            }
+        }
+    }
+}
+
+private data class OracleValidationStatement(
+    val mode: OracleValidationMode,
+    val sql: String,
+    val shouldSucceed: Boolean = true,
+) {
+    fun validate(statement: Statement): String? {
+        val result =
+            runCatching {
+                when (mode) {
+                    OracleValidationMode.EXPLAIN -> statement.execute("EXPLAIN PLAN FOR ${sql.toJdbcSql()}")
+                    OracleValidationMode.EXECUTE -> statement.execute(sql.toJdbcSql())
+                }
+            }
+        return when {
+            shouldSucceed && result.isFailure -> {
+                """
+                Expected Oracle to accept SQL:
+                ${sql.toJdbcSql()}
+                ${result.exceptionOrNull()?.message}
+                """.trimIndent()
+            }
+
+            !shouldSucceed && result.isSuccess -> {
+                """
+                Expected Oracle to reject SQL, but it succeeded:
+                ${sql.toJdbcSql()}
+                """.trimIndent()
+            }
+
+            else -> {
+                null
+            }
+        }
+    }
+}
+
+private enum class OracleValidationMode {
+    EXPLAIN,
+    EXECUTE,
+}
+
+private fun rejectOracleSql(sql: String): OracleValidation =
+    OracleValidation(
+        statements =
+            sql
+                .toOracleValidationStatements()
+                .map { statement -> statement.copy(shouldSucceed = false) },
+    )
+
+private fun validateOracleSql(
+    fileName: String,
+    sql: String,
+): OracleValidation = validateOracleSqlFiles(mapOf(fileName to sql))
+
+private fun validateOracleSqlFiles(files: Map<String, String>): OracleValidation =
+    OracleValidation(
+        statements = files.values.flatMap { sql -> sql.toOracleValidationStatements() },
+    )
+
+private fun String.toOracleValidationStatements(): List<OracleValidationStatement> =
+    toOracleSqlStatements().map { sql ->
+        OracleValidationStatement(
+            mode = sql.oracleValidationMode(),
+            sql = sql,
+        )
+    }
+
+private fun String.toOracleSqlStatements(): List<String> =
+    lineSequence()
+        .filterNot { line -> sqlDelightLabelRegex.matches(line.trim()) }
+        .joinToString("\n")
+        .split(";")
+        .map { statement -> statement.trim() }
+        .filter { statement -> statement.isNotEmpty() }
+
+private fun String.oracleValidationMode(): OracleValidationMode {
+    val keyword = trimStart().substringBefore(' ').substringBefore('\n').uppercase()
+    return when (keyword) {
+        "SELECT", "INSERT", "UPDATE", "DELETE", "MERGE", "WITH" -> OracleValidationMode.EXPLAIN
+        else -> OracleValidationMode.EXECUTE
+    }
+}
+
+private val sqlDelightLabelRegex = Regex("""[A-Za-z_][A-Za-z0-9_]*:""")
+
+private fun String.toJdbcSql(): String = trim().removeSuffix(";")
+
+private object OracleParserBackedValidationContainer {
+    private var oracle: OracleContainer? = null
+
+    fun connection(): Connection {
+        val container =
+            oracle ?: OracleContainer(oracleParserBackedValidationDockerImageName).also { container ->
+                container.withSharedMemorySize(oracleParserBackedValidationSharedMemoryBytes)
+                container.start()
+                oracle = container
+            }
+        return DriverManager.getConnection(container.testJdbcUrl(), container.username, container.password)
+    }
+
+    fun stop() {
+        oracle?.stop()
+        oracle = null
+    }
+}
+
+private val oracleParserBackedValidationEnabled: Boolean =
+    System.getenv("RUN_ORACLE_VALIDATION") == "true"
+
+private val oracleParserBackedValidationStrict: Boolean =
+    System.getenv("ORACLE_VALIDATION_STRICT") == "true"
+
+private val oracleParserBackedValidationFailureLimit: Int =
+    System.getenv("ORACLE_VALIDATION_FAILURE_LIMIT")?.toIntOrNull() ?: 20
+
+private val oracleParserBackedValidationImage: String =
+    System.getenv("ORACLE_TESTCONTAINERS_IMAGE") ?: "gvenzl/oracle-free:23.26.2-slim-faststart"
+
+private val oracleParserBackedValidationSharedMemoryBytes: Long =
+    System.getenv("ORACLE_TESTCONTAINERS_SHM_BYTES")?.toLongOrNull() ?: 2L * 1024L * 1024L * 1024L
+
+private val oracleParserBackedValidationServiceName: String? =
+    System.getenv("ORACLE_TESTCONTAINERS_SERVICE_NAME")?.takeIf { value -> value.isNotBlank() } ?: "FREEPDB1"
+
+private val oracleParserBackedValidationDockerImageName: DockerImageName =
+    DockerImageName
+        .parse(oracleParserBackedValidationImage)
+        .asCompatibleSubstituteFor("gvenzl/oracle-xe")
+
+private fun OracleContainer.testJdbcUrl(): String =
+    oracleParserBackedValidationServiceName?.let { serviceName ->
+        "jdbc:oracle:thin:@$host:$oraclePort/$serviceName"
+    } ?: jdbcUrl
 
 private data class OracleParserTestCompilationUnit(
     override val outputDirectoryFile: File,

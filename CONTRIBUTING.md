@@ -43,17 +43,40 @@ ORACLE_TESTCONTAINERS=true ./gradlew :sqldelight-oracle-dialect:test
 ```
 
 Set `ORACLE_TESTCONTAINERS_IMAGE` to override the default `gvenzl/oracle-xe:21-slim-faststart` image.
-For example, this runs the same gated tests against Oracle Free 23:
+For example, this runs the same gated tests against Oracle AI Database 26ai:
 
 ```shell
 ORACLE_TESTCONTAINERS=true \
-ORACLE_TESTCONTAINERS_IMAGE=gvenzl/oracle-free:23-slim-faststart \
+ORACLE_TESTCONTAINERS_IMAGE=gvenzl/oracle-free:23.26.2-slim-faststart \
 ORACLE_TESTCONTAINERS_SERVICE_NAME=FREEPDB1 \
 ./gradlew :sqldelight-oracle-dialect:test
 ```
 
 Set `ORACLE_TESTCONTAINERS_SERVICE_NAME` when the image exposes a different JDBC service name from Testcontainers' Oracle XE default.
 The container uses a 2 GiB `/dev/shm` by default; set `ORACLE_TESTCONTAINERS_SHM_BYTES` to override it.
+
+Parser-backed tests can also validate their SQL against Oracle. This is separate from the smoke tests
+so normal parser checks stay fast locally. CI runs release checks with Oracle validation enabled:
+
+```shell
+RUN_ORACLE_VALIDATION=true ./gradlew :sqldelight-oracle-dialect:test --tests '*OracleParserBackedTest'
+```
+
+Use the same image override variables as the smoke tests when validating against a different Oracle image:
+
+```shell
+RUN_ORACLE_VALIDATION=true \
+ORACLE_TESTCONTAINERS_IMAGE=gvenzl/oracle-free:23.26.2-slim-faststart \
+ORACLE_TESTCONTAINERS_SERVICE_NAME=FREEPDB1 \
+./gradlew :sqldelight-oracle-dialect:test --tests '*OracleParserBackedTest'
+```
+
+By default, parser-backed SQL is split into Oracle statements, SQLDelight query labels are removed,
+DML is validated with `EXPLAIN`, and other statements are executed inside a rolled-back transaction.
+Tests that use SQLDelight placeholders or otherwise need different Oracle-ready SQL should provide
+explicit Oracle validation metadata with literal values or bind metadata.
+Validation failures are reported in the test output. Set `ORACLE_VALIDATION_STRICT=true` to fail the
+test run on the first parser-backed test with Oracle validation failures.
 
 ## Static Analysis
 

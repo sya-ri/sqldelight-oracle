@@ -4110,6 +4110,12 @@ class OracleParserBackedTest :
                 CONNECT BY NOCYCLE PRIOR id = created_year
                 START WITH id = 1;
 
+                selectHierarchicalNullCondition:
+                SELECT id, region
+                FROM partitioned_orders
+                START WITH region IS NOT NULL
+                CONNECT BY PRIOR id = created_year;
+
                 selectTableCollection:
                 SELECT 1
                 FROM TABLE(ODCINUMBERLIST(1, 2)) numbers;

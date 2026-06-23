@@ -3752,6 +3752,15 @@ class OracleParserBackedTest :
                   }
                 ' PASSING 174 AS employee_id) employee_documents;
 
+                selectGraphqlTableFunctionWithMultiplePassingBindings:
+                SELECT *
+                FROM GRAPHQL('
+                  employees(department_id: ${'$'}department_id, status: ${'$'}status) {
+                    _id: employee_id
+                    Name: first_name
+                  }
+                ' PASSING :department_id AS department_id, 'ACTIVE' AS status) employee_documents;
+
                 selectModifiedExternalTable:
                 SELECT *
                 FROM external_query_orders EXTERNAL MODIFY (

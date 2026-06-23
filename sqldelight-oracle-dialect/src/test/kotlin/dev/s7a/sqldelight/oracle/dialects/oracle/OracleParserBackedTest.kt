@@ -3898,9 +3898,21 @@ class OracleParserBackedTest :
                 MODIFY LOB (payload) (RETENTION COMPRESS HIGH ENCRYPT);
 
                 ALTER TABLE alter_advanced_targets
+                MODIFY LOB (payload) (
+                  STORE AS SECUREFILE alter_payload_lob
+                  (TABLESPACE users CACHE READS DEDUPLICATE LOB)
+                );
+
+                ALTER TABLE alter_advanced_targets
                 MODIFY VARRAY attachments STORE AS SECUREFILE LOB attachments_lob (
                   CACHE
                   TABLESPACE users
+                );
+
+                ALTER TABLE alter_advanced_targets
+                MODIFY VARRAY attachments STORE AS BASICFILE LOB (
+                  NOCACHE
+                  PCTVERSION 10
                 );
 
                 ALTER TABLE alter_advanced_targets UPGRADE INCLUDING DATA;
@@ -3961,14 +3973,27 @@ class OracleParserBackedTest :
                 MOVE PARTITION p_2025 TABLESPACE users UPDATE INDEXES;
 
                 ALTER TABLE alter_advanced_targets
+                MOVE SUBPARTITION sp_2025 TABLESPACE users UPDATE INDEXES;
+
+                ALTER TABLE alter_advanced_targets
                 SPLIT PARTITION p_max AT (DATE '2028-01-01')
                 INTO (PARTITION p_2027, PARTITION p_future) UPDATE GLOBAL INDEXES;
+
+                ALTER TABLE alter_advanced_targets
+                SPLIT SUBPARTITION sp_max VALUES LESS THAN (DATE '2028-01-01')
+                INTO (SUBPARTITION sp_2027, SUBPARTITION sp_future) UPDATE INDEXES;
 
                 ALTER TABLE alter_advanced_targets
                 MERGE PARTITIONS p_2025, p_2026 INTO PARTITION p_2025_2026 UPDATE INDEXES;
 
                 ALTER TABLE alter_advanced_targets
+                MERGE SUBPARTITIONS sp_2025, sp_2026 INTO SUBPARTITION sp_2025_2026 UPDATE INDEXES;
+
+                ALTER TABLE alter_advanced_targets
                 COALESCE PARTITION UPDATE GLOBAL INDEXES;
+
+                ALTER TABLE alter_advanced_targets
+                MODIFY DEFAULT ATTRIBUTES FOR PARTITION p_2025 TABLESPACE users;
 
                 ALTER TABLE alter_advanced_targets
                 MODIFY PARTITION p_2025 READ ONLY;

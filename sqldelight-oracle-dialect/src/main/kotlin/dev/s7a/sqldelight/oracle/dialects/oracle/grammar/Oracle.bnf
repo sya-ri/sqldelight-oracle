@@ -2246,6 +2246,7 @@ alter_table_rules ::= (
   alter_table_modify_xmltype_storage |
   alter_table_modify_lob_storage |
   alter_table_modify_varray_storage |
+  alter_table_modify_default_attributes |
   alter_table_modify_constraint |
   alter_table_modify_column_substitutable |
   alter_table_modify_column_annotations |
@@ -2347,6 +2348,10 @@ private alter_table_modify_lob_storage ::= 'MODIFY' 'LOB' LP oracle_schema_objec
 
 private alter_table_modify_varray_storage ::= 'MODIFY' 'VARRAY' oracle_schema_object_name
   'STORE' 'AS' [ 'SECUREFILE' | 'BASICFILE' ] 'LOB' [ oracle_column_property_storage_target ]
+
+private alter_table_modify_default_attributes ::= 'MODIFY' 'DEFAULT' 'ATTRIBUTES'
+  [ 'FOR' ( 'PARTITION' | 'SUBPARTITION' ) oracle_object_name_part ]
+  oracle_alter_table_property_token *
 
 private alter_table_set_subpartition_template ::= 'SET' 'SUBPARTITION' 'TEMPLATE'
   LP [ oracle_subpartition_definition ( COMMA oracle_subpartition_definition ) * ] RP

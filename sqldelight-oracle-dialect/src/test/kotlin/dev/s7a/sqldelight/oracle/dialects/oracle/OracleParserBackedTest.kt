@@ -4160,6 +4160,16 @@ class OracleParserBackedTest :
                   REJECT LIMIT UNLIMITED
                 ) external_orders;
 
+                selectInlineExternalTableDefinedColumns:
+                SELECT external_orders.order_id, external_orders.order_total
+                FROM EXTERNAL ((
+                  order_id NUMBER(12) NOT NULL,
+                  order_total NUMBER(12, 2)
+                ) TYPE ORACLE_LOADER
+                  DEFAULT DIRECTORY data_dir
+                  LOCATION ('orders.csv')
+                ) external_orders;
+
                 selectGraphTable:
                 SELECT *
                 FROM GRAPH_TABLE (

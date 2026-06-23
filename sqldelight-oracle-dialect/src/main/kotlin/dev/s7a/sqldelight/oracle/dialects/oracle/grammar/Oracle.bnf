@@ -1382,7 +1382,14 @@ private oracle_row_pattern_exclusion ::= '{' '-' oracle_row_pattern '-' '}'
 
 private oracle_row_pattern_group ::= LP [ oracle_row_pattern ] RP
 
-private oracle_row_pattern_quantifier ::= ( '+' | '*' | '?' ) [ '?' ]
+private oracle_row_pattern_quantifier ::= ( '+' | '*' | '?' | oracle_row_pattern_bounded_quantifier ) [ '?' ]
+
+private oracle_row_pattern_bounded_quantifier ::= (
+  '{' DIGIT '}' |
+  '{' DIGIT COMMA '}' |
+  '{' COMMA DIGIT '}' |
+  '{' DIGIT COMMA DIGIT '}'
+)
 
 private oracle_sample_clause ::= 'SAMPLE' [ 'BLOCK' ] LP <<expr '-1'>> RP [ 'SEED' LP <<expr '-1'>> RP ]
 

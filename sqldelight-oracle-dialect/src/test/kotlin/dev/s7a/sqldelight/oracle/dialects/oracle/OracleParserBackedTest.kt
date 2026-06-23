@@ -3726,6 +3726,13 @@ class OracleParserBackedTest :
                   DEFINE start_row AS 1 = 1, hidden AS 1 > 0, visible AS 2 > 1
                 ) exclusion_matches;
 
+                selectMatchRecognizeBoundedPattern:
+                SELECT *
+                FROM partitioned_orders MATCH_RECOGNIZE (
+                  PATTERN (start_row{2} rising{1,3}? falling{2,} steady{,3})
+                  DEFINE start_row AS 1 = 1, rising AS 1 > 0, falling AS 0 < 1, steady AS 1 = 1
+                ) bounded_matches;
+
                 selectQualify:
                 SELECT id, region, ROW_NUMBER() OVER (PARTITION BY region ORDER BY id) AS row_number
                 FROM partitioned_orders

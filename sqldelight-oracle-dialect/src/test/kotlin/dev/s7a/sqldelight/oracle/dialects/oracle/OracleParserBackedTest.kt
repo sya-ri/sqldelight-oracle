@@ -1535,6 +1535,7 @@ class OracleParserBackedTest :
                   jt.has_items,
                   jt.details,
                   jt.created_at,
+                  jtd.document_id,
                   jt.item_number,
                   jt.item_name
                 FROM documents d,
@@ -1556,7 +1557,13 @@ class OracleParserBackedTest :
                         item_name VARCHAR2(100) TRUNCATE PATH '${'$'}.name'
                       )
                     )
-                  ) jt;
+                  ) jt,
+                  JSON_TABLE(
+                    '{"id":1}' FORMAT JSON
+                    COLUMNS (
+                      document_id NUMBER PATH '${'$'}.id'
+                    )
+                  ) jtd;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe

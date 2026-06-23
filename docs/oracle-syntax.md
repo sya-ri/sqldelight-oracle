@@ -9,7 +9,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 
 ### Defer Until SQLDelight Core Support Exists
 
-- [ ] Alternative quoted literals `q'...'` and `nq'...'`, because delimiter-aware literal handling belongs in lexer-level tokens.
+- [x] Alternative quoted literals `q'...'` and `nq'...'`, implemented as lexer-level string tokens.
 - [ ] Bracket/operator-heavy syntax consumed differently by SQLDelight core today: `MODEL` clause, `GRAPH_TABLE` edge patterns, JSON array-step access, and vector shorthand operators `<->`, `<=>`, `<#>`.
 - [ ] Non-named DML targets in `DML_table_expression_clause`, because SQLDelight compiler paths such as mutator handling and optimistic-lock validation currently assume a named `SqlTableName` / `SqlQualifiedTableName`.
 
@@ -36,9 +36,9 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 
 ## Literals And Format Models
 
-- [ ] [Literals](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html)
+- [x] [Literals](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Literals.html)
   - [x] parser coverage for ordinary strings and national character strings with `N'...'` / `n'...'`
-  - [ ] defer `q'...'` and `nq'...'` delimiter pairs until lexer-level literal token support exists
+  - [x] parser coverage for alternative quoted literals with `q'...'` / `nq'...'` delimiter pairs
   - [x] parser coverage for signed `NUMBER` literals, decimal notation, `BINARY_FLOAT`/`BINARY_DOUBLE` `f` / `F` / `d` / `D` suffixes, `BINARY_FLOAT_NAN`, `BINARY_FLOAT_INFINITY`, `BINARY_DOUBLE_NAN`, and `BINARY_DOUBLE_INFINITY`
   - [x] `DATE`, `TIMESTAMP`, timestamp time-zone strings, and `AT TIME ZONE`
   - [x] `INTERVAL YEAR TO MONTH` and `INTERVAL DAY TO SECOND`

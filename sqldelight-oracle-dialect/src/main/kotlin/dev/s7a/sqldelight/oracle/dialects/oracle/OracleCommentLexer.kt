@@ -66,6 +66,14 @@ internal class OracleCommentLexer : LexerBase() {
             return
         }
 
+        val alternativeQuotedLiteralEnd = alternativeQuotedLiteralEnd(offset)
+        if (alternativeQuotedLiteralEnd != null) {
+            tokenStart = offset
+            tokenEnd = alternativeQuotedLiteralEnd
+            tokenType = SqlTypes.STRING
+            return
+        }
+
         delegate.start(buffer, offset, endOffset, 0)
         tokenStart = delegate.tokenStart
         tokenEnd = delegate.tokenEnd
@@ -87,6 +95,45 @@ internal class OracleCommentLexer : LexerBase() {
         }
         return endOffset
     }
+
+    private fun alternativeQuotedLiteralEnd(offset: Int): Int? {
+        val quoteOffset =
+            when {
+                isAlternativeQuotePrefix(offset) -> offset + 1
+                isNationalAlternativeQuotePrefix(offset) -> offset + 2
+                else -> return null
+            }
+        if (quoteOffset + 1 >= endOffset || buffer[quoteOffset] != '\'') return null
+
+        val openingDelimiter = buffer[quoteOffset + 1]
+        val closingDelimiter =
+            when (openingDelimiter) {
+                '[' -> ']'
+                '{' -> '}'
+                '(' -> ')'
+                '<' -> '>'
+                else -> openingDelimiter
+            }
+        var index = quoteOffset + 2
+        while (index + 1 < endOffset) {
+            if (buffer[index] == closingDelimiter && buffer[index + 1] == '\'') {
+                return index + 2
+            }
+            index += 1
+        }
+        return endOffset
+    }
+
+    private fun isAlternativeQuotePrefix(offset: Int): Boolean =
+        offset + 1 < endOffset &&
+            buffer[offset].equals('q', ignoreCase = true) &&
+            buffer[offset + 1] == '\''
+
+    private fun isNationalAlternativeQuotePrefix(offset: Int): Boolean =
+        offset + 2 < endOffset &&
+            buffer[offset].equals('n', ignoreCase = true) &&
+            buffer[offset + 1].equals('q', ignoreCase = true) &&
+            buffer[offset + 2] == '\''
 
     private data class OracleLexerPosition(
         private val offset: Int,

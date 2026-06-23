@@ -1751,7 +1751,11 @@ class OracleParserBackedTest :
 
                 SELECT 'Jackie''s raincoat',
                   N'nchar literal',
-                  n'national lowercase literal'
+                  n'national lowercase literal',
+                  q'[Jackie's raincoat]' AS bracket_quoted_literal,
+                  Q'{brace-delimited literal}' AS brace_quoted_literal,
+                  q'!single delimiter literal!' AS custom_quoted_literal,
+                  nq'<national alternative literal>' AS national_alternative_literal
                 FROM messages
                 WHERE body = 'plain literal';
                 """.trimIndent()

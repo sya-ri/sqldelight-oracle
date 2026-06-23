@@ -552,6 +552,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] Flag nullable `NOT IN` predicates where Oracle null semantics are likely unintended
 - [x] Flag unsafe `ALTER TABLE` / `TRUNCATE TABLE` migration DDL that rewrites, locks, or destructively changes large tables, including destructive column drops, unused column operations, segment moves, shrink operations, and required column additions/modifications without defaults
 - [x] Require explicit precision for `NUMBER` where generated Kotlin type would be ambiguous
+- [x] Flag mutually exclusive [`CREATE TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html) and [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html) clause groups such as `LOGGING` / `NOLOGGING`, `CACHE` / `NOCACHE`, `COMPRESS` / `NOCOMPRESS`, and `READ ONLY` / `READ WRITE`
 
 ## Database Verification
 

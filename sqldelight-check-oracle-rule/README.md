@@ -91,6 +91,7 @@ sqldelightCheck {
 | [`oracle:nullable-not-in-predicate`](#oraclenullable-not-in-predicate) | Yes | Warning |  | Flag `NOT IN (subquery)` predicates that do not explicitly filter nullable values. |
 | [`oracle:no-empty-string-comparison`](#oracleno-empty-string-comparison) | Yes | Warning |  | Avoid comparing to `''`, because Oracle treats zero-length strings as `NULL`. |
 | [`oracle:no-conflicting-sequence-clauses`](#oracleno-conflicting-sequence-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE SEQUENCE` and `ALTER SEQUENCE` clauses. |
+| [`oracle:no-conflicting-table-clauses`](#oracleno-conflicting-table-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE TABLE` and `ALTER TABLE` clauses. |
 | [`oracle:prefer-identity-column`](#oracleprefer-identity-column) | Yes | Warning |  | Prefer Oracle identity columns over sequence-trigger generated keys. |
 | [`oracle:prefer-unified-auditing`](#oracleprefer-unified-auditing) | Yes | Warning |  | Prefer unified auditing over traditional `AUDIT` and `NOAUDIT` statements. |
 | [`oracle:require-number-precision`](#oraclerequire-number-precision) | Yes | Warning |  | Require explicit precision and scale for `NUMBER` declarations. |
@@ -143,6 +144,17 @@ CREATE SEQUENCE invoice_seq
     NOORDER
     SCALE EXTEND
     GLOBAL;
+```
+
+## `oracle:no-conflicting-table-clauses`
+
+Reports mutually exclusive Oracle [`CREATE TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-TABLE.html) and [`ALTER TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html) clauses in one statement.
+The rule checks static statement-level clause groups such as `LOGGING` / `NOLOGGING`, `CACHE` / `NOCACHE`, `COMPRESS` / `NOCOMPRESS`, and `READ ONLY` / `READ WRITE`.
+
+Prefer one choice per semantic group:
+
+```sql
+ALTER TABLE customer READ WRITE;
 ```
 
 ## `oracle:prefer-identity-column`

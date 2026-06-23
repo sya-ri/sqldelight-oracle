@@ -499,6 +499,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
     - [x] parser coverage for `KEEP (DENSE_RANK FIRST/LAST ORDER BY ...)`
 - [x] [`LISTAGG`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/LISTAGG.html) parser, type resolver, and sqldelight-check source pattern coverage for `WITHIN GROUP`, `DISTINCT`, `ON OVERFLOW`, and analytic `OVER`
 - [ ] Function semantic validation: defer function-specific argument counts, analytic-only placement, windowing restrictions, format-model correctness, calendar/NLS option validation, datetime overload resolution, collection element comparability, object/REF argument validation, model-only function placement, domain function argument validation, and expression-dependent domain return typing
+  - [x] sqldelight-check rule coverage for fixed and bounded arity of registered Oracle scalar functions where the argument count is syntax-static and not aggregate/XML/JSON/OML/MODEL-specialized
 - [x] [Analytic functions and `analytic_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Analytic-Functions.html)
   - [x] parser coverage for `OVER`, `PARTITION BY`, analytic `ORDER BY`, `ROWS`/`RANGE`/`GROUPS` window bounds, and `EXCLUDE` frame options
   - [x] parser, type resolver, and sqldelight-check source pattern coverage for `ROW_NUMBER`, `RANK`, `DENSE_RANK`, `NTILE`, `CUME_DIST`, `PERCENT_RANK`, and `RATIO_TO_REPORT`

@@ -550,7 +550,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] `oracle:no-empty-string-comparison` for Oracle [null semantics](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Nulls.html)
 - [x] Prefer Oracle identity columns over sequence-trigger pairs
 - [x] Flag nullable `NOT IN` predicates where Oracle null semantics are likely unintended
-- [x] Flag unsafe `ALTER TABLE` / `TRUNCATE TABLE` migration DDL that rewrites, locks, or destructively changes large tables
+- [x] Flag unsafe `ALTER TABLE` / `TRUNCATE TABLE` migration DDL that rewrites, locks, or destructively changes large tables, including destructive column drops, unused column operations, segment moves, shrink operations, and required column additions/modifications without defaults
 - [x] Require explicit precision for `NUMBER` where generated Kotlin type would be ambiguous
 
 ## Database Verification

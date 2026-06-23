@@ -55,6 +55,9 @@ private fun List<SqlToken>.isUnsafeMigrationDdl(): Boolean =
 private fun List<SqlToken>.hasUnsafeAlterTableOperation(): Boolean =
     containsSequence("DROP", "COLUMN") ||
         containsSequence("DROP", "COLUMNS") ||
+        containsSequence("DROP", "UNUSED", "COLUMNS") ||
+        containsSequence("SET", "UNUSED", "COLUMN") ||
+        containsSequence("SET", "UNUSED", "COLUMNS") ||
         containsSequence("SHRINK", "SPACE") ||
         any { token -> token.hasText("MOVE") } ||
         changesRequiredColumnWithoutDefault()

@@ -52,6 +52,8 @@ class UnsafeDdlMigrationRuleTest :
                     ALTER TABLE customer DROP COLUMN legacy_code;
                     ALTER TABLE customer MOVE;
                     ALTER TABLE customer SHRINK SPACE;
+                    ALTER TABLE customer SET UNUSED COLUMN legacy_code;
+                    ALTER TABLE customer DROP UNUSED COLUMNS;
                     """,
                 )
 
@@ -76,6 +78,20 @@ class UnsafeDdlMigrationRuleTest :
                         startLine = 3,
                         startColumn = 1,
                         endLine = 3,
+                        endColumn = 12,
+                    ),
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 4,
+                        startColumn = 1,
+                        endLine = 4,
+                        endColumn = 12,
+                    ),
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 5,
+                        startColumn = 1,
+                        endLine = 5,
                         endColumn = 12,
                     ),
                 )

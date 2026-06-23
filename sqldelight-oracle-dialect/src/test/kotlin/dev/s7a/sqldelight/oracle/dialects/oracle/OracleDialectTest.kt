@@ -133,6 +133,25 @@ class OracleDialectTest :
                 )
         }
 
+        test("resolves Oracle JSON and XML return type clauses exactly") {
+            val resolver = OracleDialect().typeResolver(ArgumentTypeResolver(listOf(OracleType.TEXT)))
+
+            listOf(
+                "JSON_VALUE" to "JSON_VALUE(payload, '$.id' RETURNING NUMBER ERROR ON ERROR)",
+                "JSON_SERIALIZE" to "JSON_SERIALIZE(payload RETURNING BLOB ERROR ON ERROR)",
+                "XMLSERIALIZE" to "XMLSERIALIZE(CONTENT payload AS CLOB)",
+                "XMLCAST" to "XMLCAST(XMLQUERY('/Warehouse' PASSING payload RETURNING CONTENT) AS NUMBER(10, 2))",
+            ).map { (functionName, text) ->
+                resolver.functionType(sqlFunctionExpr(functionName, text = text))
+            } shouldBe
+                listOf(
+                    IntermediateType(OracleType.DECIMAL_NUMBER),
+                    IntermediateType(OracleType.BINARY),
+                    IntermediateType(OracleType.TEXT),
+                    IntermediateType(OracleType.DECIMAL_NUMBER),
+                )
+        }
+
         test("keeps optional dialect services explicit") {
             val dialect = OracleDialect()
 
@@ -213,18 +232,24 @@ private fun sqlFunctionExpr(
 private fun sqlFunctionExpr(
     name: String,
     exprList: List<SqlExpr>,
+    text: String = "$name()",
 ): SqlFunctionExpr =
     proxy(SqlFunctionExpr::class.java) { proxy, method, arguments ->
         when (method.name) {
             "getFunctionName" -> sqlFunctionName(name)
             "getExprList" -> exprList
-            "getText" -> "$name()"
+            "getText" -> text
             "hashCode" -> System.identityHashCode(proxy)
             "equals" -> proxy === arguments?.singleOrNull()
             "toString" -> "$name(${exprList.size} arguments)"
             else -> error("Unexpected SqlFunctionExpr method: ${method.name}")
         }
     }
+
+private fun sqlFunctionExpr(
+    name: String,
+    text: String,
+): SqlFunctionExpr = sqlFunctionExpr(name, emptyList(), text)
 
 private fun sqlFunctionName(name: String): SqlFunctionName =
     proxy(SqlFunctionName::class.java) { proxy, method, arguments ->

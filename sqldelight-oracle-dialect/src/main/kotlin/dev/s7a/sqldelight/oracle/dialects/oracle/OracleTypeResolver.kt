@@ -38,9 +38,32 @@ public class OracleTypeResolver(
     override fun functionType(functionExpr: SqlFunctionExpr): IntermediateType? {
         val functionName = functionExpr.functionName.text
         return argumentDependentFunctionType(functionName, functionExpr)
+            ?: returningClauseFunctionType(functionName, functionExpr)
             ?: OracleType.fromFunctionName(functionName)?.let { type -> IntermediateType(type) }
             ?: parentResolver.functionType(functionExpr)
     }
+
+    private fun returningClauseFunctionType(
+        functionName: String,
+        functionExpr: SqlFunctionExpr,
+    ): IntermediateType? =
+        when (functionName.trim().uppercase()) {
+            "JSON_VALUE",
+            "JSON_QUERY",
+            "JSON_SERIALIZE",
+            "XMLSERIALIZE",
+            -> {
+                functionExpr.text.oracleReturningTypeName()?.let { typeName -> IntermediateType(OracleType.fromSqlTypeName(typeName)) }
+            }
+
+            "XMLCAST" -> {
+                functionExpr.text.oracleCastTypeName()?.let { typeName -> IntermediateType(OracleType.fromSqlTypeName(typeName)) }
+            }
+
+            else -> {
+                null
+            }
+        }
 
     private fun argumentDependentFunctionType(
         functionName: String,
@@ -267,6 +290,25 @@ public class OracleTypeResolver(
 
         private fun String.hasOracleVectorDistanceShorthand(): Boolean =
             VECTOR_DISTANCE_SHORTHAND_OPERATORS.any { operator -> contains(operator) }
+
+        private fun String.oracleReturningTypeName(): String? = oracleTypeNameAfterKeyword("RETURNING")
+
+        private fun String.oracleCastTypeName(): String? = oracleTypeNameAfterKeyword("AS")
+
+        private fun String.oracleTypeNameAfterKeyword(keyword: String): String? {
+            val match = oracleReturningTypeRegex(keyword).find(this)
+            return match?.groupValues?.get(1)?.trim()
+        }
+
+        private fun oracleReturningTypeRegex(keyword: String): Regex =
+            Regex(
+                """(?i)\b${Regex.escape(keyword)}\s+""" +
+                    """((?:DOUBLE\s+PRECISION|TIMESTAMP(?:\s*\([^)]*\))?(?:\s+WITH(?:\s+LOCAL)?\s+TIME\s+ZONE)?|""" +
+                    """INTERVAL\s+(?:YEAR|DAY)\s+TO\s+(?:MONTH|SECOND)|""" +
+                    """NATIONAL\s+CHARACTER\s+VARYING\s*\([^)]*\)|NATIONAL\s+CHAR\s+VARYING\s*\([^)]*\)|""" +
+                    """CHARACTER\s+VARYING\s*\([^)]*\)|VARYING\s+ARRAY\s*(?:\([^)]*\))?|""" +
+                    """[A-Z_]+(?:\s*\([^)]*\))?))""",
+            )
 
         private val COMPARABLE_TYPE_ORDER: Array<DialectType> =
             arrayOf(

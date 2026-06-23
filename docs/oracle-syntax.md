@@ -551,7 +551,9 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] Representative conversion, character, comparison, null-related, encoding/decoding, numeric, datetime, NLS, calendar, fiscal, and retail functions
   - [x] remaining conversion functions, large object functions, collection functions, environment functions, identifier functions, `LNNVL`, and `NULLIF`
   - [x] SQL/JSON scalar, generation, query, serialization, modification, aggregate, dataguide, mergepatch, and JSON constructor functions
+  - [x] SQLDelight type resolver support for static SQL/JSON `RETURNING` type clauses
   - [x] XML aggregate, cast, element, exists, query, serialization, table, extraction, path, URI, generation, concat, diff, forest, parse, patch, PI, sequence, and transform functions
+  - [x] SQLDelight type resolver support for static `XMLCAST ... AS type` and `XMLSERIALIZE ... AS type` clauses
   - [x] Vector functions, vector distance functions, vector type parameters, parser support for vector distance shorthand operators `<->`, `<=>`, and `<#>`, and sqldelight-check source pattern coverage for those shorthand operators
   - [x] Oracle Machine Learning functions, model-based `USING` clauses, analytic scoring forms, and fixed-return OML type mappings
   - [x] Domain functions and UUID functions

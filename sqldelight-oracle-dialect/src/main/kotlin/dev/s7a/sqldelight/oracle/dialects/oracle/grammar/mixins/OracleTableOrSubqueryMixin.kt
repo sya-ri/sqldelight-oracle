@@ -3,6 +3,7 @@ package dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins
 import com.alecstrong.sql.psi.core.ModifiableFileLazy
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryColumn
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryResult
+import com.alecstrong.sql.psi.core.psi.QueryElement.SynthesizedColumn
 import com.alecstrong.sql.psi.core.psi.SqlColumnAlias
 import com.alecstrong.sql.psi.core.psi.SqlCompositeElementImpl
 import com.alecstrong.sql.psi.core.psi.SqlCompoundSelectStmt
@@ -108,6 +109,22 @@ internal abstract class OracleTableOrSubqueryMixin(
                 ?.let { columns -> QueryResult(valuesTable.tableAlias() ?: tableAlias(), columns) }
         }
 
+        oraclePivotColumns().ifEmpty { null }?.let { columns ->
+            return QueryResult(
+                table = tableAlias,
+                columns = emptyList(),
+                synthesizedColumns = columns.map { name -> SynthesizedColumn(tableAlias ?: this, listOf(name)) },
+            )
+        }
+
+        oracleUnpivotColumns().ifEmpty { null }?.let { columns ->
+            return QueryResult(
+                table = tableAlias,
+                columns = emptyList(),
+                synthesizedColumns = columns.map { name -> SynthesizedColumn(tableAlias ?: this, listOf(name)) },
+            )
+        }
+
         return PsiTreeUtil
             .findChildOfType(this, OracleOracleRowPatternClause::class.java)
             ?.oracleRowPatternMeasuresClause
@@ -127,4 +144,95 @@ internal abstract class OracleTableOrSubqueryMixin(
 
     private fun OracleOracleRowPatternMeasureColumn.columnAliasQueryColumn(): QueryColumn? =
         PsiTreeUtil.getChildOfType(this, SqlColumnAlias::class.java)?.let(::QueryColumn)
+
+    private fun oraclePivotColumns(): List<String> {
+        val pivotBody = text.oracleParenthesizedBodyAfter("PIVOT") ?: return emptyList()
+        val forOffset = pivotBody.indexOfKeyword("FOR")
+        val inOffset = pivotBody.indexOfKeyword("IN", startIndex = forOffset?.let { it + "FOR".length } ?: 0) ?: return emptyList()
+        val aggregateAliases = pivotBody.substring(0, inOffset).oracleAliasesAfterAs()
+        val pivotAliases = pivotBody.oracleParenthesizedBodyAt(pivotBody.indexOf('(', startIndex = inOffset)).oracleAliasesAfterAs()
+        if (pivotAliases.isEmpty()) return emptyList()
+
+        return if (aggregateAliases.isEmpty()) {
+            pivotAliases
+        } else {
+            pivotAliases.flatMap { pivotAlias -> aggregateAliases.map { aggregateAlias -> "${pivotAlias}_$aggregateAlias" } }
+        }
+    }
+
+    private fun oracleUnpivotColumns(): List<String> {
+        val unpivotBody = text.oracleParenthesizedBodyAfter("UNPIVOT") ?: return emptyList()
+        val forOffset = unpivotBody.indexOfKeyword("FOR") ?: return emptyList()
+        val measureColumns = unpivotBody.substring(0, forOffset).oracleNameList()
+        val forColumns =
+            unpivotBody
+                .substring(forOffset + "FOR".length)
+                .substringBeforeKeyword("IN")
+                .oracleNameList()
+
+        return (measureColumns + forColumns).distinct()
+    }
 }
+
+private fun String.oracleParenthesizedBodyAfter(keyword: String): String? {
+    val keywordOffset = indexOfKeyword(keyword) ?: return null
+    val openOffset = indexOf('(', startIndex = keywordOffset + keyword.length).takeIf { it != -1 } ?: return null
+    return oracleParenthesizedBodyAt(openOffset)
+}
+
+private fun String.oracleParenthesizedBodyAt(openOffset: Int): String {
+    if (openOffset !in indices || this[openOffset] != '(') return ""
+    var depth = 0
+    for (index in openOffset until length) {
+        when (this[index]) {
+            '(' -> {
+                depth++
+            }
+
+            ')' -> {
+                depth--
+                if (depth == 0) return substring(openOffset + 1, index)
+            }
+        }
+    }
+    return ""
+}
+
+private fun String.indexOfKeyword(
+    keyword: String,
+    startIndex: Int = 0,
+): Int? {
+    var index = startIndex
+    while (index < length) {
+        index = indexOf(keyword, startIndex = index, ignoreCase = true)
+        if (index == -1) return null
+        if (isOracleIdentifierBoundary(index - 1) && isOracleIdentifierBoundary(index + keyword.length)) return index
+        index += keyword.length
+    }
+    return null
+}
+
+private fun String.substringBeforeKeyword(keyword: String): String =
+    indexOfKeyword(keyword)?.let { keywordOffset -> substring(0, keywordOffset) } ?: this
+
+private fun String.oracleAliasesAfterAs(): List<String> =
+    Regex("""(?i)\bAS\s+("[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*)""")
+        .findAll(this)
+        .map { match -> match.groupValues[1].trimOracleIdentifier() }
+        .toList()
+
+private fun String.oracleNameList(): List<String> {
+    val body = trim().removeSurrounding("(", ")")
+    return Regex(""""[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*""")
+        .findAll(body)
+        .map { match -> match.value.trimOracleIdentifier() }
+        .filterNot { name ->
+            name.equals("INCLUDE", ignoreCase = true) || name.equals("EXCLUDE", ignoreCase = true) ||
+                name.equals("NULLS", ignoreCase = true)
+        }.toList()
+}
+
+private fun String.trimOracleIdentifier(): String = trim().removeSurrounding("\"")
+
+private fun String.isOracleIdentifierBoundary(index: Int): Boolean =
+    index !in indices || (!this[index].isLetterOrDigit() && this[index] != '_' && this[index] != '$' && this[index] != '#')

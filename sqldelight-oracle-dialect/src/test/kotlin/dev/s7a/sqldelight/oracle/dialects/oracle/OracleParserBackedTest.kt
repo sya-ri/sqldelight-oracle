@@ -3754,6 +3754,13 @@ class OracleParserBackedTest :
                   FOR region IN ('WEST' AS west, 'EAST' AS east)
                 ) pivoted_orders;
 
+                selectPivotGeneratedColumns:
+                SELECT pivoted_orders.west_order_count, pivoted_orders.east_order_count
+                FROM partitioned_orders PIVOT (
+                  COUNT(*) AS order_count
+                  FOR region IN ('WEST' AS west, 'EAST' AS east)
+                ) pivoted_orders;
+
                 selectPivotXmlAny:
                 SELECT *
                 FROM partitioned_orders PIVOT XML (
@@ -3780,6 +3787,13 @@ class OracleParserBackedTest :
 
                 selectUnpivot:
                 SELECT *
+                FROM partitioned_orders UNPIVOT INCLUDE NULLS (
+                  metric_value
+                  FOR metric_name IN (id AS 'ID', created_year AS 'CREATED_YEAR')
+                ) unpivoted_orders;
+
+                selectUnpivotGeneratedColumns:
+                SELECT unpivoted_orders.metric_value, unpivoted_orders.metric_name
                 FROM partitioned_orders UNPIVOT INCLUDE NULLS (
                   metric_value
                   FOR metric_name IN (id AS 'ID', created_year AS 'CREATED_YEAR')

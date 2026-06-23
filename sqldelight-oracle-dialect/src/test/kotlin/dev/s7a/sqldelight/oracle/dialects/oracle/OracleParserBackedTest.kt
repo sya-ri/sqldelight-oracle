@@ -4106,6 +4106,9 @@ class OracleParserBackedTest :
                 TRUNCATE PARTITION p_2025 UPDATE GLOBAL INDEXES;
 
                 ALTER TABLE alter_advanced_targets
+                TRUNCATE SUBPARTITION sp_2025 UPDATE INDEXES;
+
+                ALTER TABLE alter_advanced_targets
                 MOVE PARTITION p_2025 TABLESPACE users UPDATE INDEXES;
 
                 ALTER TABLE alter_advanced_targets
@@ -4129,6 +4132,9 @@ class OracleParserBackedTest :
                 COALESCE PARTITION UPDATE GLOBAL INDEXES;
 
                 ALTER TABLE alter_advanced_targets
+                COALESCE SUBPARTITION UPDATE INDEXES;
+
+                ALTER TABLE alter_advanced_targets
                 MODIFY DEFAULT ATTRIBUTES FOR PARTITION p_2025 TABLESPACE users;
 
                 ALTER TABLE alter_advanced_targets
@@ -4136,6 +4142,12 @@ class OracleParserBackedTest :
 
                 ALTER TABLE alter_advanced_targets
                 RENAME PARTITION p_2025 TO p_2025_archived;
+
+                ALTER TABLE alter_advanced_targets
+                RENAME SUBPARTITION sp_2025 TO sp_2025_archived;
+
+                ALTER TABLE alter_advanced_targets
+                DROP PARTITION p_2024 UPDATE INDEXES;
 
                 ALTER TABLE alter_advanced_targets
                 DROP SUBPARTITION sp_2024 UPDATE GLOBAL INDEXES;
@@ -4151,6 +4163,9 @@ class OracleParserBackedTest :
 
                 ALTER TABLE alter_advanced_targets
                 EXCHANGE PARTITION p_2025 WITH TABLE alter_exchange_stage INCLUDING INDEXES WITHOUT VALIDATION;
+
+                ALTER TABLE alter_advanced_targets
+                EXCHANGE SUBPARTITION sp_2025 WITH TABLE alter_exchange_stage EXCLUDING INDEXES WITH VALIDATION;
 
                 ALTER TABLE alter_advanced_targets
                 DEFAULT DIRECTORY data_dir ACCESS PARAMETERS (RECORDS DELIMITED BY NEWLINE) LOCATION ('orders.csv') REJECT LIMIT UNLIMITED;

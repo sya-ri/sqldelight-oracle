@@ -90,6 +90,7 @@ sqldelightCheck {
 | --- | --- | --- | --- | --- |
 | [`oracle:nullable-not-in-predicate`](#oraclenullable-not-in-predicate) | Yes | Warning |  | Flag `NOT IN (subquery)` predicates that do not explicitly filter nullable values. |
 | [`oracle:no-empty-string-comparison`](#oracleno-empty-string-comparison) | Yes | Warning |  | Avoid comparing to `''`, because Oracle treats zero-length strings as `NULL`. |
+| [`oracle:no-conflicting-annotation-operations`](#oracleno-conflicting-annotation-operations) | Yes | Warning |  | Avoid conflicting annotation operations for the same annotation name. |
 | [`oracle:no-conflicting-constraint-state`](#oracleno-conflicting-constraint-state) | Yes | Warning |  | Avoid mutually exclusive Oracle constraint state clauses. |
 | [`oracle:no-conflicting-create-view-clauses`](#oracleno-conflicting-create-view-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE VIEW` clauses. |
 | [`oracle:no-conflicting-drop-clauses`](#oracleno-conflicting-drop-clauses) | Yes | Warning |  | Avoid conflicting Oracle `DROP` clauses. |
@@ -146,6 +147,21 @@ Prefer null predicates:
 SELECT *
 FROM customer
 WHERE name IS NULL;
+```
+
+## `oracle:no-conflicting-annotation-operations`
+
+Reports conflicting Oracle [`annotations_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/annotations_clause.html) operations for the same annotation name.
+The rule checks repeated or opposing `ADD`, `DROP`, and `REPLACE` operations, including `ADD IF NOT EXISTS` and `DROP IF EXISTS` forms, when they target the same static annotation identifier.
+
+Prefer one operation per annotation name:
+
+```sql
+ALTER TABLE customer
+    ANNOTATIONS (
+        ADD sensitive,
+        ADD owner
+    );
 ```
 
 ## `oracle:no-conflicting-constraint-state`

@@ -4,6 +4,7 @@ import dev.s7a.sqldelight.check.api.Severity
 import dev.s7a.sqldelight.check.rule.api.Rule
 import dev.s7a.sqldelight.check.rule.api.RuleSetProvider
 import dev.s7a.sqldelight.oracle.check.dialect.OracleDialectId
+import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingAnnotationOperationsRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingConstraintStateRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingCreateViewClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingDropClausesRule
@@ -50,6 +51,7 @@ class OracleRuleSetProviderTest :
                 listOf(
                     NullableNotInPredicateRule::class,
                     NoEmptyStringComparisonRule::class,
+                    NoConflictingAnnotationOperationsRule::class,
                     NoConflictingConstraintStateRule::class,
                     NoConflictingCreateViewClausesRule::class,
                     NoConflictingDropClausesRule::class,
@@ -84,6 +86,7 @@ class OracleRuleSetProviderTest :
                 listOf(
                     "oracle:nullable-not-in-predicate",
                     "oracle:no-empty-string-comparison",
+                    "oracle:no-conflicting-annotation-operations",
                     "oracle:no-conflicting-constraint-state",
                     "oracle:no-conflicting-create-view-clauses",
                     "oracle:no-conflicting-drop-clauses",

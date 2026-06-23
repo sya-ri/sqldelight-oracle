@@ -3,6 +3,7 @@ package dev.s7a.sqldelight.oracle.check.rule
 import dev.s7a.sqldelight.check.api.RuleSetId
 import dev.s7a.sqldelight.check.rule.api.RuleProvider
 import dev.s7a.sqldelight.check.rule.api.RuleSetProvider
+import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingAnnotationOperationsRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingConstraintStateRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingCreateViewClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingDropClausesRule
@@ -45,6 +46,7 @@ public class OracleRuleSetProvider : RuleSetProvider {
         setOf(
             RuleProvider(::NullableNotInPredicateRule),
             RuleProvider(::NoEmptyStringComparisonRule),
+            RuleProvider(::NoConflictingAnnotationOperationsRule),
             RuleProvider(::NoConflictingConstraintStateRule),
             RuleProvider(::NoConflictingCreateViewClausesRule),
             RuleProvider(::NoConflictingDropClausesRule),

@@ -635,7 +635,9 @@ private oracle_json_on_mismatch_clause ::= ( 'NULL' | 'ERROR' | 'IGNORE' ) 'ON' 
 
 private oracle_json_mismatch_kind ::= 'MISSING' 'DATA' | 'EXTRA' 'DATA' | 'TYPE' 'ERROR'
 
-private oracle_type_conversion_expr ::= oracle_treat_expr
+private oracle_type_conversion_expr ::= oracle_cast_expr | oracle_treat_expr
+
+private oracle_cast_expr ::= 'CAST' LP <<expr '-1'>> 'AS' oracle_type_name [ 'DEFAULT' <<expr '-1'>> 'ON' 'CONVERSION' 'ERROR' ] RP
 
 private oracle_validate_conversion_expr ::= 'VALIDATE_CONVERSION' LP <<expr '-1'>> 'AS' type_name RP
 

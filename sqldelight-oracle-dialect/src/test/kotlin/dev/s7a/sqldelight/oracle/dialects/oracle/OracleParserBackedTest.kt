@@ -4449,6 +4449,36 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle drop index statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE drop_index_accounts (
+                  id NUMBER PRIMARY KEY,
+                  status VARCHAR2(32),
+                  search_doc JSON
+                );
+
+                CREATE INDEX indexed_accounts_status_idx
+                ON drop_index_accounts (status);
+
+                CREATE INDEX indexed_accounts_text_domain_idx
+                ON drop_index_accounts (search_doc)
+                INDEXTYPE IS CTXSYS.CONTEXT;
+
+                DROP INDEX indexed_accounts_status_idx;
+
+                DROP INDEX IF EXISTS reporting.indexed_accounts_status_idx ONLINE IMMEDIATE INVALIDATION;
+
+                DROP INDEX indexed_accounts_text_domain_idx FORCE DEFERRED INVALIDATION;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle create view statements through SQLDelight environment exactly") {
             val sql =
                 """

@@ -34,7 +34,7 @@
   ]
 }
 
-overrides ::= stmt | type_name | column_constraint | generated_clause | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | create_view_stmt | drop_view_stmt | insert_stmt | update_stmt | update_stmt_limited | delete_stmt | delete_stmt_limited | qualified_table_name | compound_select_stmt | select_stmt | with_clause | table_alias | table_or_subquery | group_by | join_operator | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt | extension_expr
+overrides ::= stmt | type_name | column_constraint | generated_clause | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | drop_index_stmt | create_view_stmt | drop_view_stmt | insert_stmt | update_stmt | update_stmt_limited | delete_stmt | delete_stmt_limited | qualified_table_name | compound_select_stmt | select_stmt | with_clause | table_alias | table_or_subquery | group_by | join_operator | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt | extension_expr
 
 stmt ::= explain_plan_stmt | oracle_core_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlStmtImpl"
@@ -209,6 +209,7 @@ private oracle_core_stmt ::= (
   drop_type_stmt |
   {drop_trigger_stmt} |
   {drop_view_stmt} |
+  {drop_index_stmt} |
   {extension_stmt} |
   {alter_table_stmt} |
   {analyze_stmt} |
@@ -222,7 +223,6 @@ private oracle_core_stmt ::= (
   {create_virtual_table_stmt} |
   {delete_stmt_limited} |
   {detach_stmt} |
-  {drop_index_stmt} |
   {drop_table_stmt} |
   {insert_stmt} |
   {pragma_stmt} |
@@ -2671,6 +2671,14 @@ create_index_stmt ::= 'CREATE' [ 'JSON' ] [ oracle_index_kind ] 'INDEX' [ 'IF' '
   elementTypeClass = "com.alecstrong.sql.psi.core.psi.mixins.CreateIndexElementType"
   stubClass = "com.alecstrong.sql.psi.core.psi.SchemaContributorStub"
   override = true
+}
+
+drop_index_stmt ::= 'DROP' 'INDEX' [ 'IF' 'EXISTS' ] [ {database_name} DOT ] {index_name}
+  [ 'ONLINE' ] [ 'FORCE' ] [ oracle_index_post_attribute ] {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlDropIndexStmtImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlDropIndexStmt"
+  override = true
+  pin = 2
 }
 
 private oracle_index_kind ::= 'UNIQUE' | 'BITMAP' | 'MULTIVALUE' | 'SPARSE' | 'DENSE' | 'VECTOR' | 'HYBRID' 'VECTOR'

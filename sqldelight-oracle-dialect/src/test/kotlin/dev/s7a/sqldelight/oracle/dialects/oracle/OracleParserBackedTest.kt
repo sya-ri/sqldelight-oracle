@@ -1440,7 +1440,7 @@ class OracleParserBackedTest :
                     RETURNING VARCHAR2(4000)
                     PRETTY ASCII ORDERED
                     TRUNCATE
-                    ERROR ON ERROR
+                    EMPTY OBJECT ON ERROR
                   )
                 FROM documents;
                 """.trimIndent()

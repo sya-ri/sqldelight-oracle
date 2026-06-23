@@ -7,6 +7,7 @@ import dev.s7a.sqldelight.oracle.check.dialect.OracleDialectId
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingConstraintStateRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingFlashbackClauseRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingIndexClausesRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingJsonStorageClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingSequenceClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoConflictingTableClausesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.NoEmptyStringComparisonRule
@@ -45,6 +46,7 @@ class OracleRuleSetProviderTest :
                     NoConflictingConstraintStateRule::class,
                     NoConflictingFlashbackClauseRule::class,
                     NoConflictingIndexClausesRule::class,
+                    NoConflictingJsonStorageClausesRule::class,
                     NoConflictingSequenceClausesRule::class,
                     NoConflictingTableClausesRule::class,
                     NoUppercaseRowidColumnRule::class,
@@ -71,6 +73,7 @@ class OracleRuleSetProviderTest :
                     "oracle:no-conflicting-constraint-state",
                     "oracle:no-conflicting-flashback-clause",
                     "oracle:no-conflicting-index-clauses",
+                    "oracle:no-conflicting-json-storage-clauses",
                     "oracle:no-conflicting-sequence-clauses",
                     "oracle:no-conflicting-table-clauses",
                     "oracle:no-uppercase-rowid-column",

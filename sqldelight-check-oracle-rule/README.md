@@ -93,6 +93,7 @@ sqldelightCheck {
 | [`oracle:no-conflicting-constraint-state`](#oracleno-conflicting-constraint-state) | Yes | Warning |  | Avoid mutually exclusive Oracle constraint state clauses. |
 | [`oracle:no-conflicting-flashback-clause`](#oracleno-conflicting-flashback-clause) | Yes | Warning |  | Avoid duplicate Oracle flashback query clauses on one table reference. |
 | [`oracle:no-conflicting-index-clauses`](#oracleno-conflicting-index-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE INDEX` and `ALTER INDEX` clauses. |
+| [`oracle:no-conflicting-json-storage-clauses`](#oracleno-conflicting-json-storage-clauses) | Yes | Warning |  | Avoid multiple JSON storage clauses for one column. |
 | [`oracle:no-conflicting-sequence-clauses`](#oracleno-conflicting-sequence-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE SEQUENCE` and `ALTER SEQUENCE` clauses. |
 | [`oracle:no-conflicting-table-clauses`](#oracleno-conflicting-table-clauses) | Yes | Warning |  | Avoid mutually exclusive `CREATE TABLE` and `ALTER TABLE` clauses. |
 | [`oracle:no-uppercase-rowid-column`](#oracleno-uppercase-rowid-column) | Yes | Warning |  | Avoid quoted uppercase `"ROWID"` Oracle column names. |
@@ -177,6 +178,18 @@ CREATE INDEX customer_email_ix
     ON customer (email)
     NOLOGGING
     INVISIBLE;
+```
+
+## `oracle:no-conflicting-json-storage-clauses`
+
+Reports multiple Oracle JSON storage clauses for the same column in one table statement.
+The rule is based on Oracle [`json_storage_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/json_storage_clause.html) forms such as `JSON COLUMN column STORE AS ...` and `JSON (column, ...) STORE AS ...`.
+
+Prefer one storage choice per JSON column:
+
+```sql
+ALTER TABLE documents
+  MODIFY JSON COLUMN payload STORE AS JSON;
 ```
 
 ## `oracle:no-conflicting-sequence-clauses`

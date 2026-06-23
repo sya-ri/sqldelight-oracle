@@ -1698,6 +1698,7 @@ private oracle_plsql_procedure_declaration ::= 'PROCEDURE' oracle_object_name_pa
   ( 'AS' | 'IS' ) oracle_inline_plsql_source_token * 'END' [ oracle_object_name_part ] ';'
 
 private oracle_inline_plsql_source_token ::= (
+  oracle_inline_plsql_block_end |
   oracle_object_name_part |
   {string_literal} |
   string |
@@ -1706,6 +1707,7 @@ private oracle_inline_plsql_source_token ::= (
   COMMA |
   DOT |
   EQ |
+  GT |
   LP |
   RP |
   ':' |
@@ -1716,14 +1718,21 @@ private oracle_inline_plsql_source_token ::= (
   ';' |
   'BEGIN' |
   'DEFAULT' |
+  'ELSE' |
+  'ELSIF' |
+  'FOR' |
   'IF' |
   'IN' |
   'INOUT' |
+  'LOOP' |
   'NULL' |
   'NOCOPY' |
   'OUT' |
-  'RETURN'
+  'RETURN' |
+  'THEN'
 )
+
+private oracle_inline_plsql_block_end ::= 'END' ( 'IF' | 'LOOP' ) ';'
 
 private oracle_subquery_factoring_clause ::= {cte_table_name} 'AS' LP {with_clause_auxiliary_stmt} RP
   [ oracle_search_clause ] [ oracle_cycle_clause ]

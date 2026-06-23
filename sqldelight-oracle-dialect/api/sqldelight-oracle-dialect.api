@@ -1781,6 +1781,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getCreateTrueCacheStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTrueCacheStmt;
 	public abstract fun getCreateTypeBodyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTypeBodyStmt;
 	public abstract fun getCreateTypeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTypeStmt;
+	public abstract fun getCreateUnqualifiedSynonymStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateUnqualifiedSynonymStmt;
 	public abstract fun getCreateUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateUserStmt;
 	public abstract fun getDisassociateStatisticsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDisassociateStatisticsStmt;
 	public abstract fun getDropAnalyticViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAnalyticViewStmt;
@@ -3611,12 +3612,25 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCr
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
-public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateUnqualifiedSynonymStmtImpl : com/alecstrong/sql/psi/core/psi/impl/SqlCreateViewStmtImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateUnqualifiedSynonymStmt {
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateUnqualifiedSynonymStmtImpl : dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateUnqualifiedSynonymStmt {
 	public fun <init> (Lcom/alecstrong/sql/psi/core/psi/SchemaContributorStub;Lcom/intellij/psi/stubs/IStubElementType;)V
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+	public synthetic fun annotate (Lcom/alecstrong/sql/psi/core/SqlAnnotationHolder;)V
+	public synthetic fun getColumnDefList ()Ljava/util/List;
+	public synthetic fun getCompoundSelectStmt ()Lcom/alecstrong/sql/psi/core/psi/SqlCompoundSelectStmt;
+	public synthetic fun getContainingFile ()Lcom/alecstrong/sql/psi/core/SqlFileBase;
+	public synthetic fun getDatabaseName ()Lcom/alecstrong/sql/psi/core/psi/SqlDatabaseName;
 	public fun getOracleSynonymTarget ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleSynonymTarget;
+	public synthetic fun getTableConstraintList ()Ljava/util/List;
+	public synthetic fun getTableName ()Lcom/alecstrong/sql/psi/core/psi/SqlTableName;
+	public synthetic fun getTableOptions ()Lcom/alecstrong/sql/psi/core/psi/SqlTableOptions;
+	public synthetic fun modifySchema (Lcom/alecstrong/sql/psi/core/psi/Schema;)V
+	public synthetic fun name ()Ljava/lang/String;
+	public synthetic fun queryAvailable (Lcom/intellij/psi/PsiElement;)Ljava/util/Collection;
+	public synthetic fun tableExposed ()Lcom/alecstrong/sql/psi/core/psi/LazyQuery;
+	public synthetic fun tablesAvailable (Lcom/intellij/psi/PsiElement;)Ljava/util/Collection;
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateUserStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateUserStmt {
@@ -4114,6 +4128,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getCreateTrueCacheStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTrueCacheStmt;
 	public fun getCreateTypeBodyStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTypeBodyStmt;
 	public fun getCreateTypeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateTypeStmt;
+	public fun getCreateUnqualifiedSynonymStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateUnqualifiedSynonymStmt;
 	public fun getCreateUserStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateUserStmt;
 	public fun getDisassociateStatisticsStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDisassociateStatisticsStmt;
 	public fun getDropAnalyticViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropAnalyticViewStmt;

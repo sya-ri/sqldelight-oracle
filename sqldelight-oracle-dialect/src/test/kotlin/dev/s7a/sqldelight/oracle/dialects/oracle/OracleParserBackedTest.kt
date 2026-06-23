@@ -405,6 +405,44 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("resolves Oracle migration-created synonym DML targets from query files exactly") {
+            parseOracleSqlFiles(
+                deriveSchemaFromMigrations = true,
+                files =
+                    mapOf(
+                        "1.sqm" to
+                            """
+                            CREATE TABLE sales (
+                              cust_id NUMBER NOT NULL,
+                              prod_id NUMBER NOT NULL,
+                              amount_sold NUMBER(10, 2) NOT NULL
+                            );
+
+                            CREATE SYNONYM sales_synonym FOR sales;
+                            """.trimIndent(),
+                        "Test.sq" to
+                            """
+                            insertSales:
+                            INSERT INTO sales_synonym (cust_id, prod_id, amount_sold)
+                            VALUES (?, ?, ?);
+
+                            updateSales:
+                            UPDATE sales_synonym
+                            SET amount_sold = ?
+                            WHERE cust_id = ?;
+
+                            deleteSales:
+                            DELETE FROM sales_synonym
+                            WHERE cust_id = ?;
+                            """.trimIndent(),
+                    ),
+            ) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle datetime and interval literals exactly") {
             val sql =
                 """

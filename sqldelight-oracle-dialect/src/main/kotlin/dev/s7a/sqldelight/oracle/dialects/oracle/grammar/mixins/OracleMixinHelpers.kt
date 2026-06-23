@@ -12,6 +12,10 @@ import com.alecstrong.sql.psi.core.psi.SqlTableAlias
 import com.alecstrong.sql.psi.core.psi.SqlTableName
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleCreateSchemaQualifiedSynonymStmt
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleCreateUnqualifiedSynonymStmt
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleLocalSynonymTarget
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleSynonymTarget
 
 internal fun PsiElement.oracleColumnDefinitions(): List<SqlColumnDef> = PsiTreeUtil.getChildrenOfTypeAsList(this, SqlColumnDef::class.java)
 
@@ -75,5 +79,72 @@ internal fun PsiElement.oracleAliasNamedTarget(base: Collection<QueryResult>): C
         }
     }
 }
+
+internal fun PsiElement.oracleDmlTargetAvailable(
+    base: Collection<QueryResult>,
+    child: PsiElement,
+    tableResolver: (PsiElement, String) -> Collection<QueryResult>,
+): Collection<QueryResult> {
+    val qualifiedTableName = PsiTreeUtil.getChildOfType(this, SqlQualifiedTableName::class.java)
+    val synonymTarget =
+        qualifiedTableName?.let {
+            oracleSynonymTargetAvailable(it.tableName, tableResolver = tableResolver)
+        } ?: return oracleAliasNamedTarget(base)
+    val targetName = qualifiedTableName.tableName.name
+    return oracleAliasNamedTarget(base.filterNot { it.table?.name == targetName } + synonymTarget)
+}
+
+internal fun oracleSynonymTargetAvailable(
+    tableName: SqlTableName,
+    exposedTableName: SqlTableName = tableName,
+    tableResolver: (PsiElement, String) -> Collection<QueryResult>,
+): Collection<QueryResult>? {
+    val synonym =
+        tableName.reference
+            ?.resolve()
+            ?.parent
+            ?.oracleQuerySourceSynonym()
+            ?: return null
+    return synonym.oracleSynonymTargetAvailable(exposedTableName, mutableSetOf(), tableResolver)
+}
+
+private fun PsiElement.oracleSynonymTargetAvailable(
+    exposedTableName: SqlTableName,
+    seenTargetNames: MutableSet<String>,
+    tableResolver: (PsiElement, String) -> Collection<QueryResult>,
+): Collection<QueryResult> {
+    val target =
+        PsiTreeUtil.findChildOfType(this, OracleOracleSynonymTarget::class.java)
+            ?: PsiTreeUtil.findChildOfType(this, OracleOracleLocalSynonymTarget::class.java)
+            ?: return emptyList()
+    val targetName = target.text.substringBefore("@").substringAfterLast(".")
+    if (!seenTargetNames.add(targetName.lowercase())) return emptyList()
+
+    val targetResult = tableResolver(target, targetName)
+    val targetSynonym =
+        targetResult.firstNotNullOfOrNull { result ->
+            (result.table as? PsiElement)?.parent?.oracleQuerySourceSynonym()
+        }
+    if (targetSynonym != null && targetResult.all { it.columns.isEmpty() && it.synthesizedColumns.isEmpty() }) {
+        return targetSynonym.oracleSynonymTargetAvailable(exposedTableName, seenTargetNames, tableResolver)
+    }
+
+    return targetResult.map { result ->
+        result.copy(
+            table = exposedTableName,
+            synthesizedColumns =
+                result.synthesizedColumns.map { column ->
+                    column.copy(table = exposedTableName)
+                },
+        )
+    }
+}
+
+private fun PsiElement.oracleQuerySourceSynonym(): PsiElement? =
+    when (this) {
+        is OracleCreateSchemaQualifiedSynonymStmt -> this
+        is OracleCreateUnqualifiedSynonymStmt -> this
+        else -> null
+    }
 
 internal fun QueryColumn.matchesOracleNamedElement(element: NamedElement): Boolean = (this.element as NamedElement).textMatches(element)

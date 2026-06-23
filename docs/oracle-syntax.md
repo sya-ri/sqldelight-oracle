@@ -100,6 +100,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
     - [x] representative analytic view and [`hierarchies_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/hierarchies_clause.html) table reference parser support
     - [x] hierarchy table reference parser support through object-name table references
     - [x] subquery [`subquery_restriction_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/subquery_restriction_clause.html) parser support for `WITH CHECK OPTION` and `WITH READ ONLY` in table references
+    - [x] sqldelight-check rule coverage for conflicting [`subquery_restriction_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/subquery_restriction_clause.html) forms
 - [x] [`table_reference`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/table_reference.html)
   - [x] parser support for direct `ONLY (table)` table references
   - [x] parser support for remote `ONLY (table@dblink)` table references

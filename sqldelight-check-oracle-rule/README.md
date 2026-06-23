@@ -108,6 +108,7 @@ sqldelightCheck {
 | [`oracle:valid-like-escape`](#oraclevalid-like-escape) | Yes | Warning |  | Validate static Oracle `LIKE ... ESCAPE` literals. |
 | [`oracle:valid-outer-join-operator`](#oraclevalid-outer-join-operator) | Yes | Warning |  | Validate static legacy Oracle outer join operator restrictions. |
 | [`oracle:valid-segment-creation-clause`](#oraclevalid-segment-creation-clause) | Yes | Warning |  | Avoid duplicate Oracle `SEGMENT CREATION` clauses. |
+| [`oracle:valid-subquery-restriction-clause`](#oraclevalid-subquery-restriction-clause) | Yes | Warning |  | Avoid conflicting Oracle subquery restriction clauses. |
 
 ## `oracle:nullable-not-in-predicate`
 
@@ -385,6 +386,17 @@ CREATE TABLE customer (
     id NUMBER(19) NOT NULL
 )
 SEGMENT CREATION DEFERRED;
+```
+
+## `oracle:valid-subquery-restriction-clause`
+
+Reports multiple Oracle [`subquery_restriction_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/subquery_restriction_clause.html) forms in one subquery/table reference.
+
+Prefer one restriction clause:
+
+```sql
+SELECT *
+FROM (SELECT * FROM orders WITH READ ONLY) o;
 ```
 
 ## Notes

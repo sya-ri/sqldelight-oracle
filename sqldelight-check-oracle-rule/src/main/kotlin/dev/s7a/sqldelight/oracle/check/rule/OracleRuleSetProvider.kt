@@ -27,6 +27,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.ValidOuterJoinOperatorRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRegexpMatchParamRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidRowLimitingClauseRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidSegmentCreationClauseRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.ValidSubqueryRestrictionClauseRule
 
 /**
  * Provides Oracle-specific sqldelight-check rules.
@@ -60,5 +61,6 @@ public class OracleRuleSetProvider : RuleSetProvider {
             RuleProvider(::ValidLikeEscapeRule),
             RuleProvider(::ValidOuterJoinOperatorRule),
             RuleProvider(::ValidSegmentCreationClauseRule),
+            RuleProvider(::ValidSubqueryRestrictionClauseRule),
         )
 }

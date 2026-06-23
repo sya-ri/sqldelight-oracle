@@ -125,13 +125,7 @@ internal abstract class OracleTableOrSubqueryMixin(
             )
         }
 
-        return PsiTreeUtil
-            .findChildOfType(this, OracleOracleRowPatternClause::class.java)
-            ?.oracleRowPatternMeasuresClause
-            ?.oracleRowPatternMeasureColumnList
-            ?.mapNotNull { it.columnAliasQueryColumn() }
-            ?.ifEmpty { null }
-            ?.let { columns -> QueryResult(tableAlias, columns) }
+        return oracleRowPatternResult()
     }
 
     private fun PsiElement.tableAlias(): SqlTableAlias? = PsiTreeUtil.findChildOfType(this, SqlTableAlias::class.java)
@@ -144,6 +138,27 @@ internal abstract class OracleTableOrSubqueryMixin(
 
     private fun OracleOracleRowPatternMeasureColumn.columnAliasQueryColumn(): QueryColumn? =
         PsiTreeUtil.getChildOfType(this, SqlColumnAlias::class.java)?.let(::QueryColumn)
+
+    private fun oracleRowPatternResult(): QueryResult? {
+        val rowPatternClause = PsiTreeUtil.findChildOfType(this, OracleOracleRowPatternClause::class.java) ?: return null
+        val sourceColumns =
+            if (rowPatternClause.text.contains("ALL ROWS PER MATCH", ignoreCase = true)) {
+                tableName?.let { tableNameElement ->
+                    tableAvailable(tableNameElement, tableNameElement.name).flatMap { it.columns }
+                } ?: emptyList()
+            } else {
+                emptyList()
+            }
+        val measureColumns =
+            rowPatternClause
+                .oracleRowPatternMeasuresClause
+                ?.oracleRowPatternMeasureColumnList
+                ?.mapNotNull { it.columnAliasQueryColumn() }
+                ?: emptyList()
+        return (sourceColumns + measureColumns)
+            .ifEmpty { null }
+            ?.let { columns -> QueryResult(tableAlias, columns) }
+    }
 
     private fun oraclePivotColumns(): List<String> {
         val pivotBody = text.oracleParenthesizedBodyAfter("PIVOT") ?: return emptyList()

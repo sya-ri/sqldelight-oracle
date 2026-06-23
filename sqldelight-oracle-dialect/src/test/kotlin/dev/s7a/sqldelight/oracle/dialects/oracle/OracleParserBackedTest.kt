@@ -3831,6 +3831,15 @@ class OracleParserBackedTest :
                   DEFINE rising AS 1 > 0, falling AS 0 < 1
                 ) advanced_matches;
 
+                selectMatchRecognizeAllRowsSourceColumns:
+                SELECT all_row_matches.id, all_row_matches.region, all_row_matches.match_state
+                FROM partitioned_orders MATCH_RECOGNIZE (
+                  MEASURES 1 AS match_state
+                  ALL ROWS PER MATCH
+                  PATTERN (start_row rising*)
+                  DEFINE start_row AS 1 = 1, rising AS 1 > 0
+                ) all_row_matches;
+
                 selectMatchRecognizeReluctantPattern:
                 SELECT *
                 FROM partitioned_orders MATCH_RECOGNIZE (

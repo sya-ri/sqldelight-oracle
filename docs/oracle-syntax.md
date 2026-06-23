@@ -130,6 +130,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] parser coverage for [`row_pattern`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_pattern.html) alternation with `|`
   - [x] parser coverage for row-pattern exclusion groups with `{- ... -}`
   - [x] parser coverage for bounded quantifiers `{n}`, `{n,}`, `{,m}`, and `{n,m}` including reluctant suffixes
+  - [x] SQLDelight column resolution for `ALL ROWS PER MATCH` source columns plus `MEASURES` output aliases
   - [ ] deferred semantic remainder: pattern variable placement rules that need `PATTERN`, `SUBSET`, `DEFINE`, and measure-reference cross-checking after parse
 - [x] [`CONTAINERS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/containers_clause.html) and [`SHARDS`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/SELECT.html) query clauses
 - [x] [`group_by_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/group_by_clause.html)

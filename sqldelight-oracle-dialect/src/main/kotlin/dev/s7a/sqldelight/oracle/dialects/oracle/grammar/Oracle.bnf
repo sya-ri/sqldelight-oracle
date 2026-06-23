@@ -637,7 +637,7 @@ private oracle_json_mismatch_kind ::= 'MISSING' 'DATA' | 'EXTRA' 'DATA' | 'TYPE'
 
 private oracle_type_conversion_expr ::= oracle_treat_expr
 
-private oracle_validate_conversion_expr ::= 'VALIDATE_CONVERSION' LP <<expr '-1'>> 'AS' type_name RP
+private oracle_validate_conversion_expr ::= 'VALIDATE_CONVERSION' LP <<expr '-1'>> 'AS' type_name [ COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] ] RP
 
 private oracle_treat_expr ::= 'TREAT' LP <<expr '-1'>> 'AS' oracle_type_name RP
 

@@ -3812,6 +3812,14 @@ class OracleParserBackedTest :
                   COLUMNS (employee.*)
                 ) graph_employee_versions;
 
+                selectGraphTableEdgePattern:
+                SELECT *
+                FROM GRAPH_TABLE (
+                  employees_graph
+                  MATCH (employee IS employee_node) -[works_at IS works_at_edge]-> (department IS department_node)
+                  COLUMNS (employee.employee_id AS employee_id, department.department_id AS department_id)
+                ) graph_employee_departments;
+
                 selectGraphqlTableFunction:
                 SELECT *
                 FROM GRAPHQL('

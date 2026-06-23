@@ -10,7 +10,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 ### Defer Until SQLDelight Core Support Exists
 
 - [x] Alternative quoted literals `q'...'` and `nq'...'`, implemented as lexer-level string tokens.
-- [ ] Bracket/operator-heavy syntax consumed differently by SQLDelight core today: `MODEL` clause, `GRAPH_TABLE` edge patterns, JSON array-step access, and vector shorthand operators `<->`, `<=>`, `<#>`.
+- [ ] Bracket/operator-heavy syntax consumed differently by SQLDelight core today: `MODEL` clause, empty/advanced `GRAPH_TABLE` edge and path patterns, JSON array-step access, and vector shorthand operators `<->`, `<=>`, `<#>`.
 - [ ] Non-named DML targets in `DML_table_expression_clause`, because SQLDelight compiler paths such as mutator handling and optimistic-lock validation currently assume a named `SqlTableName` / `SqlQualifiedTableName`.
 
 ### Defer As Semantic Validators
@@ -428,8 +428,8 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] [Concatenation operator](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Concatenation-Operator.html) parser coverage for `||`
 - [x] User-defined operators: parser coverage for function-style operator references in queries and `CREATE` / `ALTER` / `DROP OPERATOR` statements
 - [ ] [`GRAPH_TABLE` operator](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graph_table-operator.html)
-  - [x] parser coverage for table-expression boundaries, [`graph_reference`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graph-reference.html), representative [`graph_pattern`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graph-pattern.html) vertex patterns, and [`graph_table_shape`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graph-table-shape.html) `COLUMNS` clauses
-  - [ ] deferred parser/semantic remainder: edge patterns, quantified path patterns, parenthesized path patterns, graph pattern search conditions, and [`GRAPH_TABLE` value expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/value-expressions-graph_table.html); edge pattern `[]` tokens need core lexer support before complete parser coverage
+  - [x] parser coverage for table-expression boundaries, [`graph_reference`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graph-reference.html), representative [`graph_pattern`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graph-pattern.html) vertex and non-empty edge patterns, and [`graph_table_shape`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/graph-table-shape.html) `COLUMNS` clauses
+  - [ ] deferred parser/semantic remainder: empty edge patterns, quantified path patterns, parenthesized path patterns, graph pattern search conditions, and [`GRAPH_TABLE` value expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/value-expressions-graph_table.html); empty edge pattern `[]` tokens need core lexer support before complete parser coverage
 - [x] [`CURSOR` expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CURSOR-Expressions.html) parser support for `CURSOR(subquery)`
 - [x] [`CASE` expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CASE-Expressions.html) parser support for simple and searched `CASE`
 - [x] [Scalar subquery expressions](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Scalar-Subquery-Expressions.html) parser support

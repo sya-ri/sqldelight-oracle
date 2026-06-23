@@ -86,11 +86,11 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
   - [x] [`join_to_one_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/join_to_one_clause.html), [`jto_join_list`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/jto_join_list.html), [`jto_join_spec`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/jto_join_spec.html), [`jto_table_with_optional_on_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/jto_table_with_optional_on_clause.html), and [`row_widened_table_expression`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/row_widened_table_expression.html) representative parser support for `JOIN TO ONE (...)` table references
 - [x] Legacy [`table_collection_expression`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/table_collection_expression.html) source-scanner table-reference boundary for `THE`
   - [x] Legacy [`table_collection_expression`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/table_collection_expression.html) parser support for deprecated `THE (subquery)` collection unnesting syntax
-- [ ] [`query_table_expression`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/query_table_expression.html)
+- [x] [`query_table_expression`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/query_table_expression.html)
   - [x] parser support for table references over database links with `@dblink`, including period-qualified database link names
   - [x] parser accepts subquery factoring `query_name` references through table-name references
   - [x] parser support for remote `view @dblink` and remote `materialized view @dblink` forms
-  - [ ] object-kind semantic validation: defer remote view/materialized-view checks, `query_name` versus schema object disambiguation, analytic-view/hierarchy object checks, and `sample_clause` placement restrictions
+  - [ ] deferred object-kind semantic validation: remote view/materialized-view checks, `query_name` versus schema object disambiguation, analytic-view/hierarchy object checks, and `sample_clause` placement restrictions
   - [x] `query_table_expression`
     - [x] representative analytic view and [`hierarchies_clause`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/hierarchies_clause.html) table reference parser support
     - [x] hierarchy table reference parser support through object-name table references

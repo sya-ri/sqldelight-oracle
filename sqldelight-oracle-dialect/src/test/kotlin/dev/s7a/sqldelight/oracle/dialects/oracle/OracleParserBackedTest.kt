@@ -3163,11 +3163,19 @@ class OracleParserBackedTest :
         test("parses representative Oracle object table statements exactly") {
             val sql =
                 """
+                CREATE TYPE account_object_type AS OBJECT (
+                  account_id NUMBER,
+                  account_status VARCHAR2(16)
+                );
+
                 CREATE TABLE account_objects
                 OF account_object_type
                 OBJECT IDENTIFIER IS PRIMARY KEY
                 OIDINDEX account_objects_oid_idx (TABLESPACE users)
                 TABLESPACE users;
+
+                SELECT account_id, account_status
+                FROM account_objects;
 
                 CREATE TABLE final_account_objects
                 OF hr.account_object_type
@@ -3217,6 +3225,9 @@ class OracleParserBackedTest :
                 WITH OBJECT ID (account_id)
                 OIDINDEX account_xml_documents_oid_idx (TABLESPACE users)
                 TABLESPACE users;
+
+                SELECT account_number, account_status
+                FROM account_xml_documents;
 
                 CREATE TABLE account_xml_clobs
                 OF XMLTYPE
@@ -3381,6 +3392,9 @@ class OracleParserBackedTest :
                   CONSTRAINT account_collection_status_check CHECK (1 = 1)
                 )
                 TABLESPACE users;
+
+                SELECT account_id, status
+                FROM account_collection_documents;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe

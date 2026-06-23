@@ -1796,6 +1796,7 @@ create_table_stmt ::= 'CREATE' (
 ) oracle_create_table_top_level_clause * {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCreateTableStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlCreateTableStmt"
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleCreateTableStmtMixin"
   elementTypeClass = "com.alecstrong.sql.psi.core.psi.mixins.CreateTableElementType"
   stubClass = "com.alecstrong.sql.psi.core.psi.SchemaContributorStub"
   override = true

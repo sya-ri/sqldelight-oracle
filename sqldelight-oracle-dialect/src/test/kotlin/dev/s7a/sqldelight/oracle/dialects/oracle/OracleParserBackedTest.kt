@@ -6841,6 +6841,11 @@ class OracleParserBackedTest :
 
                 ALTER DATABASE DATAFILE '/u01/oradata/users01.dbf' ONLINE;
 
+                ALTER DATABASE DATAFILE '+DATA/users05.dbf'
+                  AUTOEXTEND ON NEXT 32 M MAXSIZE 2 G;
+
+                ALTER DATABASE TEMPFILE '/u01/oradata/temp01.dbf' RESIZE 200 M;
+
                 ALTER DATABASE ADD LOGFILE GROUP 3 ('/u01/oradata/redo03.log') SIZE 100 M;
 
                 ALTER DATABASE ADD LOGFILE GROUP 5
@@ -6862,6 +6867,11 @@ class OracleParserBackedTest :
                 ALTER PLUGGABLE DATABASE pdb1 DISCARD STATE;
 
                 ALTER PLUGGABLE DATABASE pdb1 UNPLUG INTO '/tmp/pdb1.xml';
+
+                ALTER PLUGGABLE DATABASE pdb1 DATAFILE '/u01/oradata/pdb1/users01.dbf' OFFLINE;
+
+                ALTER PLUGGABLE DATABASE pdb1 TEMPFILE '/u01/oradata/pdb1/temp01.dbf'
+                  AUTOEXTEND ON NEXT 8 M MAXSIZE UNLIMITED;
 
                 ALTER PLUGGABLE DATABASE ALL OPEN;
                 """.trimIndent()

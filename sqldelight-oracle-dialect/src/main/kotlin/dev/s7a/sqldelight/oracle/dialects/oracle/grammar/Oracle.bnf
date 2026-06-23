@@ -2949,7 +2949,7 @@ create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ]
   [ oracle_annotations_clause ] 'AS' {compound_select_stmt} [ 'BEQUEATH' ( 'CURRENT_USER' | 'DEFINER' ) ]
   [ oracle_subquery_restriction_clause ]
   [ 'CONTAINER_MAP' | 'CONTAINERS_DEFAULT' ] {
-  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCreateViewStmtImpl"
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleCreateViewStmtMixin"
   implements = "com.alecstrong.sql.psi.core.psi.TableElement"
   elementTypeClass = "com.alecstrong.sql.psi.core.psi.mixins.CreateViewElementType"
   stubClass = "com.alecstrong.sql.psi.core.psi.SchemaContributorStub"

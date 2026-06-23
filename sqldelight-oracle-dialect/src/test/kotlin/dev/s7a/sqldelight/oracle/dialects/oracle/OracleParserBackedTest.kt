@@ -473,6 +473,9 @@ class OracleParserBackedTest :
                 FROM employees
                 WHERE ROWNUM < 11;
 
+                SELECT e.ROWID, e.ORA_ROWSCN, e.name
+                FROM employees e;
+
                 SELECT LEVEL, CONNECT_BY_ISLEAF, CONNECT_BY_ISCYCLE, name
                 FROM employees
                 WHERE LEVEL <= 3;

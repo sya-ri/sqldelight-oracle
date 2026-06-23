@@ -111,6 +111,10 @@ internal abstract class OracleTableOrSubqueryMixin(
                 ?.let { columns -> QueryResult(valuesTable.tableAlias() ?: tableAlias(), columns) }
         }
 
+        oracleCollectionTableColumnResult()?.let {
+            return it
+        }
+
         oraclePivotColumns().ifEmpty { null }?.let { columns ->
             return QueryResult(
                 table = tableAlias,
@@ -128,6 +132,19 @@ internal abstract class OracleTableOrSubqueryMixin(
         }
 
         return oracleRowPatternResult()
+    }
+
+    private fun oracleCollectionTableColumnResult(): QueryResult? {
+        val body = text.trimStart()
+        if (!body.startsWithOracleCollectionTableReference()) {
+            return null
+        }
+
+        return QueryResult(
+            table = tableAlias,
+            columns = emptyList(),
+            synthesizedColumns = listOf(SynthesizedColumn(tableAlias ?: this, listOf("COLUMN_VALUE"))),
+        )
     }
 
     private fun oracleSynonymTargetResult(tableNameElement: SqlTableName): Collection<QueryResult>? {
@@ -231,6 +248,14 @@ internal abstract class OracleTableOrSubqueryMixin(
 
         return (measureColumns + forColumns).distinct()
     }
+}
+
+private fun String.startsWithOracleCollectionTableReference(): Boolean =
+    startsWithOracleKeywordCall("TABLE") || startsWithOracleKeywordCall("THE")
+
+private fun String.startsWithOracleKeywordCall(keyword: String): Boolean {
+    if (!startsWith(keyword, ignoreCase = true)) return false
+    return drop(keyword.length).trimStart().startsWith("(")
 }
 
 private fun String.oracleParenthesizedBodyAfter(keyword: String): String? {

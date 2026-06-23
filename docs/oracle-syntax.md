@@ -340,7 +340,7 @@ Unchecked items are not publish blockers when they are explicitly listed in the 
 - [x] [`DROP TABLE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DROP-TABLE.html)
 - [x] [`DROP INDEX`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DROP-INDEX.html)
 - [x] [`DROP SEQUENCE`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DROP-SEQUENCE.html) parser support for schema-qualified names and `IF EXISTS`
-- [x] [`DROP VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DROP-VIEW.html)
+- [x] [`DROP VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DROP-VIEW.html) parser support for `IF EXISTS`, schema-qualified names, and `CASCADE CONSTRAINTS`
 - [x] [`DROP MATERIALIZED VIEW`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DROP-MATERIALIZED-VIEW.html) parser support for `IF EXISTS`, schema-qualified names, `SNAPSHOT` compatibility, and `PRESERVE TABLE`
 - [x] [`DROP MATERIALIZED VIEW LOG`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DROP-MATERIALIZED-VIEW-LOG.html) and [`DROP MATERIALIZED ZONEMAP`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DROP-MATERIALIZED-ZONEMAP.html) parser support for `IF EXISTS`, schema-qualified names, `ON` master tables, and legacy `DROP SNAPSHOT LOG`
 - [x] [`DROP SYNONYM`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DROP-SYNONYM.html) parser support for private/public synonyms, `IF EXISTS`, schema-qualified private names, and `FORCE`

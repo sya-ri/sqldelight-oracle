@@ -4575,6 +4575,21 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle drop view statements through SQLDelight environment exactly") {
+            val sql =
+                """
+                DROP VIEW account_view;
+
+                DROP VIEW IF EXISTS reporting.account_view CASCADE CONSTRAINTS;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle create sequence statements through SQLDelight environment exactly") {
             val sql =
                 """

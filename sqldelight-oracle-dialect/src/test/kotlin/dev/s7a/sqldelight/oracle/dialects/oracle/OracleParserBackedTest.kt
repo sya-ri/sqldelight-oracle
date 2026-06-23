@@ -2928,6 +2928,24 @@ class OracleParserBackedTest :
                 OF XMLTYPE
                 STORE AS CLOB
                 READ ONLY;
+
+                CREATE TABLE account_xml_object_relational
+                OF XMLTYPE
+                STORE AS OBJECT RELATIONAL
+                ELEMENT 'Account'
+                STORE ALL VARRAYS AS TABLES;
+
+                CREATE TABLE account_xml_secure_binary
+                OF XMLTYPE
+                STORE AS SECUREFILE NOT TRANSPORTABLE BINARY XML account_xml_secure_lob (
+                  CACHE
+                  COMPRESS HIGH
+                )
+                READ WRITE;
+
+                CREATE TABLE account_xml_varrays
+                OF XMLTYPE
+                STORE ALL VARRAYS AS LOBS;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe
@@ -2945,6 +2963,7 @@ class OracleParserBackedTest :
                   document_text CLOB,
                   document_blob BLOB,
                   document_xml XMLTYPE,
+                  archive_xml XMLTYPE,
                   line_items NESTED TABLE,
                   audit_items NESTED TABLE,
                   attachments VARRAY(10),
@@ -2979,6 +2998,9 @@ class OracleParserBackedTest :
                   PCTVERSION 10
                 )
                 XMLTYPE COLUMN document_xml XMLSCHEMA 'http://example.com/document.xsd' ELEMENT 'Document' STORE AS BINARY XML
+                XMLTYPE COLUMN archive_xml STORE AS BASICFILE CLOB archive_xml_lob (
+                  NOCACHE
+                )
                 NESTED TABLE line_items STORE AS account_line_items RETURN AS LOCATOR
                 NESTED TABLE audit_items STORE AS account_audit_items RETURN AS VALUE
                 VARRAY attachments STORE AS BASICFILE LOB account_attachments_lob

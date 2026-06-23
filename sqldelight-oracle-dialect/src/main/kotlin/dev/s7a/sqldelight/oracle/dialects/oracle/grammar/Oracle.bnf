@@ -1681,9 +1681,34 @@ private oracle_xmltype_table_property ::= (
   oracle_oid_index_clause
 )
 
-private oracle_xmlschema_spec ::= 'XMLSCHEMA' ( string | {string_literal} ) [ 'ELEMENT' ( string | {string_literal} ) ]
+private oracle_xmlschema_spec ::= [ 'XMLSCHEMA' ( string | {string_literal} ) ] 'ELEMENT' ( string | {string_literal} )
+  [ 'STORE' 'ALL' 'VARRAYS' 'AS' ( 'LOBS' | 'TABLES' ) ]
+  oracle_xmlschema_permission *
 
-private oracle_xmltype_storage ::= 'STORE' 'AS' ( 'CLOB' | 'BINARY' 'XML' )
+private oracle_xmlschema_permission ::= ( 'ALLOW' | 'DISALLOW' ) ( 'NONSCHEMA' | 'ANYSCHEMA' | 'NO' oracle_object_name_part | oracle_object_name_part )
+
+private oracle_xmltype_storage ::= 'STORE' (
+  'AS' (
+    'OBJECT' 'RELATIONAL' |
+    [ 'SECUREFILE' | 'BASICFILE' ] (
+      'CLOB' |
+      [ [ 'NOT' ] 'TRANSPORTABLE' ] 'BINARY' 'XML'
+    ) [ oracle_xmltype_storage_target ]
+  ) |
+  'ALL' 'VARRAYS' 'AS' ( 'LOBS' | 'TABLES' )
+)
+
+private oracle_xmltype_storage_target ::= (
+  oracle_column_property_boundary |
+  !'BLOCKCHAIN' !'CACHE' !'CLUSTERING' !'COLUMN' !'COMPRESS' !'DEFAULT' !'DISABLE' !'ENABLE'
+    !'FLASHBACK' !'FOR' !'HASHING' !'ILM' !'INDEXING' !'INMEMORY' !'JSON' !'LOB'
+    !'LOGGING' !'MEMOPTIMIZE' !'NESTED' !'NO' !'NOCACHE' !'NOCOMPRESS' !'NOLOGGING'
+    !'NOPARALLEL' !'NOROWDEPENDENCIES' !'NOT' !'OIDINDEX' !'ORGANIZATION' !'PARALLEL'
+    !'PARENT' !'PARTITION' !'PCTFREE' !'PCTUSED' !'READ' !'REFRESH' !'RESULT_CACHE'
+    !'ROW' !'ROWDEPENDENCIES' !'SEGMENT' !'STORAGE' !'STORE' !'SUBPARTITION' !'SYNCHRONOUS'
+    !'TABLESPACE' !'VARRAY' !'VIRTUAL' !'WITH' !'XMLTYPE'
+    oracle_object_name_part [ oracle_column_property_boundary ]
+)
 
 private oracle_xmltype_virtual_columns ::= 'VIRTUAL' 'COLUMNS' LP
   oracle_xmltype_virtual_column ( COMMA oracle_xmltype_virtual_column ) * RP

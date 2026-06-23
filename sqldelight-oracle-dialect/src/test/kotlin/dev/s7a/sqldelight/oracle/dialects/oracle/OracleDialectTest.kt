@@ -56,6 +56,36 @@ class OracleDialectTest :
                 IntermediateType(OracleType.TEXT)
         }
 
+        test("resolves Oracle argument-dependent function types exactly") {
+            val parentResolver =
+                ArgumentTypeResolver(
+                    listOf(
+                        OracleType.TEXT,
+                        OracleType.INTEGER_NUMBER,
+                    ),
+                )
+            val resolver = OracleDialect().typeResolver(parentResolver)
+            val mappings =
+                listOf(
+                    Triple("NULLIF", 2, IntermediateType(OracleType.TEXT)),
+                    Triple("FIRST_VALUE", 1, IntermediateType(OracleType.TEXT).asNullable()),
+                    Triple("LAG", 2, IntermediateType(OracleType.TEXT).asNullable()),
+                    Triple("LAST_VALUE", 1, IntermediateType(OracleType.TEXT).asNullable()),
+                    Triple("LEAD", 2, IntermediateType(OracleType.TEXT).asNullable()),
+                    Triple("NTH_VALUE", 2, IntermediateType(OracleType.TEXT).asNullable()),
+                    Triple("TO_LOB", 1, IntermediateType(OracleType.TEXT)),
+                    Triple("UNSUPPORTED_FUNCTION", 2, null),
+                )
+
+            mappings.map { (functionName, argumentCount, expectedType) ->
+                Triple(
+                    functionName,
+                    argumentCount,
+                    resolver.functionType(sqlFunctionExpr(functionName, parentResolver.exprList(argumentCount))),
+                )
+            } shouldBe mappings
+        }
+
         test("keeps optional dialect services explicit") {
             val dialect = OracleDialect()
 
@@ -90,6 +120,32 @@ private data object ParentTypeResolver : TypeResolver {
     override fun queryWithResults(sqlStmt: SqlStmt): QueryWithResults? = error("queryWithResults is not used by this test")
 }
 
+private class ArgumentTypeResolver(
+    argumentTypes: List<OracleType>,
+) : TypeResolver {
+    private val exprList: List<SqlExpr> = argumentTypes.indices.map { index -> sqlExpr("argument$index") }
+    private val typesByExpression =
+        exprList.zip(argumentTypes.map { type -> IntermediateType(type) }).associate { (expression, type) -> expression to type }
+
+    fun exprList(argumentCount: Int): List<SqlExpr> = exprList.take(argumentCount)
+
+    override fun resolvedType(expr: SqlExpr): IntermediateType =
+        requireNotNull(typesByExpression[expr]) {
+            "Unexpected expression ${expr.text}"
+        }
+
+    override fun argumentType(
+        parent: PsiElement,
+        argument: SqlExpr,
+    ): IntermediateType = resolvedType(argument)
+
+    override fun functionType(functionExpr: SqlFunctionExpr): IntermediateType? = null
+
+    override fun definitionType(typeName: SqlTypeName): IntermediateType = error("definitionType is not used by this test")
+
+    override fun queryWithResults(sqlStmt: SqlStmt): QueryWithResults? = error("queryWithResults is not used by this test")
+}
+
 private fun serviceResource(path: String): String =
     requireNotNull(OracleDialectTest::class.java.classLoader.getResource(path)) {
         "Missing test resource $path"
@@ -99,14 +155,20 @@ private fun sqlFunctionExpr(
     name: String,
     argumentCount: Int,
 ): SqlFunctionExpr =
+    sqlFunctionExpr(name, List(argumentCount) { sqlExpr() })
+
+private fun sqlFunctionExpr(
+    name: String,
+    exprList: List<SqlExpr>,
+): SqlFunctionExpr =
     proxy(SqlFunctionExpr::class.java) { proxy, method, arguments ->
         when (method.name) {
             "getFunctionName" -> sqlFunctionName(name)
-            "getExprList" -> List(argumentCount) { sqlExpr() }
+            "getExprList" -> exprList
             "getText" -> "$name()"
             "hashCode" -> System.identityHashCode(proxy)
             "equals" -> proxy === arguments?.singleOrNull()
-            "toString" -> "$name($argumentCount arguments)"
+            "toString" -> "$name(${exprList.size} arguments)"
             else -> error("Unexpected SqlFunctionExpr method: ${method.name}")
         }
     }
@@ -122,13 +184,13 @@ private fun sqlFunctionName(name: String): SqlFunctionName =
         }
     }
 
-private fun sqlExpr(): SqlExpr =
+private fun sqlExpr(text: String = "argument"): SqlExpr =
     proxy(SqlExpr::class.java) { proxy, method, arguments ->
         when (method.name) {
-            "getText" -> "argument"
+            "getText" -> text
             "hashCode" -> System.identityHashCode(proxy)
             "equals" -> proxy === arguments?.singleOrNull()
-            "toString" -> "argument"
+            "toString" -> text
             else -> error("Unexpected SqlExpr method: ${method.name}")
         }
     }

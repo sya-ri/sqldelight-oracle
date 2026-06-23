@@ -3977,6 +3977,14 @@ class OracleParserBackedTest :
 
                 ALTER TABLE alter_advanced_targets
                 MODIFY LOB (payload) (
+                  REBUILD FREEPOOLS
+                  ALLOCATE EXTENT (SIZE 32M)
+                  SHRINK SPACE COMPACT
+                  DEALLOCATE UNUSED KEEP 16M
+                );
+
+                ALTER TABLE alter_advanced_targets
+                MODIFY LOB (payload) (
                   STORE AS SECUREFILE alter_payload_lob
                   (TABLESPACE users CACHE READS DEDUPLICATE LOB)
                 );

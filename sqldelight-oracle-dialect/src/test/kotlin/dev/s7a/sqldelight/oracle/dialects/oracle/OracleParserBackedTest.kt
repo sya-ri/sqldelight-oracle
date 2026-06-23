@@ -8510,6 +8510,96 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle model clause queries exactly") {
+            val sql =
+                """
+                CREATE TABLE sales (
+                  region VARCHAR2(30),
+                  product VARCHAR2(30),
+                  year_num NUMBER,
+                  amount NUMBER
+                );
+
+                selectBasicModel:
+                SELECT region, product, year_num, amount
+                FROM sales
+                MODEL
+                  PARTITION BY (region)
+                  DIMENSION BY (product, year_num)
+                  MEASURES (amount)
+                  RULES (
+                    amount['chairs', 2025] = amount['chairs', 2024] + 10
+                  );
+
+                selectModelCellReferenceOptions:
+                SELECT region, product, year_num, amount
+                FROM sales
+                MODEL IGNORE NAV UNIQUE DIMENSION
+                  PARTITION BY (region)
+                  DIMENSION BY (product, year_num)
+                  MEASURES (amount)
+                  RULES (
+                    amount['desks', 2025] = 0
+                  );
+
+                selectModelUpdatedRows:
+                SELECT region, product, year_num, amount
+                FROM sales
+                MODEL RETURN UPDATED ROWS
+                  PARTITION BY (region)
+                  DIMENSION BY (product, year_num)
+                  MEASURES (amount)
+                  RULES (
+                    amount['lamps', 2025] = amount['lamps', 2024]
+                  );
+
+                selectModelRuleOptions:
+                SELECT region, product, year_num, amount
+                FROM sales
+                MODEL
+                  PARTITION BY (region)
+                  DIMENSION BY (product, year_num)
+                  MEASURES (amount)
+                  RULES UPSERT ALL SEQUENTIAL ORDER (
+                    amount['tables', 2025] ORDER BY year_num = amount['tables', 2024]
+                  );
+
+                selectModelIterateUntil:
+                SELECT region, product, year_num, amount
+                FROM sales
+                MODEL
+                  PARTITION BY (region)
+                  DIMENSION BY (product, year_num)
+                  MEASURES (amount)
+                  RULES ITERATE (3) UNTIL (amount['chairs', 2025] > 1000) (
+                    amount['chairs', 2025] = amount['chairs', 2024] + 10
+                  );
+
+                selectModelReferenceModel:
+                SELECT region, product, year_num, amount
+                FROM sales
+                MODEL
+                  REFERENCE prior_sales ON (
+                    SELECT product, year_num, amount
+                    FROM sales
+                  )
+                  DIMENSION BY (product, year_num)
+                  MEASURES (amount)
+                  PARTITION BY (region)
+                  DIMENSION BY (product, year_num)
+                  MEASURES (amount)
+                  RULES (
+                    amount['chairs', 2025] = prior_sales.amount['chairs', 2024]
+                  );
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """

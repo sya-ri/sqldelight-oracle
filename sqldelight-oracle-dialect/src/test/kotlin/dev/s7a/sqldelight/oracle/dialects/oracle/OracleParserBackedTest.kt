@@ -2935,6 +2935,13 @@ class OracleParserBackedTest :
                 ELEMENT 'Account'
                 STORE ALL VARRAYS AS TABLES;
 
+                CREATE TABLE account_xml_schema_permissions
+                OF XMLTYPE
+                XMLSCHEMA 'http://example.com/account.xsd' ELEMENT 'Account'
+                ALLOW NONSCHEMA
+                DISALLOW ANYSCHEMA
+                STORE AS BINARY XML;
+
                 CREATE TABLE account_xml_secure_binary
                 OF XMLTYPE
                 STORE AS SECUREFILE NOT TRANSPORTABLE BINARY XML account_xml_secure_lob (

@@ -1485,7 +1485,18 @@ private oracle_row_pattern_order_by_clause ::= 'ORDER' 'BY' <<orderingTermExt <<
 
 oracle_row_pattern_measures_clause ::= 'MEASURES' oracle_row_pattern_measure_column ( COMMA oracle_row_pattern_measure_column ) *
 
-oracle_row_pattern_measure_column ::= [ 'RUNNING' | 'FINAL' ] oracle_row_pattern_operand [ [ 'AS' ] <<columnAliasExt <<column_alias_real>>>> ]
+oracle_row_pattern_measure_column ::= [ 'RUNNING' | 'FINAL' ] oracle_row_pattern_measure_expr [ [ 'AS' ] <<columnAliasExt <<column_alias_real>>>> ]
+
+private oracle_row_pattern_measure_expr ::= (
+  oracle_row_pattern_navigation_expr |
+  oracle_row_pattern_function_expr |
+  <<expr '-1'>>
+)
+
+private oracle_row_pattern_function_expr ::= ( 'CLASSIFIER' | 'MATCH_NUMBER' | 'ROW_NUMBER' ) LP RP
+
+private oracle_row_pattern_navigation_expr ::= ( 'FIRST' | 'LAST' | 'PREV' | 'NEXT' ) LP
+  oracle_schema_object_name [ COMMA <<expr '-1'>> ] RP ( DOT oracle_object_name_part ) *
 
 private oracle_row_pattern_rows_per_match_clause ::= (
   'ONE' 'ROW' 'PER' 'MATCH' |

@@ -1818,15 +1818,21 @@ private oracle_inline_plsql_source_token ::= (
   'ELSE' |
   'ELSIF' |
   'FOR' |
+  'FROM' |
   'IF' |
   'IN' |
+  'INSERT' |
   'INOUT' |
+  'INTO' |
   'LOOP' |
   'NULL' |
   'NOCOPY' |
   'OUT' |
   'RETURN' |
-  'THEN'
+  'SELECT' |
+  'THEN' |
+  'VALUES' |
+  'WHERE'
 )
 
 private oracle_inline_plsql_block_end ::= 'END' ( 'IF' | 'LOOP' ) ';'

@@ -3751,6 +3751,51 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle PL SQL CTE issue examples through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE names (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(100)
+                );
+
+                CREATE TABLE data (
+                  id NUMBER PRIMARY KEY
+                );
+
+                CREATE TABLE staging (
+                  id NUMBER PRIMARY KEY,
+                  val NUMBER
+                );
+
+                selectInlineFunction:
+                WITH
+                  FUNCTION get_name(p_id IN NUMBER) RETURN VARCHAR2 IS
+                    v_name VARCHAR2(100);
+                  BEGIN
+                    SELECT name INTO v_name FROM names WHERE id = p_id;
+                    RETURN v_name;
+                  END;
+                SELECT get_name(id)
+                FROM data;
+
+                selectInlineProcedure:
+                WITH
+                  PROCEDURE load_data IS
+                  BEGIN
+                    INSERT INTO staging VALUES (1, 2);
+                  END;
+                SELECT *
+                FROM staging;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle subav factoring clauses through SQLDelight environment exactly") {
             val sql =
                 """

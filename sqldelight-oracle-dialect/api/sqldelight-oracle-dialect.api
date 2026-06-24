@@ -4484,7 +4484,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSa
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
-public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSelectStmtImpl : com/alecstrong/sql/psi/core/psi/impl/SqlSelectStmtImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSelectStmt {
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleSelectStmtImpl : dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleSelectStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V

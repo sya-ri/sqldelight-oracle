@@ -6,15 +6,15 @@ import com.alecstrong.sql.psi.core.psi.impl.SqlSelectStmtImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleWindowClause
 
 internal abstract class OracleSelectStmtMixin(
     node: ASTNode,
 ) : SqlSelectStmtImpl(node) {
     override fun queryAvailable(child: PsiElement): Collection<QueryResult> {
         val base = super.queryAvailable(child)
-        val windowClause = PsiTreeUtil.getChildOfType(this, OracleOracleWindowClause::class.java)
-        if (windowClause == null || !PsiTreeUtil.isAncestor(windowClause, child, false)) {
+        val windowOffset = text.indexOfKeyword("WINDOW") ?: return base
+        val childOffset = child.textRange.startOffset - textRange.startOffset
+        if (childOffset < windowOffset) {
             return base
         }
 
@@ -26,3 +26,18 @@ internal abstract class OracleSelectStmtMixin(
         return base + fromSources
     }
 }
+
+private fun String.indexOfKeyword(keyword: String): Int? {
+    var index = 0
+    while (index < length) {
+        index = indexOf(keyword, startIndex = index, ignoreCase = true)
+        if (index == -1) return null
+        if (isIdentifierBoundary(index - 1) && isIdentifierBoundary(index + keyword.length)) return index
+        index += keyword.length
+    }
+    return null
+}
+
+private fun String.isIdentifierBoundary(index: Int): Boolean =
+    index !in indices ||
+        (!this[index].isLetterOrDigit() && this[index] != '_' && this[index] != '$' && this[index] != '#')

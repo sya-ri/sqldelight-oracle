@@ -1173,7 +1173,7 @@ private oracle_model_clause_token ::= (
   'UPSERT'
 )
 
-oracle_window_clause ::= 'WINDOW' oracle_window_definition ( COMMA oracle_window_definition ) *
+private oracle_window_clause ::= 'WINDOW' oracle_window_definition ( COMMA oracle_window_definition ) *
 
 private oracle_window_definition ::= oracle_window_name 'AS' oracle_window_specification
 

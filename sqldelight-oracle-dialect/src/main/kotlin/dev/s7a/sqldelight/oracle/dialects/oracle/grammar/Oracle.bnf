@@ -1122,6 +1122,7 @@ compound_select_stmt ::= [ {with_clause} ] {select_stmt}
 select_stmt ::= oracle_select_query | oracle_values_query {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlSelectStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlSelectStmt"
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleSelectStmtMixin"
   override = true
 }
 

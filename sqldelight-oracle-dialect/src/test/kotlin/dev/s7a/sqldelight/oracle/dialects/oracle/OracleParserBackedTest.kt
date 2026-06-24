@@ -3770,6 +3770,60 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle query clause issue examples through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE query_clause_samples (
+                  id NUMBER PRIMARY KEY,
+                  parent_id NUMBER,
+                  dept_id NUMBER,
+                  col1 NUMBER,
+                  col2 NUMBER,
+                  val NUMBER,
+                  created_at DATE
+                );
+
+                selectQualify:
+                SELECT dept_id, val, RANK() OVER (PARTITION BY dept_id ORDER BY val) AS r
+                FROM query_clause_samples
+                QUALIFY RANK() OVER (PARTITION BY dept_id ORDER BY val) <= 3;
+
+                selectNamedWindow:
+                SELECT val, SUM(val) OVER w AS total
+                FROM query_clause_samples
+                WINDOW w AS (PARTITION BY dept_id ORDER BY created_at);
+
+                selectSearchCycle:
+                WITH org (id, parent_id) AS (
+                  SELECT id, parent_id
+                  FROM query_clause_samples
+                  WHERE parent_id IS NULL
+                )
+                SEARCH DEPTH FIRST BY id SET ordercol
+                CYCLE id SET is_cycle TO 1 DEFAULT 0
+                SELECT id, parent_id, ordercol, is_cycle
+                FROM org;
+
+                valuesQuery:
+                VALUES (1, 2), (3, 4);
+
+                valuesTableReference:
+                SELECT col1, col2
+                FROM (VALUES (1, 2), (3, 4)) v (col1, col2);
+
+                valuesInCondition:
+                SELECT id
+                FROM query_clause_samples
+                WHERE (col1, col2) IN (VALUES (1, 2), (3, 4));
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle order by clauses through SQLDelight environment exactly") {
             val sql =
                 """

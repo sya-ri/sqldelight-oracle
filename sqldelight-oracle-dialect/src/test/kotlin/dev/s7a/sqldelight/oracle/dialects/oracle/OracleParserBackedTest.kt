@@ -5529,6 +5529,69 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle DML extension issue examples through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE issue_dml_target (
+                  id NUMBER PRIMARY KEY,
+                  col1 NUMBER,
+                  col2 NUMBER,
+                  val NUMBER
+                );
+
+                CREATE TABLE issue_dml_source (
+                  id NUMBER PRIMARY KEY,
+                  col1 NUMBER,
+                  col2 NUMBER,
+                  val NUMBER
+                );
+
+                insertSetExample:
+                INSERT INTO issue_dml_target
+                SET col1 = 1, col2 = 2;
+
+                multiTableInsertExample:
+                INSERT ALL
+                  WHEN col1 > 10 THEN INTO issue_dml_target (col1, col2) VALUES (col1, col2)
+                  WHEN col1 <= 10 THEN INTO issue_dml_target (col1, col2) VALUES (col1, col2)
+                SELECT col1, col2
+                FROM issue_dml_source;
+
+                mergeValuesExample:
+                MERGE INTO issue_dml_target target
+                USING VALUES (1, 2) source
+                ON (1 = 0)
+                WHEN MATCHED THEN UPDATE SET target.val = 2;
+
+                returningExample:
+                INSERT INTO issue_dml_target (id, val)
+                VALUES (1, 2)
+                RETURNING id INTO ?;
+
+                logErrorsExample:
+                INSERT INTO issue_dml_target (id, col1, col2, val)
+                VALUES (1, 1, 2, 3)
+                LOG ERRORS INTO issue_dml_errors ('batch') REJECT LIMIT UNLIMITED;
+
+                updateFromExample:
+                UPDATE issue_dml_target target
+                SET target.val = source.val
+                FROM issue_dml_source source
+                WHERE target.id = source.id;
+
+                waitExample:
+                UPDATE issue_dml_target
+                SET val = 1
+                WAIT 5;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle insert partition extension clauses through SQLDelight environment exactly") {
             val sql =
                 """

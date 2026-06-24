@@ -1685,7 +1685,7 @@ private oracle_update_stmt ::= [ {with_clause} ] 'UPDATE' {qualified_table_name}
   [ oracle_error_logging_clause ]
 
 private oracle_update_set_clause ::= (
-  {column_name} EQ oracle_update_set_expr |
+  oracle_schema_object_name EQ oracle_update_set_expr |
   LP {column_name} ( COMMA {column_name} ) * RP EQ LP ( <<compoundSelectStmtExt <<compound_select_stmt_real>>>> | oracle_update_set_expr ( COMMA oracle_update_set_expr ) * ) RP |
   'VALUE' LP <<tableAliasExt <<table_alias_real>>>> RP EQ {setter_expression}
 )

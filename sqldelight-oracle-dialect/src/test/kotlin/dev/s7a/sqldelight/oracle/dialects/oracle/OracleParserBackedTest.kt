@@ -4187,7 +4187,7 @@ class OracleParserBackedTest :
                   ONE ROW PER MATCH
                   AFTER MATCH SKIP TO LAST rising
                   PATTERN (start_row rising+)
-                  DEFINE rising AS rising.created_year > start_row.created_year
+                  DEFINE rising AS 1 > 0
                 ) matched_orders;
 
                 selectMatchRecognizeAdvancedPattern:
@@ -4200,6 +4200,31 @@ class OracleParserBackedTest :
                   SUBSET trend = (rising, falling)
                   DEFINE rising AS 1 > 0, falling AS 0 < 1
                 ) advanced_matches;
+
+                selectMatchRecognizeIssueBasic:
+                SELECT issue_matches.start_year, issue_matches.up_year
+                FROM partitioned_orders MATCH_RECOGNIZE (
+                  PARTITION BY 1
+                  ORDER BY 1
+                  MEASURES
+                    1 AS start_year,
+                    LAST(rising, 1) AS up_year
+                  ONE ROW PER MATCH
+                  AFTER MATCH SKIP TO LAST rising
+                  PATTERN (start_row rising+ start_row)
+                  DEFINE rising AS 1 > 0
+                ) issue_matches;
+
+                selectMatchRecognizeIssueAllRows:
+                SELECT issue_all_rows.match_type, issue_all_rows.match_row_number
+                FROM partitioned_orders MATCH_RECOGNIZE (
+                  PARTITION BY 1
+                  ORDER BY 1
+                  MEASURES CLASSIFIER() AS match_type, ROW_NUMBER() AS match_row_number
+                  ALL ROWS PER MATCH WITH UNMATCHED ROWS
+                  PATTERN (start_row rising+)
+                  DEFINE rising AS 1 > 0
+                ) issue_all_rows;
 
                 selectMatchRecognizeAllRowsSourceColumns:
                 SELECT all_row_matches.id, all_row_matches.region, all_row_matches.match_state

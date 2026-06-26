@@ -10,8 +10,10 @@ import app.cash.sqldelight.core.lang.MigrationLanguage
 import app.cash.sqldelight.core.lang.SqlDelightLanguage
 import app.cash.sqldelight.core.lang.SqlDelightQueriesFile
 import com.alecstrong.sql.psi.core.SqlAnnotationHolder
+import com.alecstrong.sql.psi.core.psi.SqlBindExpr
 import com.intellij.lang.LanguageParserDefinitions
 import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.util.PsiTreeUtil
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.testcontainers.containers.OracleContainer
@@ -8816,6 +8818,87 @@ class OracleParserBackedTest :
                         ),
                 )
         }
+
+        test("recognizes ? and :name bind parameters as SqlBindExpr") {
+            val sql =
+                """
+                CREATE TABLE bind_samples (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(64)
+                );
+
+                selectByIdAndName:
+                SELECT id, name
+                FROM bind_samples
+                WHERE id = ? AND name = :name;
+                """.trimIndent()
+
+            bindExprCount(sql) shouldBe 2
+        }
+
+        test("recognizes multiple positional ? bind parameters") {
+            val sql =
+                """
+                CREATE TABLE bind_samples (
+                  a NUMBER,
+                  b NUMBER,
+                  c NUMBER
+                );
+
+                selectByAbc:
+                SELECT a, b, c
+                FROM bind_samples
+                WHERE a = ? AND b = ? AND c = ?;
+                """.trimIndent()
+
+            bindExprCount(sql) shouldBe 3
+            queryParameterNames(sql).size shouldBe 3
+        }
+
+        test("collapses repeated :name markers into one parameter each") {
+            val sql =
+                """
+                CREATE TABLE people (
+                  name VARCHAR2(64),
+                  age NUMBER,
+                  alt_name VARCHAR2(64),
+                  alt_age NUMBER
+                );
+
+                selectByNameAndAge:
+                SELECT name, age
+                FROM people
+                WHERE name = :name AND age = :age AND alt_name = :name AND alt_age = :age;
+                """.trimIndent()
+
+            // The SQL contains four bind markers (:name, :age, :name, :age)...
+            bindExprCount(sql) shouldBe 4
+            // ...which collapse into two distinct named parameters in declared order.
+            queryParameterNames(sql) shouldBe listOf("name", "age")
+        }
+
+        test("recognizes bind parameters in query files when the schema comes from migrations") {
+            val files =
+                mapOf(
+                    "1.sqm" to
+                        """
+                        CREATE TABLE bind_samples (
+                          id NUMBER PRIMARY KEY,
+                          name VARCHAR2(64)
+                        );
+                        """.trimIndent(),
+                    "Test.sq" to
+                        """
+                        selectByIdAndName:
+                        SELECT id, name
+                        FROM bind_samples
+                        WHERE id = ? AND name = :name;
+                        """.trimIndent(),
+                )
+
+            bindExprCount(files, deriveSchemaFromMigrations = true) shouldBe 2
+            queryParameterNames(files, deriveSchemaFromMigrations = true) shouldBe listOf("id", "name")
+        }
     })
 
 private data class ParseResult(
@@ -9060,6 +9143,100 @@ private fun OracleContainer.testJdbcUrl(): String =
     oracleParserBackedValidationServiceName?.let { serviceName ->
         "jdbc:oracle:thin:@$host:$oraclePort/$serviceName"
     } ?: jdbcUrl
+
+private fun bindExprCount(
+    sql: String,
+    fileName: String = "Test.sq",
+): Int = bindExprCount(mapOf(fileName to sql))
+
+private fun bindExprCount(
+    files: Map<String, String>,
+    deriveSchemaFromMigrations: Boolean = false,
+): Int {
+    val root = Files.createTempDirectory("sqldelight-oracle-bind-test").toFile()
+    val sourceDirectory = File(root, "com/example").apply { mkdirs() }
+    files.forEach { (fileName, sql) ->
+        File(sourceDirectory, fileName).writeText(sql)
+    }
+
+    val errors = mutableListOf<String>()
+    val compilationUnit = OracleParserTestCompilationUnit(File(root, "output"))
+    val environment =
+        SqlDelightEnvironment(
+            sourceFolders = listOf(root),
+            dependencyFolders = emptyList(),
+            properties =
+                OracleParserTestDatabaseProperties(
+                    rootDirectory = root,
+                    compilationUnit = compilationUnit,
+                    deriveSchemaFromMigrations = deriveSchemaFromMigrations,
+                ),
+            dialect = OracleDialect(),
+            verifyMigrations = true,
+            moduleName = "oracle-bind-test",
+            compilationUnit = compilationUnit,
+        )
+
+    LanguageParserDefinitions.INSTANCE.forLanguage(SqlDelightLanguage).createParser(environment.project)
+    LanguageParserDefinitions.INSTANCE.forLanguage(MigrationLanguage).createParser(environment.project)
+    environment.annotate(listOf(OptimisticLockCompilerAnnotator()), createAnnotationHolder(errors))
+
+    var count = 0
+    environment.forSourceFiles { psiFile ->
+        if (psiFile is SqlDelightQueriesFile) {
+            count += PsiTreeUtil.findChildrenOfType(psiFile, SqlBindExpr::class.java).size
+        }
+    }
+    return count
+}
+
+private fun queryParameterNames(
+    sql: String,
+    fileName: String = "Test.sq",
+): List<String> = queryParameterNames(mapOf(fileName to sql))
+
+private fun queryParameterNames(
+    files: Map<String, String>,
+    deriveSchemaFromMigrations: Boolean = false,
+): List<String> {
+    val root = Files.createTempDirectory("sqldelight-oracle-param-test").toFile()
+    val sourceDirectory = File(root, "com/example").apply { mkdirs() }
+    files.forEach { (fileName, sql) ->
+        File(sourceDirectory, fileName).writeText(sql)
+    }
+
+    val errors = mutableListOf<String>()
+    val compilationUnit = OracleParserTestCompilationUnit(File(root, "output"))
+    val environment =
+        SqlDelightEnvironment(
+            sourceFolders = listOf(root),
+            dependencyFolders = emptyList(),
+            properties =
+                OracleParserTestDatabaseProperties(
+                    rootDirectory = root,
+                    compilationUnit = compilationUnit,
+                    deriveSchemaFromMigrations = deriveSchemaFromMigrations,
+                ),
+            dialect = OracleDialect(),
+            verifyMigrations = true,
+            moduleName = "oracle-param-test",
+            compilationUnit = compilationUnit,
+        )
+
+    LanguageParserDefinitions.INSTANCE.forLanguage(SqlDelightLanguage).createParser(environment.project)
+    LanguageParserDefinitions.INSTANCE.forLanguage(MigrationLanguage).createParser(environment.project)
+    environment.annotate(listOf(OptimisticLockCompilerAnnotator()), createAnnotationHolder(errors))
+
+    val names = mutableListOf<String>()
+    environment.forSourceFiles { psiFile ->
+        if (psiFile is SqlDelightQueriesFile) {
+            psiFile.namedQueries.forEach { query ->
+                query.parameters.forEach { names += it.name }
+            }
+        }
+    }
+    return names
+}
 
 private data class OracleParserTestCompilationUnit(
     override val outputDirectoryFile: File,

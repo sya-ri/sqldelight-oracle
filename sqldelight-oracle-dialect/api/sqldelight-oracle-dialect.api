@@ -114,6 +114,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun analyze_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun associate_statistics_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun audit_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun bind_parameter_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun call_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun column_constraint_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun comment_on_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -370,6 +371,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun analyzeStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun associateStatisticsStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun auditStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun bindParameterExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun callStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun columnConstraintExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun commentOnStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -567,6 +569,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getAnalyze_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAssociate_statistics_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getAudit_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getBind_parameter ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getCall_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getColumn_constraint ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getComment_on_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -856,6 +859,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setAnalyze_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAssociate_statistics_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setAudit_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setBind_parameter (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setCall_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setColumn_constraint (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setComment_on_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -1061,6 +1065,10 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun withClauseExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 }
 
+public abstract class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/mixins/OracleBindParameterMixin : app/cash/sqldelight/dialect/grammar/mixins/BindParameterMixin {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAdministerKeyManagementStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
 }
 
@@ -1257,6 +1265,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAuditStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleBindParameter : com/alecstrong/sql/psi/core/psi/SqlBindParameter {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCallStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -1668,6 +1679,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getTypeName ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTypeName;
 }
 
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionExprReal : com/alecstrong/sql/psi/core/psi/SqlExtensionExpr {
+}
+
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionStmt : com/alecstrong/sql/psi/core/psi/SqlExtensionStmt {
 	public abstract fun getAdministerKeyManagementStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAdministerKeyManagementStmt;
 	public abstract fun getAlterAnalyticViewStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterAnalyticViewStmt;
@@ -1964,6 +1978,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public abstract fun getAlterTableRules ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTableRules;
 	public abstract fun getAlterTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTableStmt;
 	public abstract fun getAnalyzeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAnalyzeStmt;
+	public abstract fun getBindParameter ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleBindParameter;
 	public abstract fun getColumnConstraint ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleColumnConstraint;
 	public abstract fun getCommitStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCommitStmt;
 	public abstract fun getCompoundOperator ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCompoundOperator;
@@ -2296,6 +2311,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field ANALYZE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ASSOCIATE_STATISTICS_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field AUDIT_STMT Lcom/intellij/psi/tree/IElementType;
+	public static final field BIND_PARAMETER Lcom/intellij/psi/tree/IElementType;
 	public static final field CALL_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field COLUMN_CONSTRAINT Lcom/intellij/psi/tree/IElementType;
 	public static final field COMMA Lcom/intellij/psi/tree/IElementType;
@@ -2430,7 +2446,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field DROP_VIEW_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field EQ Lcom/intellij/psi/tree/IElementType;
 	public static final field EXPLAIN_PLAN_STMT Lcom/intellij/psi/tree/IElementType;
-	public static final field EXTENSION_EXPR Lcom/intellij/psi/tree/IElementType;
+	public static final field EXTENSION_EXPR_REAL Lcom/intellij/psi/tree/IElementType;
 	public static final field EXTENSION_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field FLASHBACK_DATABASE_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field FLASHBACK_TABLE_STMT Lcom/intellij/psi/tree/IElementType;
@@ -2575,6 +2591,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitAnalyzeStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAnalyzeStmt;)V
 	public fun visitAssociateStatisticsStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAssociateStatisticsStmt;)V
 	public fun visitAuditStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAuditStmt;)V
+	public fun visitBindParameter (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleBindParameter;)V
 	public fun visitCallStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCallStmt;)V
 	public fun visitColumnConstraint (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleColumnConstraint;)V
 	public fun visitCommentOnStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCommentOnStmt;)V
@@ -2706,6 +2723,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitDropViewStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleDropViewStmt;)V
 	public fun visitExplainPlanStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExplainPlanStmt;)V
 	public fun visitExtensionExpr (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionExpr;)V
+	public fun visitExtensionExprReal (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionExprReal;)V
 	public fun visitExtensionStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionStmt;)V
 	public fun visitFlashbackDatabaseStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleFlashbackDatabaseStmt;)V
 	public fun visitFlashbackTableStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleFlashbackTableStmt;)V
@@ -2755,6 +2773,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitSqlAlterTableRules (Lcom/alecstrong/sql/psi/core/psi/SqlAlterTableRules;)V
 	public fun visitSqlAlterTableStmt (Lcom/alecstrong/sql/psi/core/psi/SqlAlterTableStmt;)V
 	public fun visitSqlAnalyzeStmt (Lcom/alecstrong/sql/psi/core/psi/SqlAnalyzeStmt;)V
+	public fun visitSqlBindParameter (Lcom/alecstrong/sql/psi/core/psi/SqlBindParameter;)V
 	public fun visitSqlColumnConstraint (Lcom/alecstrong/sql/psi/core/psi/SqlColumnConstraint;)V
 	public fun visitSqlCommitStmt (Lcom/alecstrong/sql/psi/core/psi/SqlCommitStmt;)V
 	public fun visitSqlCompositeElement (Lcom/alecstrong/sql/psi/core/psi/SqlCompositeElement;)V
@@ -3186,6 +3205,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAs
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleAuditStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAuditStmt {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleBindParameterImpl : dev/s7a/sqldelight/oracle/dialects/oracle/grammar/mixins/OracleBindParameterMixin, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleBindParameter {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
@@ -4012,6 +4037,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun getTypeName ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTypeName;
 }
 
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleExtensionExprRealImpl : com/alecstrong/sql/psi/core/psi/impl/SqlExtensionExprImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionExprReal {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleExtensionStmtImpl : com/alecstrong/sql/psi/core/psi/impl/SqlExtensionStmtImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionStmt {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
@@ -4407,6 +4438,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOv
 	public fun getAlterTableRules ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTableRules;
 	public fun getAlterTableStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAlterTableStmt;
 	public fun getAnalyzeStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleAnalyzeStmt;
+	public fun getBindParameter ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleBindParameter;
 	public fun getColumnConstraint ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleColumnConstraint;
 	public fun getCommitStmt ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCommitStmt;
 	public fun getCompoundOperator ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCompoundOperator;

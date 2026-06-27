@@ -460,10 +460,20 @@ private fun oracleCalendarFunctionArities(): Map<String, FunctionArity> =
 
 private val oracleNoParenthesesExpressions =
     setOf(
+        "CONNECT_BY_ISCYCLE",
+        "CONNECT_BY_ISLEAF",
         "CURRENT_DATE",
+        "CURRVAL",
         "DBTIMEZONE",
+        "LEVEL",
+        "NEXTVAL",
+        "OBJECT_ID",
         "ORA_INVOKING_USER",
         "ORA_INVOKING_USERID",
+        "ORA_ROWSCN",
+        "ORA_SHARDSPACE_NAME",
+        "ROWID",
+        "ROWNUM",
         "SESSIONTIMEZONE",
         "SYSDATE",
         "SYSTIMESTAMP",

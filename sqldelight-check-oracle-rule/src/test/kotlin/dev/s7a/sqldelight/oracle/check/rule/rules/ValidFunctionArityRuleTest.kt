@@ -84,6 +84,92 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("reports parentheses on Oracle pseudocolumn expressions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidPseudocolumnParentheses:
+                    SELECT LEVEL(), ROWNUM(), ROWID(), ORA_ROWSCN(), ORA_SHARDSPACE_NAME(),
+                      CONNECT_BY_ISLEAF(), CONNECT_BY_ISCYCLE(), OBJECT_ID(), NEXTVAL(), CURRVAL()
+                    FROM employees;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle expression LEVEL does not accept parentheses.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 13,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression ROWNUM does not accept parentheses.",
+                        startLine = 2,
+                        startColumn = 17,
+                        endLine = 2,
+                        endColumn = 23,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression ROWID does not accept parentheses.",
+                        startLine = 2,
+                        startColumn = 27,
+                        endLine = 2,
+                        endColumn = 32,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression ORA_ROWSCN does not accept parentheses.",
+                        startLine = 2,
+                        startColumn = 36,
+                        endLine = 2,
+                        endColumn = 46,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression ORA_SHARDSPACE_NAME does not accept parentheses.",
+                        startLine = 2,
+                        startColumn = 50,
+                        endLine = 2,
+                        endColumn = 69,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression CONNECT_BY_ISLEAF does not accept parentheses.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 20,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression CONNECT_BY_ISCYCLE does not accept parentheses.",
+                        startLine = 3,
+                        startColumn = 24,
+                        endLine = 3,
+                        endColumn = 42,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression OBJECT_ID does not accept parentheses.",
+                        startLine = 3,
+                        startColumn = 46,
+                        endLine = 3,
+                        endColumn = 55,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression NEXTVAL does not accept parentheses.",
+                        startLine = 3,
+                        startColumn = 59,
+                        endLine = 3,
+                        endColumn = 66,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression CURRVAL does not accept parentheses.",
+                        startLine = 3,
+                        startColumn = 70,
+                        endLine = 3,
+                        endColumn = 77,
+                    ),
+                )
+        }
+
         test("reports missing precision in parenthesized current timestamp functions") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(

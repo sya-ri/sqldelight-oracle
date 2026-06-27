@@ -85,6 +85,7 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT SUBSTR(nickname, 1, 3) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT NVL(name, 'x') AS c FROM emp") shouldBe "kotlin.String"
             typeOf("SELECT NVL2(name, salary, 0) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT NVL2(name, id, dept_id) AS c FROM emp") shouldBe "kotlin.Long"
             typeOf("SELECT NVL2(nickname, id, dept_id) AS c FROM emp") shouldBe "kotlin.Long?"
             typeOf("SELECT COALESCE(salary, 0) AS c FROM emp") shouldBe "java.math.BigDecimal"
             typeOf("SELECT TO_CHAR(created_ts) AS c FROM emp") shouldBe "kotlin.String?"

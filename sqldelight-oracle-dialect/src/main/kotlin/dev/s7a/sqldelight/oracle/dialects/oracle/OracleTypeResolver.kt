@@ -497,11 +497,19 @@ public class OracleTypeResolver(
             }
 
             "nvl2" -> {
-                exprList.drop(1).takeIf { args -> args.size == 2 }?.let { args ->
+                exprList.takeIf { args -> args.size == 3 }?.let { args ->
+                    val selectorNullable = resolvedType(args[0]).javaType.isNullable
+                    val resultArgs = args.drop(1)
                     encapsulatingTypePreferringKotlin(
-                        args,
+                        resultArgs,
                         *COMPARABLE_TYPE_ORDER,
-                        nullability = { nullability -> nullability.any { isNullable -> isNullable } },
+                        nullability = { nullability ->
+                            if (selectorNullable) {
+                                nullability.any { isNullable -> isNullable }
+                            } else {
+                                nullability.first()
+                            }
+                        },
                     )
                 }
             }

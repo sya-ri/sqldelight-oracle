@@ -849,15 +849,33 @@ private fun String.hasOracleNotNullConstraint(): Boolean = Regex("""(?i)\bNOT\s+
 private fun PsiElement.isOracleNullLiteral(): Boolean = text.trim().equals("NULL", ignoreCase = true)
 
 private fun List<SqlExpr>.oracleValuesColumnType(): IntermediateType? {
-    val valueType =
-        firstNotNullOfOrNull { expression ->
+    val valueTypes =
+        mapNotNull { expression ->
             expression
                 .takeUnless { it.isOracleNullLiteral() }
                 ?.text
                 ?.oracleValuesLiteralType()
         }
-            ?: return null
+    val valueType = valueTypes.oracleValuesCommonType() ?: return null
     return if (any { expression -> expression.isOracleNullLiteral() }) valueType.asNullable() else valueType
+}
+
+private fun List<IntermediateType>.oracleValuesCommonType(): IntermediateType? {
+    if (isEmpty()) return null
+    val dialectTypes = map { type -> type.dialectType }
+    return when {
+        dialectTypes.all { type -> type in oracleValuesNumericTypeOrder } -> {
+            IntermediateType(oracleValuesNumericTypeOrder.last { type -> type in dialectTypes })
+        }
+
+        dialectTypes.all { type -> type == dialectTypes.first() } -> {
+            first()
+        }
+
+        else -> {
+            first()
+        }
+    }
 }
 
 private fun String.oracleValuesLiteralType(): IntermediateType? {
@@ -899,6 +917,12 @@ private fun String.oracleValuesLiteralType(): IntermediateType? {
         }
     }
 }
+
+private val oracleValuesNumericTypeOrder =
+    listOf(
+        OracleType.LONG_NUMBER,
+        OracleType.DECIMAL_NUMBER,
+    )
 
 private fun String.oracleTopLevelTrailingAliases(): List<String> =
     oracleTopLevelCommaParts().mapNotNull { part -> part.oracleTrailingAlias() }

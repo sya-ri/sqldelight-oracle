@@ -346,6 +346,15 @@ class OracleResultColumnTypeTest :
                 ) value_employees (employee_id, first_name)
                 """.trimIndent(),
             ) shouldBe "kotlin.String"
+            typeOf(
+                """
+                SELECT value_amounts.amount AS c
+                FROM (
+                  VALUES (1),
+                         (1.5)
+                ) value_amounts (amount)
+                """.trimIndent(),
+            ) shouldBe "java.math.BigDecimal"
         }
 
         test("propagates Oracle values table column nullability exactly") {

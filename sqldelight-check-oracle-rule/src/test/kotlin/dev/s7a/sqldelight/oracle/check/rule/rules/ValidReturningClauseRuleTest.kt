@@ -67,4 +67,15 @@ class ValidReturningClauseRuleTest :
                     """,
                 ).summaries() shouldBe emptyList()
         }
+
+        test("accepts expression returning clauses before a DML returning clause") {
+            ValidReturningClauseRule()
+                .diagnostics(
+                    """
+                    UPDATE customer
+                    SET score = JSON_VALUE(profile, '${'$'}.score' RETURNING NUMBER NULL ON ERROR)
+                    RETURNING id INTO :updated_id;
+                    """,
+                ).summaries() shouldBe emptyList()
+        }
     })

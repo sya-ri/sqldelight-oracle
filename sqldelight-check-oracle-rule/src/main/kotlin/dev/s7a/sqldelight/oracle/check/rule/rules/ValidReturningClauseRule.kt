@@ -45,6 +45,7 @@ private data class ReturningToken(
     val text: String,
     val startOffset: Int,
     val endOffset: Int,
+    val depth: Int,
 )
 
 private data class ReturningOccurrence(
@@ -103,7 +104,7 @@ private fun conflictingReturningOccurrences(occurrences: List<ReturningOccurrenc
 }
 
 private fun List<ReturningToken>.returningKeywordOccurrences(): List<ReturningOccurrence> =
-    filter { token -> token.isReturningKeyword() }
+    filter { token -> token.depth == 0 && token.isReturningKeyword() }
         .map { token ->
             ReturningOccurrence(
                 group = "RETURNING",
@@ -114,7 +115,7 @@ private fun List<ReturningToken>.returningKeywordOccurrences(): List<ReturningOc
 
 private fun List<ReturningToken>.intoOccurrencesAfter(returningIndex: Int): List<ReturningOccurrence> =
     subList(returningIndex + 1, endOfFirstReturningClause(returningIndex))
-        .filter { token -> token.returningHasText("INTO") }
+        .filter { token -> token.depth == 0 && token.returningHasText("INTO") }
         .map { token ->
             ReturningOccurrence(
                 group = "INTO",
@@ -124,20 +125,39 @@ private fun List<ReturningToken>.intoOccurrencesAfter(returningIndex: Int): List
         }
 
 private fun List<ReturningToken>.endOfFirstReturningClause(returningIndex: Int): Int =
-    (returningIndex + 1 until size).firstOrNull { index -> get(index).isReturningKeyword() } ?: size
+    (returningIndex + 1 until size)
+        .firstOrNull { index -> get(index).depth == 0 && get(index).isReturningKeyword() }
+        ?: size
 
-private val returningTokenPattern = Regex("""[A-Za-z_][A-Za-z0-9_$#]*|;""")
+private val returningTokenPattern = Regex("""[A-Za-z_][A-Za-z0-9_$#]*|\(|\)|;""")
 
-private fun String.returningTokens(offset: Int): List<ReturningToken> =
-    returningTokenPattern
+private fun String.returningTokens(offset: Int): List<ReturningToken> {
+    var depth = 0
+    return returningTokenPattern
         .findAll(this)
-        .map { match ->
-            ReturningToken(
-                text = match.value,
-                startOffset = offset + match.range.first,
-                endOffset = offset + match.range.last + 1,
-            )
+        .mapNotNull { match ->
+            when (match.value) {
+                "(" -> {
+                    depth++
+                    null
+                }
+
+                ")" -> {
+                    if (depth > 0) depth--
+                    null
+                }
+
+                else -> {
+                    ReturningToken(
+                        text = match.value,
+                        startOffset = offset + match.range.first,
+                        endOffset = offset + match.range.last + 1,
+                        depth = depth,
+                    )
+                }
+            }
         }.toList()
+}
 
 private fun ReturningToken?.returningHasText(text: String): Boolean = this?.text.equals(text, ignoreCase = true)
 

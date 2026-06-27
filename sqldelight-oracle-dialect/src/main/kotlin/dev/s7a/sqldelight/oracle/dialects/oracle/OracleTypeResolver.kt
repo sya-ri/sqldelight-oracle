@@ -32,7 +32,11 @@ public class OracleTypeResolver(
     override fun resolvedType(expr: SqlExpr): IntermediateType =
         when {
             expr.text.hasOracleVectorDistanceShorthand() -> IntermediateType(BINARY_DOUBLE)
-            else -> oracleExtensionFunctionType(expr) ?: oracleExtensionPseudocolumnType(expr) ?: parentResolver.resolvedType(expr)
+            else ->
+                oracleExtensionFunctionType(expr)
+                    ?: oracleExtensionPseudocolumnType(expr)
+                    ?: oracleExtensionLiteralType(expr)
+                    ?: parentResolver.resolvedType(expr)
         }
 
     override fun functionType(functionExpr: SqlFunctionExpr): IntermediateType? {
@@ -77,6 +81,18 @@ public class OracleTypeResolver(
             "USER",
             -> IntermediateType(OracleType.TEXT)
 
+            else -> null
+        }
+    }
+
+    private fun oracleExtensionLiteralType(expr: SqlExpr): IntermediateType? {
+        val text = expr.oracleExtensionExpr()?.text?.trim()?.uppercase() ?: return null
+        return when {
+            text == "TRUE" || text == "FALSE" || text == "UNKNOWN" -> IntermediateType(BOOLEAN_TYPE)
+            text.startsWith("DATE ") -> IntermediateType(DATE)
+            text.startsWith("TIMESTAMP ") && text.contains(" TIME ZONE ") -> IntermediateType(TIMESTAMP_TIME_ZONE)
+            text.startsWith("TIMESTAMP ") -> IntermediateType(TIMESTAMP)
+            text.startsWith("INTERVAL ") -> IntermediateType(OracleType.TEXT)
             else -> null
         }
     }

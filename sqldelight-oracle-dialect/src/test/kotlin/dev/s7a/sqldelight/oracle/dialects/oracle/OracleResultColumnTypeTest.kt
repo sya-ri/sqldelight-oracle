@@ -81,6 +81,14 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT emp_seq.CURRVAL AS c FROM emp") shouldBe "kotlin.Long"
         }
 
+        test("resolves Oracle literal result column types exactly") {
+            typeOf("SELECT DATE '2024-01-02' AS c FROM emp") shouldBe "java.time.LocalDateTime"
+            typeOf("SELECT TIMESTAMP '2024-01-02 03:04:05' AS c FROM emp") shouldBe "java.time.LocalDateTime"
+            typeOf("SELECT TIMESTAMP '2024-01-02 03:04:05' AT TIME ZONE 'UTC' AS c FROM emp") shouldBe "java.time.OffsetDateTime"
+            typeOf("SELECT INTERVAL '2' DAY AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT TRUE AS c FROM emp") shouldBe "kotlin.Boolean"
+        }
+
         test("resolves Oracle analytic function result column types exactly") {
             typeOf("SELECT ROW_NUMBER() OVER (ORDER BY id) AS c FROM emp") shouldBe "kotlin.Long"
             typeOf("SELECT LAG(salary) OVER (ORDER BY id) AS c FROM emp") shouldBe "java.math.BigDecimal?"

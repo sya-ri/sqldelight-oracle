@@ -516,6 +516,8 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT LEVEL AS c FROM emp CONNECT BY PRIOR id = dept_id") shouldBe "kotlin.Long"
             typeOf("SELECT ROWID AS c FROM emp") shouldBe "kotlin.String"
             typeOf("SELECT ORA_ROWSCN AS c FROM emp") shouldBe "kotlin.Long"
+            typeOf("SELECT OBJECT_VALUE AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT XMLDATA AS c FROM emp") shouldBe "kotlin.String"
         }
 
         test("resolves Oracle sequence pseudocolumn result column types exactly") {

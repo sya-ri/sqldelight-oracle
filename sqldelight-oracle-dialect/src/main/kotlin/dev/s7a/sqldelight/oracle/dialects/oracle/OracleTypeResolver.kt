@@ -121,11 +121,13 @@ public class OracleTypeResolver(
 
             "DBTIMEZONE",
             "CURRENT_USER",
+            "OBJECT_VALUE",
             "ORA_INVOKING_USER",
             "ORA_SHARDSPACE_NAME",
             "ROWID",
             "SESSIONTIMEZONE",
             "USER",
+            "XMLDATA",
             -> IntermediateType(OracleType.TEXT)
 
             "VERSIONS_OPERATION",

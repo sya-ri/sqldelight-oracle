@@ -58,6 +58,9 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT SUBSTR(name, 1, 3) AS c FROM emp") shouldBe "kotlin.String"
             typeOf("SELECT NVL(name, 'x') AS c FROM emp") shouldBe "kotlin.String"
             typeOf("SELECT COALESCE(salary, 0) AS c FROM emp") shouldBe "java.math.BigDecimal"
+            typeOf("SELECT NULLIF(id, small_id) AS c FROM emp") shouldBe "kotlin.Long?"
+            typeOf("SELECT DECODE(name, 'A', id) AS c FROM emp") shouldBe "kotlin.Long?"
+            typeOf("SELECT DECODE(name, 'A', id, small_id) AS c FROM emp") shouldBe "kotlin.Long"
             typeOf("SELECT GREATEST(id, dept_id) AS c FROM emp") shouldBe "kotlin.Long?"
             typeOf("SELECT EXTRACT(YEAR FROM hire_date) AS c FROM emp") shouldBe "java.math.BigDecimal"
         }

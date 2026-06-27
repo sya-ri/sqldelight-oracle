@@ -327,7 +327,7 @@ public class OracleTypeResolver(
 
             "nullif" -> {
                 exprList.takeIf { args -> args.size == 2 }?.firstOrNull()?.let { expression ->
-                    resolvedType(expression)
+                    resolvedType(expression).asNullable()
                 }
             }
 
@@ -359,6 +359,7 @@ public class OracleTypeResolver(
                             .filter { (index) -> index % 2 == 1 || (index == args.lastIndex && args.size % 2 == 1) }
                             .map { (_, expression) -> expression }
                     encapsulatingTypePreferringKotlin(resultExpressions, *COMPARABLE_TYPE_ORDER)
+                        .nullableIf(args.size % 2 == 0)
                 }
             }
 

@@ -186,6 +186,116 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("reports wrong arity for common Oracle scalar functions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidScalars:
+                    SELECT ROUND(), TRUNC(amount, 2, 3), SUBSTR(name), INSTR(name),
+                      LPAD(name), RPAD(name, 10, ' ', 'x'), LOG(10), WIDTH_BUCKET(amount, 0, 100),
+                      DECODE(status, 'A'), USERENV()
+                    FROM invoices;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function ROUND expects 1..2 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 13,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function TRUNC expects 1..2 argument(s), but got 3.",
+                        startLine = 2,
+                        startColumn = 17,
+                        endLine = 2,
+                        endColumn = 22,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function SUBSTR expects 2..3 argument(s), but got 1.",
+                        startLine = 2,
+                        startColumn = 38,
+                        endLine = 2,
+                        endColumn = 44,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function INSTR expects 2..4 argument(s), but got 1.",
+                        startLine = 2,
+                        startColumn = 52,
+                        endLine = 2,
+                        endColumn = 57,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function LPAD expects 2..3 argument(s), but got 1.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 7,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function RPAD expects 2..3 argument(s), but got 4.",
+                        startLine = 3,
+                        startColumn = 15,
+                        endLine = 3,
+                        endColumn = 19,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function LOG expects 2 argument(s), but got 1.",
+                        startLine = 3,
+                        startColumn = 41,
+                        endLine = 3,
+                        endColumn = 44,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function WIDTH_BUCKET expects 4 argument(s), but got 3.",
+                        startLine = 3,
+                        startColumn = 50,
+                        endLine = 3,
+                        endColumn = 62,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function DECODE expects 3..255 argument(s), but got 2.",
+                        startLine = 4,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 9,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function USERENV expects 1 argument(s), but got 0.",
+                        startLine = 4,
+                        startColumn = 24,
+                        endLine = 4,
+                        endColumn = 31,
+                    ),
+                )
+        }
+
+        test("reports too many arguments for Oracle decode") {
+            val decodeArguments = (1..256).joinToString(", ") { index -> index.toString() }
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidDecode:
+                    SELECT DECODE($decodeArguments)
+                    FROM invoices;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function DECODE expects 3..255 argument(s), but got 256.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 14,
+                    ),
+                )
+        }
+
         test("reports wrong arity for Oracle aggregates") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(
@@ -311,6 +421,17 @@ class ValidFunctionArityRuleTest :
                   LOCALTIMESTAMP(6),
                   REGR_SLOPE(amount, quantity),
                   COALESCE(nickname, name, 'unknown'),
+                  ROUND(amount),
+                  ROUND(amount, 2),
+                  TRUNC(created_at, 'DD'),
+                  SUBSTR(name, 1, 3),
+                  INSTR(name, 'x', 1, 1),
+                  LPAD(name, 10, ' '),
+                  RPAD(name, 10),
+                  LOG(10, amount),
+                  WIDTH_BUCKET(amount, 0, 100, 10),
+                  DECODE(status, 'A', 'active', 'unknown'),
+                  USERENV('LANGUAGE'),
                   REGEXP_REPLACE(description, q'{literal ' marker, comma}', 'x'),
                   REGEXP_SUBSTR(description, '[A-Z]+', 1, 1, 'i', 0),
                   TO_TIMESTAMP(created_text, 'YYYY-MM-DD HH24:MI:SS')

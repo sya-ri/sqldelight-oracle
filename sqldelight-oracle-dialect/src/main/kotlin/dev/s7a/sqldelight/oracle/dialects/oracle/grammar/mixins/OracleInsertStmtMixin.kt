@@ -45,12 +45,6 @@ internal abstract class OracleInsertStmtMixin(
             } ?: tableAvailable(child, tableName.name)
         val alias = tableAlias ?: return target
 
-        return listOf(
-            QueryResult(
-                alias,
-                target.flatMap { it.columns },
-                target.flatMap { it.synthesizedColumns },
-            ),
-        )
+        return listOf(target.oracleQueryResultFor(alias))
     }
 }

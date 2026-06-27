@@ -4,6 +4,7 @@ import com.alecstrong.sql.psi.core.psi.LazyQuery
 import com.alecstrong.sql.psi.core.psi.NamedElement
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryColumn
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryResult
+import com.alecstrong.sql.psi.core.psi.QueryElement.SynthesizedColumn
 import com.alecstrong.sql.psi.core.psi.SqlColumnAlias
 import com.alecstrong.sql.psi.core.psi.SqlColumnDef
 import com.alecstrong.sql.psi.core.psi.SqlColumnName
@@ -53,6 +54,16 @@ internal fun Collection<LazyQuery>.oracleColumnsFor(tableName: SqlTableName): Li
 
 internal fun Collection<QueryColumn>.hasOracleColumn(columnName: NamedElement): Boolean =
     any { (it.element as? NamedElement)?.textMatches(columnName) == true }
+
+internal fun Collection<QueryResult>.oracleQueryResultFor(
+    alias: SqlTableAlias,
+    synthesizedColumns: List<SynthesizedColumn> = emptyList(),
+): QueryResult =
+    QueryResult(
+        alias,
+        flatMap { it.columns },
+        flatMap { it.synthesizedColumns } + synthesizedColumns,
+    )
 
 internal fun List<QueryColumn>.replaceOracleColumn(
     columnName: NamedElement,

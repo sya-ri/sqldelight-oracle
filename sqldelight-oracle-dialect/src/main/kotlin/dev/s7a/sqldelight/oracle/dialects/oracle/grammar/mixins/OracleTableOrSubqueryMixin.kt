@@ -200,6 +200,12 @@ internal abstract class OracleTableOrSubqueryMixin(
             return null
         }
 
+        body.oracleCollectionTableType()?.let { type ->
+            return QueryResult(
+                table = tableAlias,
+                columns = listOf(QueryColumn(OracleGeneratedColumnElement(this, "COLUMN_VALUE", IntermediateType(type)))),
+            )
+        }
         return QueryResult(
             table = tableAlias,
             columns = emptyList(),
@@ -553,6 +559,17 @@ private fun String.startsWithOracleKeywordCall(keyword: String): Boolean {
     return drop(keyword.length).trimStart().startsWith("(")
 }
 
+private fun String.oracleCollectionTableType(): OracleType? {
+    val tableBody = oracleParenthesizedBodyAfter("TABLE") ?: return null
+    val collectionName =
+        Regex("""(?i)^\s*(?:[A-Z_][A-Z0-9_$#]*\s*\.\s*)*([A-Z_][A-Z0-9_$#]*)\s*\(""")
+            .find(tableBody)
+            ?.groupValues
+            ?.get(1)
+            ?: return null
+    return OracleType.fromFunctionName(collectionName)
+}
+
 private class OraclePatternVariableElement(
     private val anchor: PsiElement,
     private val variableName: String,
@@ -592,6 +609,34 @@ private class OracleRowPatternMeasureElement(
     override fun getNameIdentifier(): PsiElement? = null
 
     override fun toString(): String = "Oracle row pattern measure: $columnName"
+}
+
+private class OracleGeneratedColumnElement(
+    private val anchor: PsiElement,
+    private val columnName: String,
+    private val columnType: IntermediateType,
+) : LightElement(anchor.manager, anchor.language),
+    AliasElement,
+    ExposableType {
+    override fun type(): IntermediateType = columnType.copy(name = columnName)
+
+    override fun annotate(annotationHolder: SqlAnnotationHolder) = Unit
+
+    override fun source(): PsiElement = anchor
+
+    override fun getName(): String = columnName
+
+    override fun setName(name: String): PsiElement = this
+
+    override fun getText(): String = columnName
+
+    override fun getContainingFile(): PsiFile = anchor.containingFile
+
+    override fun getParent(): PsiElement = anchor
+
+    override fun getNameIdentifier(): PsiElement? = null
+
+    override fun toString(): String = "Oracle generated column: $columnName"
 }
 
 private class OracleRowPatternMeasureTypeElement(

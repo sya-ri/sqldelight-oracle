@@ -291,6 +291,15 @@ class OracleResultColumnTypeTest :
             ) shouldBe "kotlin.Long"
         }
 
+        test("resolves Oracle collection table result column types exactly") {
+            typeOf(
+                """
+                SELECT numbers.COLUMN_VALUE AS c
+                FROM TABLE(ODCINUMBERLIST(1, 2)) numbers
+                """.trimIndent(),
+            ) shouldBe "java.math.BigDecimal"
+        }
+
         test("resolves Oracle XML root result column types exactly") {
             typeOf("SELECT XMLROOT(XMLTYPE('<Warehouse/>'), VERSION NO VALUE) AS c FROM emp") shouldBe "kotlin.String"
         }

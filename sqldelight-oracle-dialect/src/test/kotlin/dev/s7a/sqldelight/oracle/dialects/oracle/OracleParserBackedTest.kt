@@ -4014,6 +4014,10 @@ class OracleParserBackedTest :
                 SELECT col1, col2
                 FROM (VALUES (1, 2), (3, 4)) v (col1, col2);
 
+                valuesQuotedTableReference:
+                SELECT "order_id", "order_total"
+                FROM (VALUES (1, 100), (2, 200)) "source" ("order_id", "order_total");
+
                 valuesInCondition:
                 SELECT id
                 FROM query_clause_samples

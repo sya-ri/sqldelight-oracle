@@ -1777,7 +1777,7 @@ qualified_table_name ::= (
   override = true
 }
 
-table_alias ::= !oracle_table_alias_stop_keyword ( <<identifierExt <<identifier_real>>>> | string ) {
+table_alias ::= !oracle_table_alias_stop_keyword ( <<identifierExt <<identifier_real>>>> | <<columnAliasExt <<column_alias_real>>>> | string ) {
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleTableAliasMixin"
   implements = [
     "com.alecstrong.sql.psi.core.psi.SqlTableAlias";

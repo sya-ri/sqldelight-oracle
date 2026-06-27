@@ -680,6 +680,65 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("reports wrong arity for Oracle specialized utility functions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidSpecializedUtilities:
+                    SELECT PHONIC_ENCODE(DOUBLE_METAPHONE), PHONIC_ENCODE(DOUBLE_METAPHONE, name, 10, 'extra'),
+                      FUZZY_MATCH(LEVENSHTEIN, name), DOMAIN_CHECK(domain_name), DOMAIN_CHECK_TYPE(domain_name, value, extra),
+                      DOMAIN_NAME()
+                    FROM contacts;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function PHONIC_ENCODE expects 2..3 argument(s), but got 1.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 21,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function PHONIC_ENCODE expects 2..3 argument(s), but got 4.",
+                        startLine = 2,
+                        startColumn = 41,
+                        endLine = 2,
+                        endColumn = 54,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function FUZZY_MATCH expects 3..2147483647 argument(s), but got 2.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 14,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function DOMAIN_CHECK expects 2 argument(s), but got 1.",
+                        startLine = 3,
+                        startColumn = 35,
+                        endLine = 3,
+                        endColumn = 47,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function DOMAIN_CHECK_TYPE expects 2 argument(s), but got 3.",
+                        startLine = 3,
+                        startColumn = 62,
+                        endLine = 3,
+                        endColumn = 79,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function DOMAIN_NAME expects 1 argument(s), but got 0.",
+                        startLine = 4,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 14,
+                    ),
+                )
+        }
+
         test("reports wrong arity for Oracle vector functions") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(
@@ -1175,6 +1234,13 @@ class ValidFunctionArityRuleTest :
                   CON_NAME_TO_ID(pdb_name),
                   CON_UID_TO_ID(con_uid),
                   SYS_TYPEID(object_value),
+                  PHONIC_ENCODE(DOUBLE_METAPHONE, last_name),
+                  PHONIC_ENCODE(DOUBLE_METAPHONE_ALT, last_name, 10),
+                  FUZZY_MATCH(LEVENSHTEIN, first_name, alternate_name),
+                  FUZZY_MATCH(BIGRAM, first_name, alternate_name, UNSCALED),
+                  DOMAIN_CHECK(sample_domain, domain_value),
+                  DOMAIN_CHECK_TYPE(sample_domain, domain_value),
+                  DOMAIN_NAME(domain_value),
                   COMPOSE(label),
                   CONVERT(label, 'AL32UTF8', 'WE8ISO8859P1'),
                   DECOMPOSE(label, 'CANONICAL'),

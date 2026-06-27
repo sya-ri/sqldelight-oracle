@@ -63,6 +63,8 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT LISTAGG(nickname, ',') WITHIN GROUP (ORDER BY nickname) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT MEDIAN(hire_date) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
             typeOf("SELECT APPROX_MEDIAN(hire_date) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
+            typeOf("SELECT JSON_ARRAYAGG(name RETURNING CLOB) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT JSON_OBJECTAGG(KEY name VALUE id RETURNING CLOB) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY hire_date) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
             typeOf("SELECT PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY hire_date) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
             typeOf("SELECT APPROX_PERCENTILE(0.5) WITHIN GROUP (ORDER BY hire_date) AS c FROM emp") shouldBe "java.time.LocalDateTime?"

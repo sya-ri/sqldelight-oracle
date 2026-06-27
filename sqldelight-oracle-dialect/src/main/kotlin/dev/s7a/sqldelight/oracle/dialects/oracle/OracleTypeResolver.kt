@@ -297,12 +297,18 @@ public class OracleTypeResolver(
     ): IntermediateType? =
         when (functionName.trim().uppercase()) {
             "JSON_ARRAY",
-            "JSON_ARRAYAGG",
             "JSON_OBJECT",
-            "JSON_OBJECTAGG",
             "JSON_TRANSFORM",
             -> {
                 functionText.oracleReturningTypeName()?.let { typeName -> IntermediateType(OracleType.fromSqlTypeName(typeName)) }
+            }
+
+            "JSON_ARRAYAGG",
+            "JSON_OBJECTAGG",
+            -> {
+                functionText.oracleReturningTypeName()?.let { typeName ->
+                    IntermediateType(OracleType.fromSqlTypeName(typeName)).asNullable()
+                }
             }
 
             "JSON_VALUE",

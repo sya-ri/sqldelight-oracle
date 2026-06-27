@@ -739,6 +739,101 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("reports wrong arity for Oracle collection object and text search functions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidCollectionObjectTextSearch:
+                    SELECT POWERMULTISET(), POWERMULTISET_BY_CARDINALITY(tags),
+                      SET(tags, extra), REF(), DEREF(address_ref, extra), VALUE(),
+                      MAKE_REF(id), CONTAINS(content), CATSEARCH(category, 'database'),
+                      MATCHES(), JSON_TEXTCONTAINS(doc, '${'$'}.description')
+                    FROM search_samples;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function POWERMULTISET expects 1 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 21,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function POWERMULTISET_BY_CARDINALITY expects 2 argument(s), but got 1.",
+                        startLine = 2,
+                        startColumn = 25,
+                        endLine = 2,
+                        endColumn = 53,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function SET expects 1 argument(s), but got 2.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 6,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function REF expects 1 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 21,
+                        endLine = 3,
+                        endColumn = 24,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function DEREF expects 1 argument(s), but got 2.",
+                        startLine = 3,
+                        startColumn = 28,
+                        endLine = 3,
+                        endColumn = 33,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function VALUE expects 1 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 55,
+                        endLine = 3,
+                        endColumn = 60,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function MAKE_REF expects 2..2147483647 argument(s), but got 1.",
+                        startLine = 4,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 11,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function CONTAINS expects 2..3 argument(s), but got 1.",
+                        startLine = 4,
+                        startColumn = 17,
+                        endLine = 4,
+                        endColumn = 25,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function CATSEARCH expects 3 argument(s), but got 2.",
+                        startLine = 4,
+                        startColumn = 36,
+                        endLine = 4,
+                        endColumn = 45,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function MATCHES expects 2 argument(s), but got 0.",
+                        startLine = 5,
+                        startColumn = 3,
+                        endLine = 5,
+                        endColumn = 10,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function JSON_TEXTCONTAINS expects 3 argument(s), but got 2.",
+                        startLine = 5,
+                        startColumn = 14,
+                        endLine = 5,
+                        endColumn = 31,
+                    ),
+                )
+        }
+
         test("reports wrong arity for Oracle calendar functions") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(
@@ -1376,6 +1471,17 @@ class ValidFunctionArityRuleTest :
                   DOMAIN_CHECK(sample_domain, domain_value),
                   DOMAIN_CHECK_TYPE(sample_domain, domain_value),
                   DOMAIN_NAME(domain_value),
+                  POWERMULTISET(tags),
+                  POWERMULTISET_BY_CARDINALITY(tags, 2),
+                  SET(tags),
+                  REF(address_ref),
+                  DEREF(address_ref),
+                  VALUE(address_ref),
+                  MAKE_REF(id, id),
+                  CONTAINS(content, 'oracle database', 1),
+                  CATSEARCH(category, 'database', 'order by category'),
+                  MATCHES(query_text, 'oracle'),
+                  JSON_TEXTCONTAINS(doc, '${'$'}.description', search_text),
                   CALENDAR_YEAR(d),
                   CALENDAR_MONTH(d, fmt, nls),
                   FISCAL_YEAR(d, fiscal_start, fmt, nls),

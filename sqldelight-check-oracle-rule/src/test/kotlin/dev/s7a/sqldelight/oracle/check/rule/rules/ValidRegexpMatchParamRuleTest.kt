@@ -13,6 +13,9 @@ class ValidRegexpMatchParamRuleTest :
                     SELECT *
                     FROM customers
                     WHERE REGEXP_LIKE(name, '^a', 'iq');
+                    SELECT *
+                    FROM customers
+                    WHERE REGEXP_LIKE(alias, '^a', q'[mz]');
                     """,
                 )
             diagnostics.summaries() shouldBe
@@ -23,6 +26,13 @@ class ValidRegexpMatchParamRuleTest :
                         startColumn = 31,
                         endLine = 4,
                         endColumn = 35,
+                    ),
+                    DiagnosticSummary(
+                        message = REGEXP_MATCH_PARAM_MESSAGE,
+                        startLine = 7,
+                        startColumn = 32,
+                        endLine = 7,
+                        endColumn = 39,
                     ),
                 )
         }
@@ -121,7 +131,8 @@ class ValidRegexpMatchParamRuleTest :
                 SELECT *
                 FROM customers
                 WHERE REGEXP_LIKE(name, '^a', 'icnmx')
-                  AND REGEXP_LIKE(alias, '^a', N'ICNMX');
+                  AND REGEXP_LIKE(alias, '^a', N'ICNMX')
+                  AND REGEXP_LIKE(code, '^a', q'[imx]');
                 """,
             ) shouldBe emptyList()
         }

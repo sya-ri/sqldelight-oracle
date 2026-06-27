@@ -72,6 +72,30 @@ class ValidRowLimitingClauseRuleTest :
                 )
         }
 
+        test("reports WITH TIES when only a nested subquery has ORDER BY") {
+            ValidRowLimitingClauseRule()
+                .diagnostics(
+                    """
+                    SELECT *
+                    FROM (
+                      SELECT *
+                      FROM orders
+                      ORDER BY created_at
+                    )
+                    FETCH FIRST 5 ROWS WITH TIES;
+                    """,
+                ).summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = WITH_TIES_ORDER_BY_MESSAGE,
+                        startLine = 7,
+                        startColumn = 20,
+                        endLine = 7,
+                        endColumn = 29,
+                    ),
+                )
+        }
+
         test("accepts documented row limiting clauses") {
             ValidRowLimitingClauseRule()
                 .diagnostics(

@@ -170,6 +170,86 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("reports parentheses on Oracle data and versions pseudocolumn expressions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidDataPseudocolumnParentheses:
+                    SELECT COLUMN_VALUE(), OBJECT_VALUE(), XMLDATA(),
+                      VERSIONS_STARTSCN(), VERSIONS_STARTTIME(), VERSIONS_ENDSCN(),
+                      VERSIONS_ENDTIME(), VERSIONS_XID(), VERSIONS_OPERATION()
+                    FROM employees;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle expression COLUMN_VALUE does not accept parentheses.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 20,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression OBJECT_VALUE does not accept parentheses.",
+                        startLine = 2,
+                        startColumn = 24,
+                        endLine = 2,
+                        endColumn = 36,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression XMLDATA does not accept parentheses.",
+                        startLine = 2,
+                        startColumn = 40,
+                        endLine = 2,
+                        endColumn = 47,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression VERSIONS_STARTSCN does not accept parentheses.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 20,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression VERSIONS_STARTTIME does not accept parentheses.",
+                        startLine = 3,
+                        startColumn = 24,
+                        endLine = 3,
+                        endColumn = 42,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression VERSIONS_ENDSCN does not accept parentheses.",
+                        startLine = 3,
+                        startColumn = 46,
+                        endLine = 3,
+                        endColumn = 61,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression VERSIONS_ENDTIME does not accept parentheses.",
+                        startLine = 4,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 19,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression VERSIONS_XID does not accept parentheses.",
+                        startLine = 4,
+                        startColumn = 23,
+                        endLine = 4,
+                        endColumn = 35,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression VERSIONS_OPERATION does not accept parentheses.",
+                        startLine = 4,
+                        startColumn = 39,
+                        endLine = 4,
+                        endColumn = 57,
+                    ),
+                )
+        }
+
         test("reports missing precision in parenthesized current timestamp functions") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(

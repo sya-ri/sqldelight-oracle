@@ -467,12 +467,14 @@ private val oracleNoParenthesesExpressions =
     setOf(
         "CONNECT_BY_ISCYCLE",
         "CONNECT_BY_ISLEAF",
+        "COLUMN_VALUE",
         "CURRENT_DATE",
         "CURRVAL",
         "DBTIMEZONE",
         "LEVEL",
         "NEXTVAL",
         "OBJECT_ID",
+        "OBJECT_VALUE",
         "ORA_INVOKING_USER",
         "ORA_INVOKING_USERID",
         "ORA_ROWSCN",
@@ -484,6 +486,13 @@ private val oracleNoParenthesesExpressions =
         "SYSTIMESTAMP",
         "UID",
         "USER",
+        "VERSIONS_ENDSCN",
+        "VERSIONS_ENDTIME",
+        "VERSIONS_OPERATION",
+        "VERSIONS_STARTSCN",
+        "VERSIONS_STARTTIME",
+        "VERSIONS_XID",
+        "XMLDATA",
     )
 
 private val oracleFunctionPattern =

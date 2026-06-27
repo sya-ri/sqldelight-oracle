@@ -48,6 +48,9 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT AVG(salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT MAX(hire_date) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
             typeOf("SELECT MIN(name) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT CORR(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT COVAR_POP(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT LISTAGG(nickname, ',') WITHIN GROUP (ORDER BY nickname) AS c FROM emp") shouldBe "kotlin.String?"
         }
 
         test("resolves Oracle scalar function result column types exactly") {

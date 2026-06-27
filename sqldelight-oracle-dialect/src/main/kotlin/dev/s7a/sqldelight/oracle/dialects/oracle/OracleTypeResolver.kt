@@ -224,12 +224,19 @@ public class OracleTypeResolver(
     ): IntermediateType? =
         argumentDependentFunctionType(functionName, functionText, exprList)
             ?: returningClauseFunctionType(functionName, functionText)
+            ?: nullableAggregateFunctionType(functionName)
             ?: OracleType.fromFunctionName(functionName)?.let { type ->
                 val propagatesNull = functionName.isOracleNullPropagatingFixedReturnFunction()
                 val hasNullableInput = propagatesNull && exprList.any { expression -> resolvedType(expression).javaType.isNullable }
                 IntermediateType(type)
                     .nullableIf(hasNullableInput)
             }
+
+    private fun nullableAggregateFunctionType(functionName: String): IntermediateType? =
+        OracleType
+            .fromFunctionName(functionName)
+            ?.takeIf { functionName.isOracleNullableAggregateFunction() }
+            ?.let { type -> IntermediateType(type).asNullable() }
 
     private fun returningClauseFunctionType(
         functionName: String,
@@ -536,6 +543,29 @@ public class OracleTypeResolver(
                     "TRANSLATE",
                     "TRIM",
                     "UPPER",
+                )
+
+        private fun String.isOracleNullableAggregateFunction(): Boolean =
+            trim().uppercase() in
+                setOf(
+                    "APPROX_MEDIAN",
+                    "APPROX_PERCENTILE",
+                    "APPROX_SUM",
+                    "BIT_AND_AGG",
+                    "BIT_OR_AGG",
+                    "BIT_XOR_AGG",
+                    "BOOLEAN_AND_AGG",
+                    "BOOLEAN_OR_AGG",
+                    "CORR",
+                    "COVAR_POP",
+                    "COVAR_SAMP",
+                    "KURTOSIS_POP",
+                    "KURTOSIS_SAMP",
+                    "LISTAGG",
+                    "PERCENTILE_CONT",
+                    "PERCENTILE_DISC",
+                    "SKEWNESS_POP",
+                    "SKEWNESS_SAMP",
                 )
 
         private fun String.oracleFunctionName(): String? =

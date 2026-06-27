@@ -81,6 +81,28 @@ class ValidFormatModelRuleTest :
                 )
         }
 
+        test("reports invalid alternative quoted format models containing apostrophes and commas") {
+            val diagnostics =
+                ValidFormatModelRule().diagnostics(
+                    """
+                    parseDate:
+                    SELECT TO_DATE(created_text, q'[YYYY','FOO-DD]') AS created_at
+                    FROM invoices;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = DATETIME_FORMAT_MODEL_MESSAGE,
+                        startLine = 2,
+                        startColumn = 30,
+                        endLine = 2,
+                        endColumn = 48,
+                    ),
+                )
+        }
+
         test("reports timestamp-only elements in TO_DATE format models") {
             val diagnostics =
                 ValidFormatModelRule().diagnostics(

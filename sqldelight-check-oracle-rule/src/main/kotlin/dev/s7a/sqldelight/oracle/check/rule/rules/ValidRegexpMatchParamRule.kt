@@ -84,6 +84,10 @@ private fun String.functionArgumentsAt(openParenthesisOffset: Int): List<Argumen
                     skipSqlBlockComment(index)
                 }
 
+                startsSqlAlternativeQuotedString(index) -> {
+                    skipSqlAlternativeQuotedString(index)
+                }
+
                 this[index] == '\'' -> {
                     skipSqlQuotedString(index)
                 }

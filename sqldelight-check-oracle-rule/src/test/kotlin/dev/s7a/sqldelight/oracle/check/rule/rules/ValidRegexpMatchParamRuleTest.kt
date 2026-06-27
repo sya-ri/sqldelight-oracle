@@ -37,6 +37,29 @@ class ValidRegexpMatchParamRuleTest :
                 )
         }
 
+        test("reports invalid REGEXP match parameters after alternative quoted patterns with apostrophes and commas") {
+            val diagnostics =
+                ValidRegexpMatchParamRule().diagnostics(
+                    """
+                    findQuotedName:
+                    SELECT *
+                    FROM customers
+                    WHERE REGEXP_LIKE(name, q'[O',Reilly]', 'z');
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = REGEXP_MATCH_PARAM_MESSAGE,
+                        startLine = 4,
+                        startColumn = 41,
+                        endLine = 4,
+                        endColumn = 44,
+                    ),
+                )
+        }
+
         test("reports invalid REGEXP_COUNT match parameters") {
             val diagnostics =
                 ValidRegexpMatchParamRule().diagnostics(

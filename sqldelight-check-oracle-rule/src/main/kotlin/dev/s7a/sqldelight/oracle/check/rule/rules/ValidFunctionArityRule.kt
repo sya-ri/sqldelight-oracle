@@ -312,6 +312,7 @@ private val oracleFunctionArities =
         "XMLCONCAT" to arityRange(1, Int.MAX_VALUE),
         "XMLDIFF" to exactArity(2),
         "XMLISVALID" to arityRange(1, 2),
+        "XMLPARSE" to exactArity(1),
         "XMLPATCH" to exactArity(2),
         "XMLSEQUENCE" to exactArity(1),
         "XMLTRANSFORM" to exactArity(2),

@@ -915,7 +915,7 @@ class ValidFunctionArityRuleTest :
                     SELECT DEPTH(), PATH(1, 2), XMLCDATA(), XMLCOMMENT(name, extra),
                       SYS_XMLGEN(), SYS_XMLAGG(x, fmt, extra), XMLCOLATTVAL(),
                       XMLCONCAT(), XMLDIFF(payload), XMLPATCH(payload),
-                      XMLSEQUENCE(), XMLTRANSFORM(payload)
+                      XMLSEQUENCE(), XMLTRANSFORM(payload), XMLPARSE(), XMLPARSE(CONTENT payload, extra)
                     FROM xml_samples;
                     """,
                 )
@@ -1005,6 +1005,20 @@ class ValidFunctionArityRuleTest :
                         startColumn = 18,
                         endLine = 5,
                         endColumn = 30,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLPARSE expects 1 argument(s), but got 0.",
+                        startLine = 5,
+                        startColumn = 41,
+                        endLine = 5,
+                        endColumn = 49,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLPARSE expects 1 argument(s), but got 2.",
+                        startLine = 5,
+                        startColumn = 53,
+                        endLine = 5,
+                        endColumn = 61,
                     ),
                 )
         }
@@ -1815,6 +1829,7 @@ class ValidFunctionArityRuleTest :
                   XMLPATCH(payload_xml, archived_xml),
                   XMLSEQUENCE(payload_xml),
                   XMLTRANSFORM(payload_xml, archived_xml),
+                  XMLPARSE(CONTENT payload_xml WELLFORMED),
                   JSON_ID('OID'),
                   SHARD_CHUNK_ID(shard_class, id),
                   SHARD_CHUNK_ID(NULL, shard_class, id),

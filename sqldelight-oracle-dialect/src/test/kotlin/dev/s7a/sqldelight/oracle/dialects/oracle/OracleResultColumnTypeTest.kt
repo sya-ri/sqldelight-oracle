@@ -329,6 +329,15 @@ class OracleResultColumnTypeTest :
             ) shouldBe "kotlin.Long"
         }
 
+        test("resolves Oracle shards table result column types exactly") {
+            typeOf(
+                """
+                SELECT shard_emp.ORA_SHARDSPACE_NAME AS c
+                FROM SHARDS(emp) shard_emp
+                """.trimIndent(),
+            ) shouldBe "kotlin.String"
+        }
+
         test("resolves Oracle XMLTABLE default result column types exactly") {
             typeOf(
                 """

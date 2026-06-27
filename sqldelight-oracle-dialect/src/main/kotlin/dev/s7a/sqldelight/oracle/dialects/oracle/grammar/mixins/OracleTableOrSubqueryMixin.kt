@@ -55,18 +55,18 @@ internal abstract class OracleTableOrSubqueryMixin(
                 if (result.isEmpty()) {
                     return@lazy emptyList()
                 }
-                val containersColumns = oracleContainersQueryColumns()
+                val tableFunctionColumns = oracleContainersQueryColumns() + oracleShardsQueryColumns()
                 tableAlias?.let { alias ->
                     return@lazy listOf(
                         QueryResult(
                             alias,
-                            result.flatMap { it.columns } + containersColumns,
+                            result.flatMap { it.columns } + tableFunctionColumns,
                             result.flatMap { it.synthesizedColumns },
                         ),
                     )
                 }
                 return@lazy result.map { query ->
-                    query.copy(columns = query.columns + containersColumns)
+                    query.copy(columns = query.columns + tableFunctionColumns)
                 }
             }
 
@@ -360,6 +360,13 @@ internal abstract class OracleTableOrSubqueryMixin(
     private fun oracleContainersQueryColumns(): List<QueryColumn> =
         if (text.trimStart().startsWith("CONTAINERS", ignoreCase = true)) {
             listOf(QueryColumn(OracleGeneratedColumnElement(this, "CON_ID", IntermediateType(OracleType.LONG_NUMBER))))
+        } else {
+            emptyList()
+        }
+
+    private fun oracleShardsQueryColumns(): List<QueryColumn> =
+        if (text.trimStart().startsWith("SHARDS", ignoreCase = true)) {
+            listOf(QueryColumn(OracleGeneratedColumnElement(this, "ORA_SHARDSPACE_NAME", IntermediateType(OracleType.TEXT))))
         } else {
             emptyList()
         }

@@ -41,6 +41,24 @@ class ValidLockTableWaitClauseRuleTest :
                 )
         }
 
+        test("reports negative lock table wait values") {
+            ValidLockTableWaitClauseRule()
+                .diagnostics(
+                    """
+                    LOCK TABLE customer IN SHARE MODE WAIT -5;
+                    """,
+                ).summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Use a valid Oracle LOCK TABLE wait clause: WAIT VALUE.",
+                        startLine = 1,
+                        startColumn = 35,
+                        endLine = 1,
+                        endColumn = 42,
+                    ),
+                )
+        }
+
         test("accepts one static lock table wait clause") {
             ValidLockTableWaitClauseRule()
                 .diagnostics(

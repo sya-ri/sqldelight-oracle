@@ -109,7 +109,7 @@ private fun List<LockWaitToken>.lockWaitOccurrences(): List<LockWaitOccurrence> 
                             endOffset = endOffset,
                         ),
                     )
-                    if (waitValue == null || waitValue.text.toLongOrNull() == null) {
+                    if (waitValue == null || !waitValue.isValidLockWaitValue()) {
                         add(
                             LockWaitOccurrence(
                                 group = "WAIT VALUE",
@@ -131,6 +131,8 @@ private fun List<LockWaitToken>.lockWaitOccurrences(): List<LockWaitOccurrence> 
     }
 
 private val lockWaitTokenPattern = Regex("""-?\d+|[A-Za-z_][A-Za-z0-9_$#]*|;""")
+
+private fun LockWaitToken.isValidLockWaitValue(): Boolean = text.toLongOrNull()?.let { value -> value >= 0 } == true
 
 private fun String.lockWaitTokens(offset: Int): List<LockWaitToken> =
     lockWaitTokenPattern

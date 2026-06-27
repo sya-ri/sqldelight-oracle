@@ -840,6 +840,7 @@ public class OracleTypeResolver(
                     "ASIN",
                     "ATAN",
                     "ATAN2",
+                    "BFILENAME",
                     "BIN_TO_NUM",
                     "BITAND",
                     "CHARTOROWID",
@@ -949,6 +950,7 @@ public class OracleTypeResolver(
                     "VECTOR_SERIALIZE",
                     "VSIZE",
                     "WIDTH_BUCKET",
+                    "XMLTYPE",
                 ) || functionName in oracleNullPropagatingCalendarFunctions()
         }
 

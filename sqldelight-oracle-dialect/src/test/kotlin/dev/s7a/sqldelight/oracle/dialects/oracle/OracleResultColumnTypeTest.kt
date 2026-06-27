@@ -515,6 +515,11 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT XMLROOT(XMLTYPE('<Warehouse/>'), VERSION NO VALUE) AS c FROM emp") shouldBe "kotlin.String"
         }
 
+        test("propagates Oracle XML and file locator nullability exactly") {
+            typeOf("SELECT XMLTYPE(nickname) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT BFILENAME(nickname, name) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+        }
+
         test("resolves Oracle XML query null-returning result column types exactly") {
             typeOf("SELECT XMLQUERY('/Warehouse' PASSING xml_doc RETURNING CONTENT NULL ON EMPTY) AS c FROM emp") shouldBe
                 "kotlin.String?"

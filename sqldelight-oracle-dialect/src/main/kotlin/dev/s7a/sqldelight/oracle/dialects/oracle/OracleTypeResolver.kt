@@ -318,6 +318,12 @@ public class OracleTypeResolver(
                 }
             }
 
+            "XMLQUERY",
+            -> {
+                IntermediateType(OracleType.TEXT)
+                    .nullableIf(functionText.hasOracleXmlNullReturningClause())
+            }
+
             "CAST",
             "XMLCAST",
             "TREAT",
@@ -965,6 +971,9 @@ public class OracleTypeResolver(
 
         private fun String.hasOracleSqlJsonNullReturningClause(): Boolean =
             Regex("""\bNULL\s+ON\s+(?:EMPTY|ERROR)\b""", RegexOption.IGNORE_CASE).containsMatchIn(this)
+
+        private fun String.hasOracleXmlNullReturningClause(): Boolean =
+            Regex("""\bNULL\s+ON\s+EMPTY\b""", RegexOption.IGNORE_CASE).containsMatchIn(this)
 
         private fun String.oracleFirstFunctionInvocationEnd(): Int {
             val start = indexOf('(').takeIf { index -> index >= 0 } ?: return length

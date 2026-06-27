@@ -162,6 +162,11 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT XMLROOT(XMLTYPE('<Warehouse/>'), VERSION NO VALUE) AS c FROM emp") shouldBe "kotlin.String"
         }
 
+        test("resolves Oracle XML query null-returning result column types exactly") {
+            typeOf("SELECT XMLQUERY('/Warehouse' PASSING xml_doc RETURNING CONTENT NULL ON EMPTY) AS c FROM emp") shouldBe
+                "kotlin.String?"
+        }
+
         test("resolves Oracle SQL JSON null-returning result column types exactly") {
             typeOf("SELECT JSON_VALUE(name, '${'$'}.id' RETURNING NUMBER) AS c FROM emp") shouldBe "java.math.BigDecimal"
             typeOf("SELECT JSON_QUERY(name, '${'$'}.items' RETURNING CLOB) AS c FROM emp") shouldBe "kotlin.String"

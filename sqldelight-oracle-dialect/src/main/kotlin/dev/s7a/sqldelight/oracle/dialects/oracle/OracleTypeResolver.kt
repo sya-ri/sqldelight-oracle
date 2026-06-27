@@ -63,7 +63,7 @@ public class OracleTypeResolver(
                 argument.textRange.startOffset - extensionExpr.textRange.startOffset < invocationEnd
             }
         val arguments =
-            if (functionName.isOracleOrderedSetPercentileFunction()) {
+            if (functionName.isOracleWithinGroupOrderedValueFunction()) {
                 invocationArguments + childExpressions.oracleWithinGroupOrderingExpressions(extensionExpr)
             } else {
                 invocationArguments
@@ -505,6 +505,18 @@ public class OracleTypeResolver(
                 }
             }
 
+            "approx_percentile" -> {
+                when {
+                    functionText.hasOracleApproxPercentileDiagnosticReturn() -> {
+                        IntermediateType(DECIMAL_NUMBER).asNullable()
+                    }
+
+                    else -> {
+                        exprList.lastOrNull()?.let { expression -> resolvedType(expression).asNullable() }
+                    }
+                }
+            }
+
             "any_value", "stats_mode" -> {
                 exprList.singleOrNull()?.let { expression -> resolvedType(expression).asNullable() }
             }
@@ -674,8 +686,13 @@ public class OracleTypeResolver(
                 ?.get(1)
                 ?.uppercase()
 
-        private fun String.isOracleOrderedSetPercentileFunction(): Boolean =
-            trim().uppercase() in setOf("PERCENTILE_CONT", "PERCENTILE_DISC")
+        private fun String.isOracleWithinGroupOrderedValueFunction(): Boolean =
+            trim().uppercase() in setOf("APPROX_PERCENTILE", "PERCENTILE_CONT", "PERCENTILE_DISC")
+
+        private fun String.hasOracleApproxPercentileDiagnosticReturn(): Boolean {
+            val normalized = uppercase()
+            return "DETERMINISTIC" in normalized && ("'ERROR_RATE'" in normalized || "'CONFIDENCE'" in normalized)
+        }
 
         private fun List<SqlExpr>.oracleWithinGroupOrderingExpressions(extensionExpr: SqlExtensionExpr): List<SqlExpr> {
             val orderByStart = extensionExpr.text.oracleWithinGroupOrderByExpressionStart() ?: return emptyList()

@@ -23,11 +23,11 @@ public class ValidSubqueryRestrictionClauseRule : Rule {
         reporter: DiagnosticReporter,
     ) {
         val content = context.file.content
-        content
-            .maskSqlCommentsAndQuotedTextPreservingOffsets()
+        val maskedContent = content.maskSqlCommentsAndQuotedTextPreservingOffsets()
+        maskedContent
             .subqueryRestrictionTokens()
             .splitSubqueryRestrictionStatements()
-            .flatMap { statement -> statement.conflictingSubqueryRestrictionClauses() }
+            .flatMap { statement -> statement.conflictingSubqueryRestrictionClauses(maskedContent) }
             .forEach { conflict ->
                 reporter.report(
                     RuleDiagnostic(
@@ -50,6 +50,7 @@ private data class SubqueryRestrictionToken(
 
 private data class SubqueryRestrictionOccurrence(
     val group: String,
+    val scopeStartOffset: Int?,
     val startOffset: Int,
     val endOffset: Int,
 )
@@ -73,10 +74,12 @@ private fun List<SubqueryRestrictionToken>.splitSubqueryRestrictionStatements():
     return statements
 }
 
-private fun List<SubqueryRestrictionToken>.conflictingSubqueryRestrictionClauses(): List<SubqueryRestrictionConflict> {
+private fun List<SubqueryRestrictionToken>.conflictingSubqueryRestrictionClauses(
+    maskedContent: String,
+): List<SubqueryRestrictionConflict> {
     val firstByGroup = linkedMapOf<String, SubqueryRestrictionOccurrence>()
-    return subqueryRestrictionOccurrences().mapNotNull { occurrence ->
-        val first = firstByGroup.putIfAbsent("subquery restriction", occurrence)
+    return subqueryRestrictionOccurrences(maskedContent).mapNotNull { occurrence ->
+        val first = firstByGroup.putIfAbsent("subquery restriction:${occurrence.scopeStartOffset}", occurrence)
         first?.let {
             SubqueryRestrictionConflict(
                 group = "${it.group}/${occurrence.group}",
@@ -87,13 +90,14 @@ private fun List<SubqueryRestrictionToken>.conflictingSubqueryRestrictionClauses
     }
 }
 
-private fun List<SubqueryRestrictionToken>.subqueryRestrictionOccurrences(): List<SubqueryRestrictionOccurrence> =
+private fun List<SubqueryRestrictionToken>.subqueryRestrictionOccurrences(maskedContent: String): List<SubqueryRestrictionOccurrence> =
     mapIndexedNotNull { index, token ->
         when {
             token.subqueryRestrictionHasText("WITH") && getOrNull(index + 1).subqueryRestrictionHasText("READ") &&
                 getOrNull(index + 2).subqueryRestrictionHasText("ONLY") -> {
                 SubqueryRestrictionOccurrence(
                     group = "WITH READ ONLY",
+                    scopeStartOffset = maskedContent.enclosingSubqueryRestrictionScopeStart(token.startOffset),
                     startOffset = token.startOffset,
                     endOffset = get(index + 2).endOffset,
                 )
@@ -103,6 +107,7 @@ private fun List<SubqueryRestrictionToken>.subqueryRestrictionOccurrences(): Lis
                 getOrNull(index + 2).subqueryRestrictionHasText("OPTION") -> {
                 SubqueryRestrictionOccurrence(
                     group = "WITH CHECK OPTION",
+                    scopeStartOffset = maskedContent.enclosingSubqueryRestrictionScopeStart(token.startOffset),
                     startOffset = token.startOffset,
                     endOffset = get(index + 2).endOffset,
                 )
@@ -126,5 +131,22 @@ private fun String.subqueryRestrictionTokens(): List<SubqueryRestrictionToken> =
                 endOffset = match.range.last + 1,
             )
         }.toList()
+
+private fun String.enclosingSubqueryRestrictionScopeStart(offset: Int): Int? {
+    var depth = 0
+    for (index in offset - 1 downTo 0) {
+        when (this[index]) {
+            ')' -> {
+                depth++
+            }
+
+            '(' -> {
+                if (depth == 0) return index
+                depth--
+            }
+        }
+    }
+    return null
+}
 
 private fun SubqueryRestrictionToken?.subqueryRestrictionHasText(text: String): Boolean = this?.text.equals(text, ignoreCase = true)

@@ -24,7 +24,7 @@ public class NoConflictingJsonStorageClausesRule : Rule {
     ) {
         val content = context.file.content
         content
-            .maskSqlCommentsAndQuotedTextPreservingOffsets()
+            .maskSqlCommentsAndQuotedTextPreservingOffsets(maskDoubleQuotedIdentifiers = false)
             .jsonStorageStatements()
             .flatMap { statement -> statement.conflictingJsonStorageClauses() }
             .forEach { conflict ->
@@ -74,7 +74,7 @@ private fun List<JsonStorageToken>.conflictingJsonStorageClauses(): List<JsonSto
     if (!isTableStatement()) return emptyList()
     val firstByColumn = linkedMapOf<String, JsonStorageOccurrence>()
     return jsonStorageOccurrences().mapNotNull { occurrence ->
-        val first = firstByColumn.putIfAbsent(occurrence.columnName.lowercase(), occurrence)
+        val first = firstByColumn.putIfAbsent(occurrence.columnName.jsonStorageIdentifierKey(), occurrence)
         first?.let {
             JsonStorageConflict(
                 columnName = occurrence.columnName,
@@ -133,7 +133,14 @@ private fun List<JsonStorageToken>.jsonStorageColumnListOccurrence(index: Int): 
         }
 }
 
-private val jsonStorageTokenPattern = Regex("""[A-Za-z_][A-Za-z0-9_$#]*|\(|\)|,|;""")
+private val jsonStorageTokenPattern = Regex(""""(?:""|[^"])*"|[A-Za-z_][A-Za-z0-9_$#]*|\(|\)|,|;""")
+
+private fun String.jsonStorageIdentifierKey(): String =
+    if (startsWith("\"") && endsWith("\"")) {
+        removeSurrounding("\"").replace("\"\"", "\"")
+    } else {
+        uppercase()
+    }
 
 private fun String.jsonStorageTokens(offset: Int): List<JsonStorageToken> =
     jsonStorageTokenPattern

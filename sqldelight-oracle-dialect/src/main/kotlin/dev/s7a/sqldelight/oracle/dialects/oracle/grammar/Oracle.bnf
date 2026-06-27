@@ -287,7 +287,9 @@ private oracle_datetime_field ::= (
   'TIMEZONE_HOUR' | 'TIMEZONE_MINUTE' | 'TIMEZONE_REGION' | 'TIMEZONE_ABBR' | 'TIMEZONE_OFFSET'
 )
 
-private oracle_character_function_expr ::= oracle_replace_expr | oracle_regexp_count_expr | oracle_regexp_instr_expr | oracle_translate_using_expr | oracle_trim_expr
+private oracle_character_function_expr ::= oracle_chr_expr | oracle_replace_expr | oracle_regexp_count_expr | oracle_regexp_instr_expr | oracle_translate_using_expr | oracle_trim_expr
+
+private oracle_chr_expr ::= 'CHR' LP <<expr '-1'>> [ 'USING' ( 'CHAR_CS' | 'NCHAR_CS' ) ] RP
 
 private oracle_replace_expr ::= 'REPLACE' LP <<expr '-1'>> COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] RP
 
@@ -1775,7 +1777,7 @@ qualified_table_name ::= (
   override = true
 }
 
-table_alias ::= !oracle_table_alias_stop_keyword ( <<identifierExt <<identifier_real>>>> | string ) {
+table_alias ::= !oracle_table_alias_stop_keyword ( <<identifierExt <<identifier_real>>>> | <<columnAliasExt <<column_alias_real>>>> | string ) {
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleTableAliasMixin"
   implements = [
     "com.alecstrong.sql.psi.core.psi.SqlTableAlias";
@@ -1946,9 +1948,12 @@ create_table_stmt ::= 'CREATE' (
 private oracle_create_relational_table ::= (
   oracle_create_xmltype_table |
   oracle_create_object_table |
+  oracle_ctas_column_aliases [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_as_property * 'AS' {compound_select_stmt} |
   LP {column_def} ( COMMA {column_def} ) * ( COMMA oracle_create_table_element ) * RP [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_property * |
   [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_as_property * 'AS' {compound_select_stmt}
 )
+
+private oracle_ctas_column_aliases ::= LP {column_alias} ( COMMA {column_alias} ) * RP
 
 private oracle_create_xmltype_table ::= 'OF' 'XMLTYPE'
   oracle_xmltype_table_property *
@@ -2590,6 +2595,7 @@ alter_table_rules ::= (
   alter_table_rename_table |
   alter_table_drop_supplemental_logging |
   alter_table_drop_constraint |
+  alter_table_drop_unused_columns |
   alter_table_drop_column |
   alter_table_set_unused_column |
   alter_table_rename_column |
@@ -2740,10 +2746,18 @@ alter_table_drop_constraint ::= 'DROP' (
   pin = 2
 }
 
-alter_table_drop_column ::= 'DROP' [ 'COLUMN' ] {column_name} [ 'CASCADE' 'CONSTRAINTS' ] {
+alter_table_drop_column ::= 'DROP' (
+  [ 'COLUMN' ] {column_name} |
+  LP {column_name} ( COMMA {column_name} ) * RP
+) [ 'CASCADE' 'CONSTRAINTS' ] [ 'CHECKPOINT' [ {signed_number} ] ] {
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.AlterTableDropColumnMixin"
   pin = 1
 }
+
+private alter_table_drop_unused_columns ::= 'DROP' (
+  'UNUSED' 'COLUMNS' [ 'CHECKPOINT' [ {signed_number} ] ] |
+  'COLUMNS' 'CONTINUE' [ 'CHECKPOINT' [ {signed_number} ] ]
+)
 
 private alter_table_set_unused_column ::= 'SET' 'UNUSED' [ 'COLUMN' ] ( {column_name} | LP {column_name} ( COMMA {column_name} ) * RP ) [ 'CASCADE' 'CONSTRAINTS' ] [ 'ONLINE' ]
 
@@ -3404,11 +3418,11 @@ create_synonym_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'EDITIONABLE' | 'NONEDITIO
   [ oracle_synonym_sharing_clause ] 'FOR' oracle_synonym_target
 
 create_schema_qualified_synonym_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'EDITIONABLE' | 'NONEDITIONABLE' ]
-  [ oracle_public_qualifier ] 'SYNONYM' [ 'IF' 'NOT' 'EXISTS' ] {database_name} DOT {view_name}
-  [ oracle_synonym_sharing_clause ] 'FOR' oracle_local_synonym_target {
-  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCreateViewStmtImpl"
+  [ oracle_public_qualifier ] 'SYNONYM' [ 'IF' 'NOT' 'EXISTS' ] {database_name} DOT {table_name}
+  [ oracle_synonym_sharing_clause ] 'FOR' oracle_synonym_target {
+  extends = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.impl.OracleCreateSynonymMixin"
   implements = "com.alecstrong.sql.psi.core.psi.TableElement"
-  elementTypeClass = "com.alecstrong.sql.psi.core.psi.mixins.CreateViewElementType"
+  elementTypeClass = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleCreateSchemaQualifiedSynonymElementType"
   stubClass = "com.alecstrong.sql.psi.core.psi.SchemaContributorStub"
 }
 

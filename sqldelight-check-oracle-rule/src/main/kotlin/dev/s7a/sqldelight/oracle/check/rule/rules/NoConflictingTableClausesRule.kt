@@ -26,12 +26,13 @@ public class NoConflictingTableClausesRule : Rule {
         reporter: DiagnosticReporter,
     ) {
         val content = context.file.content
+        val maskedContent = content.maskSqlCommentsAndQuotedTextPreservingOffsets()
         content
             .sqlTokens()
             .toList()
             .sqlStatements()
             .filter { statement -> statement.isTableClauseRuleStatement() }
-            .flatMap { statement -> statement.conflictingTableClauses() }
+            .flatMap { statement -> statement.conflictingTableClauses(maskedContent) }
             .forEach { conflict ->
                 reporter.report(
                     RuleDiagnostic(
@@ -62,9 +63,9 @@ private fun List<SqlToken>.isTableClauseRuleStatement(): Boolean =
     (getOrNull(0).tableClauseRuleHasText("ALTER") && getOrNull(1).tableClauseRuleHasText("TABLE")) ||
         (getOrNull(0).tableClauseRuleHasText("CREATE") && take(5).any { token -> token.tableClauseRuleHasText("TABLE") })
 
-private fun List<SqlToken>.conflictingTableClauses(): List<TableClauseConflict> {
+private fun List<SqlToken>.conflictingTableClauses(maskedContent: String): List<TableClauseConflict> {
     val firstByGroup = linkedMapOf<String, TableClauseOccurrence>()
-    return tableClauseOccurrences()
+    return tableClauseOccurrences(maskedContent)
         .mapNotNull { occurrence ->
             val first = firstByGroup.putIfAbsent(occurrence.group, occurrence)
             first?.let {
@@ -77,8 +78,11 @@ private fun List<SqlToken>.conflictingTableClauses(): List<TableClauseConflict> 
         }
 }
 
-private fun List<SqlToken>.tableClauseOccurrences(): List<TableClauseOccurrence> =
+private fun List<SqlToken>.tableClauseOccurrences(maskedContent: String): List<TableClauseOccurrence> =
     mapIndexedNotNull { index, token ->
+        if (maskedContent.tableClauseParenthesisDepthBetween(first().startOffset, token.startOffset) != 0) {
+            return@mapIndexedNotNull null
+        }
         when {
             token.tableClauseRuleHasText("LOGGING") || token.tableClauseRuleHasText("NOLOGGING") -> {
                 token.tableClauseOccurrence("LOGGING/NOLOGGING")
@@ -131,5 +135,19 @@ private fun tableClauseOccurrence(
         startOffset = start.startOffset,
         endOffset = end.endOffset,
     )
+
+private fun String.tableClauseParenthesisDepthBetween(
+    startOffset: Int,
+    endOffset: Int,
+): Int {
+    var depth = 0
+    for (index in startOffset until endOffset) {
+        when (this[index]) {
+            '(' -> depth++
+            ')' -> if (depth > 0) depth--
+        }
+    }
+    return depth
+}
 
 private fun SqlToken?.tableClauseRuleHasText(text: String): Boolean = this?.text.equals(text, ignoreCase = true)

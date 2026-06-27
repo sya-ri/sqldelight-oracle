@@ -74,6 +74,37 @@ class NoEmptyStringComparisonRuleTest :
                 )
         }
 
+        test("reports comparisons with empty alternative quoted literals") {
+            val diagnostics =
+                NoEmptyStringComparisonRule().diagnostics(
+                    """
+                    findBlank:
+                    SELECT *
+                    FROM customers
+                    WHERE name = q'[]'
+                      OR q'{}' != nickname;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = EMPTY_STRING_MESSAGE,
+                        startLine = 4,
+                        startColumn = 12,
+                        endLine = 4,
+                        endColumn = 19,
+                    ),
+                    DiagnosticSummary(
+                        message = EMPTY_STRING_MESSAGE,
+                        startLine = 5,
+                        startColumn = 6,
+                        endLine = 5,
+                        endColumn = 14,
+                    ),
+                )
+        }
+
         test("accepts null predicates") {
             NoEmptyStringComparisonRule().diagnostics(
                 """

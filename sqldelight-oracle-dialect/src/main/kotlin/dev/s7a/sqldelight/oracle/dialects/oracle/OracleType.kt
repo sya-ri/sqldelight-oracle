@@ -84,8 +84,8 @@ public enum class OracleType(
                     INTEGER_NUMBER
                 }
 
-                "FLOAT", "REAL" -> {
-                    BINARY_DOUBLE
+                "FLOAT", "REAL", "DOUBLE PRECISION" -> {
+                    DECIMAL_NUMBER
                 }
 
                 "BINARY_FLOAT" -> {
@@ -159,8 +159,12 @@ public enum class OracleType(
             argumentTypes: List<OracleType>,
         ): OracleType? =
             when (functionName.trim().uppercase()) {
-                "ABS", "CEIL", "FLOOR" -> {
+                "ABS" -> {
                     argumentTypes.singleOrNull()?.takeIf { type -> type in numericTypes }
+                }
+
+                "CEIL", "FLOOR" -> {
+                    argumentTypes.singleOrNull()?.ceilOrFloorSingleArgumentType()
                 }
 
                 "MOD", "REMAINDER" -> {
@@ -187,8 +191,12 @@ public enum class OracleType(
                     argumentTypes.roundOrTruncType()
                 }
 
-                "COALESCE", "DECODE", "GREATEST", "LEAST", "NVL" -> {
+                "COALESCE", "DECODE", "GREATEST", "LEAST" -> {
                     argumentTypes.highestComparableType()
+                }
+
+                "NVL" -> {
+                    argumentTypes.takeIf { types -> types.size == 2 }?.first()
                 }
 
                 "NVL2" -> {
@@ -499,6 +507,7 @@ public enum class OracleType(
                 "CON_NAME_TO_ID" to DECIMAL_NUMBER,
                 "CON_UID_TO_ID" to DECIMAL_NUMBER,
                 "DEPTH" to DECIMAL_NUMBER,
+                "EQUALS_PATH" to DECIMAL_NUMBER,
                 "EXISTSNODE" to DECIMAL_NUMBER,
                 "ITERATION_NUMBER" to LONG_NUMBER,
                 "NUMTODSINTERVAL" to TEXT,
@@ -525,6 +534,7 @@ public enum class OracleType(
                 "RETAIL_WEEK_OF_QUARTER" to DECIMAL_NUMBER,
                 "RETAIL_WEEK_OF_YEAR" to DECIMAL_NUMBER,
                 "RETAIL_YEAR_NUMBER" to DECIMAL_NUMBER,
+                "UNDER_PATH" to DECIMAL_NUMBER,
                 "XMLISVALID" to DECIMAL_NUMBER,
                 "NLS_CHARSET_DECL_LEN" to DECIMAL_NUMBER,
                 "NLS_CHARSET_ID" to DECIMAL_NUMBER,
@@ -561,6 +571,7 @@ public enum class OracleType(
                 "XMLPARSE" to TEXT,
                 "XMLPATCH" to TEXT,
                 "XMLPI" to TEXT,
+                "XMLROOT" to TEXT,
                 "XMLSEQUENCE" to TEXT,
                 "XMLTRANSFORM" to TEXT,
                 "XMLTYPE" to TEXT,
@@ -584,8 +595,20 @@ public enum class OracleType(
                 "VECTOR_DIMENSION_FORMAT" to TEXT,
                 "VECTOR_EMBEDDING" to TEXT,
                 "VECTOR_SERIALIZE" to TEXT,
+                "SUBSTRB" to TEXT,
+                "SUBSTRC" to TEXT,
+                "SUBSTR2" to TEXT,
+                "SUBSTR4" to TEXT,
                 "LENGTH" to LONG_NUMBER,
+                "LENGTHB" to LONG_NUMBER,
+                "LENGTHC" to LONG_NUMBER,
+                "LENGTH2" to LONG_NUMBER,
+                "LENGTH4" to LONG_NUMBER,
                 "INSTR" to LONG_NUMBER,
+                "INSTRB" to LONG_NUMBER,
+                "INSTRC" to LONG_NUMBER,
+                "INSTR2" to LONG_NUMBER,
+                "INSTR4" to LONG_NUMBER,
                 "REGEXP_COUNT" to LONG_NUMBER,
                 "REGEXP_INSTR" to LONG_NUMBER,
                 "ASCII" to LONG_NUMBER,
@@ -772,6 +795,13 @@ public enum class OracleType(
                 else -> null
             }
 
+        private fun OracleType.ceilOrFloorSingleArgumentType(): OracleType? =
+            when (this) {
+                in numericTypes -> this
+                in datetimeTypes -> DATE
+                else -> null
+            }
+
         private fun List<OracleType>.roundOrTruncTwoArgumentType(): OracleType? =
             when {
                 all { type -> type in numericTypes } -> DECIMAL_NUMBER
@@ -807,7 +837,7 @@ private fun String.oracleStringLiteralValue(): String {
 private fun String.baseOracleTypeName(): String =
     when {
         startsWith("LONG RAW") -> "LONG RAW"
-        startsWith("DOUBLE PRECISION") -> "BINARY_DOUBLE"
+        startsWith("DOUBLE PRECISION") -> "DOUBLE PRECISION"
         startsWith("CHARACTER VARYING") -> "VARCHAR"
         startsWith("CHARACTER") -> "CHAR"
         startsWith("NATIONAL CHARACTER VARYING") -> "NVARCHAR2"

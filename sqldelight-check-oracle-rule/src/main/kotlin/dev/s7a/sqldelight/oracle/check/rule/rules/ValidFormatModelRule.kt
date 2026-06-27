@@ -241,6 +241,10 @@ private fun String.formatModelFunctionArgumentsAt(openParenthesisOffset: Int): L
                     skipSqlBlockComment(index)
                 }
 
+                startsSqlAlternativeQuotedString(index) -> {
+                    skipSqlAlternativeQuotedString(index)
+                }
+
                 this[index] == '\'' -> {
                     skipSqlQuotedString(index)
                 }

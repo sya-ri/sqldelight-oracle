@@ -400,7 +400,7 @@ class OracleParserBackedTest :
                               amount_sold NUMBER(10, 2) NOT NULL
                             );
 
-                            CREATE SYNONYM reporting.sales_synonym FOR sales;
+                            CREATE SYNONYM reporting.sales_synonym FOR warehouse.sales;
                             """.trimIndent(),
                         "Test.sq" to
                             """
@@ -444,6 +444,44 @@ class OracleParserBackedTest :
 
                             deleteSales:
                             DELETE FROM sales_synonym
+                            WHERE cust_id = ?;
+                            """.trimIndent(),
+                    ),
+            ) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
+        test("resolves Oracle migration-created schema-qualified synonym DML targets from query files exactly") {
+            parseOracleSqlFiles(
+                deriveSchemaFromMigrations = true,
+                files =
+                    mapOf(
+                        "1.sqm" to
+                            """
+                            CREATE TABLE sales (
+                              cust_id NUMBER NOT NULL,
+                              prod_id NUMBER NOT NULL,
+                              amount_sold NUMBER(10, 2) NOT NULL
+                            );
+
+                            CREATE SYNONYM reporting.sales_synonym FOR warehouse.sales;
+                            """.trimIndent(),
+                        "Test.sq" to
+                            """
+                            insertSales:
+                            INSERT INTO reporting.sales_synonym (cust_id, prod_id, amount_sold)
+                            VALUES (?, ?, ?);
+
+                            updateSales:
+                            UPDATE reporting.sales_synonym
+                            SET amount_sold = ?
+                            WHERE cust_id = ?;
+
+                            deleteSales:
+                            DELETE FROM reporting.sales_synonym
                             WHERE cust_id = ?;
                             """.trimIndent(),
                     ),
@@ -712,6 +750,7 @@ class OracleParserBackedTest :
                   CON_GUID_TO_ID(raw_value) AS container_id_from_guid,
                   CON_NAME_TO_ID(label) AS container_id_from_name,
                   CON_UID_TO_ID(amount) AS container_id_from_uid,
+                  CHR(196 USING NCHAR_CS) AS national_character_value,
                   COSH(amount) AS hyperbolic_cosine,
                   DUMP(label) AS dumped_label,
                   LNNVL(enabled) AS not_false_enabled,
@@ -3189,6 +3228,10 @@ class OracleParserBackedTest :
                 SELECT account_id, external_id
                 FROM staged_accounts;
 
+                CREATE TABLE renamed_account_snapshot (snapshot_id, snapshot_external_id) AS
+                SELECT account_id, external_id
+                FROM staged_accounts;
+
                 CREATE GLOBAL TEMPORARY TABLE staged_account_snapshot
                 ON COMMIT PRESERVE ROWS
                 AS SELECT account_id, external_id
@@ -3348,6 +3391,10 @@ class OracleParserBackedTest :
                 selectAll:
                 SELECT account_id, external_id
                 FROM account_snapshot;
+
+                selectRenamed:
+                SELECT snapshot_id, snapshot_external_id
+                FROM renamed_account_snapshot;
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe
@@ -3967,6 +4014,10 @@ class OracleParserBackedTest :
                 SELECT col1, col2
                 FROM (VALUES (1, 2), (3, 4)) v (col1, col2);
 
+                valuesQuotedTableReference:
+                SELECT "order_id", "order_total"
+                FROM (VALUES (1, 100), (2, 200)) "source" ("order_id", "order_total");
+
                 valuesInCondition:
                 SELECT id
                 FROM query_clause_samples
@@ -4320,6 +4371,20 @@ class OracleParserBackedTest :
                 FROM partitioned_orders PIVOT (
                   COUNT(*) AS order_count
                   FOR region IN ('WEST' AS west, 'EAST' AS east)
+                ) pivoted_orders;
+
+                selectPivotQuotedValueWithParenthesis:
+                SELECT pivoted_orders.oreilly_order_count
+                FROM partitioned_orders PIVOT (
+                  COUNT(*) AS order_count
+                  FOR region IN (q'[O)Reilly]' AS oreilly)
+                ) pivoted_orders;
+
+                selectPivotGeneratedColumnsWithoutAs:
+                SELECT pivoted_orders.west_order_count, pivoted_orders.east_order_count
+                FROM partitioned_orders PIVOT (
+                  COUNT(*) order_count
+                  FOR region IN ('WEST' west, 'EAST' east)
                 ) pivoted_orders;
 
                 selectPivotSourceColumns:
@@ -4807,7 +4872,10 @@ class OracleParserBackedTest :
                   id NUMBER PRIMARY KEY,
                   status VARCHAR2(16),
                   valid_from DATE,
-                  valid_to DATE
+                  valid_to DATE,
+                  drop_checkpoint_at TIMESTAMP,
+                  drop_batch_a NUMBER,
+                  drop_batch_b NUMBER
                 );
 
                 ALTER TABLE alter_targets ADD created_at TIMESTAMP;
@@ -4829,9 +4897,15 @@ class OracleParserBackedTest :
                 ALTER TABLE alter_targets MODIFY COLUMN preferred_contact ELEMENT IS OF TYPE (ONLY account_contact_type);
                 ALTER TABLE alter_targets RENAME COLUMN status TO account_status;
                 ALTER TABLE alter_targets DROP COLUMN archived_at CASCADE CONSTRAINTS;
+                ALTER TABLE alter_targets DROP COLUMN drop_checkpoint_at CHECKPOINT 500;
+                ALTER TABLE alter_targets DROP (drop_batch_a, drop_batch_b) CASCADE CONSTRAINTS CHECKPOINT 500;
                 ALTER TABLE alter_targets DROP COLUMN created_at CASCADE CONSTRAINTS;
                 ALTER TABLE alter_targets SET UNUSED COLUMN updated_at ONLINE;
                 ALTER TABLE alter_targets SET UNUSED (account_status) CASCADE CONSTRAINTS;
+                ALTER TABLE alter_targets DROP UNUSED COLUMNS CHECKPOINT 500;
+                ALTER TABLE alter_targets DROP UNUSED COLUMNS CHECKPOINT;
+                ALTER TABLE alter_targets DROP COLUMNS CONTINUE CHECKPOINT 500;
+                ALTER TABLE alter_targets DROP COLUMNS CONTINUE CHECKPOINT;
                 ALTER TABLE alter_targets DROP PERIOD FOR valid_time;
                 ALTER TABLE alter_targets MODIFY CONSTRAINT alter_targets_status_check ENABLE NOVALIDATE;
                 ALTER TABLE alter_targets RENAME CONSTRAINT alter_targets_status_check TO alter_targets_status_nn;
@@ -5236,6 +5310,12 @@ class OracleParserBackedTest :
                 SELECT id, status
                 FROM view_accounts;
 
+                CREATE VIEW annotated_account_view (
+                  annotated_account_id ANNOTATIONS (Display 'AS Account')
+                ) AS
+                SELECT id
+                FROM view_accounts;
+
                 CREATE VIEW IF NOT EXISTS constrained_account_view
                   SHARING = EXTENDED DATA
                   (
@@ -5281,6 +5361,10 @@ class OracleParserBackedTest :
                 selectRenamedColumns:
                 SELECT account_id, account_status
                 FROM renamed_account_view;
+
+                selectAnnotatedColumns:
+                SELECT annotated_account_id
+                FROM annotated_account_view;
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe
@@ -6328,7 +6412,7 @@ class OracleParserBackedTest :
                 CREATE NONEDITIONABLE PUBLIC SYNONYM emp_table
                   FOR hr.employees@remote.us.example.com;
 
-                CREATE PUBLIC SYNONYM customers
+                CREATE PUBLIC SYNONYM public_customers
                   FOR oe.customers;
 
                 CREATE "PUBLIC" SYNONYM quoted_public_customers

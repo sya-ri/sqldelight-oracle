@@ -142,8 +142,21 @@ internal fun String.skipSqlQuotedString(start: Int): Int {
     return length
 }
 
-private fun String.skipSqlDoubleQuotedIdentifier(start: Int): Int =
-    indexOf('"', startIndex = start + 1).let { if (it == -1) length else it + 1 }
+internal fun String.skipSqlDoubleQuotedIdentifier(start: Int): Int {
+    var index = start + 1
+    while (index < length) {
+        if (this[index] == '"') {
+            if (index + 1 < length && this[index + 1] == '"') {
+                index += 2
+            } else {
+                return index + 1
+            }
+        } else {
+            index++
+        }
+    }
+    return length
+}
 
 internal data class SqlStaticStringLiteral(
     val value: String,
@@ -160,6 +173,16 @@ internal fun String.staticSqlStringLiteral(
     var end = endOffset
     while (end > start && this[end - 1].isWhitespace()) end--
     if (start >= end) return null
+    if (startsSqlAlternativeQuotedString(start)) {
+        val qIndex = if (this[start].equals('q', ignoreCase = true)) start else start + 1
+        val literalEnd = skipSqlAlternativeQuotedString(start)
+        if (literalEnd != end) return null
+        return SqlStaticStringLiteral(
+            value = substring(qIndex + 3, literalEnd - 2),
+            startOffset = start,
+            endOffset = literalEnd,
+        )
+    }
     if (this[start].equals('N', ignoreCase = true)) start++
     if (start >= end || this[start] != '\'') return null
     val literalEnd = skipSqlQuotedString(start)

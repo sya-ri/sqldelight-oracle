@@ -46,6 +46,7 @@ private data class RowLimitToken(
     val text: String,
     val startOffset: Int,
     val endOffset: Int,
+    val depth: Int,
 )
 
 private data class RowLimitDiagnostic(
@@ -155,30 +156,56 @@ private fun List<RowLimitToken>.indexOfNextRowLimitBoundary(startIndex: Int): In
     } ?: size
 
 private fun List<RowLimitToken>.hasOrderByBeforeFetch(fetchIndex: Int): Boolean {
+    val fetchDepth = get(fetchIndex).depth
     val startIndex =
         (fetchIndex downTo 0).firstOrNull { index ->
-            this[index].rowLimitHasText("SELECT") ||
-                this[index].rowLimitHasText(";") ||
-                this[index].rowLimitHasText("UNION") ||
-                this[index].rowLimitHasText("INTERSECT") ||
-                this[index].rowLimitHasText("MINUS") ||
-                this[index].rowLimitHasText("EXCEPT")
+            this[index].depth == fetchDepth && this[index].isRowLimitQueryBoundary()
         } ?: 0
-    return indexOfSequence(startIndex, fetchIndex, "ORDER", "BY") != null
+    return (startIndex until fetchIndex - 1).any { index ->
+        this[index].depth == fetchDepth &&
+            this[index].rowLimitHasText("ORDER") &&
+            this[index + 1].depth == fetchDepth &&
+            this[index + 1].rowLimitHasText("BY")
+    }
 }
 
-private val rowLimitTokenPattern = Regex("""-?\d+(?:\.\d+)?|[A-Za-z_][A-Za-z0-9_$#]*|;""")
+private val rowLimitTokenPattern = Regex("""-?\d+(?:\.\d+)?|[A-Za-z_][A-Za-z0-9_$#]*|\(|\)|;""")
 
-private fun String.rowLimitTokens(): List<RowLimitToken> =
-    rowLimitTokenPattern
+private fun RowLimitToken.isRowLimitQueryBoundary(): Boolean =
+    rowLimitHasText("SELECT") ||
+        rowLimitHasText(";") ||
+        rowLimitHasText("UNION") ||
+        rowLimitHasText("INTERSECT") ||
+        rowLimitHasText("MINUS") ||
+        rowLimitHasText("EXCEPT")
+
+private fun String.rowLimitTokens(): List<RowLimitToken> {
+    var depth = 0
+    return rowLimitTokenPattern
         .findAll(this)
-        .map { match ->
-            RowLimitToken(
-                text = match.value,
-                startOffset = match.range.first,
-                endOffset = match.range.last + 1,
-            )
+        .mapNotNull { match ->
+            when (match.value) {
+                "(" -> {
+                    depth++
+                    null
+                }
+
+                ")" -> {
+                    if (depth > 0) depth--
+                    null
+                }
+
+                else -> {
+                    RowLimitToken(
+                        text = match.value,
+                        startOffset = match.range.first,
+                        endOffset = match.range.last + 1,
+                        depth = depth,
+                    )
+                }
+            }
         }.toList()
+}
 
 private fun RowLimitToken.staticNumber(): BigDecimal? = text.toBigDecimalOrNull()
 

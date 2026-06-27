@@ -56,6 +56,9 @@ class ValidFormatModelRuleTest :
                     parseDate:
                     SELECT TO_DATE(created_text, 'YYYY-FOO-DD') AS created_at
                     FROM invoices;
+                    parseAltDate:
+                    SELECT TO_DATE(created_text, q'[YYYY-FOO-DD]') AS created_at
+                    FROM invoices;
                     """,
                 )
 
@@ -67,6 +70,35 @@ class ValidFormatModelRuleTest :
                         startColumn = 30,
                         endLine = 2,
                         endColumn = 43,
+                    ),
+                    DiagnosticSummary(
+                        message = DATETIME_FORMAT_MODEL_MESSAGE,
+                        startLine = 5,
+                        startColumn = 30,
+                        endLine = 5,
+                        endColumn = 46,
+                    ),
+                )
+        }
+
+        test("reports invalid alternative quoted format models containing apostrophes and commas") {
+            val diagnostics =
+                ValidFormatModelRule().diagnostics(
+                    """
+                    parseDate:
+                    SELECT TO_DATE(created_text, q'[YYYY','FOO-DD]') AS created_at
+                    FROM invoices;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = DATETIME_FORMAT_MODEL_MESSAGE,
+                        startLine = 2,
+                        startColumn = 30,
+                        endLine = 2,
+                        endColumn = 48,
                     ),
                 )
         }
@@ -124,7 +156,9 @@ class ValidFormatModelRuleTest :
                   TO_DATE(created_text, 'YYYY-MM-DD') AS created_date,
                   TO_TIMESTAMP(created_text, 'YYYY-MM-DD HH24:MI') AS created_at,
                   TO_CHAR(created_at, 'YYYY-MM-DD') AS created_label,
-                  TO_CHAR(amount, 'FM9990.00') AS amount_label
+                  TO_CHAR(amount, 'FM9990.00') AS amount_label,
+                  TO_DATE(created_text, q'[YYYY-MM-DD]') AS alt_created_date,
+                  TO_NUMBER(amount_text, q'[999G999D99]') AS alt_parsed_amount
                 FROM invoices;
                 """,
             ) shouldBe emptyList()

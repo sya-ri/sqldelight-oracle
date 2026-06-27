@@ -37,9 +37,12 @@ public class OracleTypeResolver(
             }
 
             else -> {
-                oracleExtensionFunctionType(expr)
+                oracleExtensionConditionType(expr)
+                    ?: oracleExtensionFunctionType(expr)
+                    ?: oracleExtensionOperatorType(expr)
                     ?: oracleExtensionPseudocolumnType(expr)
                     ?: oracleExtensionLiteralType(expr)
+                    ?: oracleHierarchicalOperatorType(expr)
                     ?: oracleConcatenationOperatorType(expr)
                     ?: oracleDatetimeOperatorType(expr)
                     ?: oracleNumericOperatorType(expr)
@@ -71,6 +74,14 @@ public class OracleTypeResolver(
         return oracleFunctionType(functionName, extensionExpr.text, arguments)
     }
 
+    private fun oracleExtensionOperatorType(expr: SqlExpr): IntermediateType? {
+        val extensionExpr = expr.oracleExtensionExpr() ?: return null
+        return when (val operatorName = extensionExpr.text.oracleLeadingIdentifier()) {
+            "JSON_ID" -> OracleType.fromFunctionName(operatorName)?.let { type -> IntermediateType(type) }
+            else -> null
+        }
+    }
+
     private fun oracleExtensionPseudocolumnType(expr: SqlExpr): IntermediateType? {
         val extensionExpr = expr.oracleExtensionExpr() ?: return null
         return when (extensionExpr.text.oracleTerminalIdentifier()) {
@@ -86,6 +97,10 @@ public class OracleTypeResolver(
             "UID",
             -> IntermediateType(LONG_NUMBER)
 
+            "VERSIONS_ENDSCN",
+            "VERSIONS_STARTSCN",
+            -> IntermediateType(LONG_NUMBER).asNullable()
+
             "CURRENT_DATE",
             "SYSDATE",
             -> IntermediateType(DATE)
@@ -93,9 +108,16 @@ public class OracleTypeResolver(
             "LOCALTIMESTAMP",
             -> IntermediateType(TIMESTAMP)
 
+            "VERSIONS_ENDTIME",
+            "VERSIONS_STARTTIME",
+            -> IntermediateType(TIMESTAMP).asNullable()
+
             "CURRENT_TIMESTAMP",
             "SYSTIMESTAMP",
             -> IntermediateType(TIMESTAMP_TIME_ZONE)
+
+            "VERSIONS_XID",
+            -> IntermediateType(OracleType.BINARY).asNullable()
 
             "DBTIMEZONE",
             "ORA_INVOKING_USER",
@@ -104,6 +126,9 @@ public class OracleTypeResolver(
             "SESSIONTIMEZONE",
             "USER",
             -> IntermediateType(OracleType.TEXT)
+
+            "VERSIONS_OPERATION",
+            -> IntermediateType(OracleType.TEXT).asNullable()
 
             else -> null
         }
@@ -125,6 +150,27 @@ public class OracleTypeResolver(
             text.startsWith("INTERVAL ") -> IntermediateType(OracleType.TEXT)
             else -> null
         }
+    }
+
+    private fun oracleExtensionConditionType(expr: SqlExpr): IntermediateType? {
+        val text =
+            expr
+                .oracleExtensionExpr()
+                ?.text
+                ?.trim()
+                ?: return null
+        return IntermediateType(BOOLEAN_TYPE).takeIf { text.isOracleBooleanConditionExpression() }
+    }
+
+    private fun oracleHierarchicalOperatorType(expr: SqlExpr): IntermediateType? {
+        val text = expr.text.trimStart().uppercase()
+        if (!text.startsWith("CONNECT_BY_ROOT ") && !text.startsWith("PRIOR ")) return null
+        val operand =
+            expr.children
+                .filterIsInstance<SqlExpr>()
+                .singleOrNull()
+                ?: return null
+        return resolvedType(operand)
     }
 
     private fun oracleNumericOperatorType(expr: SqlExpr): IntermediateType? {
@@ -229,7 +275,7 @@ public class OracleTypeResolver(
         exprList: List<SqlExpr>,
     ): IntermediateType? =
         argumentDependentFunctionType(functionName, functionText, exprList)
-            ?: returningClauseFunctionType(functionName, functionText)
+            ?: returningClauseFunctionType(functionName, functionText, exprList)
             ?: nullableAggregateFunctionType(functionName)
             ?: OracleType.fromFunctionName(functionName)?.let { type ->
                 val propagatesNull = functionName.isOracleNullPropagatingFixedReturnFunction()
@@ -247,26 +293,78 @@ public class OracleTypeResolver(
     private fun returningClauseFunctionType(
         functionName: String,
         functionText: String,
+        exprList: List<SqlExpr>,
     ): IntermediateType? =
         when (functionName.trim().uppercase()) {
             "JSON_ARRAY",
-            "JSON_ARRAYAGG",
             "JSON_OBJECT",
-            "JSON_OBJECTAGG",
-            "JSON_VALUE",
-            "JSON_QUERY",
-            "JSON_SERIALIZE",
-            "JSON_MERGEPATCH",
             "JSON_TRANSFORM",
-            "XMLSERIALIZE",
             -> {
                 functionText.oracleReturningTypeName()?.let { typeName -> IntermediateType(OracleType.fromSqlTypeName(typeName)) }
             }
 
+            "JSON_ARRAYAGG",
+            "JSON_OBJECTAGG",
+            -> {
+                functionText.oracleReturningTypeName()?.let { typeName ->
+                    IntermediateType(OracleType.fromSqlTypeName(typeName)).asNullable()
+                }
+            }
+
+            "JSON_VALUE",
+            "JSON_QUERY",
+            -> {
+                functionText.oracleReturningTypeName()?.let { typeName ->
+                    IntermediateType(OracleType.fromSqlTypeName(typeName))
+                        .nullableIf(
+                            functionText.hasOracleSqlJsonNullReturningClause() ||
+                                exprList.firstOrNull()?.let { expression -> resolvedType(expression).javaType.isNullable } == true,
+                        )
+                }
+            }
+
+            "JSON_MERGEPATCH",
+            -> {
+                functionText.oracleReturningTypeName()?.let { typeName ->
+                    IntermediateType(OracleType.fromSqlTypeName(typeName))
+                        .nullableIf(
+                            functionText.hasOracleSqlJsonNullReturningClause() ||
+                                exprList.any { expression -> resolvedType(expression).javaType.isNullable },
+                        )
+                }
+            }
+
+            "JSON_SERIALIZE",
+            -> {
+                functionText.oracleReturningTypeName()?.let { typeName ->
+                    IntermediateType(OracleType.fromSqlTypeName(typeName))
+                        .nullableIf(
+                            functionText.hasOracleSqlJsonNullReturningClause() ||
+                                exprList.firstOrNull()?.let { expression -> resolvedType(expression).javaType.isNullable } == true,
+                        )
+                }
+            }
+
+            "XMLQUERY",
+            -> {
+                IntermediateType(OracleType.TEXT)
+                    .nullableIf(functionText.hasOracleXmlNullReturningClause())
+            }
+
+            "XMLSERIALIZE",
+            -> {
+                IntermediateType(functionText.oracleCastTypeName()?.let(OracleType::fromSqlTypeName) ?: OracleType.TEXT)
+                    .nullableIf(exprList.firstOrNull()?.let { expression -> resolvedType(expression).javaType.isNullable } == true)
+            }
+
             "CAST",
             "XMLCAST",
+            "TREAT",
             -> {
-                functionText.oracleCastTypeName()?.let { typeName -> IntermediateType(OracleType.fromSqlTypeName(typeName)) }
+                functionText.oracleCastTypeName()?.let { typeName ->
+                    IntermediateType(OracleType.fromSqlTypeName(typeName))
+                        .nullableIf(exprList.firstOrNull()?.let { expression -> resolvedType(expression).javaType.isNullable } == true)
+                }
             }
 
             else -> {
@@ -280,9 +378,15 @@ public class OracleTypeResolver(
         exprList: List<SqlExpr>,
     ): IntermediateType? =
         when (functionName.trim().lowercase()) {
-            "abs", "ceil", "floor" -> {
+            "abs" -> {
                 exprList.singleOrNull()?.let { expression ->
                     resolvedType(expression).takeIf { type -> type.dialectType in NUMERIC_TYPE_ORDER }
+                }
+            }
+
+            "ceil", "floor" -> {
+                exprList.singleOrNull()?.let { expression ->
+                    resolvedType(expression).ceilOrFloorSingleArgumentType()
                 }
             }
 
@@ -369,13 +473,20 @@ public class OracleTypeResolver(
                 }
             }
 
-            "coalesce", "nvl" -> {
+            "coalesce" -> {
                 exprList.takeIf { args -> args.isNotEmpty() }?.let { args ->
                     encapsulatingTypePreferringKotlin(
                         args,
                         *COMPARABLE_TYPE_ORDER,
                         nullability = { nullability -> nullability.all { isNullable -> isNullable } },
                     )
+                }
+            }
+
+            "nvl" -> {
+                exprList.takeIf { args -> args.size == 2 }?.let { args ->
+                    resolvedType(args.first())
+                        .nullableIf(args.all { expression -> resolvedType(expression).javaType.isNullable })
                 }
             }
 
@@ -393,11 +504,19 @@ public class OracleTypeResolver(
             }
 
             "nvl2" -> {
-                exprList.drop(1).takeIf { args -> args.size == 2 }?.let { args ->
+                exprList.takeIf { args -> args.size == 3 }?.let { args ->
+                    val selectorNullable = resolvedType(args[0]).javaType.isNullable
+                    val resultArgs = args.drop(1)
                     encapsulatingTypePreferringKotlin(
-                        args,
+                        resultArgs,
                         *COMPARABLE_TYPE_ORDER,
-                        nullability = { nullability -> nullability.all { isNullable -> isNullable } },
+                        nullability = { nullability ->
+                            if (selectorNullable) {
+                                nullability.any { isNullable -> isNullable }
+                            } else {
+                                nullability.first()
+                            }
+                        },
                     )
                 }
             }
@@ -420,7 +539,10 @@ public class OracleTypeResolver(
                             .filter { (index) -> index % 2 == 1 || (index == args.lastIndex && args.size % 2 == 1) }
                             .map { (_, expression) -> expression }
                     encapsulatingTypePreferringKotlin(resultExpressions, *COMPARABLE_TYPE_ORDER)
-                        .nullableIf(args.size % 2 == 0)
+                        .nullableIf(
+                            args.size % 2 == 0 ||
+                                resultExpressions.any { expression -> resolvedType(expression).javaType.isNullable },
+                        )
                 }
             }
 
@@ -536,7 +658,10 @@ public class OracleTypeResolver(
                 exprList.singleOrNull()?.let { expression ->
                     OracleType
                         .fromToLobArgumentType(resolvedType(expression).dialectType)
-                        ?.let { type -> IntermediateType(type) }
+                        ?.let { type ->
+                            IntermediateType(type)
+                                .nullableIf(resolvedType(expression).javaType.isNullable)
+                        }
                 }
             }
 
@@ -583,8 +708,9 @@ public class OracleTypeResolver(
         private fun String.hasOracleVectorDistanceShorthand(): Boolean =
             VECTOR_DISTANCE_SHORTHAND_OPERATORS.any { operator -> contains(operator) }
 
-        private fun String.isOracleNullPropagatingFixedReturnFunction(): Boolean =
-            trim().uppercase() in
+        private fun String.isOracleNullPropagatingFixedReturnFunction(): Boolean {
+            val functionName = trim().uppercase()
+            return functionName in
                 setOf(
                     "ACOS",
                     "ADD_MONTHS",
@@ -593,7 +719,9 @@ public class OracleTypeResolver(
                     "ASIN",
                     "ATAN",
                     "ATAN2",
+                    "BIN_TO_NUM",
                     "BITAND",
+                    "CHARTOROWID",
                     "CHR",
                     "COMPOSE",
                     "CONVERT",
@@ -602,12 +730,22 @@ public class OracleTypeResolver(
                     "DECOMPOSE",
                     "DUMP",
                     "EXP",
+                    "FUZZY_MATCH",
+                    "FROM_VECTOR",
                     "FROM_TZ",
                     "HEXTORAW",
                     "INITCAP",
                     "INSTR",
+                    "INSTRB",
+                    "INSTRC",
+                    "INSTR2",
+                    "INSTR4",
                     "LAST_DAY",
                     "LENGTH",
+                    "LENGTHB",
+                    "LENGTHC",
+                    "LENGTH2",
+                    "LENGTH4",
                     "LN",
                     "LOG",
                     "LOWER",
@@ -620,40 +758,167 @@ public class OracleTypeResolver(
                     "NLS_INITCAP",
                     "NLS_LOWER",
                     "NLS_UPPER",
+                    "NUMTODSINTERVAL",
+                    "NUMTOYMINTERVAL",
+                    "ORA_DST_AFFECTED",
+                    "ORA_DST_CONVERT",
+                    "ORA_DST_ERROR",
+                    "PHONIC_ENCODE",
                     "REGEXP_COUNT",
                     "REGEXP_INSTR",
                     "REGEXP_REPLACE",
                     "REGEXP_SUBSTR",
                     "REPLACE",
                     "RAWTOHEX",
+                    "RAWTONHEX",
+                    "RAW_TO_UUID",
+                    "RATIO_TO_REPORT",
+                    "ROWIDTOCHAR",
+                    "ROWIDTONCHAR",
                     "RPAD",
                     "RTRIM",
+                    "SCN_TO_TIMESTAMP",
                     "SIGN",
                     "SIN",
                     "SINH",
                     "SOUNDEX",
                     "SQRT",
                     "SUBSTR",
+                    "SUBSTRB",
+                    "SUBSTRC",
+                    "SUBSTR2",
+                    "SUBSTR4",
                     "SYS_EXTRACT_UTC",
                     "TAN",
                     "TANH",
                     "TO_CLOB",
+                    "TO_BLOB",
                     "TO_BINARY_DOUBLE",
                     "TO_BINARY_FLOAT",
                     "TO_CHAR",
                     "TO_DATE",
+                    "TO_DSINTERVAL",
                     "TO_MULTI_BYTE",
                     "TO_NCHAR",
+                    "TO_NCLOB",
                     "TO_NUMBER",
                     "TO_SINGLE_BYTE",
                     "TO_TIMESTAMP",
                     "TO_TIMESTAMP_TZ",
+                    "TO_VECTOR",
+                    "TO_YMINTERVAL",
                     "TRANSLATE",
                     "TRIM",
+                    "TIMESTAMP_TO_SCN",
+                    "TZ_OFFSET",
                     "UPPER",
+                    "UUID_TO_RAW",
+                    "VECTOR_DISTANCE",
+                    "VECTOR_DIMENSION_COUNT",
+                    "VECTOR_DIMENSION_FORMAT",
+                    "VECTOR_DIMS",
+                    "VECTOR_EMBEDDING",
+                    "L1_DISTANCE",
+                    "L2_DISTANCE",
+                    "COSINE_DISTANCE",
+                    "INNER_PRODUCT",
+                    "HAMMING_DISTANCE",
+                    "JACCARD_DISTANCE",
+                    "VECTOR_NORM",
+                    "VECTOR_SERIALIZE",
                     "VSIZE",
                     "WIDTH_BUCKET",
-                )
+                ) || functionName in oracleNullPropagatingCalendarFunctions()
+        }
+
+        private fun oracleNullPropagatingCalendarFunctions(): Set<String> =
+            setOf(
+                "CALENDAR_ADD_DAYS",
+                "CALENDAR_ADD_MONTHS",
+                "CALENDAR_ADD_QUARTERS",
+                "CALENDAR_ADD_WEEKS",
+                "CALENDAR_ADD_YEARS",
+                "CALENDAR_DAY",
+                "CALENDAR_DAY_OF_MONTH",
+                "CALENDAR_DAY_OF_QUARTER",
+                "CALENDAR_DAY_OF_WEEK",
+                "CALENDAR_DAY_OF_YEAR",
+                "CALENDAR_MONTH",
+                "CALENDAR_MONTH_END_DATE",
+                "CALENDAR_MONTH_OF_QUARTER",
+                "CALENDAR_MONTH_OF_YEAR",
+                "CALENDAR_MONTH_START_DATE",
+                "CALENDAR_QUARTER",
+                "CALENDAR_QUARTER_END_DATE",
+                "CALENDAR_QUARTER_OF_YEAR",
+                "CALENDAR_QUARTER_START_DATE",
+                "CALENDAR_SINCE",
+                "CALENDAR_WEEK",
+                "CALENDAR_WEEK_END_DATE",
+                "CALENDAR_WEEK_OF_YEAR",
+                "CALENDAR_WEEK_START_DATE",
+                "CALENDAR_YEAR",
+                "CALENDAR_YEAR_END_DATE",
+                "CALENDAR_YEAR_NUMBER",
+                "CALENDAR_YEAR_START_DATE",
+                "FISCAL_ADD_DAYS",
+                "FISCAL_ADD_MONTHS",
+                "FISCAL_ADD_QUARTERS",
+                "FISCAL_ADD_WEEKS",
+                "FISCAL_ADD_YEARS",
+                "FISCAL_DAY",
+                "FISCAL_DAY_OF_MONTH",
+                "FISCAL_DAY_OF_QUARTER",
+                "FISCAL_DAY_OF_WEEK",
+                "FISCAL_DAY_OF_YEAR",
+                "FISCAL_MONTH",
+                "FISCAL_MONTH_END_DATE",
+                "FISCAL_MONTH_OF_QUARTER",
+                "FISCAL_MONTH_OF_YEAR",
+                "FISCAL_MONTH_START_DATE",
+                "FISCAL_QUARTER",
+                "FISCAL_QUARTER_END_DATE",
+                "FISCAL_QUARTER_OF_YEAR",
+                "FISCAL_QUARTER_START_DATE",
+                "FISCAL_WEEK",
+                "FISCAL_WEEK_END_DATE",
+                "FISCAL_WEEK_OF_YEAR",
+                "FISCAL_WEEK_START_DATE",
+                "FISCAL_YEAR",
+                "FISCAL_YEAR_END_DATE",
+                "FISCAL_YEAR_NUMBER",
+                "FISCAL_YEAR_START_DATE",
+                "RETAIL_ADD_DAYS",
+                "RETAIL_ADD_MONTHS",
+                "RETAIL_ADD_QUARTERS",
+                "RETAIL_ADD_WEEKS",
+                "RETAIL_ADD_YEARS",
+                "RETAIL_DAY",
+                "RETAIL_DAY_EXISTS",
+                "RETAIL_DAY_OF_MONTH",
+                "RETAIL_DAY_OF_QUARTER",
+                "RETAIL_DAY_OF_WEEK",
+                "RETAIL_DAY_OF_YEAR",
+                "RETAIL_MONTH",
+                "RETAIL_MONTH_END_DATE",
+                "RETAIL_MONTH_OF_QUARTER",
+                "RETAIL_MONTH_OF_YEAR",
+                "RETAIL_MONTH_START_DATE",
+                "RETAIL_QUARTER",
+                "RETAIL_QUARTER_END_DATE",
+                "RETAIL_QUARTER_OF_YEAR",
+                "RETAIL_QUARTER_START_DATE",
+                "RETAIL_WEEK",
+                "RETAIL_WEEK_END_DATE",
+                "RETAIL_WEEK_OF_MONTH",
+                "RETAIL_WEEK_OF_QUARTER",
+                "RETAIL_WEEK_OF_YEAR",
+                "RETAIL_WEEK_START_DATE",
+                "RETAIL_YEAR",
+                "RETAIL_YEAR_END_DATE",
+                "RETAIL_YEAR_NUMBER",
+                "RETAIL_YEAR_START_DATE",
+            )
 
         private fun String.isOracleNullableAggregateFunction(): Boolean =
             trim().uppercase() in
@@ -760,6 +1025,18 @@ public class OracleTypeResolver(
                 .trim()
                 .uppercase()
 
+        private fun String.oracleLeadingIdentifier(): String =
+            trim()
+                .substringBefore("(")
+                .trim()
+                .uppercase()
+
+        private fun String.hasOracleSqlJsonNullReturningClause(): Boolean =
+            Regex("""\bNULL\s+ON\s+(?:EMPTY|ERROR)\b""", RegexOption.IGNORE_CASE).containsMatchIn(this)
+
+        private fun String.hasOracleXmlNullReturningClause(): Boolean =
+            Regex("""\bNULL\s+ON\s+EMPTY\b""", RegexOption.IGNORE_CASE).containsMatchIn(this)
+
         private fun String.oracleFirstFunctionInvocationEnd(): Int {
             val start = indexOf('(').takeIf { index -> index >= 0 } ?: return length
             var depth = 0
@@ -807,6 +1084,9 @@ public class OracleTypeResolver(
                 ?.get(1)
                 ?.uppercase()
 
+        private fun String.isOracleBooleanConditionExpression(): Boolean =
+            ORACLE_BOOLEAN_CONDITION_REGEXES.any { regex -> regex.containsMatchIn(this) }
+
         private fun String.oracleTypeNameAfterKeyword(keyword: String): String? {
             val match = oracleReturningTypeRegex(keyword).find(this)
             return match?.groupValues?.get(1)?.trim()
@@ -823,6 +1103,13 @@ public class OracleTypeResolver(
             )
 
         private fun IntermediateType.roundOrTruncSingleArgumentType(): IntermediateType? =
+            when (dialectType) {
+                in NUMERIC_TYPE_ORDER -> this
+                in DATETIME_TYPE_ORDER -> IntermediateType(DATE).nullableIf(javaType.isNullable)
+                else -> null
+            }
+
+        private fun IntermediateType.ceilOrFloorSingleArgumentType(): IntermediateType? =
             when (dialectType) {
                 in NUMERIC_TYPE_ORDER -> this
                 in DATETIME_TYPE_ORDER -> IntermediateType(DATE).nullableIf(javaType.isNullable)
@@ -887,6 +1174,22 @@ public class OracleTypeResolver(
             arrayOf(
                 TEXT,
                 OracleType.TEXT,
+            )
+
+        private val ORACLE_BOOLEAN_CONDITION_REGEXES: List<Regex> =
+            listOf(
+                Regex("""(?i)^\s*NOT\b"""),
+                Regex("""(?i)\bIS\s+(?:NOT\s+)?(?:TRUE|FALSE|UNKNOWN)\b"""),
+                Regex("""(?i)\bIS\s+(?:NOT\s+)?JSON\b"""),
+                Regex("""(?i)\bIS\s+(?:NOT\s+)?(?:NAN|INFINITE)\b"""),
+                Regex("""(?i)\bIS\s+(?:NOT\s+)?(?:OF\s+(?:TYPE\s+)?\(|DANGLING\b)"""),
+                Regex("""(?i)\bIS\s+(?:ANY|PRESENT)\b"""),
+                Regex("""(?i)\b(?:LIKEC|LIKE2|LIKE4)\b"""),
+                Regex("""(?i)^\s*XMLEXISTS\s*\("""),
+                Regex("""(?i)\bIS\s+(?:NOT\s+)?(?:A\s+SET|EMPTY)\b"""),
+                Regex("""(?i)\b(?:NOT\s+)?MEMBER(?:\s+OF)?\b"""),
+                Regex("""(?i)\b(?:NOT\s+)?SUBMULTISET(?:\s+OF)?\b"""),
+                Regex("""\^="""),
             )
 
         private val MIN_TYPE_ORDER: Array<DialectType> =

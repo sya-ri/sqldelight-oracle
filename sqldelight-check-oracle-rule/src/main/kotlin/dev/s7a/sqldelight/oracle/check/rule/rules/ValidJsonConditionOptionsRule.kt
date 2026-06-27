@@ -132,6 +132,11 @@ private fun List<JsonOptionToken>.jsonOptionConflicts(
                     "WITH UNIQUE KEYS/WITHOUT UNIQUE KEYS"
                 }
 
+                (token.jsonOptionHasText("ALLOW") || token.jsonOptionHasText("DISALLOW")) &&
+                    getOrNull(index + 1).jsonOptionHasText("SCALARS") -> {
+                    "ALLOW SCALARS/DISALLOW SCALARS"
+                }
+
                 token.jsonOptionHasText("ON") && getOrNull(index + 1).jsonOptionHasText("ERROR") -> {
                     "ON ERROR"
                 }
@@ -168,6 +173,11 @@ private fun List<JsonOptionToken>.jsonConditionOptionOccurrence(index: Int): Jso
             getOrNull(index + 1).jsonOptionHasText("UNIQUE") &&
             getOrNull(index + 2).jsonOptionHasText("KEYS") -> {
             jsonConditionOptionOccurrence("WITH UNIQUE KEYS/WITHOUT UNIQUE KEYS", index, index + 2)
+        }
+
+        (getOrNull(index).jsonOptionHasText("ALLOW") || getOrNull(index).jsonOptionHasText("DISALLOW")) &&
+            getOrNull(index + 1).jsonOptionHasText("SCALARS") -> {
+            jsonConditionOptionOccurrence("ALLOW SCALARS/DISALLOW SCALARS", index, index + 1)
         }
 
         getOrNull(index).jsonOptionHasText("ON") &&

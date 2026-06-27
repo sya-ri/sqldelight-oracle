@@ -32,6 +32,26 @@ class ValidJsonConditionOptionsRuleTest :
                 )
         }
 
+        test("reports conflicting IS JSON scalar options exactly") {
+            ValidJsonConditionOptionsRule()
+                .diagnostics(
+                    """
+                    SELECT *
+                    FROM documents
+                    WHERE payload IS JSON ALLOW SCALARS DISALLOW SCALARS;
+                    """,
+                ).summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "$MESSAGE_PREFIX ALLOW SCALARS/DISALLOW SCALARS.",
+                        startLine = 3,
+                        startColumn = 23,
+                        endLine = 3,
+                        endColumn = 53,
+                    ),
+                )
+        }
+
         test("reports conflicting JSON_EXISTS ON clauses exactly") {
             ValidJsonConditionOptionsRule()
                 .diagnostics(
@@ -86,6 +106,7 @@ class ValidJsonConditionOptionsRuleTest :
                     SELECT *
                     FROM documents
                     WHERE payload IS JSON STRICT WITH UNIQUE KEYS
+                      AND metadata IS JSON (ALLOW SCALARS)
                       AND JSON_EXISTS(payload, '${'$'}.items[*]' TRUE ON ERROR FALSE ON EMPTY)
                       AND JSON_EQUAL(payload, expected_payload TRUE ON ERROR)
                       AND JSON_TEXTCONTAINS(payload, '${'$'}.description', search_text);

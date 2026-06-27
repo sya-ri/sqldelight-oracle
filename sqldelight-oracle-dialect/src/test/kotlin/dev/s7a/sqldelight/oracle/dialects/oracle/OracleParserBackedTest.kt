@@ -3190,6 +3190,10 @@ class OracleParserBackedTest :
                 SELECT account_id, external_id
                 FROM staged_accounts;
 
+                CREATE TABLE renamed_account_snapshot (snapshot_id, snapshot_external_id) AS
+                SELECT account_id, external_id
+                FROM staged_accounts;
+
                 CREATE GLOBAL TEMPORARY TABLE staged_account_snapshot
                 ON COMMIT PRESERVE ROWS
                 AS SELECT account_id, external_id
@@ -3349,6 +3353,10 @@ class OracleParserBackedTest :
                 selectAll:
                 SELECT account_id, external_id
                 FROM account_snapshot;
+
+                selectRenamed:
+                SELECT snapshot_id, snapshot_external_id
+                FROM renamed_account_snapshot;
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe

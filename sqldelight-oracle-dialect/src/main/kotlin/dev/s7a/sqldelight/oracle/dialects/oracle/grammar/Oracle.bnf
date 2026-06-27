@@ -1948,9 +1948,12 @@ create_table_stmt ::= 'CREATE' (
 private oracle_create_relational_table ::= (
   oracle_create_xmltype_table |
   oracle_create_object_table |
+  oracle_ctas_column_aliases [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_as_property * 'AS' {compound_select_stmt} |
   LP {column_def} ( COMMA {column_def} ) * ( COMMA oracle_create_table_element ) * RP [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_property * |
   [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_as_property * 'AS' {compound_select_stmt}
 )
+
+private oracle_ctas_column_aliases ::= LP {column_alias} ( COMMA {column_alias} ) * RP
 
 private oracle_create_xmltype_table ::= 'OF' 'XMLTYPE'
   oracle_xmltype_table_property *

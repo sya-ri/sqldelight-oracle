@@ -1,5 +1,6 @@
 package dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins
 
+import com.alecstrong.sql.psi.core.psi.LazyQuery
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryResult
 import com.alecstrong.sql.psi.core.psi.QueryElement.SynthesizedColumn
 import com.alecstrong.sql.psi.core.psi.SchemaContributorStub
@@ -16,14 +17,44 @@ internal abstract class OracleCreateTableStmtMixin : SqlCreateTableStmtImpl {
         stubType: IStubElementType<*, *>,
     ) : super(stub, stubType)
 
+    override fun tableExposed(): LazyQuery =
+        LazyQuery(tableName) {
+            val ctasColumnAliases = oracleCtasColumnAliases()
+            if (ctasColumnAliases.isNotEmpty()) {
+                QueryResult(
+                    table = tableName,
+                    columns = emptyList(),
+                    synthesizedColumns = ctasColumnAliases.map { name -> SynthesizedColumn(this, listOf(name)) },
+                )
+            } else {
+                super.tableExposed().query
+            }
+        }
+
     override fun queryAvailable(child: PsiElement): List<QueryResult> =
         super.queryAvailable(child).map { result ->
+            val ctasColumnAliases = oracleCtasColumnAliases()
+            if (ctasColumnAliases.isNotEmpty()) {
+                return@map result.copy(
+                    columns = emptyList(),
+                    synthesizedColumns = ctasColumnAliases.map { name -> SynthesizedColumn(this, listOf(name)) },
+                )
+            }
+
             result.copy(
                 synthesizedColumns =
                     result.synthesizedColumns +
                         oracleCreateTableExpressionColumns().map { name -> SynthesizedColumn(this, listOf(name)) },
             )
         }
+
+    private fun oracleCtasColumnAliases(): List<String> {
+        if (text.indexOfKeyword("AS") == null) return emptyList()
+        val body = text.oracleCtasAliasListBody() ?: return emptyList()
+        return body
+            .oracleTopLevelCommaParts()
+            .mapNotNull { column -> column.oracleFirstName() }
+    }
 
     private fun oracleCreateTableExpressionColumns(): List<String> =
         oracleJsonCollectionExpressionColumns() + oracleXmltypeVirtualColumns() + oracleObjectTableAttributeColumns()
@@ -63,6 +94,23 @@ internal abstract class OracleCreateTableStmtMixin : SqlCreateTableStmtImpl {
             ?.substringAfterLast(".")
             ?.trimOracleIdentifier()
     }
+}
+
+private fun String.oracleCtasAliasListBody(): String? {
+    val tableMatch =
+        Regex(
+            """(?is)\bCREATE\s+(?:(?:GLOBAL|PRIVATE)\s+TEMPORARY\s+|TEMP\s+|TEMPORARY\s+|SHARDED\s+|DUPLICATED\s+|(?:IMMUTABLE\s+)?BLOCKCHAIN\s+|IMMUTABLE\s+)?TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:"[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*)(?:\s*\.\s*(?:"[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*))?""",
+        ).find(this) ?: return null
+    var index = tableMatch.range.last + 1
+    while (index < length && this[index].isWhitespace()) index++
+    Regex("""(?is)\GSHARING\s*=\s*(?:METADATA|DATA|EXTENDED\s+DATA|NONE)\b""")
+        .find(this, index)
+        ?.let { sharingClause ->
+            index = sharingClause.range.last + 1
+            while (index < length && this[index].isWhitespace()) index++
+        }
+    if (getOrNull(index) != '(') return null
+    return oracleParenthesizedBodyAt(index)
 }
 
 private fun String.oracleObjectTypeBody(typeName: String): String? {

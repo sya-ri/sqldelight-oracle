@@ -61,4 +61,15 @@ class NoConflictingAnnotationOperationsRuleTest :
                     """,
                 ).summaries() shouldBe emptyList()
         }
+
+        test("accepts matching annotation operations in different annotation clauses") {
+            NoConflictingAnnotationOperationsRule()
+                .diagnostics(
+                    """
+                    CREATE TABLE customer (
+                      id NUMBER(19) ANNOTATIONS (ADD Display 'Customer ID')
+                    ) ANNOTATIONS (ADD Display 'Customer table');
+                    """,
+                ).summaries() shouldBe emptyList()
+        }
     })

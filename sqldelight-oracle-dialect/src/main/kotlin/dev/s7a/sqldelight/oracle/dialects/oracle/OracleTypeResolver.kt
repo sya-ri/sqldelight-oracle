@@ -85,7 +85,9 @@ public class OracleTypeResolver(
                 functionText.oracleReturningTypeName()?.let { typeName -> IntermediateType(OracleType.fromSqlTypeName(typeName)) }
             }
 
-            "XMLCAST" -> {
+            "CAST",
+            "XMLCAST",
+            -> {
                 functionText.oracleCastTypeName()?.let { typeName -> IntermediateType(OracleType.fromSqlTypeName(typeName)) }
             }
 

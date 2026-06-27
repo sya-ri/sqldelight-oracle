@@ -13,6 +13,7 @@ import com.alecstrong.sql.psi.core.psi.SqlExpr
 import com.alecstrong.sql.psi.core.psi.SqlExtensionExpr
 import com.alecstrong.sql.psi.core.psi.SqlFunctionExpr
 import com.alecstrong.sql.psi.core.psi.SqlTypeName
+import com.intellij.psi.util.PsiTreeUtil
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.BINARY
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.BINARY_DOUBLE
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.BINARY_FLOAT
@@ -56,12 +57,17 @@ public class OracleTypeResolver(
         val extensionExpr = expr.oracleExtensionExpr() ?: return null
         val functionName = extensionExpr.text.oracleFunctionName() ?: return null
         val invocationEnd = extensionExpr.text.oracleFirstFunctionInvocationEnd()
+        val childExpressions = PsiTreeUtil.findChildrenOfType(extensionExpr, SqlExpr::class.java).toList()
+        val invocationArguments =
+            childExpressions.filter { argument ->
+                argument.textRange.startOffset - extensionExpr.textRange.startOffset < invocationEnd
+            }
         val arguments =
-            extensionExpr.children
-                .filterIsInstance<SqlExpr>()
-                .filter { argument ->
-                    argument.textRange.startOffset - extensionExpr.textRange.startOffset < invocationEnd
-                }
+            if (functionName.isOracleOrderedSetPercentileFunction()) {
+                invocationArguments + childExpressions.oracleWithinGroupOrderingExpressions(extensionExpr)
+            } else {
+                invocationArguments
+            }
         return oracleFunctionType(functionName, extensionExpr.text, arguments)
     }
 
@@ -283,6 +289,7 @@ public class OracleTypeResolver(
             "mod", "remainder" -> {
                 exprList.takeIf { args -> args.size == 2 }?.let { args ->
                     encapsulatingTypePreferringKotlin(args, *NUMERIC_TYPE_ORDER)
+                        .nullableIf(args.any { expression -> resolvedType(expression).javaType.isNullable })
                 }
             }
 
@@ -290,15 +297,20 @@ public class OracleTypeResolver(
                 exprList
                     .takeIf { args -> args.size == 2 }
                     ?.map { expression ->
-                        resolvedType(expression).dialectType
+                        resolvedType(expression)
                     }?.let { argumentTypes ->
+                        val nullable = argumentTypes.any { type -> type.javaType.isNullable }
                         when {
-                            argumentTypes.any { type -> type == REAL || type == BINARY_FLOAT || type == BINARY_DOUBLE } -> {
-                                IntermediateType(BINARY_DOUBLE)
+                            argumentTypes.any { type ->
+                                type.dialectType == REAL ||
+                                    type.dialectType == BINARY_FLOAT ||
+                                    type.dialectType == BINARY_DOUBLE
+                            } -> {
+                                IntermediateType(BINARY_DOUBLE).nullableIf(nullable)
                             }
 
-                            argumentTypes.all { type -> type in NUMERIC_TYPE_ORDER } -> {
-                                IntermediateType(DECIMAL_NUMBER)
+                            argumentTypes.all { type -> type.dialectType in NUMERIC_TYPE_ORDER } -> {
+                                IntermediateType(DECIMAL_NUMBER).nullableIf(nullable)
                             }
 
                             else -> {
@@ -378,6 +390,7 @@ public class OracleTypeResolver(
             "nanvl" -> {
                 exprList.takeIf { args -> args.size == 2 }?.let { args ->
                     encapsulatingTypePreferringKotlin(args, *NUMERIC_TYPE_ORDER)
+                        .nullableIf(args.any { expression -> resolvedType(expression).javaType.isNullable })
                 }
             }
 
@@ -457,6 +470,16 @@ public class OracleTypeResolver(
                 }
             }
 
+            "percentile_cont", "percentile_disc" -> {
+                exprList.getOrNull(1)?.let { expression ->
+                    resolvedType(expression).asNullable()
+                }
+            }
+
+            "any_value", "stats_mode" -> {
+                exprList.singleOrNull()?.let { expression -> resolvedType(expression).asNullable() }
+            }
+
             "first_value", "lag", "last_value", "lead", "nth_value" -> {
                 exprList.firstOrNull()?.let { expression -> resolvedType(expression).asNullable() }
             }
@@ -476,17 +499,21 @@ public class OracleTypeResolver(
             }
 
             "extract" -> {
+                val nullable =
+                    exprList.any { expression ->
+                        runCatching { resolvedType(expression).javaType.isNullable }.getOrDefault(false)
+                    }
                 when (exprList.size) {
                     1 -> {
                         when (functionText.oracleExtractDatetimeField()) {
-                            "TIMEZONE_REGION", "TIMEZONE_ABBR" -> IntermediateType(OracleType.TEXT)
+                            "TIMEZONE_REGION", "TIMEZONE_ABBR" -> IntermediateType(OracleType.TEXT).nullableIf(nullable)
                             null -> null
-                            else -> IntermediateType(DECIMAL_NUMBER)
+                            else -> IntermediateType(DECIMAL_NUMBER).nullableIf(nullable)
                         }
                     }
 
                     2 -> {
-                        IntermediateType(OracleType.TEXT)
+                        IntermediateType(OracleType.TEXT).nullableIf(nullable)
                     }
 
                     else -> {
@@ -511,14 +538,37 @@ public class OracleTypeResolver(
         private fun String.isOracleNullPropagatingFixedReturnFunction(): Boolean =
             trim().uppercase() in
                 setOf(
+                    "ACOS",
+                    "ADD_MONTHS",
                     "ASCII",
                     "ASCIISTR",
+                    "ASIN",
+                    "ATAN",
+                    "ATAN2",
+                    "BITAND",
+                    "CHR",
+                    "COMPOSE",
+                    "CONVERT",
+                    "COS",
+                    "COSH",
+                    "DECOMPOSE",
+                    "DUMP",
+                    "EXP",
+                    "FROM_TZ",
+                    "HEXTORAW",
                     "INITCAP",
                     "INSTR",
+                    "LAST_DAY",
                     "LENGTH",
+                    "LN",
+                    "LOG",
                     "LOWER",
                     "LPAD",
                     "LTRIM",
+                    "MONTHS_BETWEEN",
+                    "NEW_TIME",
+                    "NEXT_DAY",
+                    "NCHR",
                     "NLS_INITCAP",
                     "NLS_LOWER",
                     "NLS_UPPER",
@@ -527,9 +577,19 @@ public class OracleTypeResolver(
                     "REGEXP_REPLACE",
                     "REGEXP_SUBSTR",
                     "REPLACE",
+                    "RAWTOHEX",
                     "RPAD",
                     "RTRIM",
+                    "SIGN",
+                    "SIN",
+                    "SINH",
+                    "SOUNDEX",
+                    "SQRT",
                     "SUBSTR",
+                    "SYS_EXTRACT_UTC",
+                    "TAN",
+                    "TANH",
+                    "TO_CLOB",
                     "TO_BINARY_DOUBLE",
                     "TO_BINARY_FLOAT",
                     "TO_CHAR",
@@ -543,6 +603,8 @@ public class OracleTypeResolver(
                     "TRANSLATE",
                     "TRIM",
                     "UPPER",
+                    "VSIZE",
+                    "WIDTH_BUCKET",
                 )
 
         private fun String.isOracleNullableAggregateFunction(): Boolean =
@@ -564,6 +626,14 @@ public class OracleTypeResolver(
                     "LISTAGG",
                     "PERCENTILE_CONT",
                     "PERCENTILE_DISC",
+                    "REGR_AVGX",
+                    "REGR_AVGY",
+                    "REGR_INTERCEPT",
+                    "REGR_R2",
+                    "REGR_SLOPE",
+                    "REGR_SXX",
+                    "REGR_SXY",
+                    "REGR_SYY",
                     "SKEWNESS_POP",
                     "SKEWNESS_SAMP",
                 )
@@ -574,6 +644,62 @@ public class OracleTypeResolver(
                 ?.groupValues
                 ?.get(1)
                 ?.uppercase()
+
+        private fun String.isOracleOrderedSetPercentileFunction(): Boolean =
+            trim().uppercase() in setOf("PERCENTILE_CONT", "PERCENTILE_DISC")
+
+        private fun List<SqlExpr>.oracleWithinGroupOrderingExpressions(extensionExpr: SqlExtensionExpr): List<SqlExpr> {
+            val orderByStart = extensionExpr.text.oracleWithinGroupOrderByExpressionStart() ?: return emptyList()
+            val withinGroupEnd = extensionExpr.text.oracleWithinGroupClauseEnd(orderByStart) ?: return emptyList()
+            val extensionStart = extensionExpr.textRange.startOffset
+            return filter { expression ->
+                val relativeStart = expression.textRange.startOffset - extensionStart
+                relativeStart in orderByStart..<withinGroupEnd
+            }
+        }
+
+        private fun String.oracleWithinGroupOrderByExpressionStart(): Int? =
+            Regex("""(?i)\bWITHIN\s+GROUP\s*\(\s*ORDER\s+BY\s+""")
+                .find(this)
+                ?.range
+                ?.last
+                ?.plus(1)
+
+        private fun String.oracleWithinGroupClauseEnd(orderByStart: Int): Int? {
+            val openParen = lastIndexOf('(', startIndex = orderByStart).takeIf { index -> index >= 0 } ?: return null
+            var depth = 0
+            var inStringLiteral = false
+            var index = openParen
+            while (index < length) {
+                val char = this[index]
+                if (inStringLiteral) {
+                    if (char == '\'' && getOrNull(index + 1) == '\'') {
+                        index += 2
+                        continue
+                    }
+                    if (char == '\'') {
+                        inStringLiteral = false
+                    }
+                } else {
+                    when (char) {
+                        '\'' -> {
+                            inStringLiteral = true
+                        }
+
+                        '(' -> {
+                            depth += 1
+                        }
+
+                        ')' -> {
+                            depth -= 1
+                            if (depth == 0) return index
+                        }
+                    }
+                }
+                index += 1
+            }
+            return null
+        }
 
         private fun String.oracleTerminalIdentifier(): String =
             trim()

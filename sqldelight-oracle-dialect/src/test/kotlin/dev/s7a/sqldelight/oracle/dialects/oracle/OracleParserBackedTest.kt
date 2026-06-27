@@ -786,6 +786,46 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle CAST MULTISET subquery expressions exactly") {
+            val sql =
+                """
+                CREATE TYPE employee_name_list AS TABLE OF VARCHAR2(100);
+
+                CREATE TABLE departments (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(100)
+                );
+
+                CREATE TABLE employees (
+                  id NUMBER PRIMARY KEY,
+                  department_id NUMBER,
+                  name VARCHAR2(100)
+                );
+
+                SELECT d.id,
+                  CAST(MULTISET(
+                    SELECT e.name
+                    FROM employees e
+                    WHERE e.department_id = d.id
+                  ) AS employee_name_list) AS employee_names
+                FROM departments d;
+
+                SELECT d.id,
+                  CAST(MULTISET(
+                    SELECT e.name
+                    FROM employees e
+                    WHERE e.department_id = d.id
+                  ) AS SYS.ODCIVARCHAR2LIST) AS employee_names
+                FROM departments d;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle arithmetic and concatenation operators exactly") {
             val sql =
                 """
@@ -2465,6 +2505,31 @@ class OracleParserBackedTest :
                   PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY amount DESC) OVER (PARTITION BY region) AS analytic_continuous,
                   PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY amount DESC) OVER (PARTITION BY region) AS analytic_discrete
                 FROM sales;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle hypothetical rank ordered aggregate functions exactly") {
+            val sql =
+                """
+                CREATE TABLE sales (
+                  id NUMBER PRIMARY KEY,
+                  region VARCHAR2(20),
+                  amount NUMBER
+                );
+
+                SELECT region,
+                  RANK(1000) WITHIN GROUP (ORDER BY amount DESC) AS hypothetical_rank,
+                  DENSE_RANK(1000) WITHIN GROUP (ORDER BY amount DESC) AS hypothetical_dense_rank,
+                  PERCENT_RANK(1000) WITHIN GROUP (ORDER BY amount DESC) AS hypothetical_percent_rank,
+                  CUME_DIST(1000) WITHIN GROUP (ORDER BY amount DESC) AS hypothetical_cume_dist
+                FROM sales
+                GROUP BY region;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe

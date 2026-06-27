@@ -28,6 +28,7 @@ class OracleResultColumnTypeTest :
               nickname VARCHAR2(100),
               salary NUMBER(10, 2),
               bonus BINARY_DOUBLE,
+              raw_col RAW(16),
               hire_date DATE NOT NULL,
               created_ts TIMESTAMP,
               dept_id NUMBER(10)
@@ -51,6 +52,8 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT CORR(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT COVAR_POP(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT LISTAGG(nickname, ',') WITHIN GROUP (ORDER BY nickname) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY hire_date) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
+            typeOf("SELECT PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY hire_date) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
         }
 
         test("resolves Oracle scalar function result column types exactly") {
@@ -77,7 +80,27 @@ class OracleResultColumnTypeTest :
         test("propagates Oracle function result column nullability exactly") {
             typeOf("SELECT ROUND(id, 2) AS c FROM emp") shouldBe "java.math.BigDecimal"
             typeOf("SELECT ROUND(salary, 2) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT SIGN(salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT SQRT(salary) AS c FROM emp") shouldBe "kotlin.Double?"
+            typeOf("SELECT EXP(salary) AS c FROM emp") shouldBe "kotlin.Double?"
+            typeOf("SELECT BITAND(dept_id, 1) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT MOD(salary, 2) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT REMAINDER(salary, 2) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT POWER(salary, 2) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT NANVL(bonus, salary) AS c FROM emp") shouldBe "kotlin.Double?"
+            typeOf("SELECT WIDTH_BUCKET(salary, 0, 100, 10) AS c FROM emp") shouldBe "kotlin.Long?"
             typeOf("SELECT TRUNC(created_ts) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
+            typeOf("SELECT ADD_MONTHS(created_ts, 1) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
+            typeOf("SELECT LAST_DAY(created_ts) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
+            typeOf("SELECT NEXT_DAY(created_ts, 'MONDAY') AS c FROM emp") shouldBe "java.time.LocalDateTime?"
+            typeOf("SELECT MONTHS_BETWEEN(hire_date, created_ts) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT EXTRACT(YEAR FROM created_ts) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT CHR(dept_id) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT NCHR(dept_id) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT SOUNDEX(nickname) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT TO_CLOB(nickname) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT HEXTORAW(nickname) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+            typeOf("SELECT RAWTOHEX(raw_col) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT GREATEST(id, small_id) AS c FROM emp") shouldBe "kotlin.Long"
             typeOf("SELECT GREATEST(id, dept_id) AS c FROM emp") shouldBe "kotlin.Long?"
             typeOf("SELECT LEAST(id, dept_id) AS c FROM emp") shouldBe "kotlin.Long?"
@@ -160,6 +183,25 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT LAG(salary) OVER (ORDER BY id) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT FIRST_VALUE(name) OVER (ORDER BY id) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT SUM(salary) OVER (PARTITION BY dept_id) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+        }
+
+        test("resolves Oracle linear regression aggregate result column types exactly") {
+            typeOf("SELECT REGR_COUNT(salary, bonus) AS c FROM emp") shouldBe "kotlin.Long"
+            typeOf("SELECT REGR_SLOPE(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT REGR_INTERCEPT(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT REGR_R2(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT REGR_AVGX(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT REGR_AVGY(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT REGR_SXX(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT REGR_SYY(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT REGR_SXY(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+        }
+
+        test("resolves Oracle value aggregate result column types exactly") {
+            typeOf("SELECT ANY_VALUE(name) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT ANY_VALUE(salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_MODE(id) AS c FROM emp") shouldBe "kotlin.Long?"
+            typeOf("SELECT STATS_MODE(nickname) AS c FROM emp") shouldBe "kotlin.String?"
         }
     })
 

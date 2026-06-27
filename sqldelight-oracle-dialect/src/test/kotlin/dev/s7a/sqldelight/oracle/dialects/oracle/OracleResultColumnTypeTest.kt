@@ -161,6 +161,18 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT FIRST_VALUE(name) OVER (ORDER BY id) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT SUM(salary) OVER (PARTITION BY dept_id) AS c FROM emp") shouldBe "java.math.BigDecimal?"
         }
+
+        test("resolves Oracle linear regression aggregate result column types exactly") {
+            typeOf("SELECT REGR_COUNT(salary, bonus) AS c FROM emp") shouldBe "kotlin.Long"
+            typeOf("SELECT REGR_SLOPE(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT REGR_INTERCEPT(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT REGR_R2(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT REGR_AVGX(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT REGR_AVGY(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT REGR_SXX(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT REGR_SYY(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT REGR_SXY(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+        }
     })
 
 private fun oracleResultColumnTypes(

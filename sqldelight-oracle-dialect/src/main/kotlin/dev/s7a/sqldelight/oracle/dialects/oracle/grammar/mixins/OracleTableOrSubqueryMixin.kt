@@ -290,9 +290,9 @@ internal abstract class OracleTableOrSubqueryMixin(
         val pivotBody = text.oracleParenthesizedBodyAfter("PIVOT") ?: return emptyList()
         val forOffset = pivotBody.indexOfKeyword("FOR")
         val inOffset = pivotBody.indexOfKeyword("IN", startIndex = forOffset?.let { it + "FOR".length } ?: 0) ?: return emptyList()
-        val aggregateAliases = pivotBody.substring(0, inOffset).oracleAliasesAfterAs()
+        val aggregateAliases = forOffset?.let { pivotBody.substring(0, it).oracleTopLevelTrailingAliases() } ?: emptyList()
         val pivotInBody = pivotBody.oracleParenthesizedBodyAt(pivotBody.indexOf('(', startIndex = inOffset))
-        val pivotAliases = pivotInBody.oracleAliasesAfterAs().ifEmpty { pivotInBody.oraclePivotImplicitValueNames() }
+        val pivotAliases = pivotInBody.oracleTopLevelTrailingAliases().ifEmpty { pivotInBody.oraclePivotImplicitValueNames() }
         if (pivotAliases.isEmpty()) return emptyList()
 
         return if (aggregateAliases.isEmpty()) {
@@ -381,6 +381,28 @@ private fun String.oracleAliasesAfterAs(): List<String> =
         .findAll(this)
         .map { match -> match.groupValues[1].trimOracleIdentifier() }
         .toList()
+
+private fun String.oracleTopLevelTrailingAliases(): List<String> =
+    oracleTopLevelCommaParts().mapNotNull { part -> part.oracleTrailingAlias() }
+
+private fun String.oracleTrailingAlias(): String? {
+    val trimmed = trim()
+    if (
+        trimmed.isEmpty() ||
+        trimmed.equals("ANY", ignoreCase = true) ||
+        trimmed.startsWith("SELECT", ignoreCase = true)
+    ) {
+        return null
+    }
+
+    val match =
+        Regex("""(?is)(?:\bAS\s+)?("[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*)\s*$""")
+            .find(trimmed)
+            ?: return null
+    val prefix = trimmed.substring(0, match.range.first).trim()
+    if (prefix.isEmpty()) return null
+    return match.groupValues[1].trimOracleIdentifier()
+}
 
 private fun oracleRowPatternVariables(rowPatternClause: OracleOracleRowPatternClause): List<String> {
     val patternVariables =

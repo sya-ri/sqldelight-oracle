@@ -4323,6 +4323,13 @@ class OracleParserBackedTest :
                   FOR region IN ('WEST' AS west, 'EAST' AS east)
                 ) pivoted_orders;
 
+                selectPivotGeneratedColumnsWithoutAs:
+                SELECT pivoted_orders.west_order_count, pivoted_orders.east_order_count
+                FROM partitioned_orders PIVOT (
+                  COUNT(*) order_count
+                  FOR region IN ('WEST' west, 'EAST' east)
+                ) pivoted_orders;
+
                 selectPivotSourceColumns:
                 SELECT pivoted_orders.id, pivoted_orders.created_year, pivoted_orders.west_order_count
                 FROM partitioned_orders PIVOT (

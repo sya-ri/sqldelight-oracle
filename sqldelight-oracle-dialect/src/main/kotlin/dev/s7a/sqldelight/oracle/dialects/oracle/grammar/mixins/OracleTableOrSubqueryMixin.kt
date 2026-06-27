@@ -148,39 +148,33 @@ internal abstract class OracleTableOrSubqueryMixin(
         }
 
         oracleInlineExternalColumns().ifEmpty { null }?.let { columns ->
-            return QueryResult(
-                table = tableAlias,
-                columns = emptyList(),
-                synthesizedColumns = columns.map { name -> SynthesizedColumn(tableAlias ?: this, listOf(name)) },
-            )
+            return oracleGeneratedSynthesizedColumnResult(columns)
         }
 
         oracleGraphTableColumns().ifEmpty { null }?.let { columns ->
-            return QueryResult(
-                table = tableAlias,
-                columns = emptyList(),
-                synthesizedColumns = columns.map { name -> SynthesizedColumn(tableAlias ?: this, listOf(name)) },
-            )
+            return oracleGeneratedSynthesizedColumnResult(columns)
         }
 
         oraclePivotColumns().ifEmpty { null }?.let { columns ->
-            return QueryResult(
-                table = tableAlias,
-                columns = oraclePivotSourceColumns(),
-                synthesizedColumns = columns.map { name -> SynthesizedColumn(tableAlias ?: this, listOf(name)) },
-            )
+            return oracleGeneratedSynthesizedColumnResult(columns, oraclePivotSourceColumns())
         }
 
         oracleUnpivotColumns().ifEmpty { null }?.let { columns ->
-            return QueryResult(
-                table = tableAlias,
-                columns = oracleUnpivotSourceColumns(),
-                synthesizedColumns = columns.map { name -> SynthesizedColumn(tableAlias ?: this, listOf(name)) },
-            )
+            return oracleGeneratedSynthesizedColumnResult(columns, oracleUnpivotSourceColumns())
         }
 
         return oracleRowPatternResult()
     }
+
+    private fun oracleGeneratedSynthesizedColumnResult(
+        columnNames: List<String>,
+        columns: List<QueryColumn> = emptyList(),
+    ): QueryResult =
+        QueryResult(
+            table = tableAlias,
+            columns = columns,
+            synthesizedColumns = columnNames.map { name -> SynthesizedColumn(tableAlias ?: this, listOf(name)) },
+        )
 
     private fun oracleCollectionTableColumnResult(): QueryResult? {
         val body = text.trimStart()

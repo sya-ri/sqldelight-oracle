@@ -239,6 +239,8 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT VECTOR_DIMS(embedding) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT VECTOR_DIMENSION_COUNT(embedding) AS c FROM emp") shouldBe "kotlin.Long?"
             typeOf("SELECT VECTOR_DIMENSION_FORMAT(embedding) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT VECTOR_SERIALIZE(embedding RETURNING CLOB FORMAT DENSE) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT VECTOR_EMBEDDING(all_minilm_l12 USING nickname AS DATA) AS c FROM emp") shouldBe "kotlin.String?"
         }
 
         test("resolves Oracle grouping function result column types exactly") {

@@ -690,6 +690,7 @@ public class OracleTypeResolver(
                     "VECTOR_DIMENSION_COUNT",
                     "VECTOR_DIMENSION_FORMAT",
                     "VECTOR_DIMS",
+                    "VECTOR_EMBEDDING",
                     "L1_DISTANCE",
                     "L2_DISTANCE",
                     "COSINE_DISTANCE",
@@ -697,6 +698,7 @@ public class OracleTypeResolver(
                     "HAMMING_DISTANCE",
                     "JACCARD_DISTANCE",
                     "VECTOR_NORM",
+                    "VECTOR_SERIALIZE",
                     "VSIZE",
                     "WIDTH_BUCKET",
                 ) || functionName in oracleNullPropagatingCalendarFunctions()

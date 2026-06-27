@@ -55,6 +55,22 @@ class PreferIdentityColumnRuleTest :
             ) shouldBe emptyList()
         }
 
+        test("accepts audit trigger that does not assign sequence values to new rows") {
+            PreferIdentityColumnRule().diagnostics(
+                """
+                CREATE SEQUENCE customer_audit_seq;
+
+                CREATE TRIGGER customer_audit_trigger
+                AFTER INSERT ON customer
+                FOR EACH ROW
+                BEGIN
+                    INSERT INTO customer_audit (audit_id, customer_id)
+                    VALUES (customer_audit_seq.NEXTVAL, :NEW.id);
+                END;
+                """,
+            ) shouldBe emptyList()
+        }
+
         test("ignores sequence-trigger text in comments and string literals") {
             PreferIdentityColumnRule().diagnostics(
                 """

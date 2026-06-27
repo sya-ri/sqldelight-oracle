@@ -52,7 +52,22 @@ private fun List<SqlToken>.startsWithCreateSequence(): Boolean = getOrNull(0).ha
 private fun List<SqlToken>.isSequenceTrigger(): Boolean =
     getOrNull(0).hasText("CREATE") &&
         getOrNull(1).hasText("TRIGGER") &&
-        any { token -> token.hasText("NEXTVAL") } &&
-        any { token -> token.hasText("NEW") }
+        assignsSequenceToNewRow()
+
+private fun List<SqlToken>.assignsSequenceToNewRow(): Boolean =
+    indices.any { index ->
+        val token = get(index)
+        val usesSelectIntoNew = getOrNull(index + 1).hasText("INTO") && getOrNull(index + 2).hasText("NEW")
+        val followsNewAssignment =
+            previousStatementTokenIndex(index)?.let { previousIndex -> get(previousIndex).hasText("NEW") } == true
+
+        token.hasText("NEXTVAL") && (usesSelectIntoNew || followsNewAssignment)
+    }
+
+private fun List<SqlToken>.previousStatementTokenIndex(index: Int): Int? =
+    (index - 1 downTo 0).firstOrNull { candidate ->
+        get(candidate).hasText("NEW") || get(candidate).hasText("INSERT") || get(candidate).hasText("SELECT") ||
+            get(candidate).hasText("BEGIN") || get(candidate).hasText("END")
+    }
 
 private fun SqlToken?.hasText(text: String): Boolean = this?.text.equals(text, ignoreCase = true)

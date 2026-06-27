@@ -287,7 +287,9 @@ private oracle_datetime_field ::= (
   'TIMEZONE_HOUR' | 'TIMEZONE_MINUTE' | 'TIMEZONE_REGION' | 'TIMEZONE_ABBR' | 'TIMEZONE_OFFSET'
 )
 
-private oracle_character_function_expr ::= oracle_replace_expr | oracle_regexp_count_expr | oracle_regexp_instr_expr | oracle_translate_using_expr | oracle_trim_expr
+private oracle_character_function_expr ::= oracle_chr_expr | oracle_replace_expr | oracle_regexp_count_expr | oracle_regexp_instr_expr | oracle_translate_using_expr | oracle_trim_expr
+
+private oracle_chr_expr ::= 'CHR' LP <<expr '-1'>> [ 'USING' ( 'CHAR_CS' | 'NCHAR_CS' ) ] RP
 
 private oracle_replace_expr ::= 'REPLACE' LP <<expr '-1'>> COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] RP
 

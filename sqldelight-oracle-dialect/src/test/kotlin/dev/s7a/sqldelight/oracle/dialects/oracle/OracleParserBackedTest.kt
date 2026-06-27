@@ -712,6 +712,7 @@ class OracleParserBackedTest :
                   CON_GUID_TO_ID(raw_value) AS container_id_from_guid,
                   CON_NAME_TO_ID(label) AS container_id_from_name,
                   CON_UID_TO_ID(amount) AS container_id_from_uid,
+                  CHR(196 USING NCHAR_CS) AS national_character_value,
                   COSH(amount) AS hyperbolic_cosine,
                   DUMP(label) AS dumped_label,
                   LNNVL(enabled) AS not_false_enabled,

@@ -33,6 +33,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.ValidBooleanTestConditionRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidCreateTableAsColumnAliasesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidCreateViewColumnAliasesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidDmlHintPlacementRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.ValidForUpdateWaitClauseRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidFormatModelRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidFunctionArityRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidJsonConditionOptionsRule
@@ -91,6 +92,7 @@ class OracleRuleSetProviderTest :
                     ValidCreateViewColumnAliasesRule::class,
                     ValidRegexpMatchParamRule::class,
                     ValidDmlHintPlacementRule::class,
+                    ValidForUpdateWaitClauseRule::class,
                     ValidFunctionArityRule::class,
                     ValidFormatModelRule::class,
                     ValidNlsParameterRule::class,
@@ -138,6 +140,7 @@ class OracleRuleSetProviderTest :
                     "oracle:valid-create-view-column-aliases",
                     "oracle:valid-regexp-match-param",
                     "oracle:valid-dml-hint-placement",
+                    "oracle:valid-for-update-wait-clause",
                     "oracle:valid-function-arity",
                     "oracle:valid-format-model",
                     "oracle:valid-nls-parameter",

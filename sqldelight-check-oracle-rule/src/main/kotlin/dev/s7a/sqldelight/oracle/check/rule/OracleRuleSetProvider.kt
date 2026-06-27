@@ -32,6 +32,7 @@ import dev.s7a.sqldelight.oracle.check.rule.rules.ValidBooleanTestConditionRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidCreateTableAsColumnAliasesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidCreateViewColumnAliasesRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidDmlHintPlacementRule
+import dev.s7a.sqldelight.oracle.check.rule.rules.ValidForUpdateWaitClauseRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidFormatModelRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidFunctionArityRule
 import dev.s7a.sqldelight.oracle.check.rule.rules.ValidJsonConditionOptionsRule
@@ -86,6 +87,7 @@ public class OracleRuleSetProvider : RuleSetProvider {
             RuleProvider(::ValidCreateViewColumnAliasesRule),
             RuleProvider(::ValidRegexpMatchParamRule),
             RuleProvider(::ValidDmlHintPlacementRule),
+            RuleProvider(::ValidForUpdateWaitClauseRule),
             RuleProvider(::ValidFunctionArityRule),
             RuleProvider(::ValidFormatModelRule),
             RuleProvider(::ValidNlsParameterRule),

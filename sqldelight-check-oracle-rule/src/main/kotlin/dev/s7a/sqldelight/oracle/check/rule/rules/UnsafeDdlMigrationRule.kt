@@ -61,9 +61,11 @@ private fun List<SqlToken>.isUnsafeMigrationDdl(maskedContent: String): Boolean 
 private fun List<SqlToken>.hasUnsafeAlterTableOperation(maskedContent: String): Boolean =
     containsSequence("DROP", "COLUMN") ||
         containsSequence("DROP", "COLUMNS") ||
+        hasSequenceFollowedByChar(maskedContent, '(', "DROP") ||
         containsSequence("DROP", "UNUSED", "COLUMNS") ||
         containsSequence("SET", "UNUSED", "COLUMN") ||
         containsSequence("SET", "UNUSED", "COLUMNS") ||
+        hasSequenceFollowedByChar(maskedContent, '(', "SET", "UNUSED") ||
         hasUnsafePartitionMaintenanceOperation() ||
         containsSequence("SHRINK", "SPACE") ||
         any { token -> token.hasText("MOVE") } ||
@@ -93,6 +95,16 @@ private fun List<SqlToken>.startsWithStatement(vararg terms: String): Boolean =
 private fun List<SqlToken>.containsSequence(vararg terms: String): Boolean =
     windowed(size = terms.size).any { tokens ->
         tokens.map { token -> token.text.lowercase() } == terms.map { term -> term.lowercase() }
+    }
+
+private fun List<SqlToken>.hasSequenceFollowedByChar(
+    maskedContent: String,
+    char: Char,
+    vararg terms: String,
+): Boolean =
+    windowed(size = terms.size).any { tokens ->
+        tokens.map { token -> token.text.lowercase() } == terms.map { term -> term.lowercase() } &&
+            maskedContent.nextUnsafeDdlNonWhitespaceCharAfter(tokens.last().endOffset) == char
     }
 
 private fun String.columnDefinitionRangesAfter(
@@ -173,6 +185,11 @@ private fun String.skipUnsafeDdlWhitespace(
     var index = startOffset
     while (index < endOffset && this[index].isWhitespace()) index++
     return index
+}
+
+private fun String.nextUnsafeDdlNonWhitespaceCharAfter(startOffset: Int): Char? {
+    val index = skipUnsafeDdlWhitespace(startOffset, length)
+    return getOrNull(index)
 }
 
 private fun SqlToken?.hasText(text: String): Boolean = this?.text.equals(text, ignoreCase = true)

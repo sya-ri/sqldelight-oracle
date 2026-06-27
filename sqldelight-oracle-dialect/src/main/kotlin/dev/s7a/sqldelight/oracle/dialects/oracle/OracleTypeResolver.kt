@@ -602,6 +602,7 @@ public class OracleTypeResolver(
                     "ASIN",
                     "ATAN",
                     "ATAN2",
+                    "BIN_TO_NUM",
                     "BITAND",
                     "CHR",
                     "COMPOSE",

@@ -48,6 +48,8 @@ public class UnsafeDdlMigrationRule : Rule {
 
 private fun List<SqlToken>.isUnsafeMigrationDdl(maskedContent: String): Boolean =
     when {
+        startsWithStatement("DROP", "TABLE") -> true
+        startsWithStatement("DROP", "MATERIALIZED", "VIEW") && !getOrNull(3).hasText("LOG") -> true
         startsWithStatement("TRUNCATE", "TABLE") -> true
         startsWithStatement("TRUNCATE", "CLUSTER") -> true
         startsWithStatement("ALTER", "TABLE") -> hasUnsafeAlterTableOperation(maskedContent)
@@ -83,10 +85,8 @@ private fun List<SqlToken>.changesRequiredColumnWithoutDefault(maskedContent: St
         }
 }
 
-private fun List<SqlToken>.startsWithStatement(
-    first: String,
-    second: String,
-): Boolean = getOrNull(0).hasText(first) && getOrNull(1).hasText(second)
+private fun List<SqlToken>.startsWithStatement(vararg terms: String): Boolean =
+    take(terms.size).map { token -> token.text.lowercase() } == terms.map { term -> term.lowercase() }
 
 private fun List<SqlToken>.containsSequence(vararg terms: String): Boolean =
     windowed(size = terms.size).any { tokens ->

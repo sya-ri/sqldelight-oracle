@@ -140,6 +140,46 @@ class UnsafeDdlMigrationRuleTest :
                 )
         }
 
+        test("reports DROP TABLE") {
+            val diagnostics =
+                UnsafeDdlMigrationRule().diagnostics(
+                    """
+                    DROP TABLE customer_event;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 1,
+                        startColumn = 1,
+                        endLine = 1,
+                        endColumn = 11,
+                    ),
+                )
+        }
+
+        test("reports DROP MATERIALIZED VIEW") {
+            val diagnostics =
+                UnsafeDdlMigrationRule().diagnostics(
+                    """
+                    DROP MATERIALIZED VIEW sales_summary;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 1,
+                        startColumn = 1,
+                        endLine = 1,
+                        endColumn = 18,
+                    ),
+                )
+        }
+
         test("reports TRUNCATE CLUSTER") {
             val diagnostics =
                 UnsafeDdlMigrationRule().diagnostics(

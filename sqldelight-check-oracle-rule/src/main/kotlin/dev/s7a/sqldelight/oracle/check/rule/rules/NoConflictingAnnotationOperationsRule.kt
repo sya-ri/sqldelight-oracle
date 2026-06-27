@@ -24,8 +24,8 @@ public class NoConflictingAnnotationOperationsRule : Rule {
     ) {
         val content = context.file.content
         content
-            .maskSqlCommentsAndQuotedTextPreservingOffsets()
-            .annotationClauses()
+            .maskSqlCommentsAndQuotedTextPreservingOffsets(maskDoubleQuotedIdentifiers = false)
+            .annotationClauses(originalContent = content)
             .flatMap { clause -> clause.conflictingAnnotationOperations() }
             .forEach { conflict ->
                 reporter.report(
@@ -59,7 +59,7 @@ private data class AnnotationConflict(
     val second: AnnotationOperation,
 )
 
-private fun String.annotationClauses(): List<List<AnnotationToken>> {
+private fun String.annotationClauses(originalContent: String): List<List<AnnotationToken>> {
     val clauses = mutableListOf<List<AnnotationToken>>()
     var searchOffset = 0
     while (searchOffset < length) {
@@ -70,7 +70,7 @@ private fun String.annotationClauses(): List<List<AnnotationToken>> {
         if (getOrNull(listStart) == '(') {
             val listEnd = matchingSqlParenthesis(listStart)
             if (listEnd != null) {
-                clauses += substring(listStart + 1, listEnd).annotationTokens(offset = listStart + 1)
+                clauses += originalContent.substring(listStart + 1, listEnd).annotationTokens(offset = listStart + 1)
                 searchOffset = listEnd + 1
                 continue
             }
@@ -100,7 +100,7 @@ private fun List<AnnotationToken>.annotationOperations(): List<AnnotationOperati
         if (!token.isAnnotationOperationKeyword()) return@mapIndexedNotNull null
         val nameToken = annotationNameTokenAfter(index) ?: return@mapIndexedNotNull null
         AnnotationOperation(
-            annotationName = nameToken.text,
+            annotationName = nameToken.text.unquotedAnnotationName(),
             startOffset = token.startOffset,
             endOffset = nameToken.endOffset,
         )
@@ -120,7 +120,7 @@ private fun List<AnnotationToken>.annotationNameTokenAfter(operationIndex: Int):
     return getOrNull(index)
 }
 
-private val annotationTokenPattern = Regex("""[A-Za-z_][A-Za-z0-9_$#]*|;""")
+private val annotationTokenPattern = Regex("'(?:''|[^'])*'|\"(?:\"\"|[^\"])*\"|[A-Za-z_][A-Za-z0-9_$#]*|;")
 
 private const val ANNOTATIONS = "ANNOTATIONS"
 
@@ -139,6 +139,13 @@ private fun AnnotationToken?.annotationHasText(text: String): Boolean = this?.te
 
 private fun AnnotationToken.isAnnotationOperationKeyword(): Boolean =
     annotationHasText("ADD") || annotationHasText("DROP") || annotationHasText("REPLACE")
+
+private fun String.unquotedAnnotationName(): String =
+    when {
+        startsWith("\"") -> removeSurrounding("\"").replace("\"\"", "\"")
+        startsWith("'") -> removeSurrounding("'").replace("''", "'")
+        else -> this
+    }
 
 private fun String.indexOfAnnotationKeyword(startIndex: Int): Int {
     var index = startIndex

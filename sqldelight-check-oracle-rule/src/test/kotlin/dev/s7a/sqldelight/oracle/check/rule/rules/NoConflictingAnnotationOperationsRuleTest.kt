@@ -49,6 +49,50 @@ class NoConflictingAnnotationOperationsRuleTest :
                 )
         }
 
+        test("reports conflicting quoted annotation operations exactly") {
+            NoConflictingAnnotationOperationsRule()
+                .diagnostics(
+                    """
+                    ALTER TABLE customer
+                    MODIFY customer_name ANNOTATIONS (
+                      DROP "Group",
+                      REPLACE "Group" 'Customer name'
+                    );
+                    """,
+                ).summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Avoid conflicting Oracle annotation operations for Group.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 18,
+                    ),
+                )
+        }
+
+        test("reports conflicting string literal annotation operations exactly") {
+            NoConflictingAnnotationOperationsRule()
+                .diagnostics(
+                    """
+                    ALTER TABLE customer
+                    ANNOTATIONS (
+                      DROP 'Display',
+                      REPLACE 'Display' 'Customer'
+                    );
+                    """,
+                ).summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Avoid conflicting Oracle annotation operations for Display.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 20,
+                    ),
+                )
+        }
+
         test("accepts distinct annotation operations") {
             NoConflictingAnnotationOperationsRule()
                 .diagnostics(

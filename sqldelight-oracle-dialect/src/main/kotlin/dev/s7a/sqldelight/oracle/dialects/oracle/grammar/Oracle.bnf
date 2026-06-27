@@ -2743,7 +2743,10 @@ alter_table_drop_constraint ::= 'DROP' (
   pin = 2
 }
 
-alter_table_drop_column ::= 'DROP' [ 'COLUMN' ] {column_name} [ 'CASCADE' 'CONSTRAINTS' ] {
+alter_table_drop_column ::= 'DROP' (
+  [ 'COLUMN' ] {column_name} |
+  LP {column_name} ( COMMA {column_name} ) * RP
+) [ 'CASCADE' 'CONSTRAINTS' ] [ 'CHECKPOINT' [ {signed_number} ] ] {
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.AlterTableDropColumnMixin"
   pin = 1
 }

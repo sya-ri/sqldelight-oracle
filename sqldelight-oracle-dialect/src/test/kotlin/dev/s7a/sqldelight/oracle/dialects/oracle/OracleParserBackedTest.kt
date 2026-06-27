@@ -4822,7 +4822,10 @@ class OracleParserBackedTest :
                   id NUMBER PRIMARY KEY,
                   status VARCHAR2(16),
                   valid_from DATE,
-                  valid_to DATE
+                  valid_to DATE,
+                  drop_checkpoint_at TIMESTAMP,
+                  drop_batch_a NUMBER,
+                  drop_batch_b NUMBER
                 );
 
                 ALTER TABLE alter_targets ADD created_at TIMESTAMP;
@@ -4844,6 +4847,8 @@ class OracleParserBackedTest :
                 ALTER TABLE alter_targets MODIFY COLUMN preferred_contact ELEMENT IS OF TYPE (ONLY account_contact_type);
                 ALTER TABLE alter_targets RENAME COLUMN status TO account_status;
                 ALTER TABLE alter_targets DROP COLUMN archived_at CASCADE CONSTRAINTS;
+                ALTER TABLE alter_targets DROP COLUMN drop_checkpoint_at CHECKPOINT 500;
+                ALTER TABLE alter_targets DROP (drop_batch_a, drop_batch_b) CASCADE CONSTRAINTS CHECKPOINT 500;
                 ALTER TABLE alter_targets DROP COLUMN created_at CASCADE CONSTRAINTS;
                 ALTER TABLE alter_targets SET UNUSED COLUMN updated_at ONLINE;
                 ALTER TABLE alter_targets SET UNUSED (account_status) CASCADE CONSTRAINTS;

@@ -29,6 +29,8 @@ internal fun PsiElement.oracleFirstColumnName(): SqlColumnName =
 internal fun PsiElement.oracleSingleColumnName(): SqlColumnName =
     PsiTreeUtil.getChildrenOfTypeAsList(this, SqlColumnName::class.java).single()
 
+internal fun PsiElement.oracleColumnNames(): List<SqlColumnName> = PsiTreeUtil.getChildrenOfTypeAsList(this, SqlColumnName::class.java)
+
 internal fun PsiElement.oracleSingleColumnAlias(): SqlColumnAlias =
     PsiTreeUtil.getChildrenOfTypeAsList(this, SqlColumnAlias::class.java).single()
 

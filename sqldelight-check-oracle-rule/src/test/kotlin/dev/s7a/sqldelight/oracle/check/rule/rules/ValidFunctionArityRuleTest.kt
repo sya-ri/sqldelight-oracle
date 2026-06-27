@@ -100,12 +100,22 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
-        test("reports wrong arity for Oracle value aggregates") {
+        test("reports wrong arity for Oracle aggregates") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(
                     """
-                    invalidValueAggregates:
-                    SELECT ANY_VALUE(), STATS_MODE(status, fallback), REGR_COUNT(amount)
+                    invalidAggregates:
+                    SELECT COUNT(),
+                      SUM(amount, fallback_amount),
+                      MAX(status, fallback_status),
+                      ANY_VALUE(),
+                      STATS_MODE(status, fallback),
+                      REGR_COUNT(amount),
+                      MEDIAN(),
+                      APPROX_MEDIAN(),
+                      APPROX_SUM(amount, extra),
+                      APPROX_COUNT(),
+                      APPROX_COUNT_DISTINCT()
                     FROM invoices;
                     """,
                 )
@@ -113,25 +123,81 @@ class ValidFunctionArityRuleTest :
             diagnostics.summaries() shouldBe
                 listOf(
                     DiagnosticSummary(
-                        message = "Oracle function ANY_VALUE expects 1 argument(s), but got 0.",
+                        message = "Oracle function COUNT expects 1 argument(s), but got 0.",
                         startLine = 2,
                         startColumn = 8,
                         endLine = 2,
-                        endColumn = 17,
+                        endColumn = 13,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function SUM expects 1 argument(s), but got 2.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 6,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function MAX expects 1 argument(s), but got 2.",
+                        startLine = 4,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 6,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function ANY_VALUE expects 1 argument(s), but got 0.",
+                        startLine = 5,
+                        startColumn = 3,
+                        endLine = 5,
+                        endColumn = 12,
                     ),
                     DiagnosticSummary(
                         message = "Oracle function STATS_MODE expects 1 argument(s), but got 2.",
-                        startLine = 2,
-                        startColumn = 21,
-                        endLine = 2,
-                        endColumn = 31,
+                        startLine = 6,
+                        startColumn = 3,
+                        endLine = 6,
+                        endColumn = 13,
                     ),
                     DiagnosticSummary(
                         message = "Oracle function REGR_COUNT expects 2 argument(s), but got 1.",
-                        startLine = 2,
-                        startColumn = 51,
-                        endLine = 2,
-                        endColumn = 61,
+                        startLine = 7,
+                        startColumn = 3,
+                        endLine = 7,
+                        endColumn = 13,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function MEDIAN expects 1 argument(s), but got 0.",
+                        startLine = 8,
+                        startColumn = 3,
+                        endLine = 8,
+                        endColumn = 9,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function APPROX_MEDIAN expects 1 argument(s), but got 0.",
+                        startLine = 9,
+                        startColumn = 3,
+                        endLine = 9,
+                        endColumn = 16,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function APPROX_SUM expects 1 argument(s), but got 2.",
+                        startLine = 10,
+                        startColumn = 3,
+                        endLine = 10,
+                        endColumn = 13,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function APPROX_COUNT expects 1 argument(s), but got 0.",
+                        startLine = 11,
+                        startColumn = 3,
+                        endLine = 11,
+                        endColumn = 15,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function APPROX_COUNT_DISTINCT expects 1 argument(s), but got 0.",
+                        startLine = 12,
+                        startColumn = 3,
+                        endLine = 12,
+                        endColumn = 24,
                     ),
                 )
         }
@@ -143,8 +209,16 @@ class ValidFunctionArityRuleTest :
                 SELECT SYSDATE(),
                   POWER(amount, 2),
                   NVL2(status, 'Y', 'N'),
+                  COUNT(*),
+                  SUM(amount),
+                  MAX(status),
                   ANY_VALUE(status),
                   STATS_MODE(status),
+                  MEDIAN(amount),
+                  APPROX_MEDIAN(amount),
+                  APPROX_SUM(amount),
+                  APPROX_COUNT(*),
+                  APPROX_COUNT_DISTINCT(customer_id),
                   REGR_SLOPE(amount, quantity),
                   COALESCE(nickname, name, 'unknown'),
                   REGEXP_SUBSTR(description, '[A-Z]+', 1, 1, 'i', 0),

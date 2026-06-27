@@ -50,4 +50,14 @@ class NoConflictingSetRoleClausesRuleTest :
                     """,
                 ).summaries() shouldBe emptyList()
         }
+
+        test("accepts multiple named role settings") {
+            NoConflictingSetRoleClausesRule()
+                .diagnostics(
+                    """
+                    SET ROLE app_user, reporting_user IDENTIFIED BY reporting_password;
+                    SET ROLE ALL EXCEPT dw_manager, app_admin;
+                    """,
+                ).summaries() shouldBe emptyList()
+        }
     })

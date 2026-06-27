@@ -1445,7 +1445,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSchemaQualifiedSynonymStmt : com/alecstrong/sql/psi/core/psi/TableElement, com/intellij/psi/StubBasedPsiElement {
-	public abstract fun getOracleLocalSynonymTarget ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleLocalSynonymTarget;
+	public abstract fun getOracleSynonymTarget ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleSynonymTarget;
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSchemaStmt : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -3560,12 +3560,25 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCr
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 }
 
-public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateSchemaQualifiedSynonymStmtImpl : com/alecstrong/sql/psi/core/psi/impl/SqlCreateViewStmtImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSchemaQualifiedSynonymStmt {
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateSchemaQualifiedSynonymStmtImpl : dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSchemaQualifiedSynonymStmt {
 	public fun <init> (Lcom/alecstrong/sql/psi/core/psi/SchemaContributorStub;Lcom/intellij/psi/stubs/IStubElementType;)V
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
-	public fun getOracleLocalSynonymTarget ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleLocalSynonymTarget;
+	public synthetic fun annotate (Lcom/alecstrong/sql/psi/core/SqlAnnotationHolder;)V
+	public synthetic fun getColumnDefList ()Ljava/util/List;
+	public synthetic fun getCompoundSelectStmt ()Lcom/alecstrong/sql/psi/core/psi/SqlCompoundSelectStmt;
+	public synthetic fun getContainingFile ()Lcom/alecstrong/sql/psi/core/SqlFileBase;
+	public synthetic fun getDatabaseName ()Lcom/alecstrong/sql/psi/core/psi/SqlDatabaseName;
+	public fun getOracleSynonymTarget ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleSynonymTarget;
+	public synthetic fun getTableConstraintList ()Ljava/util/List;
+	public synthetic fun getTableName ()Lcom/alecstrong/sql/psi/core/psi/SqlTableName;
+	public synthetic fun getTableOptions ()Lcom/alecstrong/sql/psi/core/psi/SqlTableOptions;
+	public synthetic fun modifySchema (Lcom/alecstrong/sql/psi/core/psi/Schema;)V
+	public synthetic fun name ()Ljava/lang/String;
+	public synthetic fun queryAvailable (Lcom/intellij/psi/PsiElement;)Ljava/util/Collection;
+	public synthetic fun tableExposed ()Lcom/alecstrong/sql/psi/core/psi/LazyQuery;
+	public synthetic fun tablesAvailable (Lcom/intellij/psi/PsiElement;)Ljava/util/Collection;
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleCreateSchemaStmtImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleCreateSchemaStmt {

@@ -126,8 +126,9 @@ internal fun oracleSynonymTargetAvailable(
     val synonym =
         tableName.reference
             ?.resolve()
-            ?.parent
-            ?.oracleQuerySourceSynonym()
+            ?.let { resolved ->
+                resolved.oracleQuerySourceSynonym() ?: resolved.parent?.oracleQuerySourceSynonym()
+            }
             ?: return null
     return synonym.oracleSynonymTargetAvailable(exposedTableName, mutableSetOf(), tableResolver)
 }

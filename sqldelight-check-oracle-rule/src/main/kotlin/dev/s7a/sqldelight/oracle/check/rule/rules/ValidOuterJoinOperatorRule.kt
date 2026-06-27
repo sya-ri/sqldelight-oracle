@@ -95,8 +95,7 @@ private fun List<OuterJoinToken>.hasForbiddenOuterJoinOperatorTerm(): Boolean =
     any { token -> token.outerJoinHasText("OR") || token.outerJoinHasText("IN") }
 
 private fun OuterJoinToken.isOuterJoinConditionBoundary(): Boolean =
-    outerJoinHasText("AND") ||
-        outerJoinHasText(";") ||
+    outerJoinHasText(";") ||
         outerJoinHasText("WHERE") ||
         outerJoinHasText("GROUP") ||
         outerJoinHasText("HAVING") ||

@@ -45,6 +45,28 @@ class ValidOuterJoinOperatorRuleTest :
                 )
         }
 
+        test("reports legacy outer join operator across AND before OR") {
+            ValidOuterJoinOperatorRule()
+                .diagnostics(
+                    """
+                    SELECT *
+                    FROM orders o, customers c
+                    WHERE o.customer_id = c.id(+)
+                      AND c.region(+) = o.region
+                       OR c.status = 'ACTIVE';
+                    """,
+                ).summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = OUTER_JOIN_MESSAGE,
+                        startLine = 3,
+                        startColumn = 7,
+                        endLine = 5,
+                        endColumn = 15,
+                    ),
+                )
+        }
+
         test("accepts legacy outer join operator in simple comparisons") {
             ValidOuterJoinOperatorRule()
                 .diagnostics(

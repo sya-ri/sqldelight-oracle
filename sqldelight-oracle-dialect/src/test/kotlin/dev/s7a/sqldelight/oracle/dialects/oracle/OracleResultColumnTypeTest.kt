@@ -178,6 +178,13 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT INTERVAL '1' DAY + hire_date AS c FROM emp") shouldBe "java.time.LocalDateTime"
         }
 
+        test("propagates Oracle interval conversion nullability exactly") {
+            typeOf("SELECT NUMTODSINTERVAL(dept_id, 'DAY') AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT NUMTOYMINTERVAL(dept_id, 'MONTH') AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT TO_DSINTERVAL(nickname) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT TO_YMINTERVAL(nickname) AS c FROM emp") shouldBe "kotlin.String?"
+        }
+
         test("resolves Oracle grouping function result column types exactly") {
             typeOf("SELECT GROUPING(dept_id) AS c FROM emp GROUP BY ROLLUP(dept_id)") shouldBe "kotlin.Long"
             typeOf("SELECT GROUPING_ID(dept_id) AS c FROM emp GROUP BY ROLLUP(dept_id)") shouldBe "kotlin.Long"

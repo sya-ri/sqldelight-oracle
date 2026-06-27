@@ -5941,6 +5941,12 @@ class OracleParserBackedTest :
                 WHERE target.order_id = ?
                 RETURNING target.order_total INTO ?;
 
+                updateReturningBulkCollect:
+                UPDATE partitioned_order_updates
+                SET order_total = order_total + ?
+                WHERE region_code = ?
+                RETURNING order_id, order_total BULK COLLECT INTO returned_order_ids, returned_totals;
+
                 updateWithWaitAndErrorLogging:
                 UPDATE partitioned_order_updates
                 SET archived_at = CURRENT_TIMESTAMP
@@ -6007,6 +6013,11 @@ class OracleParserBackedTest :
                 DELETE FROM partitioned_order_updates target
                 WHERE target.order_id = ?
                 RETURNING target.order_total INTO ?;
+
+                deleteReturningBulkCollect:
+                DELETE FROM partitioned_order_updates
+                WHERE region_code = ?
+                RETURNING order_id BULK COLLECT INTO deleted_order_ids;
 
                 deleteWithErrorLogging:
                 DELETE FROM partitioned_order_updates

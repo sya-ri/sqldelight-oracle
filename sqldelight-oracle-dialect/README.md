@@ -13,7 +13,7 @@ sqldelight {
     databases {
         create("Database") {
             packageName.set("com.example")
-            dialect("dev.s7a.sqldelight.oracle:sqldelight-oracle-dialect:0.1.0")
+            dialect("dev.s7a.sqldelight.oracle:sqldelight-oracle-dialect:0.1.1")
         }
     }
 }
@@ -88,7 +88,7 @@ Compatibility:
 
 ### Not Supported Or Deferred
 
-The following are intentionally not treated as `0.1.0` blockers:
+The following are intentionally not treated as `0.1.1` blockers:
 
 - [MODEL query clauses](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/model_clause.html), model cell references, and JSON array-step bracket access. These conflict with SQLDelight core bracket/index parsing today.
 - Non-named DML targets such as subquery targets with [subquery_restriction_clause](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/img_text/subquery_restriction_clause.html), table collection targets, non-named object table targets, and object view targets. SQLDelight mutator paths currently assume named `SqlTableName` / `SqlQualifiedTableName` targets.

@@ -529,6 +529,12 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT XMLSERIALIZE(CONTENT xml_doc AS CLOB) AS c FROM emp") shouldBe "kotlin.String?"
         }
 
+        test("propagates Oracle XML function nullability exactly") {
+            typeOf("SELECT XMLDIFF(xml_doc, XMLTYPE('<Warehouse/>')) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT XMLPATCH(xml_doc, XMLTYPE('<Warehouse/>')) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT XMLTRANSFORM(xml_doc, XMLTYPE('<Warehouse/>')) AS c FROM emp") shouldBe "kotlin.String?"
+        }
+
         test("resolves Oracle XML path condition result column types exactly") {
             typeOf("SELECT EQUALS_PATH(xml_doc, '/Warehouse') AS c FROM emp") shouldBe "java.math.BigDecimal"
             typeOf("SELECT UNDER_PATH(xml_doc, '/Warehouse', 1, 2) AS c FROM emp") shouldBe "java.math.BigDecimal"

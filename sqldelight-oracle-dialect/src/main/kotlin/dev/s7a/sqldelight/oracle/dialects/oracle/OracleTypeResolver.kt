@@ -950,6 +950,9 @@ public class OracleTypeResolver(
                     "VECTOR_SERIALIZE",
                     "VSIZE",
                     "WIDTH_BUCKET",
+                    "XMLDIFF",
+                    "XMLPATCH",
+                    "XMLTRANSFORM",
                     "XMLTYPE",
                 ) || functionName in oracleNullPropagatingCalendarFunctions()
         }

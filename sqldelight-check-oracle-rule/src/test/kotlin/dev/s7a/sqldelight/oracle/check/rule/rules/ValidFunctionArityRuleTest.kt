@@ -599,6 +599,58 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("reports wrong arity for Oracle vector functions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidVectors:
+                    SELECT TO_VECTOR(), TO_VECTOR(payload, 3, FLOAT32, 'extra'),
+                      VECTOR_DISTANCE(embedding), VECTOR_DISTANCE(embedding, target_embedding, COSINE, 'extra'),
+                      FROM_VECTOR()
+                    FROM vector_items;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function TO_VECTOR expects 1..3 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 17,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function TO_VECTOR expects 1..3 argument(s), but got 4.",
+                        startLine = 2,
+                        startColumn = 21,
+                        endLine = 2,
+                        endColumn = 30,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function VECTOR_DISTANCE expects 2..3 argument(s), but got 1.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 18,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function VECTOR_DISTANCE expects 2..3 argument(s), but got 4.",
+                        startLine = 3,
+                        startColumn = 31,
+                        endLine = 3,
+                        endColumn = 46,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function FROM_VECTOR expects 1 argument(s), but got 0.",
+                        startLine = 4,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 14,
+                    ),
+                )
+        }
+
         test("reports wrong arity for Oracle analytic value functions") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(
@@ -985,6 +1037,9 @@ class ValidFunctionArityRuleTest :
                   REGEXP_REPLACE(description, q'{literal ' marker, comma}', 'x'),
                   REGEXP_SUBSTR(description, '[A-Z]+', 1, 1, 'i', 0),
                   TO_TIMESTAMP(created_text, 'YYYY-MM-DD HH24:MI:SS'),
+                  TO_VECTOR('[1,2,3]', 3, FLOAT32),
+                  VECTOR_DISTANCE(embedding, target_embedding, COSINE),
+                  FROM_VECTOR(embedding),
                   GROUPING(status),
                   GROUPING_ID(status, region),
                   GROUP_ID()

@@ -111,6 +111,7 @@ private val oracleFunctionArities =
         "EXTRACTVALUE" to arityRange(2, 3),
         "FIRST_VALUE" to exactArity(1),
         "FLOOR" to exactArity(1),
+        "FROM_VECTOR" to exactArity(1),
         "GROUPING" to exactArity(1),
         "GROUPING_ID" to arityRange(1, Int.MAX_VALUE),
         "GROUP_ID" to exactArity(0),
@@ -245,11 +246,13 @@ private val oracleFunctionArities =
         "TO_NUMBER" to arityRange(1, 3),
         "TO_TIMESTAMP" to arityRange(1, 3),
         "TO_TIMESTAMP_TZ" to arityRange(1, 3),
+        "TO_VECTOR" to arityRange(1, 3),
         "TRUNC" to arityRange(1, 2),
         "USERENV" to exactArity(1),
         "VARIANCE" to exactArity(1),
         "VAR_POP" to exactArity(1),
         "VAR_SAMP" to exactArity(1),
+        "VECTOR_DISTANCE" to arityRange(2, 3),
         "XMLISVALID" to arityRange(1, 2),
     )
 

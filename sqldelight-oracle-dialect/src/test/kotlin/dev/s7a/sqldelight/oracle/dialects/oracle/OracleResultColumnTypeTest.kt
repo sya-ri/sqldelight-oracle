@@ -81,6 +81,8 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT NULLIF(id, small_id) AS c FROM emp") shouldBe "kotlin.Long?"
             typeOf("SELECT DECODE(name, 'A', id) AS c FROM emp") shouldBe "kotlin.Long?"
             typeOf("SELECT DECODE(name, 'A', id, small_id) AS c FROM emp") shouldBe "kotlin.Long"
+            typeOf("SELECT DECODE(name, 'A', salary, 0) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT DECODE(name, 'A', id, dept_id) AS c FROM emp") shouldBe "kotlin.Long?"
             typeOf("SELECT GREATEST(id, dept_id) AS c FROM emp") shouldBe "kotlin.Long?"
             typeOf("SELECT EXTRACT(YEAR FROM hire_date) AS c FROM emp") shouldBe "java.math.BigDecimal"
         }

@@ -36,6 +36,7 @@ public class OracleTypeResolver(
                 oracleExtensionFunctionType(expr)
                     ?: oracleExtensionPseudocolumnType(expr)
                     ?: oracleExtensionLiteralType(expr)
+                    ?: oracleNumericOperatorType(expr)
                     ?: parentResolver.resolvedType(expr)
         }
 
@@ -97,9 +98,40 @@ public class OracleTypeResolver(
         }
     }
 
+    private fun oracleNumericOperatorType(expr: SqlExpr): IntermediateType? {
+        val operands =
+            runCatching { expr.children.filterIsInstance<SqlExpr>() }
+                .getOrNull()
+                ?.takeIf { children -> children.size == 2 }
+                ?: return null
+        val operator = expr.oracleBinaryOperatorBetween(operands) ?: return null
+        val operandTypes = operands.map { operand -> resolvedType(operand) }
+        val operandDialectTypes = operandTypes.map { type -> type.dialectType }
+        if (operandDialectTypes.any { type -> type !in NUMERIC_TYPE_ORDER }) return null
+
+        val resultType =
+            when {
+                operator == "/" && operandDialectTypes.none { type -> type == REAL || type == BINARY_FLOAT || type == BINARY_DOUBLE } -> {
+                    DECIMAL_NUMBER
+                }
+
+                else -> {
+                    NUMERIC_TYPE_ORDER.last { type -> type in operandDialectTypes }
+                }
+            }
+        return IntermediateType(resultType).nullableIf(operandTypes.any { type -> type.javaType.isNullable })
+    }
+
     private fun SqlExpr.oracleExtensionExpr(): SqlExtensionExpr? =
         this as? SqlExtensionExpr
             ?: runCatching { children.filterIsInstance<SqlExtensionExpr>().singleOrNull() }.getOrNull()
+
+    private fun SqlExpr.oracleBinaryOperatorBetween(operands: List<SqlExpr>): String? {
+        val leftEnd = operands[0].textRange.endOffset - textRange.startOffset
+        val rightStart = operands[1].textRange.startOffset - textRange.startOffset
+        val between = text.substring(leftEnd, rightStart)
+        return listOf("||", "*", "/", "+", "-").firstOrNull { operator -> operator in between }
+    }
 
     private fun oracleFunctionType(
         functionName: String,

@@ -26,6 +26,18 @@ public class ValidFunctionArityRule : Rule {
         val masked = content.maskSqlCommentsAndQuotedTextPreservingOffsets()
         oracleFunctionPattern.findAll(masked).forEach { match ->
             val functionName = match.groupValues[1].uppercase()
+            if (functionName in oracleNoParenthesesExpressions) {
+                reporter.report(
+                    RuleDiagnostic(
+                        severity = defaultSeverity,
+                        message = "Oracle expression $functionName does not accept parentheses.",
+                        file = context.file,
+                        range = content.rangeAtOffsets(match.range.first, match.range.first + functionName.length),
+                        database = context.database,
+                    ),
+                )
+                return@forEach
+            }
             val arity = oracleFunctionArities[functionName] ?: return@forEach
             val openParenthesisOffset = masked.indexOf('(', startIndex = match.range.first)
             val argumentCount = content.functionArgumentCountAt(openParenthesisOffset) ?: return@forEach
@@ -62,18 +74,9 @@ private fun arityRange(
 
 private val oracleFunctionArities =
     mapOf(
-        "CURRENT_DATE" to exactArity(0),
-        "DBTIMEZONE" to exactArity(0),
         "EMPTY_BLOB" to exactArity(0),
         "EMPTY_CLOB" to exactArity(0),
-        "ORA_INVOKING_USER" to exactArity(0),
-        "ORA_INVOKING_USERID" to exactArity(0),
-        "SESSIONTIMEZONE" to exactArity(0),
-        "SYSDATE" to exactArity(0),
-        "SYSTIMESTAMP" to exactArity(0),
         "SYS_GUID" to exactArity(0),
-        "UID" to exactArity(0),
-        "USER" to exactArity(0),
         "UUID" to exactArity(0),
         "ABS" to exactArity(1),
         "ACOS" to exactArity(1),
@@ -160,8 +163,10 @@ private val oracleFunctionArities =
         "NVL2" to exactArity(3),
         "TRANSLATE" to exactArity(3),
         "COALESCE" to arityRange(2, Int.MAX_VALUE),
+        "CURRENT_TIMESTAMP" to exactArity(1),
         "GREATEST" to arityRange(1, Int.MAX_VALUE),
         "LEAST" to arityRange(1, Int.MAX_VALUE),
+        "LOCALTIMESTAMP" to exactArity(1),
         "NVL" to exactArity(2),
         "REGEXP_COUNT" to arityRange(2, 4),
         "REGEXP_INSTR" to arityRange(2, 7),
@@ -177,8 +182,21 @@ private val oracleFunctionArities =
         "TO_TIMESTAMP_TZ" to arityRange(1, 3),
     )
 
+private val oracleNoParenthesesExpressions =
+    setOf(
+        "CURRENT_DATE",
+        "DBTIMEZONE",
+        "ORA_INVOKING_USER",
+        "ORA_INVOKING_USERID",
+        "SESSIONTIMEZONE",
+        "SYSDATE",
+        "SYSTIMESTAMP",
+        "UID",
+        "USER",
+    )
+
 private val oracleFunctionPattern =
-    Regex("""(?i)\b(${oracleFunctionArities.keys.joinToString("|") { Regex.escape(it) }})\s*\(""")
+    Regex("""(?i)\b(${(oracleFunctionArities.keys + oracleNoParenthesesExpressions).joinToString("|") { Regex.escape(it) }})\s*\(""")
 
 private fun String.functionArgumentCountAt(openParenthesisOffset: Int): Int? {
     if (openParenthesisOffset !in indices || this[openParenthesisOffset] != '(') return null

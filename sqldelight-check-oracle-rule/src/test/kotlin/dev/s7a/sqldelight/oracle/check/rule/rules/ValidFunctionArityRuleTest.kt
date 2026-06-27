@@ -18,18 +18,97 @@ class ValidFunctionArityRuleTest :
             diagnostics.summaries() shouldBe
                 listOf(
                     DiagnosticSummary(
-                        message = "Oracle function SYSDATE expects 0 argument(s), but got 1.",
+                        message = "Oracle expression SYSDATE does not accept parentheses.",
                         startLine = 2,
                         startColumn = 8,
                         endLine = 2,
                         endColumn = 15,
                     ),
                     DiagnosticSummary(
-                        message = "Oracle function USER expects 0 argument(s), but got 1.",
+                        message = "Oracle expression USER does not accept parentheses.",
                         startLine = 2,
                         startColumn = 20,
                         endLine = 2,
                         endColumn = 24,
+                    ),
+                )
+        }
+
+        test("reports parentheses on Oracle datetime and user environment expressions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidNoParentheses:
+                    SELECT SYSDATE(), USER(), DBTIMEZONE(), SESSIONTIMEZONE(), SYSTIMESTAMP()
+                    FROM dual;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle expression SYSDATE does not accept parentheses.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 15,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression USER does not accept parentheses.",
+                        startLine = 2,
+                        startColumn = 19,
+                        endLine = 2,
+                        endColumn = 23,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression DBTIMEZONE does not accept parentheses.",
+                        startLine = 2,
+                        startColumn = 27,
+                        endLine = 2,
+                        endColumn = 37,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression SESSIONTIMEZONE does not accept parentheses.",
+                        startLine = 2,
+                        startColumn = 41,
+                        endLine = 2,
+                        endColumn = 56,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression SYSTIMESTAMP does not accept parentheses.",
+                        startLine = 2,
+                        startColumn = 60,
+                        endLine = 2,
+                        endColumn = 72,
+                    ),
+                )
+        }
+
+        test("reports missing precision in parenthesized current timestamp functions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidCurrentTimestamp:
+                    SELECT CURRENT_TIMESTAMP(), LOCALTIMESTAMP()
+                    FROM dual;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function CURRENT_TIMESTAMP expects 1 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 25,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function LOCALTIMESTAMP expects 1 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 29,
+                        endLine = 2,
+                        endColumn = 43,
                     ),
                 )
         }
@@ -206,7 +285,8 @@ class ValidFunctionArityRuleTest :
             ValidFunctionArityRule().diagnostics(
                 """
                 validFunctions:
-                SELECT SYSDATE(),
+                SELECT SYSDATE,
+                  USER,
                   POWER(amount, 2),
                   NVL2(status, 'Y', 'N'),
                   COUNT(*),
@@ -219,6 +299,8 @@ class ValidFunctionArityRuleTest :
                   APPROX_SUM(amount),
                   APPROX_COUNT(*),
                   APPROX_COUNT_DISTINCT(customer_id),
+                  CURRENT_TIMESTAMP(3),
+                  LOCALTIMESTAMP(6),
                   REGR_SLOPE(amount, quantity),
                   COALESCE(nickname, name, 'unknown'),
                   REGEXP_SUBSTR(description, '[A-Z]+', 1, 1, 'i', 0),

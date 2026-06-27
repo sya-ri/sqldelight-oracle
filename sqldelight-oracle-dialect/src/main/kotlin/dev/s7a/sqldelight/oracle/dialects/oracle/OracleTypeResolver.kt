@@ -13,6 +13,7 @@ import com.alecstrong.sql.psi.core.psi.SqlExpr
 import com.alecstrong.sql.psi.core.psi.SqlExtensionExpr
 import com.alecstrong.sql.psi.core.psi.SqlFunctionExpr
 import com.alecstrong.sql.psi.core.psi.SqlTypeName
+import com.intellij.psi.util.PsiTreeUtil
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.BINARY
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.BINARY_DOUBLE
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.BINARY_FLOAT
@@ -56,12 +57,17 @@ public class OracleTypeResolver(
         val extensionExpr = expr.oracleExtensionExpr() ?: return null
         val functionName = extensionExpr.text.oracleFunctionName() ?: return null
         val invocationEnd = extensionExpr.text.oracleFirstFunctionInvocationEnd()
+        val childExpressions = PsiTreeUtil.findChildrenOfType(extensionExpr, SqlExpr::class.java).toList()
+        val invocationArguments =
+            childExpressions.filter { argument ->
+                argument.textRange.startOffset - extensionExpr.textRange.startOffset < invocationEnd
+            }
         val arguments =
-            extensionExpr.children
-                .filterIsInstance<SqlExpr>()
-                .filter { argument ->
-                    argument.textRange.startOffset - extensionExpr.textRange.startOffset < invocationEnd
-                }
+            if (functionName.isOracleOrderedSetPercentileFunction()) {
+                invocationArguments + childExpressions.oracleWithinGroupOrderingExpressions(extensionExpr)
+            } else {
+                invocationArguments
+            }
         return oracleFunctionType(functionName, extensionExpr.text, arguments)
     }
 
@@ -464,6 +470,12 @@ public class OracleTypeResolver(
                 }
             }
 
+            "percentile_cont", "percentile_disc" -> {
+                exprList.getOrNull(1)?.let { expression ->
+                    resolvedType(expression).asNullable()
+                }
+            }
+
             "any_value", "stats_mode" -> {
                 exprList.singleOrNull()?.let { expression -> resolvedType(expression).asNullable() }
             }
@@ -632,6 +644,62 @@ public class OracleTypeResolver(
                 ?.groupValues
                 ?.get(1)
                 ?.uppercase()
+
+        private fun String.isOracleOrderedSetPercentileFunction(): Boolean =
+            trim().uppercase() in setOf("PERCENTILE_CONT", "PERCENTILE_DISC")
+
+        private fun List<SqlExpr>.oracleWithinGroupOrderingExpressions(extensionExpr: SqlExtensionExpr): List<SqlExpr> {
+            val orderByStart = extensionExpr.text.oracleWithinGroupOrderByExpressionStart() ?: return emptyList()
+            val withinGroupEnd = extensionExpr.text.oracleWithinGroupClauseEnd(orderByStart) ?: return emptyList()
+            val extensionStart = extensionExpr.textRange.startOffset
+            return filter { expression ->
+                val relativeStart = expression.textRange.startOffset - extensionStart
+                relativeStart in orderByStart..<withinGroupEnd
+            }
+        }
+
+        private fun String.oracleWithinGroupOrderByExpressionStart(): Int? =
+            Regex("""(?i)\bWITHIN\s+GROUP\s*\(\s*ORDER\s+BY\s+""")
+                .find(this)
+                ?.range
+                ?.last
+                ?.plus(1)
+
+        private fun String.oracleWithinGroupClauseEnd(orderByStart: Int): Int? {
+            val openParen = lastIndexOf('(', startIndex = orderByStart).takeIf { index -> index >= 0 } ?: return null
+            var depth = 0
+            var inStringLiteral = false
+            var index = openParen
+            while (index < length) {
+                val char = this[index]
+                if (inStringLiteral) {
+                    if (char == '\'' && getOrNull(index + 1) == '\'') {
+                        index += 2
+                        continue
+                    }
+                    if (char == '\'') {
+                        inStringLiteral = false
+                    }
+                } else {
+                    when (char) {
+                        '\'' -> {
+                            inStringLiteral = true
+                        }
+
+                        '(' -> {
+                            depth += 1
+                        }
+
+                        ')' -> {
+                            depth -= 1
+                            if (depth == 0) return index
+                        }
+                    }
+                }
+                index += 1
+            }
+            return null
+        }
 
         private fun String.oracleTerminalIdentifier(): String =
             trim()

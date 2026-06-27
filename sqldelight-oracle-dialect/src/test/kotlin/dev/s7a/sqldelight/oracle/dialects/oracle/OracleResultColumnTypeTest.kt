@@ -29,6 +29,8 @@ class OracleResultColumnTypeTest :
               salary NUMBER(10, 2),
               bonus BINARY_DOUBLE,
               raw_col RAW(16),
+              embedding VECTOR,
+              target_embedding VECTOR NOT NULL,
               hire_date DATE NOT NULL,
               created_ts TIMESTAMP,
               dept_id NUMBER(10)
@@ -197,6 +199,13 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT ORA_DST_ERROR(created_ts) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT ORA_DST_CONVERT(created_ts) AS c FROM emp") shouldBe "java.time.OffsetDateTime?"
             typeOf("SELECT TZ_OFFSET(nickname) AS c FROM emp") shouldBe "kotlin.String?"
+        }
+
+        test("propagates Oracle vector function nullability exactly") {
+            typeOf("SELECT TO_VECTOR(nickname) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT FROM_VECTOR(embedding) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT VECTOR_DISTANCE(embedding, target_embedding) AS c FROM emp") shouldBe "kotlin.Double?"
+            typeOf("SELECT L2_DISTANCE(embedding, target_embedding) AS c FROM emp") shouldBe "kotlin.Double?"
         }
 
         test("resolves Oracle grouping function result column types exactly") {

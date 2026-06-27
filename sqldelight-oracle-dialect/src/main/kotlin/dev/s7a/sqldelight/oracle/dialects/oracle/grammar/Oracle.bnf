@@ -1329,7 +1329,19 @@ oracle_json_table_column ::= (
 
 oracle_json_table_ordinality_column ::= <<columnAliasExt <<column_alias_real>>>> 'FOR' 'ORDINALITY'
 
-oracle_json_table_regular_column ::= <<columnAliasExt <<column_alias_real>>>> oracle_json_table_datatype [ 'TRUNCATE' ]
+oracle_json_table_regular_column ::= <<columnAliasExt <<column_alias_real>>>> [
+  oracle_json_table_regular_column_no_datatype |
+  oracle_json_table_regular_column_with_datatype
+]
+
+private oracle_json_table_regular_column_no_datatype ::= (
+  'TRUNCATE' [ oracle_json_format_clause ] [ oracle_json_table_path_clause ] oracle_json_table_value_clause * |
+  oracle_json_format_clause [ oracle_json_table_path_clause ] oracle_json_table_value_clause * |
+  oracle_json_table_path_clause oracle_json_table_value_clause * |
+  oracle_json_table_value_clause +
+)
+
+private oracle_json_table_regular_column_with_datatype ::= oracle_json_table_datatype [ 'TRUNCATE' ]
   [ oracle_json_format_clause ] [ oracle_json_table_path_clause ] oracle_json_table_value_clause *
 
 oracle_json_table_exists_column ::= <<columnAliasExt <<column_alias_real>>>> [ oracle_json_table_datatype ]

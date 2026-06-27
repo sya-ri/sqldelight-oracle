@@ -323,7 +323,7 @@ internal abstract class OracleTableOrSubqueryMixin(
                 oracleJsonTableRegularColumn != null -> {
                     source.text.oracleJsonTableColumnType(alias.text)?.let { typeName ->
                         IntermediateType(OracleType.fromSqlTypeName(typeName)).asNullable()
-                    }
+                    } ?: IntermediateType(OracleType.TEXT).asNullable()
                 }
 
                 oracleJsonTableExistsColumn != null -> {

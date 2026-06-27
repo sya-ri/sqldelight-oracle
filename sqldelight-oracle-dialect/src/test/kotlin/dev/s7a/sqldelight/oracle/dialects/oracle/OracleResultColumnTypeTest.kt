@@ -496,6 +496,19 @@ class OracleResultColumnTypeTest :
                   ) item
                 """.trimIndent(),
             ) shouldBe "kotlin.String?"
+            typeOf(
+                """
+                SELECT item.item_name AS c
+                FROM emp,
+                  JSON_TABLE(
+                    json_doc,
+                    '$'
+                    COLUMNS (
+                      item_name PATH '$.name'
+                    )
+                  ) item
+                """.trimIndent(),
+            ) shouldBe "kotlin.String?"
         }
 
         test("resolves Oracle XML root result column types exactly") {

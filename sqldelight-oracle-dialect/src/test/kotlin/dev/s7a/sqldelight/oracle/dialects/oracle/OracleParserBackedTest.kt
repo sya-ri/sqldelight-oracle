@@ -1660,7 +1660,8 @@ class OracleParserBackedTest :
                   JSON_TABLE(
                     '{"id":1}' FORMAT JSON
                     COLUMNS (
-                      document_id NUMBER PATH '${'$'}.id'
+                      document_id NUMBER PATH '${'$'}.id',
+                      document_status PATH '${'$'}.status'
                     )
                   ) jtd;
                 """.trimIndent()

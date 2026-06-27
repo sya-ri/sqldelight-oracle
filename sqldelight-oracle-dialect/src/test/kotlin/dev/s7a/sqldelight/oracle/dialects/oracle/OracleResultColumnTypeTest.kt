@@ -195,6 +195,7 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT ORA_DST_AFFECTED(created_ts) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT ORA_DST_ERROR(created_ts) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT ORA_DST_CONVERT(created_ts) AS c FROM emp") shouldBe "java.time.OffsetDateTime?"
+            typeOf("SELECT TZ_OFFSET(nickname) AS c FROM emp") shouldBe "kotlin.String?"
         }
 
         test("resolves Oracle grouping function result column types exactly") {

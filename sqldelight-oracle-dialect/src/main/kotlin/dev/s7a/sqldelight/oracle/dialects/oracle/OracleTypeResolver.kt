@@ -669,6 +669,7 @@ public class OracleTypeResolver(
                     "TRANSLATE",
                     "TRIM",
                     "TIMESTAMP_TO_SCN",
+                    "TZ_OFFSET",
                     "UPPER",
                     "VSIZE",
                     "WIDTH_BUCKET",

@@ -268,14 +268,21 @@ public class OracleTypeResolver(
             "JSON_ARRAYAGG",
             "JSON_OBJECT",
             "JSON_OBJECTAGG",
-            "JSON_VALUE",
-            "JSON_QUERY",
-            "JSON_SERIALIZE",
-            "JSON_MERGEPATCH",
             "JSON_TRANSFORM",
             "XMLSERIALIZE",
             -> {
                 functionText.oracleReturningTypeName()?.let { typeName -> IntermediateType(OracleType.fromSqlTypeName(typeName)) }
+            }
+
+            "JSON_VALUE",
+            "JSON_QUERY",
+            "JSON_SERIALIZE",
+            "JSON_MERGEPATCH",
+            -> {
+                functionText.oracleReturningTypeName()?.let { typeName ->
+                    IntermediateType(OracleType.fromSqlTypeName(typeName))
+                        .nullableIf(functionText.hasOracleSqlJsonNullReturningClause())
+                }
             }
 
             "CAST",
@@ -915,6 +922,9 @@ public class OracleTypeResolver(
                 .substringAfterLast(".")
                 .trim()
                 .uppercase()
+
+        private fun String.hasOracleSqlJsonNullReturningClause(): Boolean =
+            Regex("""\bNULL\s+ON\s+(?:EMPTY|ERROR)\b""", RegexOption.IGNORE_CASE).containsMatchIn(this)
 
         private fun String.oracleFirstFunctionInvocationEnd(): Int {
             val start = indexOf('(').takeIf { index -> index >= 0 } ?: return length

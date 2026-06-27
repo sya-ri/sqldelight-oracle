@@ -142,8 +142,21 @@ internal fun String.skipSqlQuotedString(start: Int): Int {
     return length
 }
 
-private fun String.skipSqlDoubleQuotedIdentifier(start: Int): Int =
-    indexOf('"', startIndex = start + 1).let { if (it == -1) length else it + 1 }
+internal fun String.skipSqlDoubleQuotedIdentifier(start: Int): Int {
+    var index = start + 1
+    while (index < length) {
+        if (this[index] == '"') {
+            if (index + 1 < length && this[index + 1] == '"') {
+                index += 2
+            } else {
+                return index + 1
+            }
+        } else {
+            index++
+        }
+    }
+    return length
+}
 
 internal data class SqlStaticStringLiteral(
     val value: String,

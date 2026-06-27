@@ -320,6 +320,15 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT external_orders.source_name AS c $externalTable") shouldBe "kotlin.String"
         }
 
+        test("resolves Oracle containers table result column types exactly") {
+            typeOf(
+                """
+                SELECT container_emp.CON_ID AS c
+                FROM CONTAINERS(emp) container_emp
+                """.trimIndent(),
+            ) shouldBe "kotlin.Long"
+        }
+
         test("resolves Oracle XMLTABLE default result column types exactly") {
             typeOf(
                 """

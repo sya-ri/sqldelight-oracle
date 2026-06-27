@@ -55,21 +55,18 @@ internal abstract class OracleTableOrSubqueryMixin(
                 if (result.isEmpty()) {
                     return@lazy emptyList()
                 }
-                val containersColumns = oracleContainersSynthesizedColumns()
+                val containersColumns = oracleContainersQueryColumns()
                 tableAlias?.let { alias ->
                     return@lazy listOf(
-                        result.oracleQueryResultFor(
+                        QueryResult(
                             alias,
-                            containersColumns.map { name -> SynthesizedColumn(alias, listOf(name)) },
+                            result.flatMap { it.columns } + containersColumns,
+                            result.flatMap { it.synthesizedColumns },
                         ),
                     )
                 }
                 return@lazy result.map { query ->
-                    query.copy(
-                        synthesizedColumns =
-                            query.synthesizedColumns +
-                                containersColumns.map { name -> SynthesizedColumn(query.table ?: tableNameElement, listOf(name)) },
-                    )
+                    query.copy(columns = query.columns + containersColumns)
                 }
             }
 
@@ -360,9 +357,9 @@ internal abstract class OracleTableOrSubqueryMixin(
         return QueryColumn(OracleGeneratedColumnElement(this, alias.name, type))
     }
 
-    private fun oracleContainersSynthesizedColumns(): List<String> =
+    private fun oracleContainersQueryColumns(): List<QueryColumn> =
         if (text.trimStart().startsWith("CONTAINERS", ignoreCase = true)) {
-            listOf("CON_ID")
+            listOf(QueryColumn(OracleGeneratedColumnElement(this, "CON_ID", IntermediateType(OracleType.LONG_NUMBER))))
         } else {
             emptyList()
         }

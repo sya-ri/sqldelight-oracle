@@ -2473,6 +2473,7 @@ class OracleParserBackedTest :
                   APPROX_COUNT_DISTINCT(employee_id) AS approximate_employee_count,
                   APPROX_SUM(amount) AS approximate_amount,
                   APPROX_MEDIAN(amount) AS approximate_median_amount,
+                  APPROX_MEDIAN(sold_at DETERMINISTIC, 'ERROR_RATE') AS approximate_median_error_rate,
                   APPROX_PERCENTILE(0.75) WITHIN GROUP (ORDER BY amount) AS approximate_percentile,
                   APPROX_PERCENTILE(0.75 DETERMINISTIC, 'ERROR_RATE') WITHIN GROUP (ORDER BY amount) AS percentile_error_rate
                 FROM sales

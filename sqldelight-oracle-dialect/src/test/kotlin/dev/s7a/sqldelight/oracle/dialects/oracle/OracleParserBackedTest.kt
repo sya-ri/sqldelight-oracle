@@ -4323,6 +4323,13 @@ class OracleParserBackedTest :
                   FOR region IN ('WEST' AS west, 'EAST' AS east)
                 ) pivoted_orders;
 
+                selectPivotQuotedValueWithParenthesis:
+                SELECT pivoted_orders.oreilly_order_count
+                FROM partitioned_orders PIVOT (
+                  COUNT(*) AS order_count
+                  FOR region IN (q'[O)Reilly]' AS oreilly)
+                ) pivoted_orders;
+
                 selectPivotGeneratedColumnsWithoutAs:
                 SELECT pivoted_orders.west_order_count, pivoted_orders.east_order_count
                 FROM partitioned_orders PIVOT (

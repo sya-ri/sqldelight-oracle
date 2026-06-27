@@ -309,6 +309,33 @@ class OracleResultColumnTypeTest :
             ) shouldBe "kotlin.String"
         }
 
+        test("resolves Oracle XMLTABLE explicit result column types exactly") {
+            typeOf(
+                """
+                SELECT warehouse_xml.line_number AS c
+                FROM XMLTABLE(
+                  '/Warehouse'
+                  PASSING XMLTYPE('<Warehouse/>')
+                  COLUMNS
+                    line_number FOR ORDINALITY,
+                    updated_at TIMESTAMP WITH TIME ZONE PATH 'UpdatedAt'
+                ) warehouse_xml
+                """.trimIndent(),
+            ) shouldBe "kotlin.Long"
+            typeOf(
+                """
+                SELECT warehouse_xml.updated_at AS c
+                FROM XMLTABLE(
+                  '/Warehouse'
+                  PASSING XMLTYPE('<Warehouse/>')
+                  COLUMNS
+                    line_number FOR ORDINALITY,
+                    updated_at TIMESTAMP WITH TIME ZONE PATH 'UpdatedAt'
+                ) warehouse_xml
+                """.trimIndent(),
+            ) shouldBe "java.time.OffsetDateTime?"
+        }
+
         test("resolves Oracle JSON_TABLE result column types exactly") {
             typeOf(
                 """

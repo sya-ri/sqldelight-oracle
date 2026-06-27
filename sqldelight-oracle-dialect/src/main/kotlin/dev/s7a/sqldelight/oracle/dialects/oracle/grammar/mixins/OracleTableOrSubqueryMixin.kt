@@ -136,7 +136,7 @@ internal abstract class OracleTableOrSubqueryMixin(
         PsiTreeUtil.findChildOfType(this, OracleOracleXmltableReference::class.java)?.let { xmltable ->
             return xmltable.oracleXmltableColumnsClause
                 ?.oracleXmltableColumnList
-                ?.mapNotNull { column -> column.oracleColumnAliasQueryColumn() }
+                ?.mapNotNull { column -> column.oracleXmltableQueryColumn() }
                 ?.ifEmpty { null }
                 ?.let { columns -> oracleColumnResultFor(xmltable, columns) }
                 ?: QueryResult(
@@ -316,6 +316,24 @@ internal abstract class OracleTableOrSubqueryMixin(
                 }
             } ?: return null
         return QueryColumn(OracleGeneratedColumnElement(source, alias.name, type))
+    }
+
+    private fun PsiElement.oracleXmltableQueryColumn(): QueryColumn? {
+        val alias = PsiTreeUtil.getChildOfType(this, SqlColumnAlias::class.java) ?: return null
+        val afterAlias =
+            text
+                .trim()
+                .removePrefix(alias.text)
+                .trimStart()
+        val type =
+            if (afterAlias.startsWith("FOR ", ignoreCase = true)) {
+                IntermediateType(OracleType.LONG_NUMBER)
+            } else {
+                text.oracleXmltableColumnType(alias.text)?.let { typeName ->
+                    IntermediateType(OracleType.fromSqlTypeName(typeName)).asNullable()
+                }
+            } ?: return null
+        return QueryColumn(OracleGeneratedColumnElement(this, alias.name, type))
     }
 
     private fun oracleContainersSynthesizedColumns(): List<String> =
@@ -740,6 +758,17 @@ private fun String.oracleJsonTableColumnType(aliasText: String): String? {
         .substringBeforeKeyword("EXISTS")
         .substringBeforeKeyword("ERROR")
         .substringBeforeKeyword("NULL")
+        .substringBeforeKeyword("DEFAULT")
+        .trim()
+        .takeIf { it.isNotBlank() }
+}
+
+private fun String.oracleXmltableColumnType(aliasText: String): String? {
+    val afterAlias = trim().removePrefix(aliasText).trimStart()
+    if (afterAlias.isBlank() || afterAlias.startsWith("FOR ", ignoreCase = true)) return null
+    return afterAlias
+        .substringBeforeKeyword("SEQUENCE")
+        .substringBeforeKeyword("PATH")
         .substringBeforeKeyword("DEFAULT")
         .trim()
         .takeIf { it.isNotBlank() }

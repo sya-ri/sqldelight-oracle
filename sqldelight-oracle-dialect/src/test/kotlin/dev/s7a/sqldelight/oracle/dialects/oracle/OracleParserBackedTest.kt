@@ -3702,6 +3702,19 @@ class OracleParserBackedTest :
                 SELECT id
                 FROM leaf_units;
 
+                selectRecursiveFactored:
+                WITH generated_units (id) AS (
+                  SELECT id
+                  FROM org_units
+                  WHERE parent_id IS NULL
+                  UNION ALL
+                  SELECT generated_units.id + 1
+                  FROM generated_units
+                  WHERE generated_units.id < 10
+                )
+                SELECT id
+                FROM generated_units;
+
                 selectNestedFactored:
                 WITH outer_units AS (
                   WITH inner_units AS (

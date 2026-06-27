@@ -84,8 +84,8 @@ public enum class OracleType(
                     INTEGER_NUMBER
                 }
 
-                "FLOAT", "REAL" -> {
-                    BINARY_DOUBLE
+                "FLOAT", "REAL", "DOUBLE PRECISION" -> {
+                    DECIMAL_NUMBER
                 }
 
                 "BINARY_FLOAT" -> {
@@ -821,7 +821,7 @@ private fun String.oracleStringLiteralValue(): String {
 private fun String.baseOracleTypeName(): String =
     when {
         startsWith("LONG RAW") -> "LONG RAW"
-        startsWith("DOUBLE PRECISION") -> "BINARY_DOUBLE"
+        startsWith("DOUBLE PRECISION") -> "DOUBLE PRECISION"
         startsWith("CHARACTER VARYING") -> "VARCHAR"
         startsWith("CHARACTER") -> "CHAR"
         startsWith("NATIONAL CHARACTER VARYING") -> "NVARCHAR2"

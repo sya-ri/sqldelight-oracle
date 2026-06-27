@@ -27,6 +27,7 @@ class OracleResultColumnTypeTest :
               name VARCHAR2(100) NOT NULL,
               nickname VARCHAR2(100),
               salary NUMBER(10, 2),
+              float_col FLOAT,
               bonus BINARY_DOUBLE,
               raw_col RAW(16),
               embedding VECTOR,
@@ -75,6 +76,7 @@ class OracleResultColumnTypeTest :
 
         test("resolves Oracle scalar function result column types exactly") {
             typeOf("SELECT ABS(salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT float_col AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT MOD(id, 2) AS c FROM emp") shouldBe "kotlin.Long"
             typeOf("SELECT ROUND(salary, 2) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT TO_CHAR(hire_date) AS c FROM emp") shouldBe "kotlin.String"

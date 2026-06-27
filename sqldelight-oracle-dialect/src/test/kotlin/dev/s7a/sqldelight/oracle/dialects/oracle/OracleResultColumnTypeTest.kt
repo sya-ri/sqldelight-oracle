@@ -383,6 +383,8 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT LAG(salary) OVER (ORDER BY id) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT FIRST_VALUE(name) OVER (ORDER BY id) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT SUM(salary) OVER (PARTITION BY dept_id) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT CUME_DIST() OVER (ORDER BY salary) AS c FROM emp") shouldBe "java.math.BigDecimal"
+            typeOf("SELECT PERCENT_RANK() OVER (ORDER BY salary) AS c FROM emp") shouldBe "java.math.BigDecimal"
             typeOf("SELECT RATIO_TO_REPORT(salary) OVER () AS c FROM emp") shouldBe "kotlin.Double?"
         }
 

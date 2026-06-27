@@ -146,6 +146,38 @@ class ValidCreateViewColumnAliasesRuleTest :
             ) shouldBe emptyList()
         }
 
+        test("reports CREATE VIEW quoted aliases matching keywords exactly") {
+            val diagnostics =
+                ValidCreateViewColumnAliasesRule().diagnostics(
+                    """
+                    CREATE VIEW order_summary("AS") AS
+                    SELECT id, total
+                    FROM orders;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle CREATE VIEW declares 1 column alias(es), but the SELECT list has 2 column(s).",
+                        startLine = 1,
+                        startColumn = 26,
+                        endLine = 1,
+                        endColumn = 32,
+                    ),
+                )
+        }
+
+        test("accepts CREATE VIEW quoted aliases matching keywords exactly") {
+            ValidCreateViewColumnAliasesRule().diagnostics(
+                """
+                CREATE VIEW order_summary("AS", order_total) AS
+                SELECT id, total
+                FROM orders;
+                """,
+            ) shouldBe emptyList()
+        }
+
         test("accepts matching CREATE VIEW constrained column aliases exactly") {
             ValidCreateViewColumnAliasesRule().diagnostics(
                 """

@@ -191,10 +191,19 @@ private fun String.indexOfKeyword(
 ): Int? {
     var index = startOffset
     while (index < endOffset) {
-        index = indexOf(keyword, startIndex = index, ignoreCase = true)
-        if (index == -1 || index >= endOffset) return null
-        if (isCreateViewBoundary(index - 1) && isCreateViewBoundary(index + keyword.length)) return index
-        index += keyword.length
+        val skipped = skipSqlDelimitedText(index)
+        if (skipped != null) {
+            index = skipped
+            continue
+        }
+
+        if (regionMatches(index, keyword, 0, keyword.length, ignoreCase = true) &&
+            isCreateViewBoundary(index - 1) &&
+            isCreateViewBoundary(index + keyword.length)
+        ) {
+            return index
+        }
+        index++
     }
     return null
 }

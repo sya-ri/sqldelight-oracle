@@ -114,6 +114,16 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT bonus + salary AS c FROM emp") shouldBe "kotlin.Double?"
         }
 
+        test("resolves Oracle datetime arithmetic result column types exactly") {
+            typeOf("SELECT hire_date + 1 AS c FROM emp") shouldBe "java.time.LocalDateTime"
+            typeOf("SELECT hire_date - 7 AS c FROM emp") shouldBe "java.time.LocalDateTime"
+            typeOf("SELECT 1 + hire_date AS c FROM emp") shouldBe "java.time.LocalDateTime"
+            typeOf("SELECT created_ts + 30 AS c FROM emp") shouldBe "java.time.LocalDateTime?"
+            typeOf("SELECT hire_date - hire_date AS c FROM emp") shouldBe "java.math.BigDecimal"
+            typeOf("SELECT hire_date - created_ts AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT created_ts - created_ts AS c FROM emp") shouldBe "kotlin.String?"
+        }
+
         test("resolves Oracle concatenation operator result column types exactly") {
             typeOf("SELECT id || name AS c FROM emp") shouldBe "kotlin.String"
             typeOf("SELECT salary || name AS c FROM emp") shouldBe "kotlin.String"

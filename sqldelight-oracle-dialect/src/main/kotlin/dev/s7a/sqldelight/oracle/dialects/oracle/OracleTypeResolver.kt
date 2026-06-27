@@ -40,6 +40,7 @@ public class OracleTypeResolver(
                     ?: oracleExtensionPseudocolumnType(expr)
                     ?: oracleExtensionLiteralType(expr)
                     ?: oracleConcatenationOperatorType(expr)
+                    ?: oracleDatetimeOperatorType(expr)
                     ?: oracleNumericOperatorType(expr)
                     ?: parentResolver.resolvedType(expr)
             }
@@ -154,6 +155,42 @@ public class OracleTypeResolver(
         if (operator != "||") return null
         val operandTypes = operands.map { operand -> resolvedType(operand) }
         return IntermediateType(OracleType.TEXT).nullableIf(operandTypes.all { type -> type.javaType.isNullable })
+    }
+
+    private fun oracleDatetimeOperatorType(expr: SqlExpr): IntermediateType? {
+        val operands =
+            runCatching { expr.children.filterIsInstance<SqlExpr>() }
+                .getOrNull()
+                ?.takeIf { children -> children.size == 2 }
+                ?: return null
+        val operator = expr.oracleBinaryOperatorBetween(operands) ?: return null
+        if (operator != "+" && operator != "-") return null
+        val operandTypes = operands.map { operand -> resolvedType(operand) }
+        val dialectTypes = operandTypes.map { type -> type.dialectType }
+        val datetimeCount = dialectTypes.count { type -> type in DATETIME_TYPE_ORDER }
+        if (datetimeCount == 0) return null
+        val nullable = operandTypes.any { type -> type.javaType.isNullable }
+        return when {
+            // Oracle datetime subtraction: DATE - DATE yields a NUMBER of days, while any
+            // subtraction involving TIMESTAMP/TIMESTAMP WITH TIME ZONE yields an INTERVAL DAY TO SECOND.
+            operator == "-" && datetimeCount == 2 -> {
+                if (dialectTypes.all { type -> type == DATE }) {
+                    IntermediateType(DECIMAL_NUMBER).nullableIf(nullable)
+                } else {
+                    IntermediateType(OracleType.TEXT).nullableIf(nullable)
+                }
+            }
+
+            // Oracle interprets a number added to or subtracted from any datetime value as a number of
+            // days, and the result is always a DATE (TIMESTAMP operands are converted to DATE first).
+            datetimeCount == 1 && dialectTypes.any { type -> type in NUMERIC_TYPE_ORDER } -> {
+                IntermediateType(DATE).nullableIf(nullable)
+            }
+
+            else -> {
+                null
+            }
+        }
     }
 
     private fun SqlExpr.oracleExtensionExpr(): SqlExtensionExpr? =

@@ -403,7 +403,7 @@ public class OracleTypeResolver(
                     encapsulatingTypePreferringKotlin(
                         args,
                         *COMPARABLE_TYPE_ORDER,
-                        nullability = { nullability -> nullability.all { isNullable -> isNullable } },
+                        nullability = { nullability -> nullability.any { isNullable -> isNullable } },
                     )
                 }
             }

@@ -224,7 +224,19 @@ public class OracleTypeResolver(
     ): IntermediateType? =
         argumentDependentFunctionType(functionName, functionText, exprList)
             ?: returningClauseFunctionType(functionName, functionText)
-            ?: OracleType.fromFunctionName(functionName)?.let { type -> IntermediateType(type) }
+            ?: nullableAggregateFunctionType(functionName)
+            ?: OracleType.fromFunctionName(functionName)?.let { type ->
+                val propagatesNull = functionName.isOracleNullPropagatingFixedReturnFunction()
+                val hasNullableInput = propagatesNull && exprList.any { expression -> resolvedType(expression).javaType.isNullable }
+                IntermediateType(type)
+                    .nullableIf(hasNullableInput)
+            }
+
+    private fun nullableAggregateFunctionType(functionName: String): IntermediateType? =
+        OracleType
+            .fromFunctionName(functionName)
+            ?.takeIf { functionName.isOracleNullableAggregateFunction() }
+            ?.let { type -> IntermediateType(type).asNullable() }
 
     private fun returningClauseFunctionType(
         functionName: String,
@@ -327,7 +339,7 @@ public class OracleTypeResolver(
 
             "nullif" -> {
                 exprList.takeIf { args -> args.size == 2 }?.firstOrNull()?.let { expression ->
-                    resolvedType(expression)
+                    resolvedType(expression).asNullable()
                 }
             }
 
@@ -359,6 +371,7 @@ public class OracleTypeResolver(
                             .filter { (index) -> index % 2 == 1 || (index == args.lastIndex && args.size % 2 == 1) }
                             .map { (_, expression) -> expression }
                     encapsulatingTypePreferringKotlin(resultExpressions, *COMPARABLE_TYPE_ORDER)
+                        .nullableIf(args.size % 2 == 0)
                 }
             }
 
@@ -494,6 +507,66 @@ public class OracleTypeResolver(
 
         private fun String.hasOracleVectorDistanceShorthand(): Boolean =
             VECTOR_DISTANCE_SHORTHAND_OPERATORS.any { operator -> contains(operator) }
+
+        private fun String.isOracleNullPropagatingFixedReturnFunction(): Boolean =
+            trim().uppercase() in
+                setOf(
+                    "ASCII",
+                    "ASCIISTR",
+                    "INITCAP",
+                    "INSTR",
+                    "LENGTH",
+                    "LOWER",
+                    "LPAD",
+                    "LTRIM",
+                    "NLS_INITCAP",
+                    "NLS_LOWER",
+                    "NLS_UPPER",
+                    "REGEXP_COUNT",
+                    "REGEXP_INSTR",
+                    "REGEXP_REPLACE",
+                    "REGEXP_SUBSTR",
+                    "REPLACE",
+                    "RPAD",
+                    "RTRIM",
+                    "SUBSTR",
+                    "TO_BINARY_DOUBLE",
+                    "TO_BINARY_FLOAT",
+                    "TO_CHAR",
+                    "TO_DATE",
+                    "TO_MULTI_BYTE",
+                    "TO_NCHAR",
+                    "TO_NUMBER",
+                    "TO_SINGLE_BYTE",
+                    "TO_TIMESTAMP",
+                    "TO_TIMESTAMP_TZ",
+                    "TRANSLATE",
+                    "TRIM",
+                    "UPPER",
+                )
+
+        private fun String.isOracleNullableAggregateFunction(): Boolean =
+            trim().uppercase() in
+                setOf(
+                    "APPROX_MEDIAN",
+                    "APPROX_PERCENTILE",
+                    "APPROX_SUM",
+                    "BIT_AND_AGG",
+                    "BIT_OR_AGG",
+                    "BIT_XOR_AGG",
+                    "BOOLEAN_AND_AGG",
+                    "BOOLEAN_OR_AGG",
+                    "CORR",
+                    "COVAR_POP",
+                    "COVAR_SAMP",
+                    "KURTOSIS_POP",
+                    "KURTOSIS_SAMP",
+                    "LISTAGG",
+                    "PERCENTILE_CONT",
+                    "PERCENTILE_DISC",
+                    "SKEWNESS_POP",
+                    "SKEWNESS_SAMP",
+                )
 
         private fun String.oracleFunctionName(): String? =
             Regex("""(?i)^\s*(?:[A-Z_][A-Z0-9_$#]*\s*\.\s*)*([A-Z_][A-Z0-9_$#]*)\s*\(""")

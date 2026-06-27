@@ -525,6 +525,65 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("reports wrong arity for additional typed Oracle utility functions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidTypedUtilities:
+                    SELECT COMPOSE(), CONVERT(label), DECOMPOSE(label, 'CANONICAL', 'extra'),
+                      GROUPING(), GROUPING_ID(), GROUP_ID(status)
+                    FROM invoices
+                    GROUP BY ROLLUP(status);
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function COMPOSE expects 1 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 15,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function CONVERT expects 2..3 argument(s), but got 1.",
+                        startLine = 2,
+                        startColumn = 19,
+                        endLine = 2,
+                        endColumn = 26,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function DECOMPOSE expects 1..2 argument(s), but got 3.",
+                        startLine = 2,
+                        startColumn = 35,
+                        endLine = 2,
+                        endColumn = 44,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function GROUPING expects 1 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 11,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function GROUPING_ID expects 1..2147483647 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 15,
+                        endLine = 3,
+                        endColumn = 26,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function GROUP_ID expects 0 argument(s), but got 1.",
+                        startLine = 3,
+                        startColumn = 30,
+                        endLine = 3,
+                        endColumn = 38,
+                    ),
+                )
+        }
+
         test("reports wrong arity for Oracle analytic value functions") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(
@@ -755,6 +814,9 @@ class ValidFunctionArityRuleTest :
                   NLS_CHARSET_ID('AL32UTF8'),
                   NLS_CHARSET_NAME(873),
                   NLS_CHARSET_DECL_LEN(10, 873),
+                  COMPOSE(label),
+                  CONVERT(label, 'AL32UTF8', 'WE8ISO8859P1'),
+                  DECOMPOSE(label, 'CANONICAL'),
                   EXTRACTVALUE(payload_xml, '/a'),
                   EXISTSNODE(payload_xml, '/a', 'xmlns:x="urn:x"'),
                   XMLISVALID(payload_xml, 'schema.xsd'),
@@ -774,7 +836,10 @@ class ValidFunctionArityRuleTest :
                   RATIO_TO_REPORT(amount) OVER (),
                   REGEXP_REPLACE(description, q'{literal ' marker, comma}', 'x'),
                   REGEXP_SUBSTR(description, '[A-Z]+', 1, 1, 'i', 0),
-                  TO_TIMESTAMP(created_text, 'YYYY-MM-DD HH24:MI:SS')
+                  TO_TIMESTAMP(created_text, 'YYYY-MM-DD HH24:MI:SS'),
+                  GROUPING(status),
+                  GROUPING_ID(status, region),
+                  GROUP_ID()
                 FROM customers;
                 """,
             ) shouldBe emptyList()

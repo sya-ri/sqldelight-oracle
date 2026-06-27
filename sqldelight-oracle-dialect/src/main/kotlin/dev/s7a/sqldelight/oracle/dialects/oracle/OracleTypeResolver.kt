@@ -307,13 +307,23 @@ public class OracleTypeResolver(
 
             "JSON_VALUE",
             "JSON_QUERY",
-            "JSON_MERGEPATCH",
             -> {
                 functionText.oracleReturningTypeName()?.let { typeName ->
                     IntermediateType(OracleType.fromSqlTypeName(typeName))
                         .nullableIf(
                             functionText.hasOracleSqlJsonNullReturningClause() ||
                                 exprList.firstOrNull()?.let { expression -> resolvedType(expression).javaType.isNullable } == true,
+                        )
+                }
+            }
+
+            "JSON_MERGEPATCH",
+            -> {
+                functionText.oracleReturningTypeName()?.let { typeName ->
+                    IntermediateType(OracleType.fromSqlTypeName(typeName))
+                        .nullableIf(
+                            functionText.hasOracleSqlJsonNullReturningClause() ||
+                                exprList.any { expression -> resolvedType(expression).javaType.isNullable },
                         )
                 }
             }

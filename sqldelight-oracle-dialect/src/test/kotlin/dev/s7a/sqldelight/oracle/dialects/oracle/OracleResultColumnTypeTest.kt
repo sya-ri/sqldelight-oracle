@@ -52,14 +52,23 @@ class OracleResultColumnTypeTest :
         test("resolves Oracle scalar function result column types exactly") {
             typeOf("SELECT ABS(salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT MOD(id, 2) AS c FROM emp") shouldBe "kotlin.Long"
-            typeOf("SELECT ROUND(salary, 2) AS c FROM emp") shouldBe "java.math.BigDecimal"
+            typeOf("SELECT ROUND(salary, 2) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT TO_CHAR(hire_date) AS c FROM emp") shouldBe "kotlin.String"
             typeOf("SELECT LENGTH(name) AS c FROM emp") shouldBe "kotlin.Long"
             typeOf("SELECT SUBSTR(name, 1, 3) AS c FROM emp") shouldBe "kotlin.String"
             typeOf("SELECT NVL(name, 'x') AS c FROM emp") shouldBe "kotlin.String"
             typeOf("SELECT COALESCE(salary, 0) AS c FROM emp") shouldBe "java.math.BigDecimal"
-            typeOf("SELECT GREATEST(id, dept_id) AS c FROM emp") shouldBe "kotlin.Long"
+            typeOf("SELECT GREATEST(id, dept_id) AS c FROM emp") shouldBe "kotlin.Long?"
             typeOf("SELECT EXTRACT(YEAR FROM hire_date) AS c FROM emp") shouldBe "java.math.BigDecimal"
+        }
+
+        test("propagates Oracle function result column nullability exactly") {
+            typeOf("SELECT ROUND(id, 2) AS c FROM emp") shouldBe "java.math.BigDecimal"
+            typeOf("SELECT ROUND(salary, 2) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT TRUNC(created_ts) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
+            typeOf("SELECT GREATEST(id, small_id) AS c FROM emp") shouldBe "kotlin.Long"
+            typeOf("SELECT GREATEST(id, dept_id) AS c FROM emp") shouldBe "kotlin.Long?"
+            typeOf("SELECT LEAST(id, dept_id) AS c FROM emp") shouldBe "kotlin.Long?"
         }
 
         test("resolves Oracle CAST result column types exactly") {

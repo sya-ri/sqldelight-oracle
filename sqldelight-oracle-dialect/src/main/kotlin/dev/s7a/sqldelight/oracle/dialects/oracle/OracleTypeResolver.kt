@@ -234,7 +234,7 @@ public class OracleTypeResolver(
                     2 -> {
                         exprList
                             .map { expression ->
-                                resolvedType(expression).dialectType
+                                resolvedType(expression)
                             }.roundOrTruncTwoArgumentType()
                     }
 
@@ -272,7 +272,11 @@ public class OracleTypeResolver(
 
             "greatest", "least" -> {
                 exprList.takeIf { args -> args.isNotEmpty() }?.let { args ->
-                    encapsulatingTypePreferringKotlin(args, *COMPARABLE_TYPE_ORDER)
+                    encapsulatingTypePreferringKotlin(
+                        args,
+                        *COMPARABLE_TYPE_ORDER,
+                        nullability = { nullability -> nullability.any { isNullable -> isNullable } },
+                    )
                 }
             }
 
@@ -490,14 +494,20 @@ public class OracleTypeResolver(
         private fun IntermediateType.roundOrTruncSingleArgumentType(): IntermediateType? =
             when (dialectType) {
                 in NUMERIC_TYPE_ORDER -> this
-                in DATETIME_TYPE_ORDER -> IntermediateType(DATE)
+                in DATETIME_TYPE_ORDER -> IntermediateType(DATE).nullableIf(javaType.isNullable)
                 else -> null
             }
 
-        private fun List<DialectType>.roundOrTruncTwoArgumentType(): IntermediateType? =
+        private fun List<IntermediateType>.roundOrTruncTwoArgumentType(): IntermediateType? =
             when {
-                all { type -> type in NUMERIC_TYPE_ORDER } -> IntermediateType(DECIMAL_NUMBER)
-                first() in DATETIME_TYPE_ORDER && this[1] in TEXT_TYPE_ORDER -> IntermediateType(DATE)
+                all { type -> type.dialectType in NUMERIC_TYPE_ORDER } -> {
+                    IntermediateType(DECIMAL_NUMBER).nullableIf(any { type -> type.javaType.isNullable })
+                }
+
+                first().dialectType in DATETIME_TYPE_ORDER && this[1].dialectType in TEXT_TYPE_ORDER -> {
+                    IntermediateType(DATE).nullableIf(any { type -> type.javaType.isNullable })
+                }
+
                 else -> null
             }
 

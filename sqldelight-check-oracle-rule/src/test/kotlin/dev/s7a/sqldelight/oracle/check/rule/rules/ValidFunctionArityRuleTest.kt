@@ -1464,7 +1464,9 @@ class ValidFunctionArityRuleTest :
                       BIT_XOR_AGG(),
                       BOOLEAN_AND_AGG(enabled, extra),
                       BOOLEAN_OR_AGG(),
-                      CHECKSUM(flag_bits, extra)
+                      CHECKSUM(flag_bits, extra),
+                      LISTAGG(),
+                      LISTAGG(last_name, ', ', extra)
                     FROM invoices;
                     """,
                 )
@@ -1646,6 +1648,20 @@ class ValidFunctionArityRuleTest :
                         endLine = 26,
                         endColumn = 11,
                     ),
+                    DiagnosticSummary(
+                        message = "Oracle function LISTAGG expects 1..2 argument(s), but got 0.",
+                        startLine = 27,
+                        startColumn = 3,
+                        endLine = 27,
+                        endColumn = 10,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function LISTAGG expects 1..2 argument(s), but got 3.",
+                        startLine = 28,
+                        startColumn = 3,
+                        endLine = 28,
+                        endColumn = 10,
+                    ),
                 )
         }
 
@@ -1687,6 +1703,9 @@ class ValidFunctionArityRuleTest :
                   BOOLEAN_AND_AGG(enabled),
                   BOOLEAN_OR_AGG(ALL enabled),
                   CHECKSUM(flag_bits),
+                  LISTAGG(last_name) WITHIN GROUP (ORDER BY last_name),
+                  LISTAGG(DISTINCT last_name, ', ' ON OVERFLOW TRUNCATE '...' WITH COUNT)
+                    WITHIN GROUP (ORDER BY last_name),
                   CURRENT_TIMESTAMP(3),
                   LOCALTIMESTAMP(6),
                   REGR_SLOPE(amount, quantity),

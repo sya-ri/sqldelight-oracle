@@ -147,6 +147,7 @@ private val oracleFunctionArities =
         "LAG" to arityRange(1, 3),
         "LEAD" to arityRange(1, 3),
         "LENGTH" to exactArity(1),
+        "LISTAGG" to arityRange(1, 2),
         "LN" to exactArity(1),
         "LNNVL" to exactArity(1),
         "LOWER" to exactArity(1),

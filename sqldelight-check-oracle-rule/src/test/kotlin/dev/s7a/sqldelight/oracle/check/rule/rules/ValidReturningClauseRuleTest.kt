@@ -26,6 +26,28 @@ class ValidReturningClauseRuleTest :
                 )
         }
 
+        test("reports repeated returning clauses after a SQLDelight query label") {
+            ValidReturningClauseRule()
+                .diagnostics(
+                    """
+                    updateCustomer:
+                    UPDATE customer
+                    SET name = :name
+                    RETURNING id INTO :id
+                    RETURNING name INTO :name_out;
+                    """,
+                ).summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Use a valid Oracle RETURNING clause: RETURNING.",
+                        startLine = 4,
+                        startColumn = 1,
+                        endLine = 5,
+                        endColumn = 10,
+                    ),
+                )
+        }
+
         test("reports repeated returning into clauses exactly") {
             ValidReturningClauseRule()
                 .diagnostics(

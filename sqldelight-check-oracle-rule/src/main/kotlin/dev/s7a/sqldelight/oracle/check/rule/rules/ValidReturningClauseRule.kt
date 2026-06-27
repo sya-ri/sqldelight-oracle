@@ -82,12 +82,16 @@ private fun List<ReturningToken>.invalidReturningClauses(): List<InvalidReturnin
 }
 
 private fun List<ReturningToken>.isReturningDmlStatement(): Boolean =
-    getOrNull(0).let { token ->
-        token.returningHasText("INSERT") ||
-            token.returningHasText("UPDATE") ||
-            token.returningHasText("DELETE") ||
-            token.returningHasText("MERGE")
-    }
+    takeWhile { token -> !token.isTopLevelReturningKeyword() }
+        .any { token ->
+            token.depth == 0 &&
+                (
+                    token.returningHasText("INSERT") ||
+                        token.returningHasText("UPDATE") ||
+                        token.returningHasText("DELETE") ||
+                        token.returningHasText("MERGE")
+                )
+        }
 
 private fun conflictingReturningOccurrences(occurrences: List<ReturningOccurrence>): List<InvalidReturningClause> {
     val firstByGroup = linkedMapOf<String, ReturningOccurrence>()
@@ -162,3 +166,5 @@ private fun String.returningTokens(offset: Int): List<ReturningToken> {
 private fun ReturningToken?.returningHasText(text: String): Boolean = this?.text.equals(text, ignoreCase = true)
 
 private fun ReturningToken.isReturningKeyword(): Boolean = returningHasText("RETURN") || returningHasText("RETURNING")
+
+private fun ReturningToken.isTopLevelReturningKeyword(): Boolean = depth == 0 && isReturningKeyword()

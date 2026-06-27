@@ -191,8 +191,12 @@ public enum class OracleType(
                     argumentTypes.roundOrTruncType()
                 }
 
-                "COALESCE", "DECODE", "GREATEST", "LEAST", "NVL" -> {
+                "COALESCE", "DECODE", "GREATEST", "LEAST" -> {
                     argumentTypes.highestComparableType()
+                }
+
+                "NVL" -> {
+                    argumentTypes.takeIf { types -> types.size == 2 }?.first()
                 }
 
                 "NVL2" -> {

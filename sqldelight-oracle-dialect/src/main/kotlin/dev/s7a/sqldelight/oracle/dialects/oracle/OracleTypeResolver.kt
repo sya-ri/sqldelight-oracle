@@ -473,13 +473,20 @@ public class OracleTypeResolver(
                 }
             }
 
-            "coalesce", "nvl" -> {
+            "coalesce" -> {
                 exprList.takeIf { args -> args.isNotEmpty() }?.let { args ->
                     encapsulatingTypePreferringKotlin(
                         args,
                         *COMPARABLE_TYPE_ORDER,
                         nullability = { nullability -> nullability.all { isNullable -> isNullable } },
                     )
+                }
+            }
+
+            "nvl" -> {
+                exprList.takeIf { args -> args.size == 2 }?.let { args ->
+                    resolvedType(args.first())
+                        .nullableIf(args.all { expression -> resolvedType(expression).javaType.isNullable })
                 }
             }
 

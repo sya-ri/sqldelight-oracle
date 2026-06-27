@@ -486,6 +486,7 @@ class OracleTypeTest :
                 listOf(
                     Triple("COALESCE", listOf(OracleType.INTEGER_NUMBER, OracleType.LONG_NUMBER), OracleType.LONG_NUMBER),
                     Triple("NVL", listOf(OracleType.TEXT, OracleType.DECIMAL_NUMBER), OracleType.TEXT),
+                    Triple("NVL", listOf(OracleType.LONG_NUMBER, OracleType.TEXT), OracleType.LONG_NUMBER),
                     Triple("NVL2", listOf(OracleType.BOOLEAN_TYPE, OracleType.DATE, OracleType.TIMESTAMP), OracleType.TIMESTAMP),
                     Triple("DECODE", listOf(OracleType.TEXT, OracleType.LONG_NUMBER), OracleType.TEXT),
                     Triple("ABS", listOf(OracleType.BINARY_DOUBLE), OracleType.BINARY_DOUBLE),

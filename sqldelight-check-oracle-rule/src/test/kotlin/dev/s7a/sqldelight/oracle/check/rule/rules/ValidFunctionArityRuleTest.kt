@@ -1001,7 +1001,8 @@ class ValidFunctionArityRuleTest :
                     invalidParserBackedUtilities:
                     SELECT JSON_ID(), JSON_ID('OID', 'UUID'),
                       SHARD_CHUNK_ID(), SHARD_CHUNK_ID(shard_key),
-                      SCORE(), SCORE(1, 2)
+                      SCORE(), SCORE(1, 2),
+                      JSON(), JSON(doc, extra), JSON_SCALAR(), JSON_SCALAR(value, extra)
                     FROM utility_samples;
                     """,
                 )
@@ -1049,6 +1050,34 @@ class ValidFunctionArityRuleTest :
                         startColumn = 12,
                         endLine = 4,
                         endColumn = 17,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function JSON expects 1 argument(s), but got 0.",
+                        startLine = 5,
+                        startColumn = 3,
+                        endLine = 5,
+                        endColumn = 7,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function JSON expects 1 argument(s), but got 2.",
+                        startLine = 5,
+                        startColumn = 11,
+                        endLine = 5,
+                        endColumn = 15,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function JSON_SCALAR expects 1 argument(s), but got 0.",
+                        startLine = 5,
+                        startColumn = 29,
+                        endLine = 5,
+                        endColumn = 40,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function JSON_SCALAR expects 1 argument(s), but got 2.",
+                        startLine = 5,
+                        startColumn = 44,
+                        endLine = 5,
+                        endColumn = 55,
                     ),
                 )
         }
@@ -1724,6 +1753,8 @@ class ValidFunctionArityRuleTest :
                   SHARD_CHUNK_ID(shard_class, id),
                   SHARD_CHUNK_ID(NULL, shard_class, id),
                   SCORE(1),
+                  JSON(doc),
+                  JSON_SCALAR(amount),
                   CALENDAR_YEAR(d),
                   CALENDAR_MONTH(d, fmt, nls),
                   FISCAL_YEAR(d, fiscal_start, fmt, nls),

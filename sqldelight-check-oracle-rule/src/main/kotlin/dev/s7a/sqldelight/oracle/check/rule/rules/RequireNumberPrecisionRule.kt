@@ -45,6 +45,7 @@ public class RequireNumberPrecisionRule : Rule {
 private fun String.isExpressionNumberTypeClause(startOffset: Int): Boolean {
     val previousWord = previousNumberPrecisionWord(startOffset) ?: return false
     if (previousWord.text == "RETURNING") return true
+    if (previousWord.text == "AS" && isOracleNumberConversionTypeClause(previousWord.startOffset)) return true
     if (previousWord.text != "AS") return false
 
     val statementStart = lastIndexOf(';', startIndex = startOffset).let { index -> if (index == -1) 0 else index + 1 }
@@ -54,6 +55,7 @@ private fun String.isExpressionNumberTypeClause(startOffset: Int): Boolean {
 
 private data class NumberPrecisionWord(
     val text: String,
+    val startOffset: Int,
 )
 
 private fun String.previousNumberPrecisionWord(offset: Int): NumberPrecisionWord? {
@@ -61,10 +63,64 @@ private fun String.previousNumberPrecisionWord(offset: Int): NumberPrecisionWord
     while (index >= 0 && !this[index].isLetterOrDigit() && this[index] != '_' && this[index] != '$' && this[index] != '#') index--
     val end = index + 1
     while (index >= 0 && (this[index].isLetterOrDigit() || this[index] == '_' || this[index] == '$' || this[index] == '#')) index--
-    return if (end > index + 1) NumberPrecisionWord(substring(index + 1, end).uppercase()) else null
+    val start = index + 1
+    return if (end > start) NumberPrecisionWord(substring(start, end).uppercase(), start) else null
 }
 
 private val expressionStatementKeywordPattern = Regex("""(?is)\b(SELECT|INSERT|UPDATE|DELETE|MERGE|WHERE|VALUES|SET)\b""")
+
+private fun String.isOracleNumberConversionTypeClause(asOffset: Int): Boolean {
+    val openParenthesis = containingOpenParenthesisBefore(asOffset) ?: return false
+    val functionNameEnd =
+        previousIndexSkippingWhitespace(openParenthesis - 1)
+            ?.plus(1)
+            ?: return false
+    val functionNameStart =
+        previousWordStart(functionNameEnd)
+            ?: return false
+    val functionName = substring(functionNameStart, functionNameEnd).uppercase()
+    return functionName in oracleNumberConversionTypeFunctions
+}
+
+private fun String.containingOpenParenthesisBefore(offset: Int): Int? {
+    var depth = 0
+    var index = offset - 1
+    while (index >= 0) {
+        when (this[index]) {
+            ')' -> {
+                depth++
+            }
+
+            '(' -> {
+                if (depth == 0) return index
+                depth--
+            }
+        }
+        index--
+    }
+    return null
+}
+
+private fun String.previousIndexSkippingWhitespace(index: Int): Int? {
+    var current = index
+    while (current >= 0 && this[current].isWhitespace()) current--
+    return current.takeIf { it >= 0 }
+}
+
+private fun String.previousWordStart(endOffset: Int): Int? {
+    var index = endOffset - 1
+    while (index >= 0 && (this[index].isLetterOrDigit() || this[index] == '_' || this[index] == '$' || this[index] == '#')) index--
+    val start = index + 1
+    return start.takeIf { it < endOffset }
+}
+
+private val oracleNumberConversionTypeFunctions =
+    setOf(
+        "CAST",
+        "TREAT",
+        "VALIDATE_CONVERSION",
+        "XMLCAST",
+    )
 
 private fun String.hasExplicitPrecisionAfter(offset: Int): Boolean {
     var index = offset

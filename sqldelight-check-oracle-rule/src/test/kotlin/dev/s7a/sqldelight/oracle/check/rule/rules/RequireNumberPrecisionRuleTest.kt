@@ -112,6 +112,18 @@ class RequireNumberPrecisionRuleTest :
             ) shouldBe emptyList()
         }
 
+        test("ignores bare NUMBER in DDL expression conversion type clauses") {
+            RequireNumberPrecisionRule().diagnostics(
+                """
+                CREATE TABLE invoice (
+                    amount_text VARCHAR2(30),
+                    amount AS (CAST(amount_text AS NUMBER)),
+                    valid_amount AS (VALIDATE_CONVERSION(amount_text AS NUMBER))
+                );
+                """,
+            ) shouldBe emptyList()
+        }
+
         test("ignores NUMBER in comments and string literals") {
             RequireNumberPrecisionRule().diagnostics(
                 """

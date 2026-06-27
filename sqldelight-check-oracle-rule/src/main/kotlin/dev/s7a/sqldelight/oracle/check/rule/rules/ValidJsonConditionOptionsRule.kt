@@ -198,12 +198,17 @@ private fun List<JsonOptionToken>.indexOfNextJsonConditionBoundary(startIndex: I
         when {
             this[index].jsonOptionHasText("(") -> depth++
             this[index].jsonOptionHasText(")") -> if (depth == 0) return index else depth--
-            depth == 0 && (this[index].jsonOptionHasText("AND") || this[index].jsonOptionHasText("OR")) -> return index
+            depth == 0 && this[index].isJsonConditionBoundaryToken() -> return index
         }
         index++
     }
     return size
 }
+
+private fun JsonOptionToken.isJsonConditionBoundaryToken(): Boolean =
+    text == "," ||
+        listOf("AND", "OR", "AS", "FROM", "WHERE", "GROUP", "HAVING", "ORDER", "FETCH", "OFFSET")
+            .any { boundary -> jsonOptionHasText(boundary) }
 
 private fun List<JsonOptionToken>.indexOfNextToken(
     startIndex: Int,
@@ -227,7 +232,7 @@ private fun List<JsonOptionToken>.matchingRightParenthesis(openIndex: Int): Int?
     return null
 }
 
-private val jsonOptionTokenPattern = Regex("""[A-Za-z_][A-Za-z0-9_$#]*|\(|\)""")
+private val jsonOptionTokenPattern = Regex("""[A-Za-z_][A-Za-z0-9_$#]*|\(|\)|,""")
 
 private fun String.jsonOptionTokens(): List<JsonOptionToken> =
     jsonOptionTokenPattern

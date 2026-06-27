@@ -92,6 +92,19 @@ class ValidJsonConditionOptionsRuleTest :
                     """,
                 ).summaries() shouldBe emptyList()
         }
+
+        test("accepts independent IS JSON conditions with different options") {
+            ValidJsonConditionOptionsRule()
+                .diagnostics(
+                    """
+                    SELECT payload IS JSON STRICT AS strict_payload,
+                      metadata IS JSON LAX AS lax_metadata
+                    FROM documents
+                    WHERE payload IS JSON STRICT
+                    ORDER BY metadata IS JSON LAX;
+                    """,
+                ).summaries() shouldBe emptyList()
+        }
     })
 
 private const val MESSAGE_PREFIX = "Use valid Oracle SQL/JSON condition options:"

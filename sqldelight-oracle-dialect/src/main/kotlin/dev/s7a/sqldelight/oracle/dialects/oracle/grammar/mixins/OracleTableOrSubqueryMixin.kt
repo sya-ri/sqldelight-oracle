@@ -598,12 +598,15 @@ internal abstract class OracleTableOrSubqueryMixin(
             unpivotBody
                 .substring(forOffset + "FOR".length, inOffset)
                 .oracleNameList()
-        val sourceTypes = unpivotBody.substring(inOffset + "IN".length).oracleNameList().mapNotNull(::oracleColumnType)
-        val measureType = sourceTypes.oracleUnpivotMeasureType()
+        val sourceTypesByMeasure =
+            unpivotBody
+                .substring(inOffset + "IN".length)
+                .oracleUnpivotSourceTypesByMeasure(measureColumns.size)
         val columns = mutableListOf<QueryColumn>()
         val synthesizedColumnNames = mutableListOf<String>()
 
-        measureColumns.forEach { name ->
+        measureColumns.forEachIndexed { index, name ->
+            val measureType = sourceTypesByMeasure.getOrNull(index)?.oracleUnpivotMeasureType()
             if (measureType == null) {
                 synthesizedColumnNames += name
             } else {
@@ -626,6 +629,18 @@ internal abstract class OracleTableOrSubqueryMixin(
                 null
             }
         }
+
+    private fun String.oracleUnpivotSourceTypesByMeasure(measureColumnCount: Int): List<List<OracleType>> {
+        if (measureColumnCount <= 0) return emptyList()
+        val groupedTypes =
+            oracleNameList()
+                .mapNotNull(::oracleColumnType)
+                .chunked(measureColumnCount)
+                .filter { types -> types.size == measureColumnCount }
+        return List(measureColumnCount) { index ->
+            groupedTypes.map { types -> types[index] }
+        }
+    }
 
     private fun List<OracleType>.oracleUnpivotMeasureType(): OracleType? {
         if (isEmpty()) return null

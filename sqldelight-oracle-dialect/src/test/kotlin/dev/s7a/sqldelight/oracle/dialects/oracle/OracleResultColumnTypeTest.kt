@@ -240,6 +240,27 @@ class OracleResultColumnTypeTest :
             ) shouldBe "kotlin.String"
         }
 
+        test("resolves Oracle composite unpivot result column types exactly") {
+            typeOf(
+                """
+                SELECT unpivoted_orders.metric_id AS c
+                FROM emp UNPIVOT (
+                  (metric_id, metric_salary)
+                  FOR metric_name IN ((id, salary) AS 'BASE')
+                ) unpivoted_orders
+                """.trimIndent(),
+            ) shouldBe "kotlin.Long?"
+            typeOf(
+                """
+                SELECT unpivoted_orders.metric_salary AS c
+                FROM emp UNPIVOT (
+                  (metric_id, metric_salary)
+                  FOR metric_name IN ((id, salary) AS 'BASE')
+                ) unpivoted_orders
+                """.trimIndent(),
+            ) shouldBe "java.math.BigDecimal?"
+        }
+
         test("resolves Oracle row pattern result column types exactly") {
             typeOf(
                 """

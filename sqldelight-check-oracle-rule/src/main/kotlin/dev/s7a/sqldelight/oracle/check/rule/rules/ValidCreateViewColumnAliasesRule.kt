@@ -82,7 +82,9 @@ private fun String.createViewStatementRanges(): List<IntRange> {
     var start = 0
     while (start < length) {
         val end = indexOf(';', startIndex = start).let { if (it == -1) length else it + 1 }
-        if (substring(start, end).contains(Regex("""(?i)\bCREATE\b.+\bVIEW\b"""))) {
+        val createOffset = indexOfKeyword("CREATE", start, end)
+        val viewOffset = createOffset?.let { indexOfKeyword("VIEW", it + "CREATE".length, end) }
+        if (viewOffset != null) {
             ranges += start until end
         }
         start = end

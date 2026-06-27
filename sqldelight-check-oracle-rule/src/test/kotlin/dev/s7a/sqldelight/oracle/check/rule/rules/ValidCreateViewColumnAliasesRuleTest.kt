@@ -27,6 +27,29 @@ class ValidCreateViewColumnAliasesRuleTest :
                 )
         }
 
+        test("reports multiline CREATE VIEW column alias count mismatches") {
+            val diagnostics =
+                ValidCreateViewColumnAliasesRule().diagnostics(
+                    """
+                    CREATE OR REPLACE
+                    VIEW order_summary(order_id, order_total) AS
+                    SELECT id, total, status
+                    FROM orders;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle CREATE VIEW declares 2 column alias(es), but the SELECT list has 3 column(s).",
+                        startLine = 2,
+                        startColumn = 19,
+                        endLine = 2,
+                        endColumn = 42,
+                    ),
+                )
+        }
+
         test("reports duplicate CREATE VIEW column aliases exactly") {
             val diagnostics =
                 ValidCreateViewColumnAliasesRule().diagnostics(

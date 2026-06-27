@@ -165,6 +165,8 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT CAST(dept_id AS VARCHAR2(20)) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT CAST(id AS VARCHAR2(20)) AS c FROM emp") shouldBe "kotlin.String"
             typeOf("SELECT CAST(name AS DATE) AS c FROM emp") shouldBe "java.time.LocalDateTime"
+            typeOf("SELECT CAST(name AS DATE DEFAULT NULL ON CONVERSION ERROR) AS c FROM emp") shouldBe
+                "java.time.LocalDateTime?"
             typeOf("SELECT CAST(hire_date AS TIMESTAMP WITH TIME ZONE) AS c FROM emp") shouldBe "java.time.OffsetDateTime"
             typeOf("SELECT XMLCAST(xml_doc AS NUMBER) AS c FROM emp") shouldBe
                 "java.math.BigDecimal?"

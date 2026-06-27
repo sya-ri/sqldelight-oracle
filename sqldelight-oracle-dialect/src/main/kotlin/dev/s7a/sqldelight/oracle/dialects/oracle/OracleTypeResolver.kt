@@ -465,7 +465,13 @@ public class OracleTypeResolver(
             -> {
                 functionText.oracleCastTypeName()?.let { typeName ->
                     IntermediateType(OracleType.fromSqlTypeName(typeName))
-                        .nullableIf(exprList.firstOrNull()?.let { expression -> resolvedType(expression).javaType.isNullable } == true)
+                        .nullableIf(
+                            exprList.firstOrNull()?.let { expression -> resolvedType(expression).javaType.isNullable } == true ||
+                                (
+                                    functionName.equals("CAST", ignoreCase = true) &&
+                                        functionText.hasOracleDefaultNullOnConversionError()
+                                ),
+                        )
                 }
             }
 
@@ -1205,6 +1211,16 @@ public class OracleTypeResolver(
         private fun String.oracleReturningTypeName(): String? = oracleTypeNameAfterKeyword("RETURNING")
 
         private fun String.oracleCastTypeName(): String? = oracleTypeNameAfterKeyword("AS")
+
+        private fun String.hasOracleDefaultNullOnConversionError(): Boolean {
+            val asOffset = indexOfKeyword("AS") ?: return false
+            val defaultOffset = indexOfKeyword("DEFAULT", startIndex = asOffset + "AS".length) ?: return false
+            val onOffset = indexOfKeyword("ON", startIndex = defaultOffset + "DEFAULT".length) ?: return false
+            val conversionOffset = indexOfKeyword("CONVERSION", startIndex = onOffset + "ON".length) ?: return false
+            indexOfKeyword("ERROR", startIndex = conversionOffset + "CONVERSION".length) ?: return false
+
+            return substring(defaultOffset + "DEFAULT".length, onOffset).trim().equals("NULL", ignoreCase = true)
+        }
 
         private fun String.oracleExtractDatetimeField(): String? =
             Regex("""(?i)^\s*EXTRACT\s*\(\s*([A-Z_]+)\s+FROM\b""")

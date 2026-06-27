@@ -82,6 +82,20 @@ class ValidCreateViewColumnAliasesRuleTest :
             ) shouldBe emptyList()
         }
 
+        test("accepts matching CREATE VIEW constrained column aliases exactly") {
+            ValidCreateViewColumnAliasesRule().diagnostics(
+                """
+                CREATE VIEW order_summary (
+                  order_id VISIBLE UNIQUE RELY DISABLE NOVALIDATE,
+                  order_total INVISIBLE,
+                  CONSTRAINT order_summary_pk PRIMARY KEY (order_id) RELY DISABLE NOVALIDATE
+                ) AS
+                SELECT id, total
+                FROM orders;
+                """,
+            ) shouldBe emptyList()
+        }
+
         test("ignores CREATE VIEW text inside comments and strings exactly") {
             ValidCreateViewColumnAliasesRule().diagnostics(
                 """

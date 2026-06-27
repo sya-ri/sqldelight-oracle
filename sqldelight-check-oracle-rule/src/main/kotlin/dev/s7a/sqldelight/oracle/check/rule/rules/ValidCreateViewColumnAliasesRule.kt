@@ -114,16 +114,56 @@ private fun String.aliasesIn(
     endOffset: Int,
 ): List<ViewAlias> {
     val aliases = mutableListOf<ViewAlias>()
-    var index = startOffset
-    while (index < endOffset) {
-        index = skipCreateViewWhitespaceAndCommas(index, endOffset)
-        val aliasEnd = createViewIdentifierEnd(index, endOffset)
+    viewColumnItems(startOffset, endOffset).forEach { item ->
+        val index = skipCreateViewWhitespace(item.first, item.last + 1)
+        val startsWithConstraint =
+            regionMatches(
+                index,
+                "CONSTRAINT",
+                0,
+                "CONSTRAINT".length,
+                ignoreCase = true,
+            ) && isCreateViewBoundary(index + "CONSTRAINT".length)
+        if (startsWithConstraint) {
+            return@forEach
+        }
+        val aliasEnd = createViewIdentifierEnd(index, item.last + 1)
         if (aliasEnd > index) {
             aliases += ViewAlias(substring(index, aliasEnd), index until aliasEnd)
         }
-        index = aliasEnd + 1
     }
     return aliases
+}
+
+private fun String.viewColumnItems(
+    startOffset: Int,
+    endOffset: Int,
+): List<IntRange> {
+    val items = mutableListOf<IntRange>()
+    var itemStart = startOffset
+    var index = startOffset
+    var depth = 0
+    while (index < endOffset) {
+        when (this[index]) {
+            '(' -> {
+                depth++
+            }
+
+            ')' -> {
+                depth--
+            }
+
+            ',' -> {
+                if (depth == 0) {
+                    items += itemStart until index
+                    itemStart = index + 1
+                }
+            }
+        }
+        index++
+    }
+    items += itemStart until endOffset
+    return items
 }
 
 private fun String.indexOfKeyword(
@@ -184,6 +224,15 @@ private fun String.skipCreateViewWhitespaceAndCommas(
 ): Int {
     var index = startOffset
     while (index < endOffset && (this[index].isWhitespace() || this[index] == ',')) index++
+    return index
+}
+
+private fun String.skipCreateViewWhitespace(
+    startOffset: Int,
+    endOffset: Int,
+): Int {
+    var index = startOffset
+    while (index < endOffset && this[index].isWhitespace()) index++
     return index
 }
 

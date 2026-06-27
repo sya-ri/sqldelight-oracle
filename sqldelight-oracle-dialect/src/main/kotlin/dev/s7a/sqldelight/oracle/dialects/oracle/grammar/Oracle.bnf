@@ -868,6 +868,7 @@ private oracle_simple_pseudocolumn ::= (
   'CONNECT_BY_ISLEAF' |
   'CURRENT_DATE' |
   'CURRENT_TIMESTAMP' |
+  'CURRENT_USER' |
   'DBTIMEZONE' |
   'LEVEL' |
   'LOCALTIMESTAMP' |

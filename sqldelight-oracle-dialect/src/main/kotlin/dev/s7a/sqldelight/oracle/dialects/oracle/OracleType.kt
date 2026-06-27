@@ -347,6 +347,7 @@ public enum class OracleType(
                 "SYSTIMESTAMP" to TIMESTAMP_TIME_ZONE,
                 "DBTIMEZONE" to TEXT,
                 "SESSIONTIMEZONE" to TEXT,
+                "CURRENT_USER" to TEXT,
                 "ORA_INVOKING_USER" to TEXT,
                 "USER" to TEXT,
                 "SCN_TO_TIMESTAMP" to TIMESTAMP,

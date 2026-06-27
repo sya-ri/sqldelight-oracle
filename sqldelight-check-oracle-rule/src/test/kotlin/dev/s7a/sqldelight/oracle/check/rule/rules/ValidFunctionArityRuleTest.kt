@@ -39,7 +39,7 @@ class ValidFunctionArityRuleTest :
                 ValidFunctionArityRule().diagnostics(
                     """
                     invalidNoParentheses:
-                    SELECT SYSDATE(), USER(), DBTIMEZONE(), SESSIONTIMEZONE(), SYSTIMESTAMP()
+                    SELECT SYSDATE(), USER(), CURRENT_USER(), DBTIMEZONE(), SESSIONTIMEZONE(), SYSTIMESTAMP()
                     FROM dual;
                     """,
                 )
@@ -61,25 +61,32 @@ class ValidFunctionArityRuleTest :
                         endColumn = 23,
                     ),
                     DiagnosticSummary(
-                        message = "Oracle expression DBTIMEZONE does not accept parentheses.",
+                        message = "Oracle expression CURRENT_USER does not accept parentheses.",
                         startLine = 2,
                         startColumn = 27,
                         endLine = 2,
-                        endColumn = 37,
+                        endColumn = 39,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression DBTIMEZONE does not accept parentheses.",
+                        startLine = 2,
+                        startColumn = 43,
+                        endLine = 2,
+                        endColumn = 53,
                     ),
                     DiagnosticSummary(
                         message = "Oracle expression SESSIONTIMEZONE does not accept parentheses.",
                         startLine = 2,
-                        startColumn = 41,
+                        startColumn = 57,
                         endLine = 2,
-                        endColumn = 56,
+                        endColumn = 72,
                     ),
                     DiagnosticSummary(
                         message = "Oracle expression SYSTIMESTAMP does not accept parentheses.",
                         startLine = 2,
-                        startColumn = 60,
+                        startColumn = 76,
                         endLine = 2,
-                        endColumn = 72,
+                        endColumn = 88,
                     ),
                 )
         }

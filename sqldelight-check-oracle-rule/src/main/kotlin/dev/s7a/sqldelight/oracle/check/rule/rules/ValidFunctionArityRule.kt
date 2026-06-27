@@ -482,6 +482,7 @@ private val oracleNoParenthesesExpressions =
         "CONNECT_BY_ISLEAF",
         "COLUMN_VALUE",
         "CURRENT_DATE",
+        "CURRENT_USER",
         "CURRVAL",
         "DBTIMEZONE",
         "LEVEL",

@@ -101,6 +101,7 @@ class OracleTypeTest :
                     "SYSTIMESTAMP" to OracleType.TIMESTAMP_TIME_ZONE,
                     "DBTIMEZONE" to OracleType.TEXT,
                     "SESSIONTIMEZONE" to OracleType.TEXT,
+                    "CURRENT_USER" to OracleType.TEXT,
                     "ORA_INVOKING_USER" to OracleType.TEXT,
                     "USER" to OracleType.TEXT,
                     "SCN_TO_TIMESTAMP" to OracleType.TIMESTAMP,

@@ -120,6 +120,7 @@ public class OracleTypeResolver(
             -> IntermediateType(OracleType.BINARY).asNullable()
 
             "DBTIMEZONE",
+            "CURRENT_USER",
             "ORA_INVOKING_USER",
             "ORA_SHARDSPACE_NAME",
             "ROWID",

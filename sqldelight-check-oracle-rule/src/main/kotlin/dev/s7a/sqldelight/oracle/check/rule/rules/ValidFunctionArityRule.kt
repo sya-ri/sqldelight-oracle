@@ -77,7 +77,7 @@ private val oracleFunctionArities =
         "EMPTY_BLOB" to exactArity(0),
         "EMPTY_CLOB" to exactArity(0),
         "SYS_GUID" to exactArity(0),
-        "UUID" to exactArity(0),
+        "UUID" to arityRange(0, 1),
         "ABS" to exactArity(1),
         "ACOS" to exactArity(1),
         "APPROX_COUNT" to exactArity(1),

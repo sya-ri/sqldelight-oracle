@@ -1106,7 +1106,7 @@ class ValidFunctionArityRuleTest :
                       SHARD_CHUNK_ID(), SHARD_CHUNK_ID(shard_key),
                       SCORE(), SCORE(1, 2),
                       JSON(), JSON(doc, extra), JSON_SCALAR(), JSON_SCALAR(value, extra),
-                      JSON_MERGEPATCH(doc), JSON_EQUAL(doc)
+                      JSON_MERGEPATCH(doc), JSON_EQUAL(doc), UUID(4, 5)
                     FROM utility_samples;
                     """,
                 )
@@ -1196,6 +1196,13 @@ class ValidFunctionArityRuleTest :
                         startColumn = 25,
                         endLine = 6,
                         endColumn = 35,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function UUID expects 0..1 argument(s), but got 2.",
+                        startLine = 6,
+                        startColumn = 42,
+                        endLine = 6,
+                        endColumn = 46,
                     ),
                 )
         }
@@ -1951,6 +1958,8 @@ class ValidFunctionArityRuleTest :
                   JSON_SCALAR(amount),
                   JSON_MERGEPATCH(doc, patch),
                   JSON_EQUAL(doc, expected_doc),
+                  UUID(),
+                  UUID(4),
                   CALENDAR_YEAR(d),
                   CALENDAR_MONTH(d, fmt, nls),
                   FISCAL_YEAR(d, fiscal_start, fmt, nls),

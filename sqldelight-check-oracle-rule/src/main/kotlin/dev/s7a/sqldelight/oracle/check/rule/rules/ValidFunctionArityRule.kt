@@ -26,6 +26,7 @@ public class ValidFunctionArityRule : Rule {
         val masked = content.maskSqlCommentsAndQuotedTextPreservingOffsets()
         oracleFunctionPattern.findAll(masked).forEach { match ->
             val functionName = match.groupValues[1].uppercase()
+            if (functionName == "VECTOR" && masked.isVectorTypeContext(match.range.first)) return@forEach
             if (functionName in oracleNoParenthesesExpressions) {
                 reporter.report(
                     RuleDiagnostic(
@@ -556,3 +557,36 @@ private fun String.hasNonWhitespace(
     startOffset: Int,
     endOffset: Int,
 ): Boolean = substring(startOffset, endOffset).any { character -> !character.isWhitespace() }
+
+private fun String.isVectorTypeContext(vectorOffset: Int): Boolean {
+    val previousWord = previousFunctionRuleWord(vectorOffset) ?: return false
+    if (previousWord.text in setOf("AS", "RETURNING")) return true
+
+    val previousSignificant = previousNonWhitespaceBefore(previousWord.startOffset) ?: return false
+    if (this[previousSignificant] != '(' && this[previousSignificant] != ',') return false
+
+    val statementStart = lastIndexOf(';', startIndex = vectorOffset).let { index -> if (index == -1) 0 else index + 1 }
+    return Regex("""(?is)\b(CREATE\b.+\bTABLE|ALTER\s+TABLE)\b""").containsMatchIn(substring(statementStart, vectorOffset))
+}
+
+private data class FunctionRuleWord(
+    val text: String,
+    val startOffset: Int,
+)
+
+private fun String.previousFunctionRuleWord(offset: Int): FunctionRuleWord? {
+    var index = offset - 1
+    while (index >= 0 && !this[index].isLetterOrDigit() && this[index] != '_' && this[index] != '$' && this[index] != '#') index--
+    val end = index + 1
+    while (index >= 0 && (this[index].isLetterOrDigit() || this[index] == '_' || this[index] == '$' || this[index] == '#')) index--
+    return if (end > index + 1) FunctionRuleWord(substring(index + 1, end).uppercase(), index + 1) else null
+}
+
+private fun String.previousNonWhitespaceBefore(offset: Int): Int? {
+    var index = offset - 1
+    while (index >= 0) {
+        if (!this[index].isWhitespace()) return index
+        index--
+    }
+    return null
+}

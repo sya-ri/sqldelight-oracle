@@ -1758,6 +1758,19 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("ignores VECTOR column type parameters") {
+            ValidFunctionArityRule()
+                .diagnostics(
+                    """
+                    CREATE TABLE accounts (
+                      embedding VECTOR(3, FLOAT32),
+                      flexible_embedding VECTOR(*, *),
+                      text_embedding VECTOR(100)
+                    );
+                    """,
+                ).summaries() shouldBe emptyList()
+        }
+
         test("reports wrong arity for Oracle analytic value functions") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(

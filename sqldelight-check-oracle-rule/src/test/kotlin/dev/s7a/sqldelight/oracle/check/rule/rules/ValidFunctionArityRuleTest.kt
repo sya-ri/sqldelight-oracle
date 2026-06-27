@@ -1475,7 +1475,8 @@ class ValidFunctionArityRuleTest :
                       COSINE_DISTANCE(embedding), INNER_PRODUCT(embedding), HAMMING_DISTANCE(embedding),
                       JACCARD_DISTANCE(embedding), VECTOR_NORM(), VECTOR_DIMS(),
                       VECTOR_DIMENSION_COUNT(embedding, extra), VECTOR_DIMENSION_FORMAT(),
-                      VECTOR(), VECTOR('[1]', 'extra')
+                      VECTOR(), VECTOR('[1]', 'extra'),
+                      VECTOR_EMBEDDING(), VECTOR_SERIALIZE(embedding, extra)
                     FROM vector_items;
                     """,
                 )
@@ -1600,6 +1601,20 @@ class ValidFunctionArityRuleTest :
                         startColumn = 13,
                         endLine = 8,
                         endColumn = 19,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function VECTOR_EMBEDDING expects 1 argument(s), but got 0.",
+                        startLine = 9,
+                        startColumn = 3,
+                        endLine = 9,
+                        endColumn = 19,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function VECTOR_SERIALIZE expects 1 argument(s), but got 2.",
+                        startLine = 9,
+                        startColumn = 23,
+                        endLine = 9,
+                        endColumn = 39,
                     ),
                 )
         }
@@ -2151,6 +2166,8 @@ class ValidFunctionArityRuleTest :
                   VECTOR_DIMS(embedding),
                   VECTOR_DIMENSION_COUNT(embedding),
                   VECTOR_DIMENSION_FORMAT(embedding),
+                  VECTOR_EMBEDDING(all_minilm_l12 USING body AS DATA),
+                  VECTOR_SERIALIZE(embedding RETURNING CLOB FORMAT DENSE),
                   GROUPING(status),
                   GROUPING_ID(status, region),
                   GROUP_ID()

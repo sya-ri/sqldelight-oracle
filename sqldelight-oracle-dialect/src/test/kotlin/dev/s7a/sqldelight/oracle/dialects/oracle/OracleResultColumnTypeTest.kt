@@ -32,6 +32,7 @@ class OracleResultColumnTypeTest :
               dept_id NUMBER(10)
             );
 
+            CREATE SEQUENCE emp_seq;
             """.trimIndent()
 
         fun typeOf(query: String): String {
@@ -73,6 +74,11 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT LEVEL AS c FROM emp CONNECT BY PRIOR id = dept_id") shouldBe "kotlin.Long"
             typeOf("SELECT ROWID AS c FROM emp") shouldBe "kotlin.String"
             typeOf("SELECT ORA_ROWSCN AS c FROM emp") shouldBe "kotlin.Long"
+        }
+
+        test("resolves Oracle sequence pseudocolumn result column types exactly") {
+            typeOf("SELECT emp_seq.NEXTVAL AS c FROM emp") shouldBe "kotlin.Long"
+            typeOf("SELECT emp_seq.CURRVAL AS c FROM emp") shouldBe "kotlin.Long"
         }
 
         test("resolves Oracle analytic function result column types exactly") {

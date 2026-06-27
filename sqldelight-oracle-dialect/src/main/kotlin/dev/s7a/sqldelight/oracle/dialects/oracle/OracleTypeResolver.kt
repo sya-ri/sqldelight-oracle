@@ -59,7 +59,9 @@ public class OracleTypeResolver(
         return when (extensionExpr.text.oracleTerminalIdentifier()) {
             "CONNECT_BY_ISCYCLE",
             "CONNECT_BY_ISLEAF",
+            "CURRVAL",
             "LEVEL",
+            "NEXTVAL",
             "OBJECT_ID",
             "ORA_INVOKING_USERID",
             "ORA_ROWSCN",

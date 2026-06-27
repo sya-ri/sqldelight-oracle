@@ -842,6 +842,8 @@ private oracle_qualified_object_name ::= oracle_object_name_part ( DOT oracle_ob
 private oracle_pseudocolumn_expr ::= oracle_qualified_table_pseudocolumn | oracle_simple_pseudocolumn
 
 private oracle_qualified_table_pseudocolumn ::= oracle_object_name_part DOT (
+  'CURRVAL' |
+  'NEXTVAL' |
   'ORA_ROWSCN' |
   'ROWID'
 )

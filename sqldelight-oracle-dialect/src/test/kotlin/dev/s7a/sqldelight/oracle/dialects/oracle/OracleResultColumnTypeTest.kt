@@ -28,6 +28,7 @@ class OracleResultColumnTypeTest :
               nickname VARCHAR2(100),
               salary NUMBER(10, 2),
               bonus BINARY_DOUBLE,
+              raw_col RAW(16),
               hire_date DATE NOT NULL,
               created_ts TIMESTAMP,
               dept_id NUMBER(10)
@@ -92,6 +93,12 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT NEXT_DAY(created_ts, 'MONDAY') AS c FROM emp") shouldBe "java.time.LocalDateTime?"
             typeOf("SELECT MONTHS_BETWEEN(hire_date, created_ts) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT EXTRACT(YEAR FROM created_ts) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT CHR(dept_id) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT NCHR(dept_id) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT SOUNDEX(nickname) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT TO_CLOB(nickname) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT HEXTORAW(nickname) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+            typeOf("SELECT RAWTOHEX(raw_col) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT GREATEST(id, small_id) AS c FROM emp") shouldBe "kotlin.Long"
             typeOf("SELECT GREATEST(id, dept_id) AS c FROM emp") shouldBe "kotlin.Long?"
             typeOf("SELECT LEAST(id, dept_id) AS c FROM emp") shouldBe "kotlin.Long?"

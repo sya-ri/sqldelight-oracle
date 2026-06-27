@@ -1002,7 +1002,8 @@ class ValidFunctionArityRuleTest :
                     SELECT JSON_ID(), JSON_ID('OID', 'UUID'),
                       SHARD_CHUNK_ID(), SHARD_CHUNK_ID(shard_key),
                       SCORE(), SCORE(1, 2),
-                      JSON(), JSON(doc, extra), JSON_SCALAR(), JSON_SCALAR(value, extra)
+                      JSON(), JSON(doc, extra), JSON_SCALAR(), JSON_SCALAR(value, extra),
+                      JSON_MERGEPATCH(doc), JSON_EQUAL(doc)
                     FROM utility_samples;
                     """,
                 )
@@ -1078,6 +1079,20 @@ class ValidFunctionArityRuleTest :
                         startColumn = 44,
                         endLine = 5,
                         endColumn = 55,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function JSON_MERGEPATCH expects 2 argument(s), but got 1.",
+                        startLine = 6,
+                        startColumn = 3,
+                        endLine = 6,
+                        endColumn = 18,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function JSON_EQUAL expects 2 argument(s), but got 1.",
+                        startLine = 6,
+                        startColumn = 25,
+                        endLine = 6,
+                        endColumn = 35,
                     ),
                 )
         }
@@ -1755,6 +1770,8 @@ class ValidFunctionArityRuleTest :
                   SCORE(1),
                   JSON(doc),
                   JSON_SCALAR(amount),
+                  JSON_MERGEPATCH(doc, patch),
+                  JSON_EQUAL(doc, expected_doc),
                   CALENDAR_YEAR(d),
                   CALENDAR_MONTH(d, fmt, nls),
                   FISCAL_YEAR(d, fiscal_start, fmt, nls),

@@ -200,6 +200,46 @@ class UnsafeDdlMigrationRuleTest :
                 )
         }
 
+        test("reports destructive DROP CLUSTER") {
+            val diagnostics =
+                UnsafeDdlMigrationRule().diagnostics(
+                    """
+                    DROP CLUSTER customer_cluster INCLUDING TABLES CASCADE CONSTRAINTS;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 1,
+                        startColumn = 1,
+                        endLine = 1,
+                        endColumn = 13,
+                    ),
+                )
+        }
+
+        test("reports destructive DROP TABLESPACE") {
+            val diagnostics =
+                UnsafeDdlMigrationRule().diagnostics(
+                    """
+                    DROP TABLESPACE customer_data INCLUDING CONTENTS AND DATAFILES;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 1,
+                        startColumn = 1,
+                        endLine = 1,
+                        endColumn = 16,
+                    ),
+                )
+        }
+
         test("reports destructive partition maintenance operations") {
             val diagnostics =
                 UnsafeDdlMigrationRule().diagnostics(

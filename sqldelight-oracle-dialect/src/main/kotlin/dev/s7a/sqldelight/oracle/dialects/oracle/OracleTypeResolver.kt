@@ -1,6 +1,7 @@
 package dev.s7a.sqldelight.oracle.dialects.oracle
 
 import app.cash.sqldelight.dialect.api.DialectType
+import app.cash.sqldelight.dialect.api.ExposableType
 import app.cash.sqldelight.dialect.api.IntermediateType
 import app.cash.sqldelight.dialect.api.PrimitiveType.BLOB
 import app.cash.sqldelight.dialect.api.PrimitiveType.BOOLEAN
@@ -9,6 +10,9 @@ import app.cash.sqldelight.dialect.api.PrimitiveType.REAL
 import app.cash.sqldelight.dialect.api.PrimitiveType.TEXT
 import app.cash.sqldelight.dialect.api.TypeResolver
 import app.cash.sqldelight.dialect.api.encapsulatingTypePreferringKotlin
+import com.alecstrong.sql.psi.core.psi.NamedElement
+import com.alecstrong.sql.psi.core.psi.SqlColumnDef
+import com.alecstrong.sql.psi.core.psi.SqlCompositeElement
 import com.alecstrong.sql.psi.core.psi.SqlExpr
 import com.alecstrong.sql.psi.core.psi.SqlExtensionExpr
 import com.alecstrong.sql.psi.core.psi.SqlFunctionExpr
@@ -24,6 +28,8 @@ import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.INTEGER_NUMBER
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.LONG_NUMBER
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.TIMESTAMP
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.TIMESTAMP_TIME_ZONE
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.indexOfKeyword
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.trimOracleIdentifier
 
 public class OracleTypeResolver(
     private val parentResolver: TypeResolver,
@@ -42,6 +48,7 @@ public class OracleTypeResolver(
                     ?: oracleExtensionOperatorType(expr)
                     ?: oracleExtensionPseudocolumnType(expr)
                     ?: oracleExtensionLiteralType(expr)
+                    ?: oracleCollateExpressionType(expr)
                     ?: oracleHierarchicalOperatorType(expr)
                     ?: oracleConcatenationOperatorType(expr)
                     ?: oracleDatetimeOperatorType(expr)
@@ -258,6 +265,63 @@ public class OracleTypeResolver(
     private fun SqlExpr.oracleExtensionExpr(): SqlExtensionExpr? =
         this as? SqlExtensionExpr
             ?: runCatching { children.filterIsInstance<SqlExtensionExpr>().singleOrNull() }.getOrNull()
+
+    private fun oracleCollateExpressionType(expr: SqlExpr): IntermediateType? {
+        val extensionExpr = expr.oracleExtensionExpr() ?: return null
+        val operandText =
+            extensionExpr
+                .text
+                .oracleCollateOperandText()
+                ?: return null
+        return when {
+            operandText.startsWith("'") ||
+                operandText.startsWith(
+                    "N'",
+                    ignoreCase = true,
+                ) ||
+                operandText.startsWith(
+                    "Q'",
+                    ignoreCase = true,
+                ) -> {
+                IntermediateType(OracleType.TEXT)
+            }
+
+            else -> {
+                extensionExpr.oracleAvailableColumnType(operandText)
+                    ?: PsiTreeUtil
+                        .findChildrenOfType(extensionExpr, SqlExpr::class.java)
+                        .singleOrNull()
+                        ?.let(::resolvedType)
+            }
+        }
+    }
+
+    private fun SqlExtensionExpr.oracleAvailableColumnType(operandText: String): IntermediateType? {
+        val operandColumnName = operandText.substringAfterLast(".").trimOracleIdentifier()
+        if (operandColumnName.isBlank()) return null
+
+        var parent = parent
+        while (parent != null) {
+            val queryElement = parent as? SqlCompositeElement
+            val column =
+                queryElement
+                    ?.queryAvailable(this)
+                    ?.asSequence()
+                    ?.flatMap { result -> result.columns.asSequence() }
+                    ?.firstOrNull { column ->
+                        (column.element as? NamedElement)?.name.equals(operandColumnName, ignoreCase = true)
+                    }
+            val exposedType = column?.element as? ExposableType
+            if (exposedType != null) return exposedType.type()
+            val columnDef = column?.element?.parent as? SqlColumnDef
+            if (columnDef != null) {
+                return definitionType(columnDef.columnType.typeName)
+                    .nullableIf(!columnDef.text.contains(Regex("""(?i)\bNOT\s+NULL\b""")))
+            }
+            parent = parent.parent
+        }
+        return null
+    }
 
     private fun SqlExpr.oracleBinaryOperatorBetween(operands: List<SqlExpr>): String? {
         val leftEnd = operands[0].textRange.endOffset - textRange.startOffset
@@ -724,6 +788,11 @@ public class OracleTypeResolver(
 
         private fun String.hasOracleVectorDistanceShorthand(): Boolean =
             VECTOR_DISTANCE_SHORTHAND_OPERATORS.any { operator -> contains(operator) }
+
+        private fun String.oracleCollateOperandText(): String? =
+            indexOfKeyword("COLLATE")
+                ?.let { collateOffset -> substring(0, collateOffset).trim() }
+                ?.takeIf { operand -> operand.isNotBlank() }
 
         private fun String.isOracleNullPropagatingFixedReturnFunction(): Boolean {
             val functionName = trim().uppercase()

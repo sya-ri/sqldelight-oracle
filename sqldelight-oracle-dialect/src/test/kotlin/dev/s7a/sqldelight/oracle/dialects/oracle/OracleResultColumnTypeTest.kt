@@ -594,6 +594,12 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT CURRENT_USER AS c FROM emp") shouldBe "kotlin.String"
         }
 
+        test("resolves Oracle collate expression result column types exactly") {
+            typeOf("SELECT name COLLATE BINARY_CI AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT nickname COLLATE BINARY_CI AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT 'smith' COLLATE BINARY_CI AS c FROM emp") shouldBe "kotlin.String"
+        }
+
         test("resolves Oracle numeric operator result column types exactly") {
             typeOf("SELECT id + 1 AS c FROM emp") shouldBe "kotlin.Long"
             typeOf("SELECT salary + 1 AS c FROM emp") shouldBe "java.math.BigDecimal?"

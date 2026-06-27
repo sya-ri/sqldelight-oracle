@@ -377,6 +377,95 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("reports wrong arity for Oracle NLS and XML utility functions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidNlsXmlUtilities:
+                    SELECT BFILENAME('DATA_DIR'), NLS_UPPER(), NLS_LOWER(label, 'x', 'y'),
+                      NLS_INITCAP(label, 'x', 'y'), NLS_CHARSET_ID(), NLS_CHARSET_NAME(),
+                      NLS_CHARSET_DECL_LEN(10), EXTRACTVALUE(payload_xml),
+                      EXISTSNODE(payload_xml, '/a', 'xmlns:x="urn:x"', 'extra'),
+                      XMLISVALID(payload_xml, 'schema.xsd', 'extra')
+                    FROM invoices;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function BFILENAME expects 2 argument(s), but got 1.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 17,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function NLS_UPPER expects 1..2 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 31,
+                        endLine = 2,
+                        endColumn = 40,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function NLS_LOWER expects 1..2 argument(s), but got 3.",
+                        startLine = 2,
+                        startColumn = 44,
+                        endLine = 2,
+                        endColumn = 53,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function NLS_INITCAP expects 1..2 argument(s), but got 3.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 14,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function NLS_CHARSET_ID expects 1 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 33,
+                        endLine = 3,
+                        endColumn = 47,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function NLS_CHARSET_NAME expects 1 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 51,
+                        endLine = 3,
+                        endColumn = 67,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function NLS_CHARSET_DECL_LEN expects 2 argument(s), but got 1.",
+                        startLine = 4,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 23,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function EXTRACTVALUE expects 2..3 argument(s), but got 1.",
+                        startLine = 4,
+                        startColumn = 29,
+                        endLine = 4,
+                        endColumn = 41,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function EXISTSNODE expects 2..3 argument(s), but got 4.",
+                        startLine = 5,
+                        startColumn = 3,
+                        endLine = 5,
+                        endColumn = 13,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLISVALID expects 1..2 argument(s), but got 3.",
+                        startLine = 6,
+                        startColumn = 3,
+                        endLine = 6,
+                        endColumn = 13,
+                    ),
+                )
+        }
+
         test("reports wrong arity for Oracle aggregates") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(
@@ -522,6 +611,16 @@ class ValidFunctionArityRuleTest :
                   ORA_HASH(label, 100, 1),
                   STANDARD_HASH(label, 'SHA256'),
                   NLSSORT(label, 'NLS_SORT = BINARY'),
+                  BFILENAME('DATA_DIR', 'payload.bin'),
+                  NLS_UPPER(label, 'NLS_SORT = XGERMAN'),
+                  NLS_LOWER(label),
+                  NLS_INITCAP(label, 'NLS_SORT = BINARY_CI'),
+                  NLS_CHARSET_ID('AL32UTF8'),
+                  NLS_CHARSET_NAME(873),
+                  NLS_CHARSET_DECL_LEN(10, 873),
+                  EXTRACTVALUE(payload_xml, '/a'),
+                  EXISTSNODE(payload_xml, '/a', 'xmlns:x="urn:x"'),
+                  XMLISVALID(payload_xml, 'schema.xsd'),
                   REGEXP_REPLACE(description, q'{literal ' marker, comma}', 'x'),
                   REGEXP_SUBSTR(description, '[A-Z]+', 1, 1, 'i', 0),
                   TO_TIMESTAMP(created_text, 'YYYY-MM-DD HH24:MI:SS')

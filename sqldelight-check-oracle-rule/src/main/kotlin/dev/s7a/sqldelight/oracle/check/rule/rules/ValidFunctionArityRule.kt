@@ -90,6 +90,7 @@ private val oracleFunctionArities =
         "ASIN" to exactArity(1),
         "ATAN" to exactArity(1),
         "AVG" to exactArity(1),
+        "BFILENAME" to exactArity(2),
         "CEIL" to exactArity(1),
         "CHARTOROWID" to exactArity(1),
         "CHR" to exactArity(1),
@@ -97,6 +98,8 @@ private val oracleFunctionArities =
         "COSH" to exactArity(1),
         "DUMP" to arityRange(1, 4),
         "EXP" to exactArity(1),
+        "EXISTSNODE" to arityRange(2, 3),
+        "EXTRACTVALUE" to arityRange(2, 3),
         "FLOOR" to exactArity(1),
         "HEXTORAW" to exactArity(1),
         "INITCAP" to exactArity(1),
@@ -110,6 +113,12 @@ private val oracleFunctionArities =
         "MAX" to exactArity(1),
         "MEDIAN" to exactArity(1),
         "MIN" to exactArity(1),
+        "NLS_CHARSET_DECL_LEN" to exactArity(2),
+        "NLS_CHARSET_ID" to exactArity(1),
+        "NLS_CHARSET_NAME" to exactArity(1),
+        "NLS_INITCAP" to arityRange(1, 2),
+        "NLS_LOWER" to arityRange(1, 2),
+        "NLS_UPPER" to arityRange(1, 2),
         "NLSSORT" to arityRange(1, 2),
         "NCHR" to exactArity(1),
         "ORA_HASH" to arityRange(1, 3),
@@ -201,6 +210,7 @@ private val oracleFunctionArities =
         "TO_TIMESTAMP_TZ" to arityRange(1, 3),
         "TRUNC" to arityRange(1, 2),
         "USERENV" to exactArity(1),
+        "XMLISVALID" to arityRange(1, 2),
     )
 
 private val oracleNoParenthesesExpressions =

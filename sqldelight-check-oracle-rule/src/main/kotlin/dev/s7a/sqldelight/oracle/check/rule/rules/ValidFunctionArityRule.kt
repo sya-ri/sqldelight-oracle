@@ -26,6 +26,18 @@ public class ValidFunctionArityRule : Rule {
         val masked = content.maskSqlCommentsAndQuotedTextPreservingOffsets()
         oracleFunctionPattern.findAll(masked).forEach { match ->
             val functionName = match.groupValues[1].uppercase()
+            if (functionName in oracleNoParenthesesExpressions) {
+                reporter.report(
+                    RuleDiagnostic(
+                        severity = defaultSeverity,
+                        message = "Oracle expression $functionName does not accept parentheses.",
+                        file = context.file,
+                        range = content.rangeAtOffsets(match.range.first, match.range.first + functionName.length),
+                        database = context.database,
+                    ),
+                )
+                return@forEach
+            }
             val arity = oracleFunctionArities[functionName] ?: return@forEach
             val openParenthesisOffset = masked.indexOf('(', startIndex = match.range.first)
             val argumentCount = content.functionArgumentCountAt(openParenthesisOffset) ?: return@forEach
@@ -62,24 +74,21 @@ private fun arityRange(
 
 private val oracleFunctionArities =
     mapOf(
-        "CURRENT_DATE" to exactArity(0),
-        "DBTIMEZONE" to exactArity(0),
         "EMPTY_BLOB" to exactArity(0),
         "EMPTY_CLOB" to exactArity(0),
-        "ORA_INVOKING_USER" to exactArity(0),
-        "ORA_INVOKING_USERID" to exactArity(0),
-        "SESSIONTIMEZONE" to exactArity(0),
-        "SYSDATE" to exactArity(0),
-        "SYSTIMESTAMP" to exactArity(0),
         "SYS_GUID" to exactArity(0),
-        "UID" to exactArity(0),
-        "USER" to exactArity(0),
         "UUID" to exactArity(0),
         "ABS" to exactArity(1),
         "ACOS" to exactArity(1),
+        "APPROX_COUNT" to exactArity(1),
+        "APPROX_COUNT_DISTINCT" to exactArity(1),
+        "APPROX_MEDIAN" to exactArity(1),
+        "APPROX_SUM" to exactArity(1),
+        "ANY_VALUE" to exactArity(1),
         "ASCII" to exactArity(1),
         "ASCIISTR" to exactArity(1),
         "ASIN" to exactArity(1),
+        "AVG" to exactArity(1),
         "CEIL" to exactArity(1),
         "CHARTOROWID" to exactArity(1),
         "COS" to exactArity(1),
@@ -94,6 +103,9 @@ private val oracleFunctionArities =
         "LN" to exactArity(1),
         "LNNVL" to exactArity(1),
         "LOWER" to exactArity(1),
+        "MAX" to exactArity(1),
+        "MEDIAN" to exactArity(1),
+        "MIN" to exactArity(1),
         "NCHR" to exactArity(1),
         "RAW_TO_UUID" to exactArity(1),
         "RAWTOHEX" to exactArity(1),
@@ -106,6 +118,8 @@ private val oracleFunctionArities =
         "SINH" to exactArity(1),
         "SOUNDEX" to exactArity(1),
         "SQRT" to exactArity(1),
+        "STATS_MODE" to exactArity(1),
+        "SUM" to exactArity(1),
         "SYS_EXTRACT_UTC" to exactArity(1),
         "TAN" to exactArity(1),
         "TANH" to exactArity(1),
@@ -125,7 +139,7 @@ private val oracleFunctionArities =
         "ADD_MONTHS" to exactArity(2),
         "ATAN2" to exactArity(2),
         "BITAND" to exactArity(2),
-        "CONCAT" to exactArity(2),
+        "COUNT" to exactArity(1),
         "FROM_TZ" to exactArity(2),
         "MOD" to exactArity(2),
         "MONTHS_BETWEEN" to exactArity(2),
@@ -135,12 +149,24 @@ private val oracleFunctionArities =
         "NUMTOYMINTERVAL" to exactArity(2),
         "POWER" to exactArity(2),
         "REMAINDER" to exactArity(2),
+        "REGR_AVGX" to exactArity(2),
+        "REGR_AVGY" to exactArity(2),
+        "REGR_COUNT" to exactArity(2),
+        "REGR_INTERCEPT" to exactArity(2),
+        "REGR_R2" to exactArity(2),
+        "REGR_SLOPE" to exactArity(2),
+        "REGR_SXX" to exactArity(2),
+        "REGR_SXY" to exactArity(2),
+        "REGR_SYY" to exactArity(2),
         "NEW_TIME" to exactArity(3),
         "NVL2" to exactArity(3),
         "TRANSLATE" to exactArity(3),
         "COALESCE" to arityRange(2, Int.MAX_VALUE),
+        "CONCAT" to arityRange(2, Int.MAX_VALUE),
+        "CURRENT_TIMESTAMP" to exactArity(1),
         "GREATEST" to arityRange(1, Int.MAX_VALUE),
         "LEAST" to arityRange(1, Int.MAX_VALUE),
+        "LOCALTIMESTAMP" to exactArity(1),
         "NVL" to exactArity(2),
         "REGEXP_COUNT" to arityRange(2, 4),
         "REGEXP_INSTR" to arityRange(2, 7),
@@ -156,8 +182,21 @@ private val oracleFunctionArities =
         "TO_TIMESTAMP_TZ" to arityRange(1, 3),
     )
 
+private val oracleNoParenthesesExpressions =
+    setOf(
+        "CURRENT_DATE",
+        "DBTIMEZONE",
+        "ORA_INVOKING_USER",
+        "ORA_INVOKING_USERID",
+        "SESSIONTIMEZONE",
+        "SYSDATE",
+        "SYSTIMESTAMP",
+        "UID",
+        "USER",
+    )
+
 private val oracleFunctionPattern =
-    Regex("""(?i)\b(${oracleFunctionArities.keys.joinToString("|") { Regex.escape(it) }})\s*\(""")
+    Regex("""(?i)\b(${(oracleFunctionArities.keys + oracleNoParenthesesExpressions).joinToString("|") { Regex.escape(it) }})\s*\(""")
 
 private fun String.functionArgumentCountAt(openParenthesisOffset: Int): Int? {
     if (openParenthesisOffset !in indices || this[openParenthesisOffset] != '(') return null
@@ -175,6 +214,10 @@ private fun String.functionArgumentCountAt(openParenthesisOffset: Int): Int? {
 
                 startsWith("/*", index) -> {
                     skipSqlBlockComment(index)
+                }
+
+                startsSqlAlternativeQuotedString(index) -> {
+                    skipSqlAlternativeQuotedString(index)
                 }
 
                 this[index] == '\'' -> {

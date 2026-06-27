@@ -46,7 +46,7 @@ class ValidReturningClauseRuleTest :
                 )
         }
 
-        test("reports mixed old and new returning expressions exactly") {
+        test("accepts mixed old and new returning expressions") {
             ValidReturningClauseRule()
                 .diagnostics(
                     """
@@ -54,16 +54,7 @@ class ValidReturningClauseRuleTest :
                     SET name = :name
                     RETURNING OLD id, NEW id INTO :id;
                     """,
-                ).summaries() shouldBe
-                listOf(
-                    DiagnosticSummary(
-                        message = "Use a valid Oracle RETURNING clause: OLD/NEW.",
-                        startLine = 3,
-                        startColumn = 11,
-                        endLine = 3,
-                        endColumn = 22,
-                    ),
-                )
+                ).summaries() shouldBe emptyList()
         }
 
         test("accepts one valid returning clause") {

@@ -786,6 +786,46 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle CAST MULTISET subquery expressions exactly") {
+            val sql =
+                """
+                CREATE TYPE employee_name_list AS TABLE OF VARCHAR2(100);
+
+                CREATE TABLE departments (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(100)
+                );
+
+                CREATE TABLE employees (
+                  id NUMBER PRIMARY KEY,
+                  department_id NUMBER,
+                  name VARCHAR2(100)
+                );
+
+                SELECT d.id,
+                  CAST(MULTISET(
+                    SELECT e.name
+                    FROM employees e
+                    WHERE e.department_id = d.id
+                  ) AS employee_name_list) AS employee_names
+                FROM departments d;
+
+                SELECT d.id,
+                  CAST(MULTISET(
+                    SELECT e.name
+                    FROM employees e
+                    WHERE e.department_id = d.id
+                  ) AS SYS.ODCIVARCHAR2LIST) AS employee_names
+                FROM departments d;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle arithmetic and concatenation operators exactly") {
             val sql =
                 """
@@ -2191,6 +2231,36 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle analytic null treatment clauses exactly") {
+            val sql =
+                """
+                CREATE TABLE sales (
+                  id NUMBER PRIMARY KEY,
+                  department_id NUMBER,
+                  amount NUMBER,
+                  sold_at DATE
+                );
+
+                selectNullTreatment:
+                SELECT
+                  FIRST_VALUE(amount IGNORE NULLS) OVER (ORDER BY sold_at) AS first_amount,
+                  LAST_VALUE(amount) IGNORE NULLS OVER (ORDER BY sold_at) AS last_amount,
+                  FIRST_VALUE(amount RESPECT NULLS) OVER (ORDER BY sold_at) AS first_amount_respect,
+                  LAG(amount IGNORE NULLS) OVER (ORDER BY sold_at) AS previous_amount,
+                  LAG(amount, 1) IGNORE NULLS OVER (ORDER BY sold_at) AS previous_amount_offset,
+                  LEAD(amount) IGNORE NULLS OVER (ORDER BY sold_at) AS next_amount,
+                  NTH_VALUE(amount, 2) IGNORE NULLS OVER (ORDER BY sold_at) AS second_amount,
+                  NTH_VALUE(amount, 2) FROM LAST IGNORE NULLS OVER (ORDER BY sold_at) AS second_amount_from_last
+                FROM sales;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle analytic and aggregate function clauses exactly") {
             val sql =
                 """
@@ -2403,6 +2473,7 @@ class OracleParserBackedTest :
                   APPROX_COUNT_DISTINCT(employee_id) AS approximate_employee_count,
                   APPROX_SUM(amount) AS approximate_amount,
                   APPROX_MEDIAN(amount) AS approximate_median_amount,
+                  APPROX_MEDIAN(sold_at DETERMINISTIC, 'ERROR_RATE') AS approximate_median_error_rate,
                   APPROX_PERCENTILE(0.75) WITHIN GROUP (ORDER BY amount) AS approximate_percentile,
                   APPROX_PERCENTILE(0.75 DETERMINISTIC, 'ERROR_RATE') WITHIN GROUP (ORDER BY amount) AS percentile_error_rate
                 FROM sales
@@ -2435,6 +2506,31 @@ class OracleParserBackedTest :
                   PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY amount DESC) OVER (PARTITION BY region) AS analytic_continuous,
                   PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY amount DESC) OVER (PARTITION BY region) AS analytic_discrete
                 FROM sales;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle hypothetical rank ordered aggregate functions exactly") {
+            val sql =
+                """
+                CREATE TABLE sales (
+                  id NUMBER PRIMARY KEY,
+                  region VARCHAR2(20),
+                  amount NUMBER
+                );
+
+                SELECT region,
+                  RANK(1000) WITHIN GROUP (ORDER BY amount DESC) AS hypothetical_rank,
+                  DENSE_RANK(1000) WITHIN GROUP (ORDER BY amount DESC) AS hypothetical_dense_rank,
+                  PERCENT_RANK(1000) WITHIN GROUP (ORDER BY amount DESC) AS hypothetical_percent_rank,
+                  CUME_DIST(1000) WITHIN GROUP (ORDER BY amount DESC) AS hypothetical_cume_dist
+                FROM sales
+                GROUP BY region;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe
@@ -3671,6 +3767,19 @@ class OracleParserBackedTest :
                 )
                 SELECT id
                 FROM leaf_units;
+
+                selectRecursiveFactored:
+                WITH generated_units (id) AS (
+                  SELECT id
+                  FROM org_units
+                  WHERE parent_id IS NULL
+                  UNION ALL
+                  SELECT generated_units.id + 1
+                  FROM generated_units
+                  WHERE generated_units.id < 10
+                )
+                SELECT id
+                FROM generated_units;
 
                 selectNestedFactored:
                 WITH outer_units AS (
@@ -5832,6 +5941,12 @@ class OracleParserBackedTest :
                 WHERE target.order_id = ?
                 RETURNING target.order_total INTO ?;
 
+                updateReturningBulkCollect:
+                UPDATE partitioned_order_updates
+                SET order_total = order_total + ?
+                WHERE region_code = ?
+                RETURNING order_id, order_total BULK COLLECT INTO returned_order_ids, returned_totals;
+
                 updateWithWaitAndErrorLogging:
                 UPDATE partitioned_order_updates
                 SET archived_at = CURRENT_TIMESTAMP
@@ -5898,6 +6013,11 @@ class OracleParserBackedTest :
                 DELETE FROM partitioned_order_updates target
                 WHERE target.order_id = ?
                 RETURNING target.order_total INTO ?;
+
+                deleteReturningBulkCollect:
+                DELETE FROM partitioned_order_updates
+                WHERE region_code = ?
+                RETURNING order_id BULK COLLECT INTO deleted_order_ids;
 
                 deleteWithErrorLogging:
                 DELETE FROM partitioned_order_updates

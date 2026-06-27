@@ -247,7 +247,7 @@ type_name ::= oracle_type_name | core_type_name {
   override = true
 }
 
-extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_boolean_literal_expr | oracle_boolean_not_expr | oracle_boolean_test_expr | oracle_extract_datetime_expr | oracle_character_function_expr | oracle_object_method_expr | oracle_object_attribute_expr | oracle_datetime_conversion_expr | oracle_number_conversion_expr | oracle_interval_conversion_expr | oracle_user_function_expr | oracle_collection_function_expr | oracle_object_reference_function_expr | oracle_oml_function_expr | oracle_ordered_aggregate_expr | oracle_analytic_function_expr | oracle_aggregate_function_expr | oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_condition_expr | oracle_multiset_expr | oracle_collate_expr | oracle_cursor_expr | oracle_validate_conversion_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_type_constructor_expr {
+extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_boolean_literal_expr | oracle_boolean_not_expr | oracle_boolean_test_expr | oracle_extract_datetime_expr | oracle_character_function_expr | oracle_object_method_expr | oracle_object_attribute_expr | oracle_datetime_conversion_expr | oracle_number_conversion_expr | oracle_interval_conversion_expr | oracle_user_function_expr | oracle_collection_function_expr | oracle_object_reference_function_expr | oracle_oml_function_expr | oracle_ordered_aggregate_expr | oracle_approx_median_expr | oracle_analytic_function_expr | oracle_aggregate_function_expr | oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_condition_expr | oracle_multiset_expr | oracle_collate_expr | oracle_cursor_expr | oracle_validate_conversion_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_type_constructor_expr {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionExprImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionExpr"
   override = true
@@ -383,11 +383,15 @@ private oracle_mining_attribute_clause ::= 'USING' ( '*' | oracle_mining_attribu
 
 private oracle_mining_attribute ::= ( oracle_object_name_part DOT '*' | <<expr '-1'>> ) [ [ 'AS' ] oracle_object_name_part ]
 
-private oracle_analytic_function_expr ::= oracle_function_invocation ( oracle_keep_clause [ oracle_over_clause ] | oracle_over_clause )
+private oracle_analytic_function_expr ::= oracle_function_invocation ( oracle_keep_clause [ oracle_over_clause ] | [ oracle_from_first_last_clause ] [ oracle_null_treatment_clause ] oracle_over_clause )
 
 private oracle_function_invocation ::= oracle_object_name_part LP [ oracle_function_argument ( COMMA oracle_function_argument ) * ] RP
 
-private oracle_function_argument ::= '*' | ( 'DISTINCT' | 'UNIQUE' | 'ALL' ) <<expr '-1'>> | <<expr '-1'>>
+private oracle_function_argument ::= '*' | ( 'DISTINCT' | 'UNIQUE' | 'ALL' ) <<expr '-1'>> | <<expr '-1'>> [ oracle_null_treatment_clause ]
+
+private oracle_null_treatment_clause ::= ( 'RESPECT' | 'IGNORE' ) 'NULLS'
+
+private oracle_from_first_last_clause ::= 'FROM' ( 'FIRST' | 'LAST' )
 
 private oracle_aggregate_function_expr ::= oracle_aggregate_function_name LP [ oracle_function_argument ( COMMA oracle_function_argument ) * ] RP [ oracle_filter_clause ] [ oracle_over_clause ]
 
@@ -399,12 +403,16 @@ private oracle_aggregate_function_name ::= (
   'STDDEV' | 'STDDEV_POP' | 'STDDEV_SAMP' | 'SUM' | 'VARIANCE' | 'VAR_POP' | 'VAR_SAMP'
 )
 
-private oracle_ordered_aggregate_expr ::= ( oracle_approx_percentile_expr | oracle_percentile_expr | oracle_listagg_expr ) [ oracle_filter_clause ] [ oracle_over_clause [ oracle_filter_clause ] ]
+private oracle_ordered_aggregate_expr ::= ( oracle_approx_percentile_expr | oracle_percentile_expr | oracle_listagg_expr | oracle_hypothetical_rank_expr ) [ oracle_filter_clause ] [ oracle_over_clause [ oracle_filter_clause ] ]
 
 private oracle_approx_percentile_expr ::=
   'APPROX_PERCENTILE' LP <<expr '-1'>> [ 'DETERMINISTIC' ] [ COMMA <<expr '-1'>> ] RP oracle_within_group_clause
 
+private oracle_approx_median_expr ::= 'APPROX_MEDIAN' LP <<expr '-1'>> [ 'DETERMINISTIC' ] [ COMMA <<expr '-1'>> ] RP
+
 private oracle_percentile_expr ::= ( 'PERCENTILE_CONT' | 'PERCENTILE_DISC' ) LP <<expr '-1'>> RP oracle_within_group_clause
+
+private oracle_hypothetical_rank_expr ::= ( 'RANK' | 'DENSE_RANK' | 'PERCENT_RANK' | 'CUME_DIST' ) LP <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP oracle_within_group_clause
 
 private oracle_listagg_expr ::=
   'LISTAGG' LP [ 'ALL' | 'DISTINCT' ] <<expr '-1'>> [ COMMA <<expr '-1'>> ] [ oracle_listagg_overflow_clause ] RP oracle_within_group_clause
@@ -691,7 +699,11 @@ private oracle_json_value_type_clause ::= 'TYPE' LP ( 'STRICT' | 'LAX' ) RP
 
 private oracle_type_conversion_expr ::= oracle_cast_expr | oracle_treat_expr
 
-private oracle_cast_expr ::= 'CAST' LP <<expr '-1'>> 'AS' oracle_type_name [ 'DEFAULT' <<expr '-1'>> 'ON' 'CONVERSION' 'ERROR' ] [ COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] ] RP
+private oracle_cast_expr ::= 'CAST' LP ( oracle_multiset_subquery_expr | <<expr '-1'>> ) 'AS' oracle_cast_type_name [ 'DEFAULT' <<expr '-1'>> 'ON' 'CONVERSION' 'ERROR' ] [ COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] ] RP
+
+private oracle_multiset_subquery_expr ::= 'MULTISET' LP <<compoundSelectStmtExt <<compound_select_stmt_real>>>> RP
+
+private oracle_cast_type_name ::= oracle_type_name | oracle_schema_object_name
 
 private oracle_validate_conversion_expr ::= 'VALIDATE_CONVERSION' LP <<expr '-1'>> 'AS' type_name [ COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] ] RP
 
@@ -842,6 +854,8 @@ private oracle_qualified_object_name ::= oracle_object_name_part ( DOT oracle_ob
 private oracle_pseudocolumn_expr ::= oracle_qualified_table_pseudocolumn | oracle_simple_pseudocolumn
 
 private oracle_qualified_table_pseudocolumn ::= oracle_object_name_part DOT (
+  'CURRVAL' |
+  'NEXTVAL' |
   'ORA_ROWSCN' |
   'ROWID'
 )
@@ -850,8 +864,11 @@ private oracle_simple_pseudocolumn ::= (
   'COLUMN_VALUE' |
   'CONNECT_BY_ISCYCLE' |
   'CONNECT_BY_ISLEAF' |
+  'CURRENT_DATE' |
+  'CURRENT_TIMESTAMP' |
   'DBTIMEZONE' |
   'LEVEL' |
+  'LOCALTIMESTAMP' |
   'OBJECT_ID' |
   'OBJECT_VALUE' |
   'ORA_INVOKING_USER' |
@@ -861,6 +878,8 @@ private oracle_simple_pseudocolumn ::= (
   'ROWID' |
   'ROWNUM' |
   'SESSIONTIMEZONE' |
+  'SYSDATE' |
+  'SYSTIMESTAMP' |
   'UID' |
   'USER' |
   'VERSIONS_ENDSCN' |
@@ -1740,7 +1759,7 @@ private oracle_from_using_source ::= <<tableOrSubqueryExt <<table_or_subquery_re
 
 private oracle_wait_clause ::= 'NOWAIT' | 'WAIT' ( 'FOREVER' | {signed_number} [ 'SECONDS' | 'MILLISECONDS' | 'MICROSECONDS' ] )
 
-private oracle_returning_clause ::= ( 'RETURN' | 'RETURNING' ) oracle_returning_expr ( COMMA oracle_returning_expr ) * 'INTO' oracle_returning_target ( COMMA oracle_returning_target ) *
+private oracle_returning_clause ::= ( 'RETURN' | 'RETURNING' ) oracle_returning_expr ( COMMA oracle_returning_expr ) * [ 'BULK' 'COLLECT' ] 'INTO' oracle_returning_target ( COMMA oracle_returning_target ) *
 
 private oracle_returning_expr ::= [ 'OLD' | 'NEW' ] <<expr '-1'>>
 

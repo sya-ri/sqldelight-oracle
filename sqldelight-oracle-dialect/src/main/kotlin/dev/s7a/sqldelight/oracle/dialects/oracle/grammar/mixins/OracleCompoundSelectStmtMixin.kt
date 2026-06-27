@@ -35,10 +35,16 @@ internal abstract class OracleCompoundSelectStmtMixin(
 
         return baseTables +
             localTables +
-            parentWithClause.oracleTablesExposed().filterIndexed { index, _ -> index != myIndex }
+            parentWithClause.oracleTablesExposed(
+                excludeIndex = myIndex,
+                includeExcludedWithColumnAliases = true,
+            )
     }
 
-    private fun SqlWithClause.oracleTablesExposed(): List<LazyQuery> {
+    private fun SqlWithClause.oracleTablesExposed(
+        excludeIndex: Int? = null,
+        includeExcludedWithColumnAliases: Boolean = false,
+    ): List<LazyQuery> {
         val cteQueries =
             cteTableNameList.zip(withClauseAuxiliaryStmtList).mapNotNull { (name, withClauseAuxiliaryStmt) ->
                 PsiTreeUtil.findChildOfAnyType(withClauseAuxiliaryStmt, QueryElement::class.java)?.let {
@@ -46,7 +52,10 @@ internal abstract class OracleCompoundSelectStmtMixin(
                 }
             }
 
-        return cteQueries.map { cteQuery ->
+        return cteQueries.withIndex().mapNotNull { (index, cteQuery) ->
+            if (index == excludeIndex && (!includeExcludedWithColumnAliases || cteQuery.columnAliases.isEmpty())) {
+                return@mapNotNull null
+            }
             LazyQuery(cteQuery.tableName) {
                 QueryResult(
                     table = cteQuery.tableName,

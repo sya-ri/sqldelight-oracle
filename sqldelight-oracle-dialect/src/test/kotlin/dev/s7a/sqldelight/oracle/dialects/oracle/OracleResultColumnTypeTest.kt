@@ -156,6 +156,12 @@ class OracleResultColumnTypeTest :
                 "kotlin.String?"
         }
 
+        test("resolves Oracle SQL JSON input nullability exactly") {
+            typeOf("SELECT JSON_VALUE(nickname, '${'$'}.id' RETURNING NUMBER) AS c FROM emp") shouldBe
+                "java.math.BigDecimal?"
+            typeOf("SELECT JSON_QUERY(nickname, '${'$'}.items' RETURNING CLOB) AS c FROM emp") shouldBe "kotlin.String?"
+        }
+
         test("resolves Oracle serialization input nullability exactly") {
             typeOf("SELECT JSON_SERIALIZE(nickname RETURNING CLOB) AS c FROM emp") shouldBe "kotlin.String?"
         }

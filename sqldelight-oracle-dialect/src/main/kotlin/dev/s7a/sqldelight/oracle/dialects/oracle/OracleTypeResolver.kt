@@ -279,7 +279,10 @@ public class OracleTypeResolver(
             -> {
                 functionText.oracleReturningTypeName()?.let { typeName ->
                     IntermediateType(OracleType.fromSqlTypeName(typeName))
-                        .nullableIf(functionText.hasOracleSqlJsonNullReturningClause())
+                        .nullableIf(
+                            functionText.hasOracleSqlJsonNullReturningClause() ||
+                                exprList.firstOrNull()?.let { expression -> resolvedType(expression).javaType.isNullable } == true,
+                        )
                 }
             }
 

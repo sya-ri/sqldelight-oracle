@@ -300,6 +300,26 @@ class OracleResultColumnTypeTest :
             ) shouldBe "java.math.BigDecimal"
         }
 
+        test("resolves Oracle inline external table result column types exactly") {
+            val externalTable =
+                """
+                FROM EXTERNAL ((
+                  order_id NUMBER(12) NOT NULL,
+                  order_total NUMBER(12, 2),
+                  ordered_at TIMESTAMP(6),
+                  source_name VARCHAR2(100) NOT NULL
+                ) TYPE ORACLE_LOADER
+                  DEFAULT DIRECTORY data_dir
+                  LOCATION ('orders.csv')
+                ) external_orders
+                """.trimIndent()
+
+            typeOf("SELECT external_orders.order_id AS c $externalTable") shouldBe "kotlin.Long"
+            typeOf("SELECT external_orders.order_total AS c $externalTable") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT external_orders.ordered_at AS c $externalTable") shouldBe "java.time.LocalDateTime?"
+            typeOf("SELECT external_orders.source_name AS c $externalTable") shouldBe "kotlin.String"
+        }
+
         test("resolves Oracle XMLTABLE default result column types exactly") {
             typeOf(
                 """

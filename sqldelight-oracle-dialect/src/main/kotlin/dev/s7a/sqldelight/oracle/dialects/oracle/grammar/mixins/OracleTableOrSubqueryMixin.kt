@@ -165,8 +165,8 @@ internal abstract class OracleTableOrSubqueryMixin(
             return it
         }
 
-        oracleInlineExternalColumns().ifEmpty { null }?.let { columns ->
-            return oracleGeneratedSynthesizedColumnResult(columns)
+        oracleInlineExternalColumnResults()?.let { result ->
+            return oracleGeneratedSynthesizedColumnResult(result.synthesizedColumnNames, result.columns)
         }
 
         oracleGraphTableColumns().ifEmpty { null }?.let { columns ->
@@ -221,13 +221,37 @@ internal abstract class OracleTableOrSubqueryMixin(
         )
     }
 
-    private fun oracleInlineExternalColumns(): List<String> {
-        if (!text.trimStart().startsWith("EXTERNAL", ignoreCase = true)) return emptyList()
-        val externalBody = text.oracleParenthesizedBodyAfter("EXTERNAL") ?: return emptyList()
-        return externalBody
-            .oracleParenthesizedBodyAt(externalBody.indexOf('('))
-            .oracleTopLevelCommaParts()
-            .mapNotNull { column -> column.oracleFirstName() }
+    private fun oracleInlineExternalColumnResults(): OracleGeneratedColumns? {
+        if (!text.trimStart().startsWith("EXTERNAL", ignoreCase = true)) return null
+        val externalBody = text.oracleParenthesizedBodyAfter("EXTERNAL") ?: return null
+        if (!externalBody.trimStart().startsWith("(")) return null
+        val columnParts =
+            externalBody
+                .oracleParenthesizedBodyAt(externalBody.indexOf('('))
+                .oracleTopLevelCommaParts()
+        val columns = mutableListOf<QueryColumn>()
+        val synthesizedColumnNames = mutableListOf<String>()
+        columnParts.forEach { column ->
+            val name = column.oracleFirstName() ?: return@forEach
+            val typeName = column.oracleInlineExternalColumnType(name)
+            if (typeName == null) {
+                synthesizedColumnNames += name
+            } else {
+                val type = runCatching { OracleType.fromSqlTypeName(typeName) }.getOrNull()
+                if (type == null) {
+                    synthesizedColumnNames += name
+                } else {
+                    val intermediateType =
+                        IntermediateType(type).let { generatedType ->
+                            if (column.hasOracleNotNullConstraint()) generatedType else generatedType.asNullable()
+                        }
+                    columns += QueryColumn(OracleGeneratedColumnElement(this, name, intermediateType))
+                }
+            }
+        }
+        return OracleGeneratedColumns(columns, synthesizedColumnNames).takeIf {
+            it.columns.isNotEmpty() || it.synthesizedColumnNames.isNotEmpty()
+        }
     }
 
     private fun PsiElement.tableAlias(): SqlTableAlias? = PsiTreeUtil.findChildOfType(this, SqlTableAlias::class.java)
@@ -773,6 +797,21 @@ private fun String.oracleXmltableColumnType(aliasText: String): String? {
         .trim()
         .takeIf { it.isNotBlank() }
 }
+
+private fun String.oracleInlineExternalColumnType(columnName: String): String? {
+    val afterName = trim().removePrefix(columnName).trimStart()
+    if (afterName.isBlank()) return null
+    return afterName
+        .substringBeforeKeyword("CONSTRAINT")
+        .substringBeforeKeyword("NOT")
+        .substringBeforeKeyword("NULL")
+        .substringBeforeKeyword("DEFAULT")
+        .substringBeforeKeyword("COLLATE")
+        .trim()
+        .takeIf { it.isNotBlank() }
+}
+
+private fun String.hasOracleNotNullConstraint(): Boolean = Regex("""(?i)\bNOT\s+NULL\b""").containsMatchIn(this)
 
 private fun String.oracleTopLevelTrailingAliases(): List<String> =
     oracleTopLevelCommaParts().mapNotNull { part -> part.oracleTrailingAlias() }

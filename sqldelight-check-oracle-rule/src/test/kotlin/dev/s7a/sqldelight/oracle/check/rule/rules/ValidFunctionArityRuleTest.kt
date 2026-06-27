@@ -922,7 +922,8 @@ class ValidFunctionArityRuleTest :
                     SELECT DEPTH(), PATH(1, 2), XMLCDATA(), XMLCOMMENT(name, extra),
                       SYS_XMLGEN(), SYS_XMLAGG(x, fmt, extra), XMLCOLATTVAL(),
                       XMLCONCAT(), XMLDIFF(payload), XMLPATCH(payload),
-                      XMLSEQUENCE(), XMLTRANSFORM(payload), XMLPARSE(), XMLPARSE(CONTENT payload, extra)
+                      XMLSEQUENCE(), XMLTRANSFORM(payload), XMLPARSE(), XMLPARSE(CONTENT payload, extra),
+                      EQUALS_PATH(), EQUALS_PATH(res), UNDER_PATH(), UNDER_PATH(res)
                     FROM xml_samples;
                     """,
                 )
@@ -1026,6 +1027,34 @@ class ValidFunctionArityRuleTest :
                         startColumn = 53,
                         endLine = 5,
                         endColumn = 61,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function EQUALS_PATH expects 2..2147483647 argument(s), but got 0.",
+                        startLine = 6,
+                        startColumn = 3,
+                        endLine = 6,
+                        endColumn = 14,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function EQUALS_PATH expects 2..2147483647 argument(s), but got 1.",
+                        startLine = 6,
+                        startColumn = 18,
+                        endLine = 6,
+                        endColumn = 29,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function UNDER_PATH expects 2..2147483647 argument(s), but got 0.",
+                        startLine = 6,
+                        startColumn = 36,
+                        endLine = 6,
+                        endColumn = 46,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function UNDER_PATH expects 2..2147483647 argument(s), but got 1.",
+                        startLine = 6,
+                        startColumn = 50,
+                        endLine = 6,
+                        endColumn = 60,
                     ),
                 )
         }
@@ -1967,6 +1996,8 @@ class ValidFunctionArityRuleTest :
                   XMLPI(NAME "Payload", payload_xml),
                   XMLROOT(payload_xml, VERSION NO VALUE, STANDALONE NO VALUE),
                   XMLSERIALIZE(CONTENT payload_xml AS CLOB),
+                  EQUALS_PATH(payload_xml, '/Warehouse'),
+                  UNDER_PATH(payload_xml, '/Warehouse', 1, 2),
                   JSON_ID('OID'),
                   SHARD_CHUNK_ID(shard_class, id),
                   SHARD_CHUNK_ID(NULL, shard_class, id),

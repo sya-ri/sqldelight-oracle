@@ -685,7 +685,13 @@ class ValidFunctionArityRuleTest :
                       CORR(amount),
                       COVAR_POP(amount),
                       SKEWNESS_POP(amount, extra),
-                      KURTOSIS_SAMP(amount, extra)
+                      KURTOSIS_SAMP(amount, extra),
+                      BIT_AND_AGG(),
+                      BIT_OR_AGG(flag_bits, extra),
+                      BIT_XOR_AGG(),
+                      BOOLEAN_AND_AGG(enabled, extra),
+                      BOOLEAN_OR_AGG(),
+                      CHECKSUM(flag_bits, extra)
                     FROM invoices;
                     """,
                 )
@@ -825,6 +831,48 @@ class ValidFunctionArityRuleTest :
                         endLine = 20,
                         endColumn = 16,
                     ),
+                    DiagnosticSummary(
+                        message = "Oracle function BIT_AND_AGG expects 1 argument(s), but got 0.",
+                        startLine = 21,
+                        startColumn = 3,
+                        endLine = 21,
+                        endColumn = 14,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function BIT_OR_AGG expects 1 argument(s), but got 2.",
+                        startLine = 22,
+                        startColumn = 3,
+                        endLine = 22,
+                        endColumn = 13,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function BIT_XOR_AGG expects 1 argument(s), but got 0.",
+                        startLine = 23,
+                        startColumn = 3,
+                        endLine = 23,
+                        endColumn = 14,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function BOOLEAN_AND_AGG expects 1 argument(s), but got 2.",
+                        startLine = 24,
+                        startColumn = 3,
+                        endLine = 24,
+                        endColumn = 18,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function BOOLEAN_OR_AGG expects 1 argument(s), but got 0.",
+                        startLine = 25,
+                        startColumn = 3,
+                        endLine = 25,
+                        endColumn = 17,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function CHECKSUM expects 1 argument(s), but got 2.",
+                        startLine = 26,
+                        startColumn = 3,
+                        endLine = 26,
+                        endColumn = 11,
+                    ),
                 )
         }
 
@@ -860,6 +908,12 @@ class ValidFunctionArityRuleTest :
                   SKEWNESS_SAMP(amount),
                   KURTOSIS_POP(amount),
                   KURTOSIS_SAMP(amount),
+                  BIT_AND_AGG(flag_bits),
+                  BIT_OR_AGG(flag_bits),
+                  BIT_XOR_AGG(DISTINCT flag_bits),
+                  BOOLEAN_AND_AGG(enabled),
+                  BOOLEAN_OR_AGG(ALL enabled),
+                  CHECKSUM(flag_bits),
                   CURRENT_TIMESTAMP(3),
                   LOCALTIMESTAMP(6),
                   REGR_SLOPE(amount, quantity),

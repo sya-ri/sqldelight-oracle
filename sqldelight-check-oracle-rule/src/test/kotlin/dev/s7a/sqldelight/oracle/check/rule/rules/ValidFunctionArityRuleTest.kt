@@ -531,7 +531,8 @@ class ValidFunctionArityRuleTest :
                     """
                     invalidTypedUtilities:
                     SELECT COMPOSE(), CONVERT(label), DECOMPOSE(label, 'CANONICAL', 'extra'),
-                      GROUPING(), GROUPING_ID(), GROUP_ID(status)
+                      GROUPING(), GROUPING_ID(), GROUP_ID(status),
+                      SYS_CONNECT_BY_PATH(label), BIN_TO_NUM()
                     FROM invoices
                     GROUP BY ROLLUP(status);
                     """,
@@ -580,6 +581,20 @@ class ValidFunctionArityRuleTest :
                         startColumn = 30,
                         endLine = 3,
                         endColumn = 38,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function SYS_CONNECT_BY_PATH expects 2 argument(s), but got 1.",
+                        startLine = 4,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 22,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function BIN_TO_NUM expects 1..2147483647 argument(s), but got 0.",
+                        startLine = 4,
+                        startColumn = 31,
+                        endLine = 4,
+                        endColumn = 41,
                     ),
                 )
         }
@@ -948,6 +963,8 @@ class ValidFunctionArityRuleTest :
                   COMPOSE(label),
                   CONVERT(label, 'AL32UTF8', 'WE8ISO8859P1'),
                   DECOMPOSE(label, 'CANONICAL'),
+                  SYS_CONNECT_BY_PATH(label, '/'),
+                  BIN_TO_NUM(1, 0, 1),
                   EXTRACTVALUE(payload_xml, '/a'),
                   EXISTSNODE(payload_xml, '/a', 'xmlns:x="urn:x"'),
                   XMLISVALID(payload_xml, 'schema.xsd'),

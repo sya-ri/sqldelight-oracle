@@ -31,6 +31,7 @@ class OracleResultColumnTypeTest :
               created_ts TIMESTAMP,
               dept_id NUMBER(10)
             );
+
             """.trimIndent()
 
         fun typeOf(query: String): String {
@@ -65,6 +66,13 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT CAST(id AS VARCHAR2(20)) AS c FROM emp") shouldBe "kotlin.String"
             typeOf("SELECT CAST(name AS DATE) AS c FROM emp") shouldBe "java.time.LocalDateTime"
             typeOf("SELECT CAST(hire_date AS TIMESTAMP WITH TIME ZONE) AS c FROM emp") shouldBe "java.time.OffsetDateTime"
+        }
+
+        test("resolves Oracle pseudocolumn result column types exactly") {
+            typeOf("SELECT ROWNUM AS c FROM emp") shouldBe "kotlin.Long"
+            typeOf("SELECT LEVEL AS c FROM emp CONNECT BY PRIOR id = dept_id") shouldBe "kotlin.Long"
+            typeOf("SELECT ROWID AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT ORA_ROWSCN AS c FROM emp") shouldBe "kotlin.Long"
         }
 
         test("resolves Oracle analytic function result column types exactly") {

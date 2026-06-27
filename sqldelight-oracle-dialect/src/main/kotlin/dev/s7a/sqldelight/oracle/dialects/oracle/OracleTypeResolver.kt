@@ -32,7 +32,7 @@ public class OracleTypeResolver(
     override fun resolvedType(expr: SqlExpr): IntermediateType =
         when {
             expr.text.hasOracleVectorDistanceShorthand() -> IntermediateType(BINARY_DOUBLE)
-            else -> oracleExtensionFunctionType(expr) ?: parentResolver.resolvedType(expr)
+            else -> oracleExtensionFunctionType(expr) ?: oracleExtensionPseudocolumnType(expr) ?: parentResolver.resolvedType(expr)
         }
 
     override fun functionType(functionExpr: SqlFunctionExpr): IntermediateType? {
@@ -42,10 +42,7 @@ public class OracleTypeResolver(
     }
 
     private fun oracleExtensionFunctionType(expr: SqlExpr): IntermediateType? {
-        val extensionExpr =
-            expr as? SqlExtensionExpr
-                ?: runCatching { expr.children.filterIsInstance<SqlExtensionExpr>().singleOrNull() }.getOrNull()
-                ?: return null
+        val extensionExpr = expr.oracleExtensionExpr() ?: return null
         val functionName = extensionExpr.text.oracleFunctionName() ?: return null
         val invocationEnd = extensionExpr.text.oracleFirstFunctionInvocationEnd()
         val arguments =
@@ -56,6 +53,35 @@ public class OracleTypeResolver(
                 }
         return oracleFunctionType(functionName, extensionExpr.text, arguments)
     }
+
+    private fun oracleExtensionPseudocolumnType(expr: SqlExpr): IntermediateType? {
+        val extensionExpr = expr.oracleExtensionExpr() ?: return null
+        return when (extensionExpr.text.oracleTerminalIdentifier()) {
+            "CONNECT_BY_ISCYCLE",
+            "CONNECT_BY_ISLEAF",
+            "LEVEL",
+            "OBJECT_ID",
+            "ORA_INVOKING_USERID",
+            "ORA_ROWSCN",
+            "ROWNUM",
+            "UID",
+            -> IntermediateType(LONG_NUMBER)
+
+            "DBTIMEZONE",
+            "ORA_INVOKING_USER",
+            "ORA_SHARDSPACE_NAME",
+            "ROWID",
+            "SESSIONTIMEZONE",
+            "USER",
+            -> IntermediateType(OracleType.TEXT)
+
+            else -> null
+        }
+    }
+
+    private fun SqlExpr.oracleExtensionExpr(): SqlExtensionExpr? =
+        this as? SqlExtensionExpr
+            ?: runCatching { children.filterIsInstance<SqlExtensionExpr>().singleOrNull() }.getOrNull()
 
     private fun oracleFunctionType(
         functionName: String,
@@ -335,6 +361,12 @@ public class OracleTypeResolver(
                 ?.groupValues
                 ?.get(1)
                 ?.uppercase()
+
+        private fun String.oracleTerminalIdentifier(): String =
+            trim()
+                .substringAfterLast(".")
+                .trim()
+                .uppercase()
 
         private fun String.oracleFirstFunctionInvocationEnd(): Int {
             val start = indexOf('(').takeIf { index -> index >= 0 } ?: return length

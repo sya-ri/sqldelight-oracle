@@ -167,6 +167,10 @@ class OracleResultColumnTypeTest :
                 "kotlin.String?"
         }
 
+        test("resolves Oracle XML serialization input nullability exactly") {
+            typeOf("SELECT XMLSERIALIZE(CONTENT xml_doc AS CLOB) AS c FROM emp") shouldBe "kotlin.String?"
+        }
+
         test("resolves Oracle XML path condition result column types exactly") {
             typeOf("SELECT EQUALS_PATH(xml_doc, '/Warehouse') AS c FROM emp") shouldBe "java.math.BigDecimal"
             typeOf("SELECT UNDER_PATH(xml_doc, '/Warehouse', 1, 2) AS c FROM emp") shouldBe "java.math.BigDecimal"

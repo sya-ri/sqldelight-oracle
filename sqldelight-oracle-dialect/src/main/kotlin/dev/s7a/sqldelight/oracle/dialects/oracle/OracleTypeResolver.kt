@@ -335,6 +335,12 @@ public class OracleTypeResolver(
                     .nullableIf(functionText.hasOracleXmlNullReturningClause())
             }
 
+            "XMLSERIALIZE",
+            -> {
+                IntermediateType(functionText.oracleCastTypeName()?.let(OracleType::fromSqlTypeName) ?: OracleType.TEXT)
+                    .nullableIf(exprList.firstOrNull()?.let { expression -> resolvedType(expression).javaType.isNullable } == true)
+            }
+
             "CAST",
             "XMLCAST",
             "TREAT",

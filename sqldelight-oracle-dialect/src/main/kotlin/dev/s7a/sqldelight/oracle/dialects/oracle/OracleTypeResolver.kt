@@ -385,6 +385,20 @@ public class OracleTypeResolver(
                 }
             }
 
+            "acos", "asin", "atan", "cos", "cosh", "exp", "ln", "sin", "sinh", "sqrt", "tan", "tanh" -> {
+                exprList.singleOrNull()?.let { expression ->
+                    resolvedType(expression).singleNumericFunctionType()
+                }
+            }
+
+            "atan2", "log" -> {
+                exprList
+                    .takeIf { args -> args.size == 2 }
+                    ?.map { expression ->
+                        resolvedType(expression)
+                    }?.binaryNumericFunctionType()
+            }
+
             "ceil", "floor" -> {
                 exprList.singleOrNull()?.let { expression ->
                     resolvedType(expression).ceilOrFloorSingleArgumentType()
@@ -1115,6 +1129,28 @@ public class OracleTypeResolver(
                 in NUMERIC_TYPE_ORDER -> this
                 in DATETIME_TYPE_ORDER -> IntermediateType(DATE).nullableIf(javaType.isNullable)
                 else -> null
+            }
+
+        private fun IntermediateType.singleNumericFunctionType(): IntermediateType? =
+            when (dialectType) {
+                BINARY_FLOAT -> IntermediateType(BINARY_DOUBLE).nullableIf(javaType.isNullable)
+                in NUMERIC_TYPE_ORDER -> this
+                else -> null
+            }
+
+        private fun List<IntermediateType>.binaryNumericFunctionType(): IntermediateType? =
+            when {
+                any { type -> type.dialectType == BINARY_FLOAT || type.dialectType == BINARY_DOUBLE } -> {
+                    IntermediateType(BINARY_DOUBLE).nullableIf(any { type -> type.javaType.isNullable })
+                }
+
+                all { type -> type.dialectType in NUMERIC_TYPE_ORDER } -> {
+                    IntermediateType(DECIMAL_NUMBER).nullableIf(any { type -> type.javaType.isNullable })
+                }
+
+                else -> {
+                    null
+                }
             }
 
         private fun List<IntermediateType>.roundOrTruncTwoArgumentType(): IntermediateType? =

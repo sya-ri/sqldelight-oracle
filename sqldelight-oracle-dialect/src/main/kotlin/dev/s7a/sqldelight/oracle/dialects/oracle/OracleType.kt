@@ -163,6 +163,40 @@ public enum class OracleType(
                     argumentTypes.singleOrNull()?.takeIf { type -> type in numericTypes }
                 }
 
+                "ACOS", "ASIN", "ATAN", "COS", "COSH", "EXP", "LN", "SIN", "SINH", "SQRT", "TAN", "TANH" -> {
+                    argumentTypes.singleOrNull()?.let { type ->
+                        when (type) {
+                            BINARY_FLOAT -> {
+                                BINARY_DOUBLE
+                            }
+
+                            in numericTypes -> {
+                                type
+                            }
+
+                            else -> {
+                                null
+                            }
+                        }
+                    }
+                }
+
+                "ATAN2", "LOG" -> {
+                    when {
+                        argumentTypes.any { type -> type == BINARY_FLOAT || type == BINARY_DOUBLE } -> {
+                            BINARY_DOUBLE
+                        }
+
+                        argumentTypes.all { type -> type in numericTypes } -> {
+                            DECIMAL_NUMBER
+                        }
+
+                        else -> {
+                            null
+                        }
+                    }
+                }
+
                 "CEIL", "FLOOR" -> {
                     argumentTypes.singleOrNull()?.ceilOrFloorSingleArgumentType()
                 }
@@ -683,17 +717,6 @@ public enum class OracleType(
                 "BITAND" to DECIMAL_NUMBER,
                 "SIGN" to DECIMAL_NUMBER,
                 "SCORE" to DECIMAL_NUMBER,
-                "SIN" to BINARY_DOUBLE,
-                "COS" to BINARY_DOUBLE,
-                "TAN" to BINARY_DOUBLE,
-                "ASIN" to BINARY_DOUBLE,
-                "ACOS" to BINARY_DOUBLE,
-                "ATAN" to BINARY_DOUBLE,
-                "ATAN2" to BINARY_DOUBLE,
-                "EXP" to BINARY_DOUBLE,
-                "LN" to BINARY_DOUBLE,
-                "LOG" to BINARY_DOUBLE,
-                "SQRT" to BINARY_DOUBLE,
                 "WIDTH_BUCKET" to LONG_NUMBER,
                 "UID" to LONG_NUMBER,
                 "IS_UUID" to BOOLEAN_TYPE,
@@ -710,9 +733,6 @@ public enum class OracleType(
                 "PHONIC_ENCODE" to TEXT,
                 "USERENV" to TEXT,
                 "VSIZE" to DECIMAL_NUMBER,
-                "COSH" to BINARY_DOUBLE,
-                "SINH" to BINARY_DOUBLE,
-                "TANH" to BINARY_DOUBLE,
             )
 
         private fun String.numberType(): OracleType {

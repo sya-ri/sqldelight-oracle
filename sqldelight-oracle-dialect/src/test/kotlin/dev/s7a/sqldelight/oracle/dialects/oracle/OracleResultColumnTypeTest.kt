@@ -98,6 +98,14 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT TRUE AS c FROM emp") shouldBe "kotlin.Boolean"
         }
 
+        test("resolves Oracle current datetime result column types exactly") {
+            typeOf("SELECT SYSDATE AS c FROM emp") shouldBe "java.time.LocalDateTime"
+            typeOf("SELECT CURRENT_DATE AS c FROM emp") shouldBe "java.time.LocalDateTime"
+            typeOf("SELECT LOCALTIMESTAMP AS c FROM emp") shouldBe "java.time.LocalDateTime"
+            typeOf("SELECT SYSTIMESTAMP AS c FROM emp") shouldBe "java.time.OffsetDateTime"
+            typeOf("SELECT CURRENT_TIMESTAMP AS c FROM emp") shouldBe "java.time.OffsetDateTime"
+        }
+
         test("resolves Oracle numeric operator result column types exactly") {
             typeOf("SELECT id + 1 AS c FROM emp") shouldBe "kotlin.Long"
             typeOf("SELECT salary + 1 AS c FROM emp") shouldBe "java.math.BigDecimal?"

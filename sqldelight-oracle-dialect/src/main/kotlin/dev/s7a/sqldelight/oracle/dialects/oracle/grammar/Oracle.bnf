@@ -852,8 +852,11 @@ private oracle_simple_pseudocolumn ::= (
   'COLUMN_VALUE' |
   'CONNECT_BY_ISCYCLE' |
   'CONNECT_BY_ISLEAF' |
+  'CURRENT_DATE' |
+  'CURRENT_TIMESTAMP' |
   'DBTIMEZONE' |
   'LEVEL' |
+  'LOCALTIMESTAMP' |
   'OBJECT_ID' |
   'OBJECT_VALUE' |
   'ORA_INVOKING_USER' |
@@ -863,6 +866,8 @@ private oracle_simple_pseudocolumn ::= (
   'ROWID' |
   'ROWNUM' |
   'SESSIONTIMEZONE' |
+  'SYSDATE' |
+  'SYSTIMESTAMP' |
   'UID' |
   'USER' |
   'VERSIONS_ENDSCN' |

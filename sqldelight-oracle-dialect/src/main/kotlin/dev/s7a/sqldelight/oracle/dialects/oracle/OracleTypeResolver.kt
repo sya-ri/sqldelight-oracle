@@ -31,14 +31,18 @@ public class OracleTypeResolver(
 
     override fun resolvedType(expr: SqlExpr): IntermediateType =
         when {
-            expr.text.hasOracleVectorDistanceShorthand() -> IntermediateType(BINARY_DOUBLE)
-            else ->
+            expr.text.hasOracleVectorDistanceShorthand() -> {
+                IntermediateType(BINARY_DOUBLE)
+            }
+
+            else -> {
                 oracleExtensionFunctionType(expr)
                     ?: oracleExtensionPseudocolumnType(expr)
                     ?: oracleExtensionLiteralType(expr)
                     ?: oracleConcatenationOperatorType(expr)
                     ?: oracleNumericOperatorType(expr)
                     ?: parentResolver.resolvedType(expr)
+            }
         }
 
     override fun functionType(functionExpr: SqlFunctionExpr): IntermediateType? {
@@ -75,6 +79,17 @@ public class OracleTypeResolver(
             "UID",
             -> IntermediateType(LONG_NUMBER)
 
+            "CURRENT_DATE",
+            "SYSDATE",
+            -> IntermediateType(DATE)
+
+            "LOCALTIMESTAMP",
+            -> IntermediateType(TIMESTAMP)
+
+            "CURRENT_TIMESTAMP",
+            "SYSTIMESTAMP",
+            -> IntermediateType(TIMESTAMP_TIME_ZONE)
+
             "DBTIMEZONE",
             "ORA_INVOKING_USER",
             "ORA_SHARDSPACE_NAME",
@@ -88,7 +103,13 @@ public class OracleTypeResolver(
     }
 
     private fun oracleExtensionLiteralType(expr: SqlExpr): IntermediateType? {
-        val text = expr.oracleExtensionExpr()?.text?.trim()?.uppercase() ?: return null
+        val text =
+            expr
+                .oracleExtensionExpr()
+                ?.text
+                ?.trim()
+                ?.uppercase()
+                ?: return null
         return when {
             text == "TRUE" || text == "FALSE" || text == "UNKNOWN" -> IntermediateType(BOOLEAN_TYPE)
             text.startsWith("DATE ") -> IntermediateType(DATE)
@@ -452,8 +473,14 @@ public class OracleTypeResolver(
                     }
                 } else {
                     when (char) {
-                        '\'' -> inStringLiteral = true
-                        '(' -> depth += 1
+                        '\'' -> {
+                            inStringLiteral = true
+                        }
+
+                        '(' -> {
+                            depth += 1
+                        }
+
                         ')' -> {
                             depth -= 1
                             if (depth == 0) return index + 1
@@ -508,7 +535,9 @@ public class OracleTypeResolver(
                     IntermediateType(DATE).nullableIf(any { type -> type.javaType.isNullable })
                 }
 
-                else -> null
+                else -> {
+                    null
+                }
             }
 
         private val COMPARABLE_TYPE_ORDER: Array<DialectType> =

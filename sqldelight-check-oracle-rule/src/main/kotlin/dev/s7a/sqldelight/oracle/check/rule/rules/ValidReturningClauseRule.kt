@@ -77,7 +77,6 @@ private fun List<ReturningToken>.invalidReturningClauses(): List<InvalidReturnin
     return buildList {
         addAll(conflictingReturningOccurrences(returningKeywordOccurrences()))
         addAll(conflictingReturningOccurrences(intoOccurrencesAfter(firstReturningIndex)))
-        addAll(conflictingReturningOccurrences(oldNewOccurrencesBeforeInto(firstReturningIndex)))
     }
 }
 
@@ -123,21 +122,6 @@ private fun List<ReturningToken>.intoOccurrencesAfter(returningIndex: Int): List
                 endOffset = token.endOffset,
             )
         }
-
-private fun List<ReturningToken>.oldNewOccurrencesBeforeInto(returningIndex: Int): List<ReturningOccurrence> {
-    val endIndex =
-        (returningIndex + 1 until size).firstOrNull { index -> get(index).returningHasText("INTO") }
-            ?: size
-    return subList(returningIndex + 1, endIndex)
-        .filter { token -> token.returningHasText("OLD") || token.returningHasText("NEW") }
-        .map { token ->
-            ReturningOccurrence(
-                group = "OLD/NEW",
-                startOffset = token.startOffset,
-                endOffset = token.endOffset,
-            )
-        }
-}
 
 private fun List<ReturningToken>.endOfFirstReturningClause(returningIndex: Int): Int =
     (returningIndex + 1 until size).firstOrNull { index -> get(index).isReturningKeyword() } ?: size

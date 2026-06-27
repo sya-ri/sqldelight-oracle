@@ -138,10 +138,15 @@ internal abstract class OracleTableOrSubqueryMixin(
                 ?.let { columns -> oracleColumnResultFor(xmltable, columns) }
                 ?: QueryResult(
                     table = xmltable.tableAlias() ?: tableAlias(),
-                    columns = emptyList(),
-                    synthesizedColumns =
+                    columns =
                         listOf(
-                            SynthesizedColumn(xmltable.tableAlias() ?: tableAlias() ?: this, listOf("COLUMN_VALUE")),
+                            QueryColumn(
+                                OracleGeneratedColumnElement(
+                                    xmltable,
+                                    "COLUMN_VALUE",
+                                    IntermediateType(OracleType.TEXT),
+                                ),
+                            ),
                         ),
                 )
         }

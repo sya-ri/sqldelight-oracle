@@ -300,6 +300,15 @@ class OracleResultColumnTypeTest :
             ) shouldBe "java.math.BigDecimal"
         }
 
+        test("resolves Oracle XMLTABLE default result column types exactly") {
+            typeOf(
+                """
+                SELECT warehouse_xml.COLUMN_VALUE AS c
+                FROM XMLTABLE('/Warehouse' PASSING XMLTYPE('<Warehouse/>')) warehouse_xml
+                """.trimIndent(),
+            ) shouldBe "kotlin.String"
+        }
+
         test("resolves Oracle XML root result column types exactly") {
             typeOf("SELECT XMLROOT(XMLTYPE('<Warehouse/>'), VERSION NO VALUE) AS c FROM emp") shouldBe "kotlin.String"
         }

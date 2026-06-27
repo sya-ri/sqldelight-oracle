@@ -52,6 +52,18 @@ class ValidSubqueryRestrictionClauseRuleTest :
                     """,
                 ).summaries() shouldBe emptyList()
         }
+
+        test("accepts one subquery restriction clause per inline view") {
+            ValidSubqueryRestrictionClauseRule()
+                .diagnostics(
+                    """
+                    SELECT *
+                    FROM (SELECT * FROM orders WITH READ ONLY) o
+                    JOIN (SELECT * FROM customers WITH CHECK OPTION) c
+                    ON c.customer_id = o.customer_id;
+                    """,
+                ).summaries() shouldBe emptyList()
+        }
     })
 
 private const val MESSAGE_PREFIX = "Use one Oracle subquery restriction clause:"

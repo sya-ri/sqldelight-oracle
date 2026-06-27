@@ -36,6 +36,7 @@ public class OracleTypeResolver(
                 oracleExtensionFunctionType(expr)
                     ?: oracleExtensionPseudocolumnType(expr)
                     ?: oracleExtensionLiteralType(expr)
+                    ?: oracleConcatenationOperatorType(expr)
                     ?: oracleNumericOperatorType(expr)
                     ?: parentResolver.resolvedType(expr)
         }
@@ -120,6 +121,18 @@ public class OracleTypeResolver(
                 }
             }
         return IntermediateType(resultType).nullableIf(operandTypes.any { type -> type.javaType.isNullable })
+    }
+
+    private fun oracleConcatenationOperatorType(expr: SqlExpr): IntermediateType? {
+        val operands =
+            runCatching { expr.children.filterIsInstance<SqlExpr>() }
+                .getOrNull()
+                ?.takeIf { children -> children.size == 2 }
+                ?: return null
+        val operator = expr.oracleBinaryOperatorBetween(operands)
+        if (operator != "||") return null
+        val operandTypes = operands.map { operand -> resolvedType(operand) }
+        return IntermediateType(OracleType.TEXT).nullableIf(operandTypes.all { type -> type.javaType.isNullable })
     }
 
     private fun SqlExpr.oracleExtensionExpr(): SqlExtensionExpr? =

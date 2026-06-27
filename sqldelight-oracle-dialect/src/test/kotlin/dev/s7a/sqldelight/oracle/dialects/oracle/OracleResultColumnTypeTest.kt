@@ -97,6 +97,11 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT bonus + salary AS c FROM emp") shouldBe "kotlin.Double?"
         }
 
+        test("resolves Oracle concatenation operator result column types exactly") {
+            typeOf("SELECT id || name AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT salary || name AS c FROM emp") shouldBe "kotlin.String"
+        }
+
         test("resolves Oracle analytic function result column types exactly") {
             typeOf("SELECT ROW_NUMBER() OVER (ORDER BY id) AS c FROM emp") shouldBe "kotlin.Long"
             typeOf("SELECT LAG(salary) OVER (ORDER BY id) AS c FROM emp") shouldBe "java.math.BigDecimal?"

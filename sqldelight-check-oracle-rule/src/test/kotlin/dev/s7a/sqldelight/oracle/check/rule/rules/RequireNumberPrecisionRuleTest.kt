@@ -100,6 +100,18 @@ class RequireNumberPrecisionRuleTest :
             ) shouldBe emptyList()
         }
 
+        test("ignores bare NUMBER in expression conversion type clauses") {
+            RequireNumberPrecisionRule().diagnostics(
+                """
+                SELECT CAST(amount_text AS NUMBER) AS amount,
+                  XMLCAST(payload_xml AS NUMBER) AS xml_amount,
+                  VALIDATE_CONVERSION(amount_text AS NUMBER) AS valid_amount,
+                  JSON_VALUE(payload, '${'$'}.amount' RETURNING NUMBER NULL ON ERROR) AS json_amount
+                FROM invoice;
+                """,
+            ) shouldBe emptyList()
+        }
+
         test("ignores NUMBER in comments and string literals") {
             RequireNumberPrecisionRule().diagnostics(
                 """

@@ -296,6 +296,87 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("reports wrong arity for Oracle utility scalar functions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidUtilities:
+                    SELECT CHR(), DUMP(label, 10, 20, 30, 40), LTRIM(label, 'x', 'y'),
+                      RTRIM(label, 'x', 'y'), REPLACE(label), SYS_CONTEXT('USERENV'),
+                      ORA_HASH(label, 100, 1, 2), STANDARD_HASH(label, 'SHA256', 'extra'),
+                      NLSSORT(label, 'NLS_SORT = BINARY', 'extra')
+                    FROM invoices;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function CHR expects 1 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 11,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function DUMP expects 1..4 argument(s), but got 5.",
+                        startLine = 2,
+                        startColumn = 15,
+                        endLine = 2,
+                        endColumn = 19,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function LTRIM expects 1..2 argument(s), but got 3.",
+                        startLine = 2,
+                        startColumn = 44,
+                        endLine = 2,
+                        endColumn = 49,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function RTRIM expects 1..2 argument(s), but got 3.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 8,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function REPLACE expects 2..3 argument(s), but got 1.",
+                        startLine = 3,
+                        startColumn = 27,
+                        endLine = 3,
+                        endColumn = 34,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function SYS_CONTEXT expects 2..3 argument(s), but got 1.",
+                        startLine = 3,
+                        startColumn = 43,
+                        endLine = 3,
+                        endColumn = 54,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function ORA_HASH expects 1..3 argument(s), but got 4.",
+                        startLine = 4,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 11,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function STANDARD_HASH expects 1..2 argument(s), but got 3.",
+                        startLine = 4,
+                        startColumn = 31,
+                        endLine = 4,
+                        endColumn = 44,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function NLSSORT expects 1..2 argument(s), but got 3.",
+                        startLine = 5,
+                        startColumn = 3,
+                        endLine = 5,
+                        endColumn = 10,
+                    ),
+                )
+        }
+
         test("reports wrong arity for Oracle aggregates") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(
@@ -432,6 +513,15 @@ class ValidFunctionArityRuleTest :
                   WIDTH_BUCKET(amount, 0, 100, 10),
                   DECODE(status, 'A', 'active', 'unknown'),
                   USERENV('LANGUAGE'),
+                  CHR(196),
+                  DUMP(label, 1016),
+                  LTRIM(label, 'x'),
+                  RTRIM(label),
+                  REPLACE(label, 'x', 'y'),
+                  SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA', 64),
+                  ORA_HASH(label, 100, 1),
+                  STANDARD_HASH(label, 'SHA256'),
+                  NLSSORT(label, 'NLS_SORT = BINARY'),
                   REGEXP_REPLACE(description, q'{literal ' marker, comma}', 'x'),
                   REGEXP_SUBSTR(description, '[A-Z]+', 1, 1, 'i', 0),
                   TO_TIMESTAMP(created_text, 'YYYY-MM-DD HH24:MI:SS')

@@ -162,6 +162,7 @@ private val oracleFunctionArities =
         "TO_NCLOB" to exactArity(1),
         "TO_SINGLE_BYTE" to exactArity(1),
         "TO_YMINTERVAL" to exactArity(1),
+        "TZ_OFFSET" to exactArity(1),
         "UNISTR" to exactArity(1),
         "UPPER" to exactArity(1),
         "UUID_TO_RAW" to exactArity(1),

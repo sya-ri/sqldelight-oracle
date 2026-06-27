@@ -473,7 +473,7 @@ class ValidFunctionArityRuleTest :
                     invalidSystemConversions:
                     SELECT SCN_TO_TIMESTAMP(), TIMESTAMP_TO_SCN(created_at, 'extra'),
                       ORA_DST_AFFECTED(created_at, 'extra'), ORA_DST_ERROR(),
-                      ORA_DST_CONVERT(created_at, 'extra')
+                      ORA_DST_CONVERT(created_at, 'extra'), TZ_OFFSET()
                     FROM events;
                     """,
                 )
@@ -514,6 +514,13 @@ class ValidFunctionArityRuleTest :
                         startColumn = 3,
                         endLine = 4,
                         endColumn = 18,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function TZ_OFFSET expects 1 argument(s), but got 0.",
+                        startLine = 4,
+                        startColumn = 41,
+                        endLine = 4,
+                        endColumn = 50,
                     ),
                 )
         }
@@ -756,6 +763,7 @@ class ValidFunctionArityRuleTest :
                   ORA_DST_AFFECTED(created_at),
                   ORA_DST_ERROR(created_at),
                   ORA_DST_CONVERT(created_at),
+                  TZ_OFFSET('US/Eastern'),
                   ROW_NUMBER() OVER (ORDER BY id),
                   LAG(amount, 1, 0) OVER (ORDER BY id),
                   LEAD(amount) OVER (ORDER BY id),

@@ -599,6 +599,87 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("reports wrong arity for Oracle metadata utility functions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidMetadataUtilities:
+                    SELECT CARDINALITY(), COLLATION(label, 'extra'), NLS_COLLATION_ID(),
+                      NLS_COLLATION_NAME(collation_id, 'extra'), CON_DBID_TO_ID(),
+                      CON_GUID_TO_ID(guid, extra), CON_NAME_TO_ID(), CON_UID_TO_ID(uid, extra),
+                      SYS_TYPEID()
+                    FROM metadata_sources;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function CARDINALITY expects 1 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 19,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function COLLATION expects 1 argument(s), but got 2.",
+                        startLine = 2,
+                        startColumn = 23,
+                        endLine = 2,
+                        endColumn = 32,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function NLS_COLLATION_ID expects 1 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 50,
+                        endLine = 2,
+                        endColumn = 66,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function NLS_COLLATION_NAME expects 1 argument(s), but got 2.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 21,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function CON_DBID_TO_ID expects 1 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 46,
+                        endLine = 3,
+                        endColumn = 60,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function CON_GUID_TO_ID expects 1 argument(s), but got 2.",
+                        startLine = 4,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 17,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function CON_NAME_TO_ID expects 1 argument(s), but got 0.",
+                        startLine = 4,
+                        startColumn = 32,
+                        endLine = 4,
+                        endColumn = 46,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function CON_UID_TO_ID expects 1 argument(s), but got 2.",
+                        startLine = 4,
+                        startColumn = 50,
+                        endLine = 4,
+                        endColumn = 63,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function SYS_TYPEID expects 1 argument(s), but got 0.",
+                        startLine = 5,
+                        startColumn = 3,
+                        endLine = 5,
+                        endColumn = 13,
+                    ),
+                )
+        }
+
         test("reports wrong arity for Oracle vector functions") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(
@@ -1085,6 +1166,15 @@ class ValidFunctionArityRuleTest :
                   NLS_CHARSET_ID('AL32UTF8'),
                   NLS_CHARSET_NAME(873),
                   NLS_CHARSET_DECL_LEN(10, 873),
+                  CARDINALITY(items),
+                  COLLATION(label),
+                  NLS_COLLATION_ID('BINARY_CI'),
+                  NLS_COLLATION_NAME(16382),
+                  CON_DBID_TO_ID(dbid),
+                  CON_GUID_TO_ID(guid),
+                  CON_NAME_TO_ID(pdb_name),
+                  CON_UID_TO_ID(con_uid),
+                  SYS_TYPEID(object_value),
                   COMPOSE(label),
                   CONVERT(label, 'AL32UTF8', 'WE8ISO8859P1'),
                   DECOMPOSE(label, 'CANONICAL'),

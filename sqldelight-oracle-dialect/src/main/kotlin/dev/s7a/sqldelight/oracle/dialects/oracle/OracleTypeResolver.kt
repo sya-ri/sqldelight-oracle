@@ -283,6 +283,7 @@ public class OracleTypeResolver(
             "mod", "remainder" -> {
                 exprList.takeIf { args -> args.size == 2 }?.let { args ->
                     encapsulatingTypePreferringKotlin(args, *NUMERIC_TYPE_ORDER)
+                        .nullableIf(args.any { expression -> resolvedType(expression).javaType.isNullable })
                 }
             }
 
@@ -290,15 +291,20 @@ public class OracleTypeResolver(
                 exprList
                     .takeIf { args -> args.size == 2 }
                     ?.map { expression ->
-                        resolvedType(expression).dialectType
+                        resolvedType(expression)
                     }?.let { argumentTypes ->
+                        val nullable = argumentTypes.any { type -> type.javaType.isNullable }
                         when {
-                            argumentTypes.any { type -> type == REAL || type == BINARY_FLOAT || type == BINARY_DOUBLE } -> {
-                                IntermediateType(BINARY_DOUBLE)
+                            argumentTypes.any { type ->
+                                type.dialectType == REAL ||
+                                    type.dialectType == BINARY_FLOAT ||
+                                    type.dialectType == BINARY_DOUBLE
+                            } -> {
+                                IntermediateType(BINARY_DOUBLE).nullableIf(nullable)
                             }
 
-                            argumentTypes.all { type -> type in NUMERIC_TYPE_ORDER } -> {
-                                IntermediateType(DECIMAL_NUMBER)
+                            argumentTypes.all { type -> type.dialectType in NUMERIC_TYPE_ORDER } -> {
+                                IntermediateType(DECIMAL_NUMBER).nullableIf(nullable)
                             }
 
                             else -> {
@@ -378,6 +384,7 @@ public class OracleTypeResolver(
             "nanvl" -> {
                 exprList.takeIf { args -> args.size == 2 }?.let { args ->
                     encapsulatingTypePreferringKotlin(args, *NUMERIC_TYPE_ORDER)
+                        .nullableIf(args.any { expression -> resolvedType(expression).javaType.isNullable })
                 }
             }
 
@@ -515,11 +522,21 @@ public class OracleTypeResolver(
         private fun String.isOracleNullPropagatingFixedReturnFunction(): Boolean =
             trim().uppercase() in
                 setOf(
+                    "ACOS",
                     "ASCII",
                     "ASCIISTR",
+                    "ASIN",
+                    "ATAN",
+                    "ATAN2",
+                    "BITAND",
+                    "COS",
+                    "COSH",
+                    "EXP",
                     "INITCAP",
                     "INSTR",
                     "LENGTH",
+                    "LN",
+                    "LOG",
                     "LOWER",
                     "LPAD",
                     "LTRIM",
@@ -533,7 +550,13 @@ public class OracleTypeResolver(
                     "REPLACE",
                     "RPAD",
                     "RTRIM",
+                    "SIGN",
+                    "SIN",
+                    "SINH",
+                    "SQRT",
                     "SUBSTR",
+                    "TAN",
+                    "TANH",
                     "TO_BINARY_DOUBLE",
                     "TO_BINARY_FLOAT",
                     "TO_CHAR",
@@ -547,6 +570,8 @@ public class OracleTypeResolver(
                     "TRANSLATE",
                     "TRIM",
                     "UPPER",
+                    "VSIZE",
+                    "WIDTH_BUCKET",
                 )
 
         private fun String.isOracleNullableAggregateFunction(): Boolean =

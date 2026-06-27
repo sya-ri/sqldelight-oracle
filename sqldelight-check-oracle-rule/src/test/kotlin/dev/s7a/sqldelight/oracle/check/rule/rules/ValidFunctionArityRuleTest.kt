@@ -468,6 +468,62 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("reports wrong arity for Oracle character length and position variants") {
+            ValidFunctionArityRule()
+                .diagnostics(
+                    """
+                    invalidCharacterVariants:
+                    SELECT LENGTHB(), LENGTHC(name, 'x'), INSTR2(name), INSTR4(name, 'x', 1, 1, 1),
+                      SUBSTRB(name), SUBSTRC(name, 1, 2, 3)
+                    FROM invoices;
+                    """,
+                ).summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function LENGTHB expects 1 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 15,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function LENGTHC expects 1 argument(s), but got 2.",
+                        startLine = 2,
+                        startColumn = 19,
+                        endLine = 2,
+                        endColumn = 26,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function INSTR2 expects 2..4 argument(s), but got 1.",
+                        startLine = 2,
+                        startColumn = 39,
+                        endLine = 2,
+                        endColumn = 45,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function INSTR4 expects 2..4 argument(s), but got 5.",
+                        startLine = 2,
+                        startColumn = 53,
+                        endLine = 2,
+                        endColumn = 59,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function SUBSTRB expects 2..3 argument(s), but got 1.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 10,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function SUBSTRC expects 2..3 argument(s), but got 4.",
+                        startLine = 3,
+                        startColumn = 18,
+                        endLine = 3,
+                        endColumn = 25,
+                    ),
+                )
+        }
+
         test("reports too many arguments for Oracle decode") {
             val decodeArguments = (1..256).joinToString(", ") { index -> index.toString() }
             val diagnostics =

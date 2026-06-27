@@ -173,6 +173,13 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT REGR_SYY(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT REGR_SXY(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
         }
+
+        test("resolves Oracle value aggregate result column types exactly") {
+            typeOf("SELECT ANY_VALUE(name) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT ANY_VALUE(salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_MODE(id) AS c FROM emp") shouldBe "kotlin.Long?"
+            typeOf("SELECT STATS_MODE(nickname) AS c FROM emp") shouldBe "kotlin.String?"
+        }
     })
 
 private fun oracleResultColumnTypes(

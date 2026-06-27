@@ -457,6 +457,10 @@ public class OracleTypeResolver(
                 }
             }
 
+            "any_value", "stats_mode" -> {
+                exprList.singleOrNull()?.let { expression -> resolvedType(expression).asNullable() }
+            }
+
             "first_value", "lag", "last_value", "lead", "nth_value" -> {
                 exprList.firstOrNull()?.let { expression -> resolvedType(expression).asNullable() }
             }

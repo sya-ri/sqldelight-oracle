@@ -187,6 +187,13 @@ public class OracleTypeResolver(
                 IntermediateType(DATE).nullableIf(nullable)
             }
 
+            // Oracle datetime ± interval keeps the datetime operand's type
+            // (DATE -> DATE, TIMESTAMP -> TIMESTAMP, TIMESTAMP WITH TIME ZONE -> TIMESTAMP WITH TIME ZONE).
+            datetimeCount == 1 && operands.any { operand -> operand.isOracleIntervalOperand() } -> {
+                val datetimeType = dialectTypes.first { type -> type in DATETIME_TYPE_ORDER }
+                IntermediateType(datetimeType).nullableIf(nullable)
+            }
+
             else -> {
                 null
             }
@@ -202,6 +209,12 @@ public class OracleTypeResolver(
         val rightStart = operands[1].textRange.startOffset - textRange.startOffset
         val between = text.substring(leftEnd, rightStart)
         return listOf("||", "*", "/", "+", "-").firstOrNull { operator -> operator in between }
+    }
+
+    private fun SqlExpr.isOracleIntervalOperand(): Boolean {
+        val normalized = text.trim().uppercase()
+        return normalized.startsWith("INTERVAL ") ||
+            ORACLE_INTERVAL_FUNCTION_REGEX.containsMatchIn(normalized)
     }
 
     private fun oracleFunctionType(
@@ -476,6 +489,8 @@ public class OracleTypeResolver(
 
     private companion object {
         private val VECTOR_DISTANCE_SHORTHAND_OPERATORS = listOf("<->", "<=>", "<#>")
+
+        private val ORACLE_INTERVAL_FUNCTION_REGEX = Regex("""\b(?:NUMTODSINTERVAL|NUMTOYMINTERVAL|TO_DSINTERVAL|TO_YMINTERVAL)\s*\(""")
 
         private fun String.hasOracleVectorDistanceShorthand(): Boolean =
             VECTOR_DISTANCE_SHORTHAND_OPERATORS.any { operator -> contains(operator) }

@@ -124,6 +124,14 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT created_ts - created_ts AS c FROM emp") shouldBe "kotlin.String?"
         }
 
+        test("resolves Oracle datetime interval arithmetic result column types exactly") {
+            typeOf("SELECT hire_date + INTERVAL '1' DAY AS c FROM emp") shouldBe "java.time.LocalDateTime"
+            typeOf("SELECT hire_date - INTERVAL '2' HOUR AS c FROM emp") shouldBe "java.time.LocalDateTime"
+            typeOf("SELECT created_ts + INTERVAL '1' DAY AS c FROM emp") shouldBe "java.time.LocalDateTime?"
+            typeOf("SELECT hire_date + NUMTODSINTERVAL(1, 'DAY') AS c FROM emp") shouldBe "java.time.LocalDateTime"
+            typeOf("SELECT INTERVAL '1' DAY + hire_date AS c FROM emp") shouldBe "java.time.LocalDateTime"
+        }
+
         test("resolves Oracle grouping function result column types exactly") {
             typeOf("SELECT GROUPING(dept_id) AS c FROM emp GROUP BY ROLLUP(dept_id)") shouldBe "kotlin.Long"
             typeOf("SELECT GROUPING_ID(dept_id) AS c FROM emp GROUP BY ROLLUP(dept_id)") shouldBe "kotlin.Long"

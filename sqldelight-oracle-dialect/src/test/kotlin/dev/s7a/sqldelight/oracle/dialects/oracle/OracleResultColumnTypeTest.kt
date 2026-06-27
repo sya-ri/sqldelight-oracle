@@ -165,6 +165,11 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT created_ts - created_ts AS c FROM emp") shouldBe "kotlin.String?"
         }
 
+        test("resolves Oracle datetime ceil and floor result column types exactly") {
+            typeOf("SELECT CEIL(hire_date) AS c FROM emp") shouldBe "java.time.LocalDateTime"
+            typeOf("SELECT FLOOR(created_ts) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
+        }
+
         test("resolves Oracle datetime interval arithmetic result column types exactly") {
             typeOf("SELECT hire_date + INTERVAL '1' DAY AS c FROM emp") shouldBe "java.time.LocalDateTime"
             typeOf("SELECT hire_date - INTERVAL '2' HOUR AS c FROM emp") shouldBe "java.time.LocalDateTime"

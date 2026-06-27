@@ -280,9 +280,15 @@ public class OracleTypeResolver(
         exprList: List<SqlExpr>,
     ): IntermediateType? =
         when (functionName.trim().lowercase()) {
-            "abs", "ceil", "floor" -> {
+            "abs" -> {
                 exprList.singleOrNull()?.let { expression ->
                     resolvedType(expression).takeIf { type -> type.dialectType in NUMERIC_TYPE_ORDER }
+                }
+            }
+
+            "ceil", "floor" -> {
+                exprList.singleOrNull()?.let { expression ->
+                    resolvedType(expression).ceilOrFloorSingleArgumentType()
                 }
             }
 
@@ -823,6 +829,13 @@ public class OracleTypeResolver(
             )
 
         private fun IntermediateType.roundOrTruncSingleArgumentType(): IntermediateType? =
+            when (dialectType) {
+                in NUMERIC_TYPE_ORDER -> this
+                in DATETIME_TYPE_ORDER -> IntermediateType(DATE).nullableIf(javaType.isNullable)
+                else -> null
+            }
+
+        private fun IntermediateType.ceilOrFloorSingleArgumentType(): IntermediateType? =
             when (dialectType) {
                 in NUMERIC_TYPE_ORDER -> this
                 in DATETIME_TYPE_ORDER -> IntermediateType(DATE).nullableIf(javaType.isNullable)

@@ -159,8 +159,12 @@ public enum class OracleType(
             argumentTypes: List<OracleType>,
         ): OracleType? =
             when (functionName.trim().uppercase()) {
-                "ABS", "CEIL", "FLOOR" -> {
+                "ABS" -> {
                     argumentTypes.singleOrNull()?.takeIf { type -> type in numericTypes }
+                }
+
+                "CEIL", "FLOOR" -> {
+                    argumentTypes.singleOrNull()?.ceilOrFloorSingleArgumentType()
                 }
 
                 "MOD", "REMAINDER" -> {
@@ -766,6 +770,13 @@ public enum class OracleType(
             }
 
         private fun OracleType.roundOrTruncSingleArgumentType(): OracleType? =
+            when (this) {
+                in numericTypes -> this
+                in datetimeTypes -> DATE
+                else -> null
+            }
+
+        private fun OracleType.ceilOrFloorSingleArgumentType(): OracleType? =
             when (this) {
                 in numericTypes -> this
                 in datetimeTypes -> DATE

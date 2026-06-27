@@ -306,6 +306,7 @@ private val oracleFunctionArities =
         "VECTOR_DISTANCE" to arityRange(2, 3),
         "VECTOR_DIMS" to exactArity(1),
         "VECTOR_NORM" to exactArity(1),
+        "XMLCAST" to exactArity(1),
         "XMLCDATA" to exactArity(1),
         "XMLCOLATTVAL" to arityRange(1, Int.MAX_VALUE),
         "XMLCOMMENT" to exactArity(1),
@@ -314,6 +315,9 @@ private val oracleFunctionArities =
         "XMLISVALID" to arityRange(1, 2),
         "XMLPARSE" to exactArity(1),
         "XMLPATCH" to exactArity(2),
+        "XMLPI" to arityRange(1, 2),
+        "XMLROOT" to arityRange(2, 3),
+        "XMLSERIALIZE" to exactArity(1),
         "XMLSEQUENCE" to exactArity(1),
         "XMLTRANSFORM" to exactArity(2),
     ) + oracleCalendarFunctionArities()

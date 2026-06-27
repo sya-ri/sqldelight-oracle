@@ -1023,6 +1023,80 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("reports wrong arity for Oracle keyword XML functions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidKeywordXml:
+                    SELECT XMLCAST(), XMLCAST(payload AS NUMBER, extra),
+                      XMLPI(), XMLPI(NAME tag, payload, extra),
+                      XMLROOT(payload), XMLROOT(payload, VERSION '1.0', STANDALONE YES, extra),
+                      XMLSERIALIZE(), XMLSERIALIZE(CONTENT payload AS CLOB, extra)
+                    FROM xml_samples;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function XMLCAST expects 1 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 15,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLCAST expects 1 argument(s), but got 2.",
+                        startLine = 2,
+                        startColumn = 19,
+                        endLine = 2,
+                        endColumn = 26,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLPI expects 1..2 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 8,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLPI expects 1..2 argument(s), but got 3.",
+                        startLine = 3,
+                        startColumn = 12,
+                        endLine = 3,
+                        endColumn = 17,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLROOT expects 2..3 argument(s), but got 1.",
+                        startLine = 4,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 10,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLROOT expects 2..3 argument(s), but got 4.",
+                        startLine = 4,
+                        startColumn = 21,
+                        endLine = 4,
+                        endColumn = 28,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLSERIALIZE expects 1 argument(s), but got 0.",
+                        startLine = 5,
+                        startColumn = 3,
+                        endLine = 5,
+                        endColumn = 15,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLSERIALIZE expects 1 argument(s), but got 2.",
+                        startLine = 5,
+                        startColumn = 19,
+                        endLine = 5,
+                        endColumn = 31,
+                    ),
+                )
+        }
+
         test("reports wrong arity for Oracle parser backed utility operators") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(
@@ -1830,6 +1904,10 @@ class ValidFunctionArityRuleTest :
                   XMLSEQUENCE(payload_xml),
                   XMLTRANSFORM(payload_xml, archived_xml),
                   XMLPARSE(CONTENT payload_xml WELLFORMED),
+                  XMLCAST(payload_xml AS NUMBER),
+                  XMLPI(NAME "Payload", payload_xml),
+                  XMLROOT(payload_xml, VERSION NO VALUE, STANDALONE NO VALUE),
+                  XMLSERIALIZE(CONTENT payload_xml AS CLOB),
                   JSON_ID('OID'),
                   SHARD_CHUNK_ID(shard_class, id),
                   SHARD_CHUNK_ID(NULL, shard_class, id),

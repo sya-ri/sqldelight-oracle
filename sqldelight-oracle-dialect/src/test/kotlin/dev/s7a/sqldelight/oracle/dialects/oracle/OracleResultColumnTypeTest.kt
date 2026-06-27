@@ -156,6 +156,10 @@ class OracleResultColumnTypeTest :
                 "kotlin.String?"
         }
 
+        test("resolves Oracle serialization input nullability exactly") {
+            typeOf("SELECT JSON_SERIALIZE(nickname RETURNING CLOB) AS c FROM emp") shouldBe "kotlin.String?"
+        }
+
         test("resolves Oracle pseudocolumn result column types exactly") {
             typeOf("SELECT ROWNUM AS c FROM emp") shouldBe "kotlin.Long"
             typeOf("SELECT LEVEL AS c FROM emp CONNECT BY PRIOR id = dept_id") shouldBe "kotlin.Long"

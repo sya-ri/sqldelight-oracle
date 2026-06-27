@@ -269,19 +269,28 @@ public class OracleTypeResolver(
             "JSON_OBJECT",
             "JSON_OBJECTAGG",
             "JSON_TRANSFORM",
-            "XMLSERIALIZE",
             -> {
                 functionText.oracleReturningTypeName()?.let { typeName -> IntermediateType(OracleType.fromSqlTypeName(typeName)) }
             }
 
             "JSON_VALUE",
             "JSON_QUERY",
-            "JSON_SERIALIZE",
             "JSON_MERGEPATCH",
             -> {
                 functionText.oracleReturningTypeName()?.let { typeName ->
                     IntermediateType(OracleType.fromSqlTypeName(typeName))
                         .nullableIf(functionText.hasOracleSqlJsonNullReturningClause())
+                }
+            }
+
+            "JSON_SERIALIZE",
+            -> {
+                functionText.oracleReturningTypeName()?.let { typeName ->
+                    IntermediateType(OracleType.fromSqlTypeName(typeName))
+                        .nullableIf(
+                            functionText.hasOracleSqlJsonNullReturningClause() ||
+                                exprList.firstOrNull()?.let { expression -> resolvedType(expression).javaType.isNullable } == true,
+                        )
                 }
             }
 

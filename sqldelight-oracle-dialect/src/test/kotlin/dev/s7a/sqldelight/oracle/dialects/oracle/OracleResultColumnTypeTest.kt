@@ -240,6 +240,57 @@ class OracleResultColumnTypeTest :
             ) shouldBe "kotlin.String"
         }
 
+        test("resolves Oracle row pattern result column types exactly") {
+            typeOf(
+                """
+                SELECT matched_orders.match_id AS c
+                FROM emp MATCH_RECOGNIZE (
+                  ORDER BY id
+                  MEASURES id AS match_id
+                  ONE ROW PER MATCH
+                  PATTERN (matched_row)
+                  DEFINE matched_row AS id > 0
+                ) matched_orders
+                """.trimIndent(),
+            ) shouldBe "kotlin.Long"
+            typeOf(
+                """
+                SELECT matched_orders.name AS c
+                FROM emp MATCH_RECOGNIZE (
+                  ORDER BY id
+                  MEASURES id AS match_id
+                  ALL ROWS PER MATCH
+                  PATTERN (matched_row)
+                  DEFINE matched_row AS id > 0
+                ) matched_orders
+                """.trimIndent(),
+            ) shouldBe "kotlin.String"
+            typeOf(
+                """
+                SELECT matched_orders.match_type AS c
+                FROM emp MATCH_RECOGNIZE (
+                  ORDER BY id
+                  MEASURES CLASSIFIER() AS match_type, ROW_NUMBER() AS match_row_number
+                  ALL ROWS PER MATCH
+                  PATTERN (matched_row)
+                  DEFINE matched_row AS id > 0
+                ) matched_orders
+                """.trimIndent(),
+            ) shouldBe "kotlin.String"
+            typeOf(
+                """
+                SELECT matched_orders.match_row_number AS c
+                FROM emp MATCH_RECOGNIZE (
+                  ORDER BY id
+                  MEASURES CLASSIFIER() AS match_type, ROW_NUMBER() AS match_row_number
+                  ALL ROWS PER MATCH
+                  PATTERN (matched_row)
+                  DEFINE matched_row AS id > 0
+                ) matched_orders
+                """.trimIndent(),
+            ) shouldBe "kotlin.Long"
+        }
+
         test("resolves Oracle XML root result column types exactly") {
             typeOf("SELECT XMLROOT(XMLTYPE('<Warehouse/>'), VERSION NO VALUE) AS c FROM emp") shouldBe "kotlin.String"
         }

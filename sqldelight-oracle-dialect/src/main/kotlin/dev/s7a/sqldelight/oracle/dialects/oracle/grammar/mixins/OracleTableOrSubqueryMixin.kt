@@ -9,10 +9,12 @@ import com.alecstrong.sql.psi.core.psi.NamedElement
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryColumn
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryResult
 import com.alecstrong.sql.psi.core.psi.QueryElement.SynthesizedColumn
+import com.alecstrong.sql.psi.core.psi.SqlColumnAlias
 import com.alecstrong.sql.psi.core.psi.SqlColumnDef
 import com.alecstrong.sql.psi.core.psi.SqlCompositeElementImpl
 import com.alecstrong.sql.psi.core.psi.SqlCompoundSelectStmt
 import com.alecstrong.sql.psi.core.psi.SqlDatabaseName
+import com.alecstrong.sql.psi.core.psi.SqlExpr
 import com.alecstrong.sql.psi.core.psi.SqlIndexName
 import com.alecstrong.sql.psi.core.psi.SqlJoinClause
 import com.alecstrong.sql.psi.core.psi.SqlTableAlias
@@ -286,11 +288,25 @@ internal abstract class OracleTableOrSubqueryMixin(
             rowPatternClause
                 .oracleRowPatternMeasuresClause
                 ?.oracleRowPatternMeasureColumnList
-                ?.mapNotNull { column -> column.oracleColumnAliasQueryColumn() }
+                ?.mapNotNull { column -> column.oracleRowPatternMeasureQueryColumn() }
                 ?: emptyList()
         return (sourceColumns + measureColumns)
             .ifEmpty { null }
             ?.let { columns -> QueryResult(tableAlias, columns) }
+    }
+
+    private fun PsiElement.oracleRowPatternMeasureQueryColumn(): QueryColumn? {
+        val alias = PsiTreeUtil.getChildOfType(this, SqlColumnAlias::class.java) ?: return null
+        PsiTreeUtil.getChildOfType(this, SqlExpr::class.java)?.let { source ->
+            return QueryColumn(OracleRowPatternMeasureElement(this, alias.name, source))
+        }
+        val type =
+            when (text.withoutOracleTrailingAlias().trim().uppercase()) {
+                "CLASSIFIER()" -> IntermediateType(OracleType.TEXT)
+                "MATCH_NUMBER()", "ROW_NUMBER()" -> IntermediateType(OracleType.LONG_NUMBER)
+                else -> return null
+            }
+        return QueryColumn(OracleRowPatternMeasureTypeElement(this, alias.name, type))
     }
 
     private fun oracleRowPatternVariableResults(rowPatternClause: OracleOracleRowPatternClause): Collection<QueryResult> {
@@ -553,6 +569,57 @@ private class OraclePatternVariableElement(
     override fun getParent(): PsiElement = anchor
 
     override fun toString(): String = "Oracle pattern variable: $variableName"
+}
+
+private class OracleRowPatternMeasureElement(
+    private val anchor: PsiElement,
+    private val columnName: String,
+    private val source: PsiElement,
+) : LightElement(anchor.manager, anchor.language),
+    AliasElement {
+    override fun source(): PsiElement = source
+
+    override fun getName(): String = columnName
+
+    override fun setName(name: String): PsiElement = this
+
+    override fun getText(): String = columnName
+
+    override fun getContainingFile(): PsiFile = anchor.containingFile
+
+    override fun getParent(): PsiElement = anchor
+
+    override fun getNameIdentifier(): PsiElement? = null
+
+    override fun toString(): String = "Oracle row pattern measure: $columnName"
+}
+
+private class OracleRowPatternMeasureTypeElement(
+    private val anchor: PsiElement,
+    private val columnName: String,
+    private val columnType: IntermediateType,
+) : LightElement(anchor.manager, anchor.language),
+    AliasElement,
+    ExposableType {
+    override fun type(): IntermediateType = columnType.copy(name = columnName)
+
+    override fun annotate(annotationHolder: SqlAnnotationHolder) = Unit
+
+    override fun source(): PsiElement = anchor
+
+    override fun getName(): String = columnName
+
+    override fun setName(name: String): PsiElement = this
+
+    override fun getText(): String = columnName
+
+    override fun getContainingFile(): PsiFile = anchor.containingFile
+
+    override fun getParent(): PsiElement = anchor
+
+    override fun getNameIdentifier(): PsiElement? = null
+
+    override fun toString(): String = "Oracle row pattern measure: $columnName"
 }
 
 private fun String.substringBeforeKeyword(keyword: String): String =

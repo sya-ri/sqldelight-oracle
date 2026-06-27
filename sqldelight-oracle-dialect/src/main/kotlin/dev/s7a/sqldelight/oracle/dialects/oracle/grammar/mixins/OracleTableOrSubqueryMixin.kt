@@ -153,7 +153,7 @@ internal abstract class OracleTableOrSubqueryMixin(
 
         PsiTreeUtil.findChildOfType(this, OracleOracleValuesTableReference::class.java)?.let { valuesTable ->
             return valuesTable
-                .oracleColumnAliasQueryColumns()
+                .oracleValuesQueryColumns()
                 .ifEmpty { null }
                 ?.let { columns -> oracleColumnResultFor(valuesTable, columns) }
         }
@@ -337,6 +337,20 @@ internal abstract class OracleTableOrSubqueryMixin(
                 }
             } ?: return null
         return QueryColumn(OracleGeneratedColumnElement(source, alias.name, type))
+    }
+
+    private fun OracleOracleValuesTableReference.oracleValuesQueryColumns(): List<QueryColumn> {
+        val aliases = PsiTreeUtil.findChildrenOfType(this, SqlColumnAlias::class.java).toList()
+        if (aliases.isEmpty()) return emptyList()
+
+        val expressions = PsiTreeUtil.findChildrenOfType(this, SqlExpr::class.java).toList()
+        return aliases.mapIndexedNotNull { index, alias ->
+            val columnSources = expressions.filterIndexed { expressionIndex, _ -> expressionIndex % aliases.size == index }
+            val type = columnSources.oracleValuesColumnType() ?: return@mapIndexedNotNull null
+            columnSources.firstOrNull()?.let {
+                QueryColumn(OracleGeneratedColumnElement(this, alias.name, type))
+            }
+        }
     }
 
     private fun PsiElement.oracleXmltableQueryColumn(): QueryColumn? {
@@ -816,6 +830,60 @@ private fun String.oracleInlineExternalColumnType(columnName: String): String? {
 }
 
 private fun String.hasOracleNotNullConstraint(): Boolean = Regex("""(?i)\bNOT\s+NULL\b""").containsMatchIn(this)
+
+private fun PsiElement.isOracleNullLiteral(): Boolean = text.trim().equals("NULL", ignoreCase = true)
+
+private fun List<SqlExpr>.oracleValuesColumnType(): IntermediateType? {
+    val valueType =
+        firstNotNullOfOrNull { expression ->
+            expression
+                .takeUnless { it.isOracleNullLiteral() }
+                ?.text
+                ?.oracleValuesLiteralType()
+        }
+            ?: return null
+    return if (any { expression -> expression.isOracleNullLiteral() }) valueType.asNullable() else valueType
+}
+
+private fun String.oracleValuesLiteralType(): IntermediateType? {
+    val value = trim()
+    return when {
+        value.startsWith("'") || value.startsWith("N'", ignoreCase = true) || value.startsWith("Q'", ignoreCase = true) -> {
+            IntermediateType(OracleType.TEXT)
+        }
+
+        value.equals("TRUE", ignoreCase = true) || value.equals("FALSE", ignoreCase = true) -> {
+            IntermediateType(OracleType.BOOLEAN_TYPE)
+        }
+
+        value.startsWith("DATE ", ignoreCase = true) -> {
+            IntermediateType(OracleType.DATE)
+        }
+
+        value.startsWith("TIMESTAMP ", ignoreCase = true) -> {
+            IntermediateType(
+                if (value.contains("TIME ZONE", ignoreCase = true)) {
+                    OracleType.TIMESTAMP_TIME_ZONE
+                } else {
+                    OracleType.TIMESTAMP
+                },
+            )
+        }
+
+        value.matches(Regex("""[+-]?\d+""")) -> {
+            IntermediateType(OracleType.LONG_NUMBER)
+        }
+
+        value.matches(Regex("""[+-]?(?:\d+\.\d*|\.\d+)(?:[eE][+-]?\d+)?""")) ||
+            value.matches(Regex("""[+-]?\d+[eE][+-]?\d+""")) -> {
+            IntermediateType(OracleType.DECIMAL_NUMBER)
+        }
+
+        else -> {
+            null
+        }
+    }
+}
 
 private fun String.oracleTopLevelTrailingAliases(): List<String> =
     oracleTopLevelCommaParts().mapNotNull { part -> part.oracleTrailingAlias() }

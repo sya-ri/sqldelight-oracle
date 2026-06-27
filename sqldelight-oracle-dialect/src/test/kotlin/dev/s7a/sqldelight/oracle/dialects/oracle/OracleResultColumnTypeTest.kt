@@ -300,6 +300,48 @@ class OracleResultColumnTypeTest :
             ) shouldBe "java.math.BigDecimal"
         }
 
+        test("resolves Oracle values table result column types exactly") {
+            typeOf(
+                """
+                SELECT value_employees.employee_id AS c
+                FROM (
+                  VALUES (1, 'SCOTT'),
+                         (2, 'SMITH')
+                ) value_employees (employee_id, first_name)
+                """.trimIndent(),
+            ) shouldBe "kotlin.Long"
+            typeOf(
+                """
+                SELECT value_employees.first_name AS c
+                FROM (
+                  VALUES (1, 'SCOTT'),
+                         (2, 'SMITH')
+                ) value_employees (employee_id, first_name)
+                """.trimIndent(),
+            ) shouldBe "kotlin.String"
+        }
+
+        test("propagates Oracle values table column nullability exactly") {
+            typeOf(
+                """
+                SELECT value_employees.employee_id AS c
+                FROM (
+                  VALUES (1, 'SCOTT'),
+                         (NULL, NULL)
+                ) value_employees (employee_id, first_name)
+                """.trimIndent(),
+            ) shouldBe "kotlin.Long?"
+            typeOf(
+                """
+                SELECT value_employees.first_name AS c
+                FROM (
+                  VALUES (1, 'SCOTT'),
+                         (NULL, NULL)
+                ) value_employees (employee_id, first_name)
+                """.trimIndent(),
+            ) shouldBe "kotlin.String?"
+        }
+
         test("resolves Oracle inline external table result column types exactly") {
             val externalTable =
                 """

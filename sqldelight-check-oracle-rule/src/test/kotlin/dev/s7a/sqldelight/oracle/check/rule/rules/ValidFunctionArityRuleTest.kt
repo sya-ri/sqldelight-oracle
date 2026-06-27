@@ -606,7 +606,10 @@ class ValidFunctionArityRuleTest :
                     invalidVectors:
                     SELECT TO_VECTOR(), TO_VECTOR(payload, 3, FLOAT32, 'extra'),
                       VECTOR_DISTANCE(embedding), VECTOR_DISTANCE(embedding, target_embedding, COSINE, 'extra'),
-                      FROM_VECTOR()
+                      FROM_VECTOR(), L1_DISTANCE(embedding), L2_DISTANCE(embedding, target_embedding, extra),
+                      COSINE_DISTANCE(embedding), INNER_PRODUCT(embedding), HAMMING_DISTANCE(embedding),
+                      JACCARD_DISTANCE(embedding), VECTOR_NORM(), VECTOR_DIMS(),
+                      VECTOR_DIMENSION_COUNT(embedding, extra), VECTOR_DIMENSION_FORMAT()
                     FROM vector_items;
                     """,
                 )
@@ -647,6 +650,76 @@ class ValidFunctionArityRuleTest :
                         startColumn = 3,
                         endLine = 4,
                         endColumn = 14,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function L1_DISTANCE expects 2 argument(s), but got 1.",
+                        startLine = 4,
+                        startColumn = 18,
+                        endLine = 4,
+                        endColumn = 29,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function L2_DISTANCE expects 2 argument(s), but got 3.",
+                        startLine = 4,
+                        startColumn = 42,
+                        endLine = 4,
+                        endColumn = 53,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function COSINE_DISTANCE expects 2 argument(s), but got 1.",
+                        startLine = 5,
+                        startColumn = 3,
+                        endLine = 5,
+                        endColumn = 18,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function INNER_PRODUCT expects 2 argument(s), but got 1.",
+                        startLine = 5,
+                        startColumn = 31,
+                        endLine = 5,
+                        endColumn = 44,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function HAMMING_DISTANCE expects 2 argument(s), but got 1.",
+                        startLine = 5,
+                        startColumn = 57,
+                        endLine = 5,
+                        endColumn = 73,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function JACCARD_DISTANCE expects 2 argument(s), but got 1.",
+                        startLine = 6,
+                        startColumn = 3,
+                        endLine = 6,
+                        endColumn = 19,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function VECTOR_NORM expects 1 argument(s), but got 0.",
+                        startLine = 6,
+                        startColumn = 32,
+                        endLine = 6,
+                        endColumn = 43,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function VECTOR_DIMS expects 1 argument(s), but got 0.",
+                        startLine = 6,
+                        startColumn = 47,
+                        endLine = 6,
+                        endColumn = 58,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function VECTOR_DIMENSION_COUNT expects 1 argument(s), but got 2.",
+                        startLine = 7,
+                        startColumn = 3,
+                        endLine = 7,
+                        endColumn = 25,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function VECTOR_DIMENSION_FORMAT expects 1 argument(s), but got 0.",
+                        startLine = 7,
+                        startColumn = 45,
+                        endLine = 7,
+                        endColumn = 68,
                     ),
                 )
         }
@@ -1040,6 +1113,16 @@ class ValidFunctionArityRuleTest :
                   TO_VECTOR('[1,2,3]', 3, FLOAT32),
                   VECTOR_DISTANCE(embedding, target_embedding, COSINE),
                   FROM_VECTOR(embedding),
+                  L1_DISTANCE(embedding, target_embedding),
+                  L2_DISTANCE(embedding, target_embedding),
+                  COSINE_DISTANCE(embedding, target_embedding),
+                  INNER_PRODUCT(embedding, target_embedding),
+                  HAMMING_DISTANCE(embedding, target_embedding),
+                  JACCARD_DISTANCE(embedding, target_embedding),
+                  VECTOR_NORM(embedding),
+                  VECTOR_DIMS(embedding),
+                  VECTOR_DIMENSION_COUNT(embedding),
+                  VECTOR_DIMENSION_FORMAT(embedding),
                   GROUPING(status),
                   GROUPING_ID(status, region),
                   GROUP_ID()

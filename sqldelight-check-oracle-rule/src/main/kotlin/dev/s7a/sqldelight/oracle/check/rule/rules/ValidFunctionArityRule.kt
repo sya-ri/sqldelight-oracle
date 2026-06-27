@@ -277,7 +277,7 @@ private val oracleFunctionArities =
         "NVL2" to exactArity(3),
         "TRANSLATE" to oneOfArities(1, 3),
         "COALESCE" to arityRange(2, Int.MAX_VALUE),
-        "CONCAT" to arityRange(2, Int.MAX_VALUE),
+        "CONCAT" to exactArity(2),
         "CONTAINS" to arityRange(2, 3),
         "CONVERT" to arityRange(2, 3),
         "COSINE_DISTANCE" to exactArity(2),

@@ -313,11 +313,33 @@ class ValidFunctionArityRuleTest :
                         endColumn = 52,
                     ),
                     DiagnosticSummary(
-                        message = "Oracle function CONCAT expects 2..2147483647 argument(s), but got 1.",
+                        message = "Oracle function CONCAT expects 2 argument(s), but got 1.",
                         startLine = 2,
                         startColumn = 62,
                         endLine = 2,
                         endColumn = 68,
+                    ),
+                )
+        }
+
+        test("reports too many arguments for Oracle CONCAT") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidConcatenation:
+                    SELECT CONCAT(first_name, ' ', last_name)
+                    FROM invoices;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function CONCAT expects 2 argument(s), but got 3.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 14,
                     ),
                 )
         }
@@ -2126,7 +2148,7 @@ class ValidFunctionArityRuleTest :
                   USER,
                   POWER(amount, 2),
                   NVL2(status, 'Y', 'N'),
-                  CONCAT(first_name, ' ', last_name),
+                  CONCAT(first_name, last_name),
                   COUNT(*),
                   SUM(amount),
                   MAX(status),

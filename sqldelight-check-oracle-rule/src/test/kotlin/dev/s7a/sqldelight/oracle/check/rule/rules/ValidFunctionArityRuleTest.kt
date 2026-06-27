@@ -304,7 +304,8 @@ class ValidFunctionArityRuleTest :
                     SELECT CHR(), DUMP(label, 10, 20, 30, 40), LTRIM(label, 'x', 'y'),
                       RTRIM(label, 'x', 'y'), REPLACE(label), SYS_CONTEXT('USERENV'),
                       ORA_HASH(label, 100, 1, 2), STANDARD_HASH(label, 'SHA256', 'extra'),
-                      NLSSORT(label, 'NLS_SORT = BINARY', 'extra')
+                      NLSSORT(label, 'NLS_SORT = BINARY', 'extra'),
+                      TRIM(), TRIM(label, 'x')
                     FROM invoices;
                     """,
                 )
@@ -373,6 +374,20 @@ class ValidFunctionArityRuleTest :
                         startColumn = 3,
                         endLine = 5,
                         endColumn = 10,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function TRIM expects 1 argument(s), but got 0.",
+                        startLine = 6,
+                        startColumn = 3,
+                        endLine = 6,
+                        endColumn = 7,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function TRIM expects 1 argument(s), but got 2.",
+                        startLine = 6,
+                        startColumn = 11,
+                        endLine = 6,
+                        endColumn = 15,
                     ),
                 )
         }
@@ -1725,6 +1740,8 @@ class ValidFunctionArityRuleTest :
                   DUMP(label, 1016),
                   LTRIM(label, 'x'),
                   RTRIM(label),
+                  TRIM(label),
+                  TRIM(LEADING '*' FROM label),
                   REPLACE(label, 'x', 'y'),
                   SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA', 64),
                   ORA_HASH(label, 100, 1),

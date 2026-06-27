@@ -292,6 +292,7 @@ private val oracleFunctionArities =
         "TO_TIMESTAMP" to arityRange(1, 3),
         "TO_TIMESTAMP_TZ" to arityRange(1, 3),
         "TO_VECTOR" to arityRange(1, 3),
+        "TRIM" to exactArity(1),
         "TRUNC" to arityRange(1, 2),
         "USERENV" to exactArity(1),
         "VALIDATE_CONVERSION" to arityRange(1, 3),

@@ -632,6 +632,7 @@ public class OracleTypeResolver(
                     "REGEXP_SUBSTR",
                     "REPLACE",
                     "RAWTOHEX",
+                    "RATIO_TO_REPORT",
                     "RPAD",
                     "RTRIM",
                     "SIGN",

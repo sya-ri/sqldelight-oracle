@@ -466,6 +466,84 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("reports wrong arity for Oracle analytic value functions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidAnalytics:
+                    SELECT ROW_NUMBER(1) OVER (ORDER BY id),
+                      LAG() OVER (ORDER BY id),
+                      LEAD(amount, 1, 0, 2) OVER (ORDER BY id),
+                      FIRST_VALUE() OVER (ORDER BY id),
+                      LAST_VALUE(amount, fallback_amount) OVER (ORDER BY id),
+                      NTH_VALUE(amount) OVER (ORDER BY id),
+                      NTILE() OVER (ORDER BY id),
+                      RATIO_TO_REPORT(amount, fallback_amount) OVER ()
+                    FROM invoices;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function ROW_NUMBER expects 0 argument(s), but got 1.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 18,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function LAG expects 1..3 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 6,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function LEAD expects 1..3 argument(s), but got 4.",
+                        startLine = 4,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 7,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function FIRST_VALUE expects 1 argument(s), but got 0.",
+                        startLine = 5,
+                        startColumn = 3,
+                        endLine = 5,
+                        endColumn = 14,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function LAST_VALUE expects 1 argument(s), but got 2.",
+                        startLine = 6,
+                        startColumn = 3,
+                        endLine = 6,
+                        endColumn = 13,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function NTH_VALUE expects 2 argument(s), but got 1.",
+                        startLine = 7,
+                        startColumn = 3,
+                        endLine = 7,
+                        endColumn = 12,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function NTILE expects 1 argument(s), but got 0.",
+                        startLine = 8,
+                        startColumn = 3,
+                        endLine = 8,
+                        endColumn = 8,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function RATIO_TO_REPORT expects 1 argument(s), but got 2.",
+                        startLine = 9,
+                        startColumn = 3,
+                        endLine = 9,
+                        endColumn = 18,
+                    ),
+                )
+        }
+
         test("reports wrong arity for Oracle aggregates") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(
@@ -621,6 +699,14 @@ class ValidFunctionArityRuleTest :
                   EXTRACTVALUE(payload_xml, '/a'),
                   EXISTSNODE(payload_xml, '/a', 'xmlns:x="urn:x"'),
                   XMLISVALID(payload_xml, 'schema.xsd'),
+                  ROW_NUMBER() OVER (ORDER BY id),
+                  LAG(amount, 1, 0) OVER (ORDER BY id),
+                  LEAD(amount) OVER (ORDER BY id),
+                  FIRST_VALUE(amount) OVER (ORDER BY id),
+                  LAST_VALUE(amount) OVER (ORDER BY id),
+                  NTH_VALUE(amount, 2) OVER (ORDER BY id),
+                  NTILE(4) OVER (ORDER BY id),
+                  RATIO_TO_REPORT(amount) OVER (),
                   REGEXP_REPLACE(description, q'{literal ' marker, comma}', 'x'),
                   REGEXP_SUBSTR(description, '[A-Z]+', 1, 1, 'i', 0),
                   TO_TIMESTAMP(created_text, 'YYYY-MM-DD HH24:MI:SS')

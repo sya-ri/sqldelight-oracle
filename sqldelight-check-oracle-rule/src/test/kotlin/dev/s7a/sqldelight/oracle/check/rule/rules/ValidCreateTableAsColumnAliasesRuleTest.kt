@@ -49,10 +49,42 @@ class ValidCreateTableAsColumnAliasesRuleTest :
                 )
         }
 
+        test("reports duplicate quoted CTAS column aliases exactly") {
+            val diagnostics =
+                ValidCreateTableAsColumnAliasesRule().diagnostics(
+                    """
+                    CREATE TABLE account_snapshot("snapshot_id", "snapshot_id") AS
+                    SELECT account_id, external_id
+                    FROM staged_accounts;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle CTAS column alias '\"snapshot_id\"' is declared more than once.",
+                        startLine = 1,
+                        startColumn = 46,
+                        endLine = 1,
+                        endColumn = 59,
+                    ),
+                )
+        }
+
         test("accepts matching CTAS column aliases exactly") {
             ValidCreateTableAsColumnAliasesRule().diagnostics(
                 """
                 CREATE TABLE account_snapshot(snapshot_id, snapshot_external_id) AS
+                SELECT account_id, external_id
+                FROM staged_accounts;
+                """,
+            ) shouldBe emptyList()
+        }
+
+        test("accepts case-distinct quoted CTAS column aliases exactly") {
+            ValidCreateTableAsColumnAliasesRule().diagnostics(
+                """
+                CREATE TABLE account_snapshot("Snapshot_Id", "snapshot_id") AS
                 SELECT account_id, external_id
                 FROM staged_accounts;
                 """,

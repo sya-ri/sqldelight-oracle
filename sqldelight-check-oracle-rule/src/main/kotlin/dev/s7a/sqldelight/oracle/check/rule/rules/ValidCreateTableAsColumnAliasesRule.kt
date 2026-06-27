@@ -23,36 +23,38 @@ public class ValidCreateTableAsColumnAliasesRule : Rule {
         reporter: DiagnosticReporter,
     ) {
         val content = context.file.content
-        content
-            .maskSqlCommentsAndQuotedTextPreservingOffsets(maskQuoteDelimiters = false)
-            .createTableAsAliasChecks()
-            .forEach { check ->
-                check.duplicateAlias()?.let { duplicate ->
-                    reporter.report(
-                        RuleDiagnostic(
-                            severity = defaultSeverity,
-                            message = "Oracle CTAS column alias '${duplicate.text}' is declared more than once.",
-                            file = context.file,
-                            range = content.rangeAtOffsets(duplicate.range.first, duplicate.range.last + 1),
-                            database = context.database,
-                        ),
-                    )
-                }
-
-                if (check.aliases.size != check.selectColumnCount) {
-                    reporter.report(
-                        RuleDiagnostic(
-                            severity = defaultSeverity,
-                            message =
-                                "Oracle CTAS declares ${check.aliases.size} column alias(es), " +
-                                    "but the SELECT list has ${check.selectColumnCount} column(s).",
-                            file = context.file,
-                            range = content.rangeAtOffsets(check.aliasListRange.first, check.aliasListRange.last + 1),
-                            database = context.database,
-                        ),
-                    )
-                }
+        val maskedContent =
+            content.maskSqlCommentsAndQuotedTextPreservingOffsets(
+                maskQuoteDelimiters = false,
+                maskDoubleQuotedIdentifiers = false,
+            )
+        maskedContent.createTableAsAliasChecks().forEach { check ->
+            check.duplicateAlias()?.let { duplicate ->
+                reporter.report(
+                    RuleDiagnostic(
+                        severity = defaultSeverity,
+                        message = "Oracle CTAS column alias '${duplicate.text}' is declared more than once.",
+                        file = context.file,
+                        range = content.rangeAtOffsets(duplicate.range.first, duplicate.range.last + 1),
+                        database = context.database,
+                    ),
+                )
             }
+
+            if (check.aliases.size != check.selectColumnCount) {
+                reporter.report(
+                    RuleDiagnostic(
+                        severity = defaultSeverity,
+                        message =
+                            "Oracle CTAS declares ${check.aliases.size} column alias(es), " +
+                                "but the SELECT list has ${check.selectColumnCount} column(s).",
+                        file = context.file,
+                        range = content.rangeAtOffsets(check.aliasListRange.first, check.aliasListRange.last + 1),
+                        database = context.database,
+                    ),
+                )
+            }
+        }
     }
 }
 
@@ -68,9 +70,16 @@ private data class CreateTableAsAliasCheck(
 ) {
     fun duplicateAlias(): CtasAlias? {
         val seen = mutableSetOf<String>()
-        return aliases.firstOrNull { alias -> !seen.add(alias.text.trim('"').uppercase()) }
+        return aliases.firstOrNull { alias -> !seen.add(alias.text.ctasAliasKey()) }
     }
 }
+
+private fun String.ctasAliasKey(): String =
+    if (startsWith("\"") && endsWith("\"")) {
+        removeSurrounding("\"").replace("\"\"", "\"")
+    } else {
+        uppercase()
+    }
 
 private fun String.createTableAsAliasChecks(): List<CreateTableAsAliasCheck> {
     val checks = mutableListOf<CreateTableAsAliasCheck>()

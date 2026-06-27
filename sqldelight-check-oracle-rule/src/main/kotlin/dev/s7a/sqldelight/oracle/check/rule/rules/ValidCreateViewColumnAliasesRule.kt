@@ -23,7 +23,12 @@ public class ValidCreateViewColumnAliasesRule : Rule {
         reporter: DiagnosticReporter,
     ) {
         val content = context.file.content
-        content.maskSqlCommentsAndQuotedTextPreservingOffsets(maskQuoteDelimiters = false).createViewAliasChecks().forEach { check ->
+        val maskedContent =
+            content.maskSqlCommentsAndQuotedTextPreservingOffsets(
+                maskQuoteDelimiters = false,
+                maskDoubleQuotedIdentifiers = false,
+            )
+        maskedContent.createViewAliasChecks().forEach { check ->
             check.duplicateAlias()?.let { duplicate ->
                 reporter.report(
                     RuleDiagnostic(
@@ -65,9 +70,16 @@ private data class CreateViewAliasCheck(
 ) {
     fun duplicateAlias(): ViewAlias? {
         val seen = mutableSetOf<String>()
-        return aliases.firstOrNull { alias -> !seen.add(alias.text.trim('"').uppercase()) }
+        return aliases.firstOrNull { alias -> !seen.add(alias.text.createViewAliasKey()) }
     }
 }
+
+private fun String.createViewAliasKey(): String =
+    if (startsWith("\"") && endsWith("\"")) {
+        removeSurrounding("\"").replace("\"\"", "\"")
+    } else {
+        uppercase()
+    }
 
 private fun String.createViewAliasChecks(): List<CreateViewAliasCheck> {
     val checks = mutableListOf<CreateViewAliasCheck>()

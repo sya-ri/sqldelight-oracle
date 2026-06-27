@@ -72,10 +72,42 @@ class ValidCreateViewColumnAliasesRuleTest :
                 )
         }
 
+        test("reports duplicate quoted CREATE VIEW column aliases exactly") {
+            val diagnostics =
+                ValidCreateViewColumnAliasesRule().diagnostics(
+                    """
+                    CREATE VIEW order_summary("order_id", "order_id") AS
+                    SELECT id, total
+                    FROM orders;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle CREATE VIEW column alias '\"order_id\"' is declared more than once.",
+                        startLine = 1,
+                        startColumn = 39,
+                        endLine = 1,
+                        endColumn = 49,
+                    ),
+                )
+        }
+
         test("accepts matching CREATE VIEW column aliases exactly") {
             ValidCreateViewColumnAliasesRule().diagnostics(
                 """
                 CREATE VIEW order_summary(order_id, order_total) AS
+                SELECT id, total
+                FROM orders;
+                """,
+            ) shouldBe emptyList()
+        }
+
+        test("accepts case-distinct quoted CREATE VIEW column aliases exactly") {
+            ValidCreateViewColumnAliasesRule().diagnostics(
+                """
+                CREATE VIEW order_summary("Order_Id", "order_id") AS
                 SELECT id, total
                 FROM orders;
                 """,

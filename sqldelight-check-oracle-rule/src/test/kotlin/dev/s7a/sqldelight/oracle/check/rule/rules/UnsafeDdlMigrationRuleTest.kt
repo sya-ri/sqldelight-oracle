@@ -25,6 +25,29 @@ class UnsafeDdlMigrationRuleTest :
                 )
         }
 
+        test("reports required column additions when only a sibling column has a default") {
+            val diagnostics =
+                UnsafeDdlMigrationRule().diagnostics(
+                    """
+                    ALTER TABLE customer ADD (
+                        status VARCHAR2(20) NOT NULL,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+                    );
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 1,
+                        startColumn = 1,
+                        endLine = 1,
+                        endColumn = 12,
+                    ),
+                )
+        }
+
         test("reports required column modifications without default values") {
             val diagnostics =
                 UnsafeDdlMigrationRule().diagnostics(

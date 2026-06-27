@@ -14,7 +14,7 @@ Artifacts:
 - `dev.s7a.sqldelight.oracle:sqldelight-check-oracle-dialect`
 - `dev.s7a.sqldelight.oracle:sqldelight-check-oracle-rule`
 
-The current release version is `0.1.0`.
+The current release version is `0.1.1`.
 
 Release notes are tracked in [CHANGELOG.md](CHANGELOG.md).
 
@@ -33,7 +33,7 @@ sqldelight {
     databases {
         create("Database") {
             packageName.set("com.example")
-            dialect("dev.s7a.sqldelight.oracle:sqldelight-oracle-dialect:0.1.0")
+            dialect("dev.s7a.sqldelight.oracle:sqldelight-oracle-dialect:0.1.1")
         }
     }
 }
@@ -47,8 +47,8 @@ plugins {
 }
 
 dependencies {
-    sqldelightCheckDialects("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-dialect:0.1.0")
-    sqldelightCheckRuleSet("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-rule:0.1.0")
+    sqldelightCheckDialects("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-dialect:0.1.1")
+    sqldelightCheckRuleSet("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-rule:0.1.1")
 }
 ```
 

@@ -1000,6 +1000,65 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("reports wrong arity for Oracle SQL JSON query functions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidSqlJsonQueryFunctions:
+                    SELECT JSON_VALUE(doc), JSON_VALUE(doc, '${'$'}.id', extra),
+                      JSON_QUERY(), JSON_QUERY(doc, '${'$'}.items', extra),
+                      JSON_SERIALIZE(), JSON_SERIALIZE(doc, extra)
+                    FROM json_samples;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function JSON_VALUE expects 2 argument(s), but got 1.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 18,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function JSON_VALUE expects 2 argument(s), but got 3.",
+                        startLine = 2,
+                        startColumn = 25,
+                        endLine = 2,
+                        endColumn = 35,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function JSON_QUERY expects 2 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 13,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function JSON_QUERY expects 2 argument(s), but got 3.",
+                        startLine = 3,
+                        startColumn = 17,
+                        endLine = 3,
+                        endColumn = 27,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function JSON_SERIALIZE expects 1 argument(s), but got 0.",
+                        startLine = 4,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 17,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function JSON_SERIALIZE expects 1 argument(s), but got 2.",
+                        startLine = 4,
+                        startColumn = 21,
+                        endLine = 4,
+                        endColumn = 35,
+                    ),
+                )
+        }
+
         test("reports wrong arity for Oracle simple XML functions") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(
@@ -2079,6 +2138,9 @@ class ValidFunctionArityRuleTest :
                   VALIDATE_CONVERSION(text_value AS DATE, fmt, nls),
                   JSON_DATAGUIDE(details),
                   JSON_DATAGUIDE(details, format, pretty),
+                  JSON_VALUE(details, '${'$'}.status' RETURNING VARCHAR2(32) NULL ON ERROR),
+                  JSON_QUERY(details FORMAT JSON, '${'$'}.items' WITH CONDITIONAL WRAPPER),
+                  JSON_SERIALIZE(details RETURNING CLOB PRETTY),
                   DEPTH(1),
                   PATH(1),
                   SYS_XMLGEN(name),

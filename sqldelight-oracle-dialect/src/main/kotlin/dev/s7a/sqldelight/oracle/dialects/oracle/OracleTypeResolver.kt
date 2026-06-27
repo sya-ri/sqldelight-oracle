@@ -41,6 +41,7 @@ public class OracleTypeResolver(
                     ?: oracleExtensionOperatorType(expr)
                     ?: oracleExtensionPseudocolumnType(expr)
                     ?: oracleExtensionLiteralType(expr)
+                    ?: oracleHierarchicalOperatorType(expr)
                     ?: oracleConcatenationOperatorType(expr)
                     ?: oracleDatetimeOperatorType(expr)
                     ?: oracleNumericOperatorType(expr)
@@ -148,6 +149,17 @@ public class OracleTypeResolver(
             text.startsWith("INTERVAL ") -> IntermediateType(OracleType.TEXT)
             else -> null
         }
+    }
+
+    private fun oracleHierarchicalOperatorType(expr: SqlExpr): IntermediateType? {
+        val text = expr.text.trimStart().uppercase()
+        if (!text.startsWith("CONNECT_BY_ROOT ") && !text.startsWith("PRIOR ")) return null
+        val operand =
+            expr.children
+                .filterIsInstance<SqlExpr>()
+                .singleOrNull()
+                ?: return null
+        return resolvedType(operand)
     }
 
     private fun oracleNumericOperatorType(expr: SqlExpr): IntermediateType? {

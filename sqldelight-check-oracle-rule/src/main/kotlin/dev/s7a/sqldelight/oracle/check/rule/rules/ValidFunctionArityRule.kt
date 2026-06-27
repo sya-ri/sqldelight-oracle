@@ -56,21 +56,37 @@ public class ValidFunctionArityRule : Rule {
     }
 }
 
-private data class FunctionArity(
-    val min: Int,
-    val max: Int,
-) {
-    operator fun contains(argumentCount: Int): Boolean = argumentCount in min..max
+private interface FunctionArity {
+    operator fun contains(argumentCount: Int): Boolean
 
-    fun display(): String = if (min == max) min.toString() else "$min..$max"
+    fun display(): String
 }
 
-private fun exactArity(count: Int): FunctionArity = FunctionArity(count, count)
+private data class FunctionArityRange(
+    val min: Int,
+    val max: Int,
+) : FunctionArity {
+    override operator fun contains(argumentCount: Int): Boolean = argumentCount in min..max
+
+    override fun display(): String = if (min == max) min.toString() else "$min..$max"
+}
+
+private data class FunctionAritySet(
+    val counts: Set<Int>,
+) : FunctionArity {
+    override operator fun contains(argumentCount: Int): Boolean = argumentCount in counts
+
+    override fun display(): String = counts.sorted().joinToString(" or ")
+}
+
+private fun exactArity(count: Int): FunctionArity = FunctionArityRange(count, count)
 
 private fun arityRange(
     min: Int,
     max: Int,
-): FunctionArity = FunctionArity(min, max)
+): FunctionArity = FunctionArityRange(min, max)
+
+private fun oneOfArities(vararg counts: Int): FunctionArity = FunctionAritySet(counts.toSet())
 
 private val oracleFunctionArities =
     mapOf(
@@ -253,7 +269,7 @@ private val oracleFunctionArities =
         "WIDTH_BUCKET" to exactArity(4),
         "NEW_TIME" to exactArity(3),
         "NVL2" to exactArity(3),
-        "TRANSLATE" to exactArity(3),
+        "TRANSLATE" to oneOfArities(1, 3),
         "COALESCE" to arityRange(2, Int.MAX_VALUE),
         "CONCAT" to arityRange(2, Int.MAX_VALUE),
         "CONTAINS" to arityRange(2, 3),

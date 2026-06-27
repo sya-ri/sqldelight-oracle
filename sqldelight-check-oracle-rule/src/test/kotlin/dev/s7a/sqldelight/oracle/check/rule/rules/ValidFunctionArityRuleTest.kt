@@ -193,7 +193,7 @@ class ValidFunctionArityRuleTest :
                     invalidScalars:
                     SELECT ROUND(), TRUNC(amount, 2, 3), SUBSTR(name), INSTR(name),
                       LPAD(name), RPAD(name, 10, ' ', 'x'), LOG(10), WIDTH_BUCKET(amount, 0, 100),
-                      DECODE(status, 'A'), USERENV()
+                      DECODE(status, 'A'), USERENV(), TRANSLATE(label, 'x')
                     FROM invoices;
                     """,
                 )
@@ -269,6 +269,13 @@ class ValidFunctionArityRuleTest :
                         startColumn = 24,
                         endLine = 4,
                         endColumn = 31,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function TRANSLATE expects 1 or 3 argument(s), but got 2.",
+                        startLine = 4,
+                        startColumn = 35,
+                        endLine = 4,
+                        endColumn = 44,
                     ),
                 )
         }
@@ -1888,6 +1895,8 @@ class ValidFunctionArityRuleTest :
                   LOG(10, amount),
                   WIDTH_BUCKET(amount, 0, 100, 10),
                   DECODE(status, 'A', 'active', 'unknown'),
+                  TRANSLATE(label, 'abc', 'xyz'),
+                  TRANSLATE(label USING CHAR_CS),
                   USERENV('LANGUAGE'),
                   CHR(196),
                   DUMP(label, 1016),

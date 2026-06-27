@@ -1584,7 +1584,11 @@ class ValidFunctionArityRuleTest :
                       BOOLEAN_OR_AGG(),
                       CHECKSUM(flag_bits, extra),
                       LISTAGG(),
-                      LISTAGG(last_name, ', ', extra)
+                      LISTAGG(last_name, ', ', extra),
+                      PERCENTILE_CONT(),
+                      PERCENTILE_DISC(0.5, extra),
+                      APPROX_PERCENTILE(),
+                      APPROX_PERCENTILE(0.5, accuracy, extra)
                     FROM invoices;
                     """,
                 )
@@ -1780,6 +1784,34 @@ class ValidFunctionArityRuleTest :
                         endLine = 28,
                         endColumn = 10,
                     ),
+                    DiagnosticSummary(
+                        message = "Oracle function PERCENTILE_CONT expects 1 argument(s), but got 0.",
+                        startLine = 29,
+                        startColumn = 3,
+                        endLine = 29,
+                        endColumn = 18,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function PERCENTILE_DISC expects 1 argument(s), but got 2.",
+                        startLine = 30,
+                        startColumn = 3,
+                        endLine = 30,
+                        endColumn = 18,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function APPROX_PERCENTILE expects 1..2 argument(s), but got 0.",
+                        startLine = 31,
+                        startColumn = 3,
+                        endLine = 31,
+                        endColumn = 20,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function APPROX_PERCENTILE expects 1..2 argument(s), but got 3.",
+                        startLine = 32,
+                        startColumn = 3,
+                        endLine = 32,
+                        endColumn = 20,
+                    ),
                 )
         }
 
@@ -1824,6 +1856,9 @@ class ValidFunctionArityRuleTest :
                   LISTAGG(last_name) WITHIN GROUP (ORDER BY last_name),
                   LISTAGG(DISTINCT last_name, ', ' ON OVERFLOW TRUNCATE '...' WITH COUNT)
                     WITHIN GROUP (ORDER BY last_name),
+                  PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY amount),
+                  PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY amount),
+                  APPROX_PERCENTILE(0.5 DETERMINISTIC, 'ERROR_RATE') WITHIN GROUP (ORDER BY amount),
                   CURRENT_TIMESTAMP(3),
                   LOCALTIMESTAMP(6),
                   REGR_SLOPE(amount, quantity),

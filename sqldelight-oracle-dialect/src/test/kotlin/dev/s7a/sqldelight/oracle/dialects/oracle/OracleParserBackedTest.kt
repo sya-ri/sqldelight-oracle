@@ -786,6 +786,46 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle CAST MULTISET subquery expressions exactly") {
+            val sql =
+                """
+                CREATE TYPE employee_name_list AS TABLE OF VARCHAR2(100);
+
+                CREATE TABLE departments (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(100)
+                );
+
+                CREATE TABLE employees (
+                  id NUMBER PRIMARY KEY,
+                  department_id NUMBER,
+                  name VARCHAR2(100)
+                );
+
+                SELECT d.id,
+                  CAST(MULTISET(
+                    SELECT e.name
+                    FROM employees e
+                    WHERE e.department_id = d.id
+                  ) AS employee_name_list) AS employee_names
+                FROM departments d;
+
+                SELECT d.id,
+                  CAST(MULTISET(
+                    SELECT e.name
+                    FROM employees e
+                    WHERE e.department_id = d.id
+                  ) AS SYS.ODCIVARCHAR2LIST) AS employee_names
+                FROM departments d;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle arithmetic and concatenation operators exactly") {
             val sql =
                 """

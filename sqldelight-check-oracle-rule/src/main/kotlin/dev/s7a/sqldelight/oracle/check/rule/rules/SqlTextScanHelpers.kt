@@ -160,6 +160,16 @@ internal fun String.staticSqlStringLiteral(
     var end = endOffset
     while (end > start && this[end - 1].isWhitespace()) end--
     if (start >= end) return null
+    if (startsSqlAlternativeQuotedString(start)) {
+        val qIndex = if (this[start].equals('q', ignoreCase = true)) start else start + 1
+        val literalEnd = skipSqlAlternativeQuotedString(start)
+        if (literalEnd != end) return null
+        return SqlStaticStringLiteral(
+            value = substring(qIndex + 3, literalEnd - 2),
+            startOffset = start,
+            endOffset = literalEnd,
+        )
+    }
     if (this[start].equals('N', ignoreCase = true)) start++
     if (start >= end || this[start] != '\'') return null
     val literalEnd = skipSqlQuotedString(start)

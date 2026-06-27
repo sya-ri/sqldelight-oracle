@@ -254,8 +254,8 @@ private fun String.createViewIdentifierEnd(
 ): Int {
     if (startOffset >= endOffset) return startOffset
     if (this[startOffset] == '"') {
-        val end = indexOf('"', startIndex = startOffset + 1).takeIf { it in startOffset until endOffset }
-        return if (end == null) startOffset else end + 1
+        val end = skipSqlDoubleQuotedIdentifier(startOffset)
+        return if (end <= endOffset) end else startOffset
     }
     var index = startOffset
     while (index < endOffset && (this[index].isLetterOrDigit() || this[index] == '_' || this[index] == '$' || this[index] == '#')) {

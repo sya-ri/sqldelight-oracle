@@ -687,7 +687,7 @@ class ValidFunctionArityRuleTest :
                     invalidSpecializedUtilities:
                     SELECT PHONIC_ENCODE(DOUBLE_METAPHONE), PHONIC_ENCODE(DOUBLE_METAPHONE, name, 10, 'extra'),
                       FUZZY_MATCH(LEVENSHTEIN, name), DOMAIN_CHECK(domain_name), DOMAIN_CHECK_TYPE(domain_name, value, extra),
-                      DOMAIN_NAME()
+                      DOMAIN_NAME(), DOMAIN_DISPLAY(domain_name), DOMAIN_ORDER(domain_name, value, extra)
                     FROM contacts;
                     """,
                 )
@@ -735,6 +735,20 @@ class ValidFunctionArityRuleTest :
                         startColumn = 3,
                         endLine = 4,
                         endColumn = 14,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function DOMAIN_DISPLAY expects 2 argument(s), but got 1.",
+                        startLine = 4,
+                        startColumn = 18,
+                        endLine = 4,
+                        endColumn = 32,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function DOMAIN_ORDER expects 2 argument(s), but got 3.",
+                        startLine = 4,
+                        startColumn = 47,
+                        endLine = 4,
+                        endColumn = 59,
                     ),
                 )
         }
@@ -1676,6 +1690,8 @@ class ValidFunctionArityRuleTest :
                   DOMAIN_CHECK(sample_domain, domain_value),
                   DOMAIN_CHECK_TYPE(sample_domain, domain_value),
                   DOMAIN_NAME(domain_value),
+                  DOMAIN_DISPLAY(sample_domain, domain_value),
+                  DOMAIN_ORDER(sample_domain, domain_value),
                   POWERMULTISET(tags),
                   POWERMULTISET_BY_CARDINALITY(tags, 2),
                   SET(tags),

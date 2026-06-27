@@ -834,6 +834,50 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("reports wrong arity for Oracle bounded conversion and JSON utilities") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidBoundedUtilities:
+                    SELECT VALIDATE_CONVERSION(), VALIDATE_CONVERSION(text_value AS DATE, fmt, nls, extra),
+                      JSON_DATAGUIDE(), JSON_DATAGUIDE(details, format, pretty, extra)
+                    FROM utility_samples;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function VALIDATE_CONVERSION expects 1..3 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 27,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function VALIDATE_CONVERSION expects 1..3 argument(s), but got 4.",
+                        startLine = 2,
+                        startColumn = 31,
+                        endLine = 2,
+                        endColumn = 50,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function JSON_DATAGUIDE expects 1..3 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 17,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function JSON_DATAGUIDE expects 1..3 argument(s), but got 4.",
+                        startLine = 3,
+                        startColumn = 21,
+                        endLine = 3,
+                        endColumn = 35,
+                    ),
+                )
+        }
+
         test("reports wrong arity for Oracle calendar functions") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(
@@ -1482,6 +1526,10 @@ class ValidFunctionArityRuleTest :
                   CATSEARCH(category, 'database', 'order by category'),
                   MATCHES(query_text, 'oracle'),
                   JSON_TEXTCONTAINS(doc, '${'$'}.description', search_text),
+                  VALIDATE_CONVERSION(text_value AS NUMBER),
+                  VALIDATE_CONVERSION(text_value AS DATE, fmt, nls),
+                  JSON_DATAGUIDE(details),
+                  JSON_DATAGUIDE(details, format, pretty),
                   CALENDAR_YEAR(d),
                   CALENDAR_MONTH(d, fmt, nls),
                   FISCAL_YEAR(d, fiscal_start, fmt, nls),

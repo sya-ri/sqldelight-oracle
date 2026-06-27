@@ -30,6 +30,32 @@ class NullableNotInPredicateRuleTest :
                 )
         }
 
+        test("reports NOT IN subquery when only the outer query filters nulls") {
+            val diagnostics =
+                NullableNotInPredicateRule().diagnostics(
+                    """
+                    SELECT *
+                    FROM customer
+                    WHERE id NOT IN (
+                        SELECT customer_id
+                        FROM invoice
+                    )
+                    AND status IS NOT NULL;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = NULLABLE_NOT_IN_MESSAGE,
+                        startLine = 3,
+                        startColumn = 10,
+                        endLine = 3,
+                        endColumn = 16,
+                    ),
+                )
+        }
+
         test("accepts NOT IN subquery with explicit null filtering") {
             NullableNotInPredicateRule().diagnostics(
                 """

@@ -54,9 +54,16 @@ private fun List<SqlToken>.subqueryTokensAfterNotIn(
     val selectIndex = notIndex + 2
     val selectToken = getOrNull(selectIndex) ?: return null
     if (!selectToken.hasText("SELECT")) return null
-    if ('(' !in content.substring(inToken.endOffset, selectToken.startOffset)) return null
+    val openOffset =
+        content
+            .lastIndexOf('(', startIndex = selectToken.startOffset)
+            .takeIf { offset -> offset >= inToken.endOffset }
+            ?: return null
+    val closeOffset = content.matchingSqlParenthesis(openOffset) ?: return null
 
-    val endIndex = indexOfFirstAfter(selectIndex) { token -> token.text == ";" }.let { if (it == -1) size else it }
+    val endIndex =
+        indexOfFirstAfter(selectIndex) { token -> token.startOffset >= closeOffset }
+            .let { if (it == -1) size else it }
     return subList(selectIndex, endIndex)
 }
 

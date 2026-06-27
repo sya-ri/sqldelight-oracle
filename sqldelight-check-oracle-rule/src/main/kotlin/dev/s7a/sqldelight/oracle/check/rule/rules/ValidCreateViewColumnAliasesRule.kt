@@ -156,6 +156,12 @@ private fun String.viewColumnItems(
     var index = startOffset
     var depth = 0
     while (index < endOffset) {
+        val skipped = skipSqlDelimitedText(index)
+        if (skipped != null) {
+            index = skipped
+            continue
+        }
+
         when (this[index]) {
             '(' -> {
                 depth++
@@ -201,6 +207,12 @@ private fun String.indexOfTopLevelKeyword(
     var index = startOffset
     var depth = 0
     while (index < endOffset) {
+        val skipped = skipSqlDelimitedText(index)
+        if (skipped != null) {
+            index = skipped
+            continue
+        }
+
         when (this[index]) {
             '(' -> depth++
             ')' -> depth--
@@ -215,7 +227,13 @@ private fun String.indexOfTopLevelKeyword(
 
 private fun String.matchingOpenParenthesis(closeOffset: Int): Int? {
     var depth = 0
-    for (index in closeOffset downTo 0) {
+    var index = closeOffset
+    while (index >= 0) {
+        if (this[index] == '"') {
+            index = previousSqlDoubleQuotedIdentifierStart(index)
+            continue
+        }
+
         when (this[index]) {
             ')' -> {
                 depth++
@@ -226,8 +244,26 @@ private fun String.matchingOpenParenthesis(closeOffset: Int): Int? {
                 if (depth == 0) return index
             }
         }
+        index--
     }
     return null
+}
+
+private fun String.previousSqlDoubleQuotedIdentifierStart(closeOffset: Int): Int {
+    var index = closeOffset - 1
+    while (index >= 0) {
+        if (this[index] == '"') {
+            val escapedQuote = index > 0 && this[index - 1] == '"'
+            if (escapedQuote) {
+                index -= 2
+            } else {
+                return index - 1
+            }
+        } else {
+            index--
+        }
+    }
+    return closeOffset - 1
 }
 
 private fun String.skipCreateViewWhitespaceAndCommas(

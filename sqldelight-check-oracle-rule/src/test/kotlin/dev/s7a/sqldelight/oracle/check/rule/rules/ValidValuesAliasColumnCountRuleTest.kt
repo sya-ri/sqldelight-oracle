@@ -81,6 +81,16 @@ class ValidValuesAliasColumnCountRuleTest :
             ) shouldBe emptyList()
         }
 
+        test("accepts VALUES aliases with quoted column names containing separators") {
+            ValidValuesAliasColumnCountRule().diagnostics(
+                """
+                validQuotedValuesAlias:
+                SELECT source."label), text", source.amount
+                FROM (VALUES ('a', 100), ('b', 200)) source("label), text", amount);
+                """,
+            ) shouldBe emptyList()
+        }
+
         test("ignores VALUES text inside comments and strings exactly") {
             ValidValuesAliasColumnCountRule().diagnostics(
                 """

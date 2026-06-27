@@ -2,7 +2,16 @@ package dev.s7a.sqldelight.oracle.check.rule.rules
 
 internal fun String.matchingSqlParenthesis(openOffset: Int): Int? {
     var depth = 0
-    for (index in openOffset until length) {
+    var index = openOffset
+    while (index < length) {
+        if (index != openOffset) {
+            val skipped = skipSqlDelimitedText(index)
+            if (skipped != null) {
+                index = skipped
+                continue
+            }
+        }
+
         when (this[index]) {
             '(' -> {
                 depth++
@@ -13,6 +22,7 @@ internal fun String.matchingSqlParenthesis(openOffset: Int): Int? {
                 if (depth == 0) return index
             }
         }
+        index++
     }
     return null
 }
@@ -24,7 +34,15 @@ internal fun String.countTopLevelSqlItems(
     var count = 1
     var depth = 0
     var hasContent = false
-    for (index in startOffset until endOffset) {
+    var index = startOffset
+    while (index < endOffset) {
+        val skipped = skipSqlDelimitedText(index)
+        if (skipped != null) {
+            hasContent = true
+            index = skipped
+            continue
+        }
+
         when (this[index]) {
             '(' -> {
                 depth++
@@ -44,9 +62,18 @@ internal fun String.countTopLevelSqlItems(
                 if (!this[index].isWhitespace()) hasContent = true
             }
         }
+        index++
     }
     return if (hasContent) count else 0
 }
+
+internal fun String.skipSqlDelimitedText(start: Int): Int? =
+    when {
+        startsSqlAlternativeQuotedString(start) -> skipSqlAlternativeQuotedString(start)
+        getOrNull(start) == '\'' -> skipSqlQuotedString(start)
+        getOrNull(start) == '"' -> skipSqlDoubleQuotedIdentifier(start)
+        else -> null
+    }
 
 internal fun String.maskSqlCommentsAndQuotedTextPreservingOffsets(
     maskQuoteDelimiters: Boolean = true,

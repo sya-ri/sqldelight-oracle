@@ -103,6 +103,16 @@ class ValidCreateTableAsColumnAliasesRuleTest :
             ) shouldBe emptyList()
         }
 
+        test("accepts CTAS quoted identifiers containing separators exactly") {
+            ValidCreateTableAsColumnAliasesRule().diagnostics(
+                """
+                CREATE TABLE account_snapshot("account),id", account_total) AS
+                SELECT "account),id", total
+                FROM staged_accounts;
+                """,
+            ) shouldBe emptyList()
+        }
+
         test("accepts case-distinct quoted CTAS column aliases exactly") {
             ValidCreateTableAsColumnAliasesRule().diagnostics(
                 """

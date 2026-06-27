@@ -209,6 +209,12 @@ private fun String.ctasIndexOfTopLevelKeyword(
     var index = startOffset
     var depth = 0
     while (index < endOffset) {
+        val skipped = skipSqlDelimitedText(index)
+        if (skipped != null) {
+            index = skipped
+            continue
+        }
+
         when (this[index]) {
             '(' -> depth++
             ')' -> depth--

@@ -126,6 +126,16 @@ class ValidCreateViewColumnAliasesRuleTest :
             ) shouldBe emptyList()
         }
 
+        test("accepts CREATE VIEW quoted identifiers containing separators exactly") {
+            ValidCreateViewColumnAliasesRule().diagnostics(
+                """
+                CREATE VIEW order_summary("order),id", order_total) AS
+                SELECT "order),id", total
+                FROM orders;
+                """,
+            ) shouldBe emptyList()
+        }
+
         test("accepts case-distinct quoted CREATE VIEW column aliases exactly") {
             ValidCreateViewColumnAliasesRule().diagnostics(
                 """

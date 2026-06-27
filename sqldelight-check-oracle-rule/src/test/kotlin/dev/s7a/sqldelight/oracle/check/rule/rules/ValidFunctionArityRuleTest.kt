@@ -980,6 +980,65 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("reports wrong arity for Oracle parser backed utility operators") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidParserBackedUtilities:
+                    SELECT JSON_ID(), JSON_ID('OID', 'UUID'),
+                      SHARD_CHUNK_ID(), SHARD_CHUNK_ID(shard_key),
+                      SCORE(), SCORE(1, 2)
+                    FROM utility_samples;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function JSON_ID expects 1 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 15,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function JSON_ID expects 1 argument(s), but got 2.",
+                        startLine = 2,
+                        startColumn = 19,
+                        endLine = 2,
+                        endColumn = 26,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function SHARD_CHUNK_ID expects 2..2147483647 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 17,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function SHARD_CHUNK_ID expects 2..2147483647 argument(s), but got 1.",
+                        startLine = 3,
+                        startColumn = 21,
+                        endLine = 3,
+                        endColumn = 35,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function SCORE expects 1 argument(s), but got 0.",
+                        startLine = 4,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 8,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function SCORE expects 1 argument(s), but got 2.",
+                        startLine = 4,
+                        startColumn = 12,
+                        endLine = 4,
+                        endColumn = 17,
+                    ),
+                )
+        }
+
         test("reports wrong arity for Oracle calendar functions") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(
@@ -1645,6 +1704,10 @@ class ValidFunctionArityRuleTest :
                   XMLPATCH(payload_xml, archived_xml),
                   XMLSEQUENCE(payload_xml),
                   XMLTRANSFORM(payload_xml, archived_xml),
+                  JSON_ID('OID'),
+                  SHARD_CHUNK_ID(shard_class, id),
+                  SHARD_CHUNK_ID(NULL, shard_class, id),
+                  SCORE(1),
                   CALENDAR_YEAR(d),
                   CALENDAR_MONTH(d, fmt, nls),
                   FISCAL_YEAR(d, fiscal_start, fmt, nls),

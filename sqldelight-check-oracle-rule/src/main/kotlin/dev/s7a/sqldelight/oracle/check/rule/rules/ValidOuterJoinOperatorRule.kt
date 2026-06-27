@@ -60,8 +60,11 @@ private const val OUTER_JOIN_OR_IN_MESSAGE =
 private const val MIXED_JOIN_SYNTAX_MESSAGE =
     "Avoid mixing Oracle legacy outer join operator (+) with FROM clause JOIN syntax."
 
+private const val OUTER_JOIN_SUBQUERY_MESSAGE =
+    "Avoid Oracle legacy outer join operator (+) with subquery comparisons."
+
 private fun List<OuterJoinToken>.invalidOuterJoinOperatorConditions(): List<OuterJoinCondition> =
-    invalidOuterJoinOrInConditions() + invalidMixedJoinSyntaxConditions()
+    invalidOuterJoinOrInConditions() + invalidOuterJoinSubqueryConditions() + invalidMixedJoinSyntaxConditions()
 
 private fun List<OuterJoinToken>.invalidOuterJoinOrInConditions(): List<OuterJoinCondition> =
     splitOuterJoinConditions()
@@ -69,6 +72,17 @@ private fun List<OuterJoinToken>.invalidOuterJoinOrInConditions(): List<OuterJoi
         .map { condition ->
             OuterJoinCondition(
                 message = OUTER_JOIN_OR_IN_MESSAGE,
+                startOffset = condition.first().startOffset,
+                endOffset = condition.last().endOffset,
+            )
+        }
+
+private fun List<OuterJoinToken>.invalidOuterJoinSubqueryConditions(): List<OuterJoinCondition> =
+    splitOuterJoinConditions()
+        .filter { condition -> condition.hasOuterJoinOperator() && condition.hasSubquery() }
+        .map { condition ->
+            OuterJoinCondition(
+                message = OUTER_JOIN_SUBQUERY_MESSAGE,
                 startOffset = condition.first().startOffset,
                 endOffset = condition.last().endOffset,
             )
@@ -126,6 +140,8 @@ private fun List<OuterJoinToken>.topLevelOuterJoinOperator(): OuterJoinToken? =
 
 private fun List<OuterJoinToken>.hasForbiddenOuterJoinOperatorTerm(): Boolean =
     any { token -> token.outerJoinHasText("OR") || token.outerJoinHasText("IN") }
+
+private fun List<OuterJoinToken>.hasSubquery(): Boolean = any { token -> token.depth > 0 && token.outerJoinHasText("SELECT") }
 
 private fun OuterJoinToken.isOuterJoinConditionBoundary(): Boolean =
     outerJoinHasText(";") ||

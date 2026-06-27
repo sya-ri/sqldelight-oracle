@@ -403,12 +403,14 @@ private oracle_aggregate_function_name ::= (
   'STDDEV' | 'STDDEV_POP' | 'STDDEV_SAMP' | 'SUM' | 'VARIANCE' | 'VAR_POP' | 'VAR_SAMP'
 )
 
-private oracle_ordered_aggregate_expr ::= ( oracle_approx_percentile_expr | oracle_percentile_expr | oracle_listagg_expr ) [ oracle_filter_clause ] [ oracle_over_clause [ oracle_filter_clause ] ]
+private oracle_ordered_aggregate_expr ::= ( oracle_approx_percentile_expr | oracle_percentile_expr | oracle_listagg_expr | oracle_hypothetical_rank_expr ) [ oracle_filter_clause ] [ oracle_over_clause [ oracle_filter_clause ] ]
 
 private oracle_approx_percentile_expr ::=
   'APPROX_PERCENTILE' LP <<expr '-1'>> [ 'DETERMINISTIC' ] [ COMMA <<expr '-1'>> ] RP oracle_within_group_clause
 
 private oracle_percentile_expr ::= ( 'PERCENTILE_CONT' | 'PERCENTILE_DISC' ) LP <<expr '-1'>> RP oracle_within_group_clause
+
+private oracle_hypothetical_rank_expr ::= ( 'RANK' | 'DENSE_RANK' | 'PERCENT_RANK' | 'CUME_DIST' ) LP <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP oracle_within_group_clause
 
 private oracle_listagg_expr ::=
   'LISTAGG' LP [ 'ALL' | 'DISTINCT' ] <<expr '-1'>> [ COMMA <<expr '-1'>> ] [ oracle_listagg_overflow_clause ] RP oracle_within_group_clause

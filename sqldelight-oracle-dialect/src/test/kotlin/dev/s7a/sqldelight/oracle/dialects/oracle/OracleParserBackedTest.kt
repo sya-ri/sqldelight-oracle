@@ -2474,6 +2474,31 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle hypothetical rank ordered aggregate functions exactly") {
+            val sql =
+                """
+                CREATE TABLE sales (
+                  id NUMBER PRIMARY KEY,
+                  region VARCHAR2(20),
+                  amount NUMBER
+                );
+
+                SELECT region,
+                  RANK(1000) WITHIN GROUP (ORDER BY amount DESC) AS hypothetical_rank,
+                  DENSE_RANK(1000) WITHIN GROUP (ORDER BY amount DESC) AS hypothetical_dense_rank,
+                  PERCENT_RANK(1000) WITHIN GROUP (ORDER BY amount DESC) AS hypothetical_percent_rank,
+                  CUME_DIST(1000) WITHIN GROUP (ORDER BY amount DESC) AS hypothetical_cume_dist
+                FROM sales
+                GROUP BY region;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle bit and boolean aggregate functions exactly") {
             val sql =
                 """

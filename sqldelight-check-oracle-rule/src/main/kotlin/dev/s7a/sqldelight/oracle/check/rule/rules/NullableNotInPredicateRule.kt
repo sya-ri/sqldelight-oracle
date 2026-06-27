@@ -77,9 +77,32 @@ private inline fun List<SqlToken>.indexOfFirstAfter(
     return -1
 }
 
-private fun List<SqlToken>.hasExplicitNotNullFilter(): Boolean =
-    windowed(size = 3).any { tokens ->
+private fun List<SqlToken>.hasExplicitNotNullFilter(): Boolean {
+    val selectedColumn = selectedSubqueryColumnName()
+    if (selectedColumn != null) {
+        return windowed(size = 4).any { tokens ->
+            tokens[0].hasText(selectedColumn) &&
+                tokens[1].hasText("IS") &&
+                tokens[2].hasText("NOT") &&
+                tokens[3].hasText("NULL")
+        }
+    }
+
+    return windowed(size = 3).any { tokens ->
         tokens[0].hasText("IS") && tokens[1].hasText("NOT") && tokens[2].hasText("NULL")
     }
+}
+
+private fun List<SqlToken>.selectedSubqueryColumnName(): String? {
+    if (!getOrNull(0).hasText("SELECT")) return null
+    val fromIndex = indexOfFirstAfter(0) { token -> token.hasText("FROM") }.takeIf { index -> index > 1 } ?: return null
+    val selectedTokens =
+        subList(1, fromIndex)
+            .filterNot { token -> token.hasText("DISTINCT") || token.hasText("ALL") }
+    return selectedTokens
+        .singleOrNull()
+        ?.text
+        ?.takeUnless { text -> text == "*" }
+}
 
 private fun SqlToken?.hasText(text: String): Boolean = this?.text.equals(text, ignoreCase = true)

@@ -431,7 +431,12 @@ Reports migration DDL that can rewrite, lock, or destructively change large Orac
 The checked `ALTER TABLE` column forms are based on Oracle's [`column_clauses`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html#GUID-7D361BC5-2B09-4BBE-8D8E-1CBA20C5363C__BABGAABA) syntax.
 The current checks cover:
 
+- `DROP TABLE`
+- `DROP MATERIALIZED VIEW`
+- `DROP CLUSTER ... INCLUDING TABLES`
+- `DROP TABLESPACE ... INCLUDING CONTENTS`
 - `TRUNCATE TABLE`
+- `TRUNCATE CLUSTER`
 - `ALTER TABLE ... DROP COLUMN`
 - `ALTER TABLE ... DROP COLUMNS`
 - `ALTER TABLE ... SET UNUSED COLUMN`

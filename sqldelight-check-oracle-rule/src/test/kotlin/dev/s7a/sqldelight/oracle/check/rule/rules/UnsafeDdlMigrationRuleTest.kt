@@ -140,6 +140,26 @@ class UnsafeDdlMigrationRuleTest :
                 )
         }
 
+        test("reports TRUNCATE CLUSTER") {
+            val diagnostics =
+                UnsafeDdlMigrationRule().diagnostics(
+                    """
+                    TRUNCATE CLUSTER customer_cluster;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 1,
+                        startColumn = 1,
+                        endLine = 1,
+                        endColumn = 17,
+                    ),
+                )
+        }
+
         test("reports destructive partition maintenance operations") {
             val diagnostics =
                 UnsafeDdlMigrationRule().diagnostics(

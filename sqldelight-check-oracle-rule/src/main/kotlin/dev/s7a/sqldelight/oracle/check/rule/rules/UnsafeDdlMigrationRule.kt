@@ -49,6 +49,7 @@ public class UnsafeDdlMigrationRule : Rule {
 private fun List<SqlToken>.isUnsafeMigrationDdl(maskedContent: String): Boolean =
     when {
         startsWithStatement("TRUNCATE", "TABLE") -> true
+        startsWithStatement("TRUNCATE", "CLUSTER") -> true
         startsWithStatement("ALTER", "TABLE") -> hasUnsafeAlterTableOperation(maskedContent)
         else -> false
     }

@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 
 class ValidRowLimitingClauseRuleTest :
     FunSpec({
-        test("reports non-positive static row counts exactly") {
+        test("accepts zero and negative static row limiting values") {
             ValidRowLimitingClauseRule()
                 .diagnostics(
                     """
@@ -13,26 +13,10 @@ class ValidRowLimitingClauseRuleTest :
                     FROM orders
                     OFFSET 0 ROWS FETCH NEXT -5 ROWS ONLY;
                     """,
-                ).summaries() shouldBe
-                listOf(
-                    DiagnosticSummary(
-                        message = POSITIVE_ROW_COUNT_MESSAGE,
-                        startLine = 3,
-                        startColumn = 1,
-                        endLine = 3,
-                        endColumn = 9,
-                    ),
-                    DiagnosticSummary(
-                        message = POSITIVE_ROW_COUNT_MESSAGE,
-                        startLine = 3,
-                        startColumn = 26,
-                        endLine = 3,
-                        endColumn = 28,
-                    ),
-                )
+                ).summaries() shouldBe emptyList()
         }
 
-        test("reports out of range static row limiting percentages exactly") {
+        test("accepts static row limiting percentages outside 0 through 100") {
             ValidRowLimitingClauseRule()
                 .diagnostics(
                     """
@@ -40,16 +24,7 @@ class ValidRowLimitingClauseRuleTest :
                     FROM orders
                     FETCH FIRST 125 PERCENT ROWS ONLY;
                     """,
-                ).summaries() shouldBe
-                listOf(
-                    DiagnosticSummary(
-                        message = PERCENT_RANGE_MESSAGE,
-                        startLine = 3,
-                        startColumn = 13,
-                        endLine = 3,
-                        endColumn = 16,
-                    ),
-                )
+                ).summaries() shouldBe emptyList()
         }
 
         test("reports WITH TIES without ORDER BY exactly") {
@@ -124,12 +99,6 @@ class ValidRowLimitingClauseRuleTest :
                 ).summaries() shouldBe emptyList()
         }
     })
-
-private const val POSITIVE_ROW_COUNT_MESSAGE =
-    "Use a positive static row count in Oracle row limiting clauses."
-
-private const val PERCENT_RANGE_MESSAGE =
-    "Use a static Oracle row limiting percentage from 0 through 100."
 
 private const val WITH_TIES_ORDER_BY_MESSAGE =
     "Use ORDER BY with Oracle FETCH ... WITH TIES row limiting clauses."

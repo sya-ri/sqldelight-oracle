@@ -10,15 +10,26 @@ import app.cash.sqldelight.core.lang.MigrationLanguage
 import app.cash.sqldelight.core.lang.SqlDelightLanguage
 import app.cash.sqldelight.core.lang.SqlDelightQueriesFile
 import com.alecstrong.sql.psi.core.SqlAnnotationHolder
+import com.alecstrong.sql.psi.core.psi.SqlBindExpr
 import com.intellij.lang.LanguageParserDefinitions
 import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.util.PsiTreeUtil
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import org.testcontainers.containers.OracleContainer
+import org.testcontainers.utility.DockerImageName
 import java.io.File
 import java.nio.file.Files
+import java.sql.Connection
+import java.sql.DriverManager
+import java.sql.Statement
 
 class OracleParserBackedTest :
     FunSpec({
+        afterSpec {
+            OracleParserBackedValidationContainer.stop()
+        }
+
         test("parses Oracle create table type names through SQLDelight environment exactly") {
             val sql =
                 """
@@ -195,6 +206,254 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("resolves Oracle migration-created materialized views from query files exactly") {
+            parseOracleSqlFiles(
+                deriveSchemaFromMigrations = true,
+                files =
+                    mapOf(
+                        "1.sqm" to
+                            """
+                            CREATE TABLE sales (
+                              cust_id NUMBER NOT NULL,
+                              prod_id NUMBER NOT NULL,
+                              amount_sold NUMBER(10, 2) NOT NULL
+                            );
+
+                            CREATE MATERIALIZED VIEW sales_summary (customer_id, total_sold)
+                              BUILD IMMEDIATE
+                              REFRESH FAST ON DEMAND
+                            AS
+                            SELECT cust_id, SUM(amount_sold)
+                            FROM sales
+                            GROUP BY cust_id;
+                            """.trimIndent(),
+                        "Test.sq" to
+                            """
+                            selectSalesSummary:
+                            SELECT customer_id, total_sold
+                            FROM sales_summary;
+                            """.trimIndent(),
+                    ),
+            ) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
+        test("resolves Oracle migration-created view query sources from query files exactly") {
+            parseOracleSqlFiles(
+                deriveSchemaFromMigrations = true,
+                files =
+                    mapOf(
+                        "1.sqm" to
+                            """
+                            CREATE TABLE sales (
+                              cust_id NUMBER NOT NULL,
+                              prod_id NUMBER NOT NULL,
+                              amount_sold NUMBER(10, 2) NOT NULL,
+                              payload XMLTYPE
+                            );
+
+                            CREATE VIEW sales_view AS
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM sales;
+
+                            CREATE OR REPLACE EDITIONING VIEW sales_editioning_view AS
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM sales;
+
+                            CREATE VIEW sales_object_view
+                              OF sales_object_type
+                              WITH OBJECT IDENTIFIER (cust_id)
+                            AS
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM sales;
+
+                            CREATE VIEW sales_xml_view
+                              OF XMLTYPE
+                              XMLSCHEMA 'http://example.com/sales.xsd'
+                              ELEMENT 'Sales'
+                              WITH OBJECT ID (cust_id)
+                            AS
+                            SELECT payload
+                            FROM sales;
+
+                            CREATE JSON COLLECTION VIEW sales_json_collection_view AS
+                            SELECT JSON_OBJECT(
+                              'cust_id' VALUE cust_id,
+                              'prod_id' VALUE prod_id,
+                              'amount_sold' VALUE amount_sold
+                            ) AS DATA
+                            FROM sales;
+                            """.trimIndent(),
+                        "Test.sq" to
+                            """
+                            selectSalesView:
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM sales_view;
+
+                            selectSalesEditioningView:
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM sales_editioning_view;
+
+                            selectSalesObjectView:
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM sales_object_view;
+
+                            selectSalesXmlView:
+                            SELECT payload
+                            FROM sales_xml_view;
+
+                            selectSalesJsonCollectionView:
+                            SELECT DATA
+                            FROM sales_json_collection_view;
+                            """.trimIndent(),
+                    ),
+            ) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
+        test("resolves Oracle migration-created synonym query sources from query files exactly") {
+            parseOracleSqlFiles(
+                deriveSchemaFromMigrations = true,
+                files =
+                    mapOf(
+                        "1.sqm" to
+                            """
+                            CREATE TABLE sales (
+                              cust_id NUMBER NOT NULL,
+                              prod_id NUMBER NOT NULL,
+                              amount_sold NUMBER(10, 2) NOT NULL
+                            );
+
+                            CREATE VIEW sales_view AS
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM sales;
+
+                            CREATE SYNONYM sales_synonym FOR sales;
+
+                            CREATE SYNONYM sales_view_synonym FOR sales_view;
+                            """.trimIndent(),
+                        "Test.sq" to
+                            """
+                            selectSalesSynonym:
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM sales_synonym;
+
+                            selectSalesViewSynonym:
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM sales_view_synonym;
+                            """.trimIndent(),
+                    ),
+            ) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
+        test("resolves Oracle migration-created chained synonym query sources from query files exactly") {
+            parseOracleSqlFiles(
+                deriveSchemaFromMigrations = true,
+                files =
+                    mapOf(
+                        "1.sqm" to
+                            """
+                            CREATE TABLE sales (
+                              cust_id NUMBER NOT NULL,
+                              prod_id NUMBER NOT NULL,
+                              amount_sold NUMBER(10, 2) NOT NULL
+                            );
+
+                            CREATE SYNONYM sales_synonym FOR sales;
+
+                            CREATE SYNONYM sales_synonym_alias FOR sales_synonym;
+                            """.trimIndent(),
+                        "Test.sq" to
+                            """
+                            selectSalesSynonymAlias:
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM sales_synonym_alias;
+                            """.trimIndent(),
+                    ),
+            ) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
+        test("resolves Oracle migration-created schema-qualified synonym query sources from query files exactly") {
+            parseOracleSqlFiles(
+                deriveSchemaFromMigrations = true,
+                files =
+                    mapOf(
+                        "1.sqm" to
+                            """
+                            CREATE TABLE sales (
+                              cust_id NUMBER NOT NULL,
+                              prod_id NUMBER NOT NULL,
+                              amount_sold NUMBER(10, 2) NOT NULL
+                            );
+
+                            CREATE SYNONYM reporting.sales_synonym FOR sales;
+                            """.trimIndent(),
+                        "Test.sq" to
+                            """
+                            selectSalesSynonym:
+                            SELECT cust_id, prod_id, amount_sold
+                            FROM reporting.sales_synonym;
+                            """.trimIndent(),
+                    ),
+            ) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
+        test("resolves Oracle migration-created synonym DML targets from query files exactly") {
+            parseOracleSqlFiles(
+                deriveSchemaFromMigrations = true,
+                files =
+                    mapOf(
+                        "1.sqm" to
+                            """
+                            CREATE TABLE sales (
+                              cust_id NUMBER NOT NULL,
+                              prod_id NUMBER NOT NULL,
+                              amount_sold NUMBER(10, 2) NOT NULL
+                            );
+
+                            CREATE SYNONYM sales_synonym FOR sales;
+                            """.trimIndent(),
+                        "Test.sq" to
+                            """
+                            insertSales:
+                            INSERT INTO sales_synonym (cust_id, prod_id, amount_sold)
+                            VALUES (?, ?, ?);
+
+                            updateSales:
+                            UPDATE sales_synonym
+                            SET amount_sold = ?
+                            WHERE cust_id = ?;
+
+                            deleteSales:
+                            DELETE FROM sales_synonym
+                            WHERE cust_id = ?;
+                            """.trimIndent(),
+                    ),
+            ) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle datetime and interval literals exactly") {
             val sql =
                 """
@@ -262,6 +521,9 @@ class OracleParserBackedTest :
                 SELECT ROWNUM, ROWID, ORA_ROWSCN, name
                 FROM employees
                 WHERE ROWNUM < 11;
+
+                SELECT e.ROWID, e.ORA_ROWSCN, e.name
+                FROM employees e;
 
                 SELECT LEVEL, CONNECT_BY_ISLEAF, CONNECT_BY_ISCYCLE, name
                 FROM employees
@@ -656,6 +918,7 @@ class OracleParserBackedTest :
                 SELECT id
                 FROM json_samples
                 WHERE doc IS JSON STRICT WITH UNIQUE KEYS
+                  AND doc IS JSON (ALLOW SCALARS)
                   AND expected_doc IS NOT JSON VALIDATE USING '{"type":"object"}';
                 """.trimIndent()
 
@@ -672,14 +935,17 @@ class OracleParserBackedTest :
                 CREATE TABLE json_condition_samples (
                   id NUMBER PRIMARY KEY,
                   doc CLOB,
+                  doc_blob BLOB,
                   expected_doc CLOB,
                   search_text VARCHAR2(100)
                 );
 
                 SELECT id
                 FROM json_condition_samples
-                WHERE JSON_EXISTS(doc, '${'$'}.items[*]?(@.status == ${'$'}status)' PASSING 'active' AS status TRUE ON ERROR FALSE ON EMPTY)
+                WHERE doc_blob FORMAT JSON IS JSON STRICT
+                  AND JSON_EXISTS(doc, '${'$'}.items[*]?(@.status == ${'$'}status)' PASSING 'active' AS status TRUE ON ERROR TYPE (STRICT) FALSE ON EMPTY)
                   AND JSON_EXISTS(doc FORMAT JSON, '${'$'}.metadata' ERROR ON ERROR ERROR ON EMPTY)
+                  AND JSON_EXISTS(doc, '${'$'}.optional' NULL ON EMPTY)
                   AND JSON_EQUAL(doc, expected_doc TRUE ON ERROR)
                   AND JSON_TEXTCONTAINS(doc, '${'$'}.description', search_text);
                 """.trimIndent()
@@ -1077,6 +1343,8 @@ class OracleParserBackedTest :
                 SELECT CAST(name AS VARCHAR2(200)),
                   CAST(id AS BINARY_DOUBLE),
                   CAST(active AS NUMBER),
+                  CAST(name AS NUMBER DEFAULT 0 ON CONVERSION ERROR),
+                  CAST(name AS DATE DEFAULT NULL ON CONVERSION ERROR, 'YYYY-MM-DD', 'NLS_DATE_LANGUAGE = American'),
                   TREAT(payload AS JSON)
                 FROM employees;
                 """.trimIndent()
@@ -1167,21 +1435,30 @@ class OracleParserBackedTest :
                   ERROR ON ERROR
                   DEFAULT 0 ON EMPTY
                 ),
+                  JSON_VALUE(
+                    payload,
+                    '$.employee.name'
+                    RETURNING VARCHAR2(5) TRUNCATE
+                    NULL ON ERROR
+                    TYPE (LAX)
+                  ),
                   JSON_QUERY(
                     payload FORMAT JSON,
                     '$.items[*]'
                     RETURNING JSON
                     WITH CONDITIONAL WRAPPER
                     DISALLOW SCALARS
+                    KEEP QUOTES ON SCALAR STRING
                     EMPTY ARRAY ON ERROR
                     NULL ON EMPTY
+                    TYPE (STRICT)
                   ),
                   JSON_SERIALIZE(
                     payload
                     RETURNING VARCHAR2(4000)
                     PRETTY ASCII ORDERED
                     TRUNCATE
-                    ERROR ON ERROR
+                    EMPTY OBJECT ON ERROR
                   )
                 FROM documents;
                 """.trimIndent()
@@ -1224,6 +1501,7 @@ class OracleParserBackedTest :
                       SET '$.active' = 1
                     )
                   END
+                  TYPE (LAX)
                   RETURNING JSON
                   PASSING threshold AS ${'$'}threshold
                 )
@@ -1275,6 +1553,8 @@ class OracleParserBackedTest :
                   jt.employee_name,
                   jt.has_items,
                   jt.details,
+                  jt.created_at,
+                  jtd.document_id,
                   jt.item_number,
                   jt.item_name
                 FROM documents d,
@@ -1283,19 +1563,27 @@ class OracleParserBackedTest :
                     '${'$'}'
                     PASSING 1 AS document_id
                     ERROR ON ERROR
+                    TYPE (STRICT)
                     DEFAULT 'missing' ON EMPTY
                     COLUMNS (
                       line_number FOR ORDINALITY,
                       employee_id NUMBER PATH '${'$'}.employee.id' ERROR ON ERROR DEFAULT 0 ON EMPTY,
                       employee_name VARCHAR2(100) PATH '${'$'}.employee.name' NULL ON ERROR,
-                      has_items NUMBER EXISTS PATH '${'$'}.items' TRUE ON ERROR FALSE ON EMPTY,
+                      has_items VARCHAR2(5) EXISTS PATH '${'$'}.items' TRUE ON ERROR DEFAULT 'false' ON EMPTY,
                       details JSON FORMAT JSON PATH '${'$'}.details' WITH WRAPPER NULL ON EMPTY,
+                      created_at TIMESTAMP WITH TIME ZONE PATH '${'$'}.createdAt' NULL ON ERROR,
                       NESTED PATH '${'$'}.items[*]' COLUMNS (
                         item_number FOR ORDINALITY,
                         item_name VARCHAR2(100) TRUNCATE PATH '${'$'}.name'
                       )
                     )
-                  ) jt;
+                  ) jt,
+                  JSON_TABLE(
+                    '{"id":1}' FORMAT JSON
+                    COLUMNS (
+                      document_id NUMBER PATH '${'$'}.id'
+                    )
+                  ) jtd;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe
@@ -1321,14 +1609,16 @@ class OracleParserBackedTest :
                 );
 
                 SELECT XMLELEMENT(
-                  "Department",
-                  XMLATTRIBUTES(d.id AS "ID", d.name),
-                  XMLAGG(XMLELEMENT("Employee", e.name) ORDER BY e.name)
+                  NAME "Department",
+                  XMLATTRIBUTES(ENTITYESCAPING SCHEMACHECK d.id "ID", d.name),
+                  XMLAGG(XMLELEMENT("Employee", e.name "Name") ORDER BY e.name)
                 ),
                   XMLCAST(XMLQUERY('/Warehouse/Area' PASSING d.warehouse_spec RETURNING CONTENT) AS NUMBER),
                   XMLFOREST(d.name AS "Name", d.id AS "Identifier"),
                   XMLPARSE(CONTENT '<Warehouse/>' WELLFORMED),
                   XMLPI(NAME "Department", d.name),
+                  XMLPI(EVALNAME 'Department', d.name),
+                  XMLROOT(d.warehouse_spec, VERSION NO VALUE, STANDALONE NO VALUE),
                   XMLSERIALIZE(CONTENT d.warehouse_spec AS CLOB INDENT SIZE = 2 HIDE DEFAULTS),
                   DEPTH(1),
                   EXISTSNODE(d.warehouse_spec, '/Warehouse'),
@@ -1342,6 +1632,8 @@ class OracleParserBackedTest :
                   XMLCOLATTVAL(d.name),
                   XMLCOMMENT(d.name),
                   XMLCONCAT(XMLELEMENT("Name", d.name), XMLELEMENT("Id", d.id)),
+                  XMLELEMENT(ENTITYESCAPING "EscapedName", d.name),
+                  XMLELEMENT(NOENTITYESCAPING "RawSpec", d.warehouse_spec),
                   XMLDIFF(d.warehouse_spec, XMLTYPE('<Warehouse/>')),
                   XMLISVALID(d.warehouse_spec),
                   XMLPATCH(d.warehouse_spec, XMLTYPE('<Warehouse/>')),
@@ -1356,7 +1648,8 @@ class OracleParserBackedTest :
                 SELECT d.id,
                   warehouse.line_number,
                   warehouse.water_access,
-                  warehouse.rail_access
+                  warehouse.rail_access,
+                  warehouse.updated_at
                 FROM departments d,
                   XMLTABLE(
                     XMLNAMESPACES(DEFAULT 'http://example.com/warehouse'),
@@ -1366,8 +1659,12 @@ class OracleParserBackedTest :
                     COLUMNS
                       line_number FOR ORDINALITY,
                       water_access VARCHAR2(6) PATH 'WaterAccess' DEFAULT 'N',
-                      rail_access VARCHAR2(6) PATH 'RailAccess'
+                      rail_access VARCHAR2(6) PATH 'RailAccess',
+                      updated_at TIMESTAMP WITH TIME ZONE PATH 'UpdatedAt'
                   ) warehouse;
+
+                SELECT warehouse_xml.COLUMN_VALUE
+                FROM XMLTABLE('/Warehouse' PASSING XMLTYPE('<Warehouse/>')) warehouse_xml;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe
@@ -1406,7 +1703,7 @@ class OracleParserBackedTest :
                   VECTOR_DIMENSION_FORMAT(embedding) AS embedding_dimension_format,
                   VECTOR_NORM(embedding) AS embedding_norm,
                   VECTOR_EMBEDDING(all_minilm_l12 USING body AS DATA),
-                  VECTOR_SERIALIZE(embedding RETURNING CLOB),
+                  VECTOR_SERIALIZE(embedding RETURNING CLOB FORMAT DENSE),
                   embedding <-> TO_VECTOR('[1,2,3]', 3, FLOAT32) AS euclidean_distance,
                   embedding <=> TO_VECTOR('[1,2,3]', 3, FLOAT32) AS cosine_distance_shorthand,
                   embedding <#> TO_VECTOR('[1,2,3]', 3, FLOAT32) AS negative_inner_product
@@ -1529,7 +1826,12 @@ class OracleParserBackedTest :
                   SOUNDEX(label) AS soundex_value,
                   SUBSTR(label, 1, 3) AS label_prefix,
                   TRANSLATE(label, 'abc', 'xyz') AS translated_label,
+                  TRANSLATE(label USING CHAR_CS) AS translated_database_charset,
+                  TRANSLATE(label USING NCHAR_CS) AS translated_national_charset,
                   TRIM(label) AS trimmed_label,
+                  TRIM(LEADING '*' FROM label) AS leading_trimmed_label,
+                  TRIM(TRAILING '*' FROM label) AS trailing_trimmed_label,
+                  TRIM(BOTH '*' FROM label) AS both_trimmed_label,
                   UPPER(label) AS upper_label,
                   ASCII(label) AS ascii_value
                 FROM names;
@@ -1799,7 +2101,9 @@ class OracleParserBackedTest :
                   SCN_TO_TIMESTAMP(123456) AS timestamp_from_scn,
                   TIMESTAMP_TO_SCN(created_at) AS scn_from_timestamp,
                   TO_BINARY_DOUBLE(text_value) AS binary_double_value,
+                  TO_BINARY_DOUBLE(text_value DEFAULT 0 ON CONVERSION ERROR, '999D99') AS safe_binary_double_value,
                   TO_BINARY_FLOAT(text_value) AS binary_float_value,
+                  TO_BINARY_FLOAT(text_value DEFAULT 0 ON CONVERSION ERROR, '999D99') AS safe_binary_float_value,
                   TO_BLOB(raw_value) AS blob_value,
                   TO_CLOB(text_value) AS clob_value,
                   TO_LOB(text_value) AS lob_text_value,
@@ -1807,9 +2111,16 @@ class OracleParserBackedTest :
                   TO_MULTI_BYTE(text_value) AS multibyte_text,
                   TO_NCHAR(text_value) AS national_text,
                   TO_NCLOB(text_value) AS national_clob_value,
+                  TO_DSINTERVAL(text_value DEFAULT '10 8:00:00' ON CONVERSION ERROR) AS safe_day_second_interval,
+                  TO_YMINTERVAL(text_value DEFAULT '00-00' ON CONVERSION ERROR) AS safe_year_month_interval,
+                  TO_NUMBER(text_value DEFAULT 0 ON CONVERSION ERROR, '999D99') AS safe_number,
                   TO_SINGLE_BYTE(text_value) AS singlebyte_text,
+                  TO_DATE(text_value DEFAULT '1970-01-01' ON CONVERSION ERROR, 'YYYY-MM-DD') AS safe_date,
+                  TO_TIMESTAMP(text_value DEFAULT NULL ON CONVERSION ERROR, 'YYYY-MM-DD HH24:MI:SS') AS safe_timestamp,
+                  TO_TIMESTAMP_TZ(text_value DEFAULT NULL ON CONVERSION ERROR, 'YYYY-MM-DD HH24:MI:SS TZH:TZM') AS safe_timestamp_tz,
                   UNISTR('\3042') AS unicode_text,
-                  VALIDATE_CONVERSION(text_value AS NUMBER) AS valid_number
+                  VALIDATE_CONVERSION(text_value AS NUMBER) AS valid_number,
+                  VALIDATE_CONVERSION(text_value AS DATE, 'YYYY-MM-DD', 'NLS_DATE_LANGUAGE = American') AS valid_date
                 FROM conversion_samples;
                 """.trimIndent()
 
@@ -2059,13 +2370,13 @@ class OracleParserBackedTest :
                 );
 
                 SELECT department_id,
-                  LISTAGG(last_name, '; ') WITHIN GROUP (ORDER BY hire_date, last_name) AS employee_names,
+                  LISTAGG(ALL last_name, '; ') WITHIN GROUP (ORDER BY hire_date, last_name) AS employee_names,
                   LISTAGG(DISTINCT last_name, ', ' ON OVERFLOW TRUNCATE '...' WITH COUNT) WITHIN GROUP (ORDER BY last_name) AS distinct_employee_names
                 FROM employees
                 GROUP BY department_id;
 
                 SELECT department_id,
-                  LISTAGG(last_name, ', ') WITHIN GROUP (ORDER BY hire_date) OVER (PARTITION BY department_id) AS analytic_employee_names
+                  LISTAGG(last_name, ', ') WITHIN GROUP (ORDER BY hire_date) OVER (PARTITION BY department_id) FILTER (WHERE last_name IS NOT NULL) AS analytic_employee_names
                 FROM employees;
                 """.trimIndent()
 
@@ -2953,11 +3264,19 @@ class OracleParserBackedTest :
         test("parses representative Oracle object table statements exactly") {
             val sql =
                 """
+                CREATE TYPE account_object_type AS OBJECT (
+                  account_id NUMBER,
+                  account_status VARCHAR2(16)
+                );
+
                 CREATE TABLE account_objects
                 OF account_object_type
                 OBJECT IDENTIFIER IS PRIMARY KEY
                 OIDINDEX account_objects_oid_idx (TABLESPACE users)
                 TABLESPACE users;
+
+                SELECT account_id, account_status
+                FROM account_objects;
 
                 CREATE TABLE final_account_objects
                 OF hr.account_object_type
@@ -3007,6 +3326,9 @@ class OracleParserBackedTest :
                 WITH OBJECT ID (account_id)
                 OIDINDEX account_xml_documents_oid_idx (TABLESPACE users)
                 TABLESPACE users;
+
+                SELECT account_number, account_status
+                FROM account_xml_documents;
 
                 CREATE TABLE account_xml_clobs
                 OF XMLTYPE
@@ -3171,6 +3493,9 @@ class OracleParserBackedTest :
                   CONSTRAINT account_collection_status_check CHECK (1 = 1)
                 )
                 TABLESPACE users;
+
+                SELECT account_id, status
+                FROM account_collection_documents;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe
@@ -3367,7 +3692,7 @@ class OracleParserBackedTest :
                 )
                 SEARCH DEPTH FIRST BY id SET traversal_order
                 CYCLE id SET is_cycle TO 'Y' DEFAULT 'N'
-                SELECT id, parent_id
+                SELECT id, parent_id, traversal_order, is_cycle
                 FROM unit_tree;
 
                 selectValuesFactored:
@@ -3385,6 +3710,32 @@ class OracleParserBackedTest :
                 SELECT local_bonus(id) AS bonus
                 FROM org_units;
 
+                selectInlinePlsqlConditionalFunction:
+                WITH FUNCTION local_label(amount IN NUMBER) RETURN VARCHAR2 IS
+                BEGIN
+                  IF amount > 10 THEN
+                    RETURN 'HIGH';
+                  ELSIF amount = 10 THEN
+                    RETURN 'EVEN';
+                  ELSE
+                    RETURN 'LOW';
+                  END IF;
+                END local_label;
+                SELECT local_label(id) AS label
+                FROM org_units;
+
+                selectInlinePlsqlLoopFunction:
+                WITH FUNCTION local_sum(limit_value IN NUMBER) RETURN NUMBER IS
+                  total NUMBER := 0;
+                BEGIN
+                  FOR i IN 1..limit_value LOOP
+                    total := total + i;
+                  END LOOP;
+                  RETURN total;
+                END local_sum;
+                SELECT local_sum(id) AS total
+                FROM org_units;
+
                 selectInlinePlsqlProcedure:
                 WITH PROCEDURE touch_unit(target_id IN NUMBER) IS
                 BEGIN
@@ -3393,6 +3744,51 @@ class OracleParserBackedTest :
                 SELECT id
                 FROM org_units;
 
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle PL SQL CTE issue examples through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE names (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(100)
+                );
+
+                CREATE TABLE data (
+                  id NUMBER PRIMARY KEY
+                );
+
+                CREATE TABLE staging (
+                  id NUMBER PRIMARY KEY,
+                  val NUMBER
+                );
+
+                selectInlineFunction:
+                WITH
+                  FUNCTION get_name(p_id IN NUMBER) RETURN VARCHAR2 IS
+                    v_name VARCHAR2(100);
+                  BEGIN
+                    SELECT name INTO v_name FROM names WHERE id = p_id;
+                    RETURN v_name;
+                  END;
+                SELECT get_name(id)
+                FROM data;
+
+                selectInlineProcedure:
+                WITH
+                  PROCEDURE load_data IS
+                  BEGIN
+                    INSERT INTO staging VALUES (1, 2);
+                  END;
+                SELECT *
+                FROM staging;
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe
@@ -3417,6 +3813,60 @@ class OracleParserBackedTest :
             parseOracleSql(sql, fileName = "1.sqm") shouldBe
                 ParseResult(
                     fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle query clause issue examples through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE query_clause_samples (
+                  id NUMBER PRIMARY KEY,
+                  parent_id NUMBER,
+                  dept_id NUMBER,
+                  col1 NUMBER,
+                  col2 NUMBER,
+                  val NUMBER,
+                  created_at DATE
+                );
+
+                selectQualify:
+                SELECT dept_id, val, RANK() OVER (PARTITION BY dept_id ORDER BY val) AS r
+                FROM query_clause_samples
+                QUALIFY RANK() OVER (PARTITION BY dept_id ORDER BY val) <= 3;
+
+                selectNamedWindow:
+                SELECT val, SUM(val) OVER w AS total
+                FROM query_clause_samples
+                WINDOW w AS (PARTITION BY dept_id ORDER BY created_at);
+
+                selectSearchCycle:
+                WITH org (id, parent_id) AS (
+                  SELECT id, parent_id
+                  FROM query_clause_samples
+                  WHERE parent_id IS NULL
+                )
+                SEARCH DEPTH FIRST BY id SET ordercol
+                CYCLE id SET is_cycle TO 1 DEFAULT 0
+                SELECT id, parent_id, ordercol, is_cycle
+                FROM org;
+
+                valuesQuery:
+                VALUES (1, 2), (3, 4);
+
+                valuesTableReference:
+                SELECT col1, col2
+                FROM (VALUES (1, 2), (3, 4)) v (col1, col2);
+
+                valuesInCondition:
+                SELECT id
+                FROM query_clause_samples
+                WHERE (col1, col2) IN (VALUES (1, 2), (3, 4));
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
                     errors = emptyList(),
                 )
         }
@@ -3763,6 +4213,13 @@ class OracleParserBackedTest :
                   FOR region IN ('WEST' AS west, 'EAST' AS east)
                 ) pivoted_orders;
 
+                selectPivotSourceColumns:
+                SELECT pivoted_orders.id, pivoted_orders.created_year, pivoted_orders.west_order_count
+                FROM partitioned_orders PIVOT (
+                  COUNT(*) AS order_count
+                  FOR region IN ('WEST' AS west, 'EAST' AS east)
+                ) pivoted_orders;
+
                 selectPivotImplicitValueColumns:
                 SELECT pivoted_orders.WEST_order_count, pivoted_orders.EAST_order_count
                 FROM partitioned_orders PIVOT (
@@ -3808,6 +4265,13 @@ class OracleParserBackedTest :
                   FOR metric_name IN (id AS 'ID', created_year AS 'CREATED_YEAR')
                 ) unpivoted_orders;
 
+                selectUnpivotSourceColumns:
+                SELECT unpivoted_orders.region, unpivoted_orders.metric_value, unpivoted_orders.metric_name
+                FROM partitioned_orders UNPIVOT INCLUDE NULLS (
+                  metric_value
+                  FOR metric_name IN (id AS 'ID', created_year AS 'CREATED_YEAR')
+                ) unpivoted_orders;
+
                 selectUnpivotCompositeColumns:
                 SELECT *
                 FROM partitioned_orders UNPIVOT EXCLUDE NULLS (
@@ -3837,6 +4301,31 @@ class OracleParserBackedTest :
                   SUBSET trend = (rising, falling)
                   DEFINE rising AS 1 > 0, falling AS 0 < 1
                 ) advanced_matches;
+
+                selectMatchRecognizeIssueBasic:
+                SELECT issue_matches.start_year, issue_matches.up_year
+                FROM partitioned_orders MATCH_RECOGNIZE (
+                  PARTITION BY 1
+                  ORDER BY 1
+                  MEASURES
+                    1 AS start_year,
+                    LAST(rising, 1) AS up_year
+                  ONE ROW PER MATCH
+                  AFTER MATCH SKIP TO LAST rising
+                  PATTERN (start_row rising+ start_row)
+                  DEFINE rising AS 1 > 0
+                ) issue_matches;
+
+                selectMatchRecognizeIssueAllRows:
+                SELECT issue_all_rows.match_type, issue_all_rows.match_row_number
+                FROM partitioned_orders MATCH_RECOGNIZE (
+                  PARTITION BY 1
+                  ORDER BY 1
+                  MEASURES CLASSIFIER() AS match_type, ROW_NUMBER() AS match_row_number
+                  ALL ROWS PER MATCH WITH UNMATCHED ROWS
+                  PATTERN (start_row rising+)
+                  DEFINE rising AS 1 > 0
+                ) issue_all_rows;
 
                 selectMatchRecognizeAllRowsSourceColumns:
                 SELECT all_row_matches.id, all_row_matches.region, all_row_matches.match_state
@@ -3900,8 +4389,42 @@ class OracleParserBackedTest :
                 CONNECT BY NOCYCLE PRIOR id = created_year
                 START WITH id = 1;
 
+                selectHierarchicalRangeCondition:
+                SELECT LEVEL AS generated_level
+                FROM partitioned_orders
+                CONNECT BY LEVEL <= 10
+                START WITH created_year >= 2020;
+
+                selectHierarchicalCompoundCondition:
+                SELECT id, region
+                FROM partitioned_orders
+                START WITH id = 1 AND region = 'NORTH'
+                CONNECT BY PRIOR id = created_year AND region <> 'ARCHIVED';
+
+                selectHierarchicalNullCondition:
+                SELECT id, region
+                FROM partitioned_orders
+                START WITH region IS NOT NULL
+                CONNECT BY PRIOR id = created_year;
+
+                selectHierarchicalPredicateCondition:
+                SELECT id, region
+                FROM partitioned_orders
+                START WITH region LIKE 'N%'
+                CONNECT BY PRIOR id IN (created_year, id);
+
+                selectHierarchicalBetweenCondition:
+                SELECT id, region
+                FROM partitioned_orders
+                START WITH id BETWEEN 1 AND 10
+                CONNECT BY created_year BETWEEN 2020 AND 2026;
+
                 selectTableCollection:
                 SELECT 1
+                FROM TABLE(ODCINUMBERLIST(1, 2)) numbers;
+
+                selectTableCollectionColumnValue:
+                SELECT numbers.COLUMN_VALUE
                 FROM TABLE(ODCINUMBERLIST(1, 2)) numbers;
 
                 selectLegacyTheCollection:
@@ -3946,8 +4469,26 @@ class OracleParserBackedTest :
                   REJECT LIMIT UNLIMITED
                 ) external_orders;
 
+                selectInlineExternalTableDefinedColumns:
+                SELECT external_orders.order_id, external_orders.order_total
+                FROM EXTERNAL ((
+                  order_id NUMBER(12) NOT NULL,
+                  order_total NUMBER(12, 2)
+                ) TYPE ORACLE_LOADER
+                  DEFAULT DIRECTORY data_dir
+                  LOCATION ('orders.csv')
+                ) external_orders;
+
                 selectGraphTable:
                 SELECT *
+                FROM GRAPH_TABLE (
+                  employees_graph
+                  MATCH (employee IS employee_node WHERE employee.status = 'ACTIVE')
+                  COLUMNS (employee.employee_id AS employee_id, employee.name AS employee_name)
+                ) graph_employees;
+
+                selectGraphTableColumns:
+                SELECT graph_employees.employee_id, graph_employees.employee_name
                 FROM GRAPH_TABLE (
                   employees_graph
                   MATCH (employee IS employee_node WHERE employee.status = 'ACTIVE')
@@ -4072,6 +4613,10 @@ class OracleParserBackedTest :
                 SELECT 1
                 FROM CONTAINERS(partitioned_orders) container_orders;
 
+                selectContainersTableConId:
+                SELECT container_orders.id, container_orders.CON_ID
+                FROM CONTAINERS(partitioned_orders) container_orders;
+
                 selectShardsTable:
                 SELECT 1
                 FROM SHARDS(partitioned_orders) shard_orders;
@@ -4079,7 +4624,23 @@ class OracleParserBackedTest :
                 selectLateralSubquery:
                 SELECT region, derived_year
                 FROM partitioned_orders po, LATERAL (
-                  SELECT created_year AS derived_year
+                  SELECT po.created_year AS derived_year
+                  FROM partitioned_orders
+                ) years;
+
+                selectCrossApplySubquery:
+                SELECT po.region, years.derived_year
+                FROM partitioned_orders po
+                CROSS APPLY (
+                  SELECT po.created_year AS derived_year
+                  FROM partitioned_orders
+                ) years;
+
+                selectOuterApplySubquery:
+                SELECT po.region, years.derived_year
+                FROM partitioned_orders po
+                OUTER APPLY (
+                  SELECT po.created_year AS derived_year
                   FROM partitioned_orders
                 ) years;
 
@@ -4562,6 +5123,10 @@ class OracleParserBackedTest :
                 FROM view_accounts
                 WITH READ ONLY;
 
+                CREATE VIEW renamed_account_view (account_id, account_status) AS
+                SELECT id, status
+                FROM view_accounts;
+
                 CREATE VIEW IF NOT EXISTS constrained_account_view
                   SHARING = EXTENDED DATA
                   (
@@ -4603,6 +5168,10 @@ class OracleParserBackedTest :
                 selectAll:
                 SELECT account_id, account_status, account_created_at
                 FROM account_status_view;
+
+                selectRenamedColumns:
+                SELECT account_id, account_status
+                FROM renamed_account_view;
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe
@@ -4669,6 +5238,8 @@ class OracleParserBackedTest :
         test("parses Oracle drop view statements through SQLDelight environment exactly") {
             val sql =
                 """
+                DROP TABLE obsolete_accounts CASCADE CONSTRAINTS PURGE;
+
                 DROP VIEW account_view;
 
                 DROP VIEW IF EXISTS reporting.account_view CASCADE CONSTRAINTS;
@@ -4864,6 +5435,34 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("resolves Oracle merge target and source aliases exactly") {
+            val sql =
+                """
+                CREATE TABLE account_balance (
+                  account_id NUMBER PRIMARY KEY,
+                  balance NUMBER
+                );
+
+                CREATE TABLE account_delta (
+                  account_id NUMBER PRIMARY KEY,
+                  delta NUMBER
+                );
+
+                MERGE INTO account_balance target
+                USING account_delta source
+                ON (target.account_id = source.account_id)
+                WHEN MATCHED THEN UPDATE SET balance = source.delta
+                WHEN NOT MATCHED THEN INSERT (account_id, balance)
+                  VALUES (source.account_id, source.delta);
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle insert default values through SQLDelight environment exactly") {
             val sql =
                 """
@@ -5047,6 +5646,69 @@ class OracleParserBackedTest :
                       VALUES (2, 'EU')
                 SELECT order_id, region_code, order_total
                 FROM staged_order_lines;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle DML extension issue examples through SQLDelight environment exactly") {
+            val sql =
+                """
+                CREATE TABLE issue_dml_target (
+                  id NUMBER PRIMARY KEY,
+                  col1 NUMBER,
+                  col2 NUMBER,
+                  val NUMBER
+                );
+
+                CREATE TABLE issue_dml_source (
+                  id NUMBER PRIMARY KEY,
+                  col1 NUMBER,
+                  col2 NUMBER,
+                  val NUMBER
+                );
+
+                insertSetExample:
+                INSERT INTO issue_dml_target
+                SET col1 = 1, col2 = 2;
+
+                multiTableInsertExample:
+                INSERT ALL
+                  WHEN col1 > 10 THEN INTO issue_dml_target (col1, col2) VALUES (col1, col2)
+                  WHEN col1 <= 10 THEN INTO issue_dml_target (col1, col2) VALUES (col1, col2)
+                SELECT col1, col2
+                FROM issue_dml_source;
+
+                mergeValuesExample:
+                MERGE INTO issue_dml_target target
+                USING VALUES (1, 2) source
+                ON (1 = 0)
+                WHEN MATCHED THEN UPDATE SET target.val = 2;
+
+                returningExample:
+                INSERT INTO issue_dml_target (id, val)
+                VALUES (1, 2)
+                RETURNING id INTO ?;
+
+                logErrorsExample:
+                INSERT INTO issue_dml_target (id, col1, col2, val)
+                VALUES (1, 1, 2, 3)
+                LOG ERRORS INTO issue_dml_errors ('batch') REJECT LIMIT UNLIMITED;
+
+                updateFromExample:
+                UPDATE issue_dml_target target
+                SET target.val = source.val
+                FROM issue_dml_source source
+                WHERE target.id = source.id;
+
+                waitExample:
+                UPDATE issue_dml_target
+                SET val = 1
+                WAIT 5;
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe
@@ -8046,6 +8708,96 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle model clause queries exactly") {
+            val sql =
+                """
+                CREATE TABLE sales (
+                  region VARCHAR2(30),
+                  product VARCHAR2(30),
+                  year_num NUMBER,
+                  amount NUMBER
+                );
+
+                selectBasicModel:
+                SELECT region, product, year_num, amount
+                FROM sales
+                MODEL
+                  PARTITION BY (region)
+                  DIMENSION BY (product, year_num)
+                  MEASURES (amount)
+                  RULES (
+                    amount['chairs', 2025] = amount['chairs', 2024] + 10
+                  );
+
+                selectModelCellReferenceOptions:
+                SELECT region, product, year_num, amount
+                FROM sales
+                MODEL IGNORE NAV UNIQUE DIMENSION
+                  PARTITION BY (region)
+                  DIMENSION BY (product, year_num)
+                  MEASURES (amount)
+                  RULES (
+                    amount['desks', 2025] = 0
+                  );
+
+                selectModelUpdatedRows:
+                SELECT region, product, year_num, amount
+                FROM sales
+                MODEL RETURN UPDATED ROWS
+                  PARTITION BY (region)
+                  DIMENSION BY (product, year_num)
+                  MEASURES (amount)
+                  RULES (
+                    amount['lamps', 2025] = amount['lamps', 2024]
+                  );
+
+                selectModelRuleOptions:
+                SELECT region, product, year_num, amount
+                FROM sales
+                MODEL
+                  PARTITION BY (region)
+                  DIMENSION BY (product, year_num)
+                  MEASURES (amount)
+                  RULES UPSERT ALL SEQUENTIAL ORDER (
+                    amount['tables', 2025] ORDER BY year_num = amount['tables', 2024]
+                  );
+
+                selectModelIterateUntil:
+                SELECT region, product, year_num, amount
+                FROM sales
+                MODEL
+                  PARTITION BY (region)
+                  DIMENSION BY (product, year_num)
+                  MEASURES (amount)
+                  RULES ITERATE (3) UNTIL (amount['chairs', 2025] > 1000) (
+                    amount['chairs', 2025] = amount['chairs', 2024] + 10
+                  );
+
+                selectModelReferenceModel:
+                SELECT region, product, year_num, amount
+                FROM sales
+                MODEL
+                  REFERENCE prior_sales ON (
+                    SELECT product, year_num, amount
+                    FROM sales
+                  )
+                  DIMENSION BY (product, year_num)
+                  MEASURES (amount)
+                  PARTITION BY (region)
+                  DIMENSION BY (product, year_num)
+                  MEASURES (amount)
+                  RULES (
+                    amount['chairs', 2025] = prior_sales.amount['chairs', 2024]
+                  );
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("reports malformed Oracle SQL through SQLDelight environment exactly") {
             val sql =
                 """
@@ -8054,7 +8806,10 @@ class OracleParserBackedTest :
                   name VARCHAR2(100)
                 """.trimIndent()
 
-            parseOracleSql(sql) shouldBe
+            parseOracleSql(
+                sql,
+                oracleValidation = rejectOracleSql(sql),
+            ) shouldBe
                 ParseResult(
                     fileNames = listOf("Test.sq"),
                     errors =
@@ -8062,6 +8817,87 @@ class OracleParserBackedTest :
                             "Test.sq: (3, 20): ')', ',', <column constraint real>, AS or DOMAIN expected",
                         ),
                 )
+        }
+
+        test("recognizes ? and :name bind parameters as SqlBindExpr") {
+            val sql =
+                """
+                CREATE TABLE bind_samples (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(64)
+                );
+
+                selectByIdAndName:
+                SELECT id, name
+                FROM bind_samples
+                WHERE id = ? AND name = :name;
+                """.trimIndent()
+
+            bindExprCount(sql) shouldBe 2
+        }
+
+        test("recognizes multiple positional ? bind parameters") {
+            val sql =
+                """
+                CREATE TABLE bind_samples (
+                  a NUMBER,
+                  b NUMBER,
+                  c NUMBER
+                );
+
+                selectByAbc:
+                SELECT a, b, c
+                FROM bind_samples
+                WHERE a = ? AND b = ? AND c = ?;
+                """.trimIndent()
+
+            bindExprCount(sql) shouldBe 3
+            queryParameterNames(sql).size shouldBe 3
+        }
+
+        test("collapses repeated :name markers into one parameter each") {
+            val sql =
+                """
+                CREATE TABLE people (
+                  name VARCHAR2(64),
+                  age NUMBER,
+                  alt_name VARCHAR2(64),
+                  alt_age NUMBER
+                );
+
+                selectByNameAndAge:
+                SELECT name, age
+                FROM people
+                WHERE name = :name AND age = :age AND alt_name = :name AND alt_age = :age;
+                """.trimIndent()
+
+            // The SQL contains four bind markers (:name, :age, :name, :age)...
+            bindExprCount(sql) shouldBe 4
+            // ...which collapse into two distinct named parameters in declared order.
+            queryParameterNames(sql) shouldBe listOf("name", "age")
+        }
+
+        test("recognizes bind parameters in query files when the schema comes from migrations") {
+            val files =
+                mapOf(
+                    "1.sqm" to
+                        """
+                        CREATE TABLE bind_samples (
+                          id NUMBER PRIMARY KEY,
+                          name VARCHAR2(64)
+                        );
+                        """.trimIndent(),
+                    "Test.sq" to
+                        """
+                        selectByIdAndName:
+                        SELECT id, name
+                        FROM bind_samples
+                        WHERE id = ? AND name = :name;
+                        """.trimIndent(),
+                )
+
+            bindExprCount(files, deriveSchemaFromMigrations = true) shouldBe 2
+            queryParameterNames(files, deriveSchemaFromMigrations = true) shouldBe listOf("id", "name")
         }
     })
 
@@ -8073,10 +8909,25 @@ private data class ParseResult(
 private fun parseOracleSql(
     sql: String,
     fileName: String = "Test.sq",
+    deriveSchemaFromMigrations: Boolean = false,
+    oracleValidation: OracleValidation = validateOracleSql(fileName, sql),
+): ParseResult =
+    parseOracleSqlFiles(
+        files = mapOf(fileName to sql),
+        deriveSchemaFromMigrations = deriveSchemaFromMigrations,
+        oracleValidation = oracleValidation,
+    )
+
+private fun parseOracleSqlFiles(
+    files: Map<String, String>,
+    deriveSchemaFromMigrations: Boolean = false,
+    oracleValidation: OracleValidation = validateOracleSqlFiles(files),
 ): ParseResult {
     val root = Files.createTempDirectory("sqldelight-oracle-parser-test").toFile()
     val sourceDirectory = File(root, "com/example").apply { mkdirs() }
-    File(sourceDirectory, fileName).writeText(sql)
+    files.forEach { (fileName, sql) ->
+        File(sourceDirectory, fileName).writeText(sql)
+    }
 
     val errors = mutableListOf<String>()
     val compilationUnit = OracleParserTestCompilationUnit(File(root, "output"))
@@ -8084,7 +8935,12 @@ private fun parseOracleSql(
         SqlDelightEnvironment(
             sourceFolders = listOf(root),
             dependencyFolders = emptyList(),
-            properties = OracleParserTestDatabaseProperties(root, compilationUnit),
+            properties =
+                OracleParserTestDatabaseProperties(
+                    rootDirectory = root,
+                    compilationUnit = compilationUnit,
+                    deriveSchemaFromMigrations = deriveSchemaFromMigrations,
+                ),
             dialect = OracleDialect(),
             verifyMigrations = true,
             moduleName = "oracle-parser-test",
@@ -8101,11 +8957,285 @@ private fun parseOracleSql(
             fileNames += psiFile.name
         }
     }
+    oracleValidation.validate()
 
     return ParseResult(
         fileNames = fileNames.sorted(),
         errors = errors,
     )
+}
+
+private data class OracleValidation(
+    val setupSql: List<String> = emptyList(),
+    val statements: List<OracleValidationStatement>,
+) {
+    fun validate() {
+        if (!oracleParserBackedValidationEnabled) return
+
+        OracleParserBackedValidationContainer.connection().use { connection ->
+            connection.autoCommit = false
+            val failures = mutableListOf<String>()
+            try {
+                connection.createStatement().use { statement ->
+                    setupSql.forEach { sql ->
+                        statement.executeUpdate(sql.toJdbcSql())
+                    }
+                    statements.forEach { validationStatement ->
+                        validationStatement.validate(statement)?.let { failure ->
+                            failures += failure
+                        }
+                    }
+                }
+            } finally {
+                connection.rollback()
+            }
+            if (failures.isNotEmpty()) {
+                val message =
+                    buildString {
+                        appendLine("Oracle validation reported ${failures.size} failure(s):")
+                        failures.take(oracleParserBackedValidationFailureLimit).forEach { failure ->
+                            appendLine(failure)
+                        }
+                        if (failures.size > oracleParserBackedValidationFailureLimit) {
+                            appendLine("... ${failures.size - oracleParserBackedValidationFailureLimit} more failure(s)")
+                        }
+                    }
+                if (oracleParserBackedValidationStrict) {
+                    error(message)
+                } else {
+                    System.err.print(message)
+                }
+            }
+        }
+    }
+}
+
+private data class OracleValidationStatement(
+    val mode: OracleValidationMode,
+    val sql: String,
+    val shouldSucceed: Boolean = true,
+) {
+    fun validate(statement: Statement): String? {
+        val result =
+            runCatching {
+                when (mode) {
+                    OracleValidationMode.EXPLAIN -> statement.execute("EXPLAIN PLAN FOR ${sql.toJdbcSql()}")
+                    OracleValidationMode.EXECUTE -> statement.execute(sql.toJdbcSql())
+                }
+            }
+        return when {
+            shouldSucceed && result.isFailure -> {
+                """
+                Expected Oracle to accept SQL:
+                ${sql.toJdbcSql()}
+                ${result.exceptionOrNull()?.message}
+                """.trimIndent()
+            }
+
+            !shouldSucceed && result.isSuccess -> {
+                """
+                Expected Oracle to reject SQL, but it succeeded:
+                ${sql.toJdbcSql()}
+                """.trimIndent()
+            }
+
+            else -> {
+                null
+            }
+        }
+    }
+}
+
+private enum class OracleValidationMode {
+    EXPLAIN,
+    EXECUTE,
+}
+
+private fun rejectOracleSql(sql: String): OracleValidation =
+    OracleValidation(
+        statements =
+            sql
+                .toOracleValidationStatements()
+                .map { statement -> statement.copy(shouldSucceed = false) },
+    )
+
+private fun validateOracleSql(
+    fileName: String,
+    sql: String,
+): OracleValidation = validateOracleSqlFiles(mapOf(fileName to sql))
+
+private fun validateOracleSqlFiles(files: Map<String, String>): OracleValidation =
+    OracleValidation(
+        statements = files.values.flatMap { sql -> sql.toOracleValidationStatements() },
+    )
+
+private fun String.toOracleValidationStatements(): List<OracleValidationStatement> =
+    toOracleSqlStatements().map { sql ->
+        OracleValidationStatement(
+            mode = sql.oracleValidationMode(),
+            sql = sql,
+        )
+    }
+
+private fun String.toOracleSqlStatements(): List<String> =
+    lineSequence()
+        .filterNot { line -> sqlDelightLabelRegex.matches(line.trim()) }
+        .joinToString("\n")
+        .split(";")
+        .map { statement -> statement.trim() }
+        .filter { statement -> statement.isNotEmpty() }
+
+private fun String.oracleValidationMode(): OracleValidationMode {
+    val keyword = trimStart().substringBefore(' ').substringBefore('\n').uppercase()
+    return when (keyword) {
+        "SELECT", "INSERT", "UPDATE", "DELETE", "MERGE", "WITH" -> OracleValidationMode.EXPLAIN
+        else -> OracleValidationMode.EXECUTE
+    }
+}
+
+private val sqlDelightLabelRegex = Regex("""[A-Za-z_][A-Za-z0-9_]*:""")
+
+private fun String.toJdbcSql(): String = trim().removeSuffix(";")
+
+private object OracleParserBackedValidationContainer {
+    private var oracle: OracleContainer? = null
+
+    fun connection(): Connection {
+        val container =
+            oracle ?: OracleContainer(oracleParserBackedValidationDockerImageName).also { container ->
+                container.withSharedMemorySize(oracleParserBackedValidationSharedMemoryBytes)
+                container.start()
+                oracle = container
+            }
+        return DriverManager.getConnection(container.testJdbcUrl(), container.username, container.password)
+    }
+
+    fun stop() {
+        oracle?.stop()
+        oracle = null
+    }
+}
+
+private val oracleParserBackedValidationEnabled: Boolean =
+    System.getenv("RUN_ORACLE_VALIDATION") == "true"
+
+private val oracleParserBackedValidationStrict: Boolean =
+    System.getenv("ORACLE_VALIDATION_STRICT") == "true"
+
+private val oracleParserBackedValidationFailureLimit: Int =
+    System.getenv("ORACLE_VALIDATION_FAILURE_LIMIT")?.toIntOrNull() ?: 20
+
+private val oracleParserBackedValidationImage: String =
+    System.getenv("ORACLE_TESTCONTAINERS_IMAGE") ?: "gvenzl/oracle-free:23.26.2-slim-faststart"
+
+private val oracleParserBackedValidationSharedMemoryBytes: Long =
+    System.getenv("ORACLE_TESTCONTAINERS_SHM_BYTES")?.toLongOrNull() ?: 2L * 1024L * 1024L * 1024L
+
+private val oracleParserBackedValidationServiceName: String? =
+    System.getenv("ORACLE_TESTCONTAINERS_SERVICE_NAME")?.takeIf { value -> value.isNotBlank() } ?: "FREEPDB1"
+
+private val oracleParserBackedValidationDockerImageName: DockerImageName =
+    DockerImageName
+        .parse(oracleParserBackedValidationImage)
+        .asCompatibleSubstituteFor("gvenzl/oracle-xe")
+
+private fun OracleContainer.testJdbcUrl(): String =
+    oracleParserBackedValidationServiceName?.let { serviceName ->
+        "jdbc:oracle:thin:@$host:$oraclePort/$serviceName"
+    } ?: jdbcUrl
+
+private fun bindExprCount(
+    sql: String,
+    fileName: String = "Test.sq",
+): Int = bindExprCount(mapOf(fileName to sql))
+
+private fun bindExprCount(
+    files: Map<String, String>,
+    deriveSchemaFromMigrations: Boolean = false,
+): Int {
+    val root = Files.createTempDirectory("sqldelight-oracle-bind-test").toFile()
+    val sourceDirectory = File(root, "com/example").apply { mkdirs() }
+    files.forEach { (fileName, sql) ->
+        File(sourceDirectory, fileName).writeText(sql)
+    }
+
+    val errors = mutableListOf<String>()
+    val compilationUnit = OracleParserTestCompilationUnit(File(root, "output"))
+    val environment =
+        SqlDelightEnvironment(
+            sourceFolders = listOf(root),
+            dependencyFolders = emptyList(),
+            properties =
+                OracleParserTestDatabaseProperties(
+                    rootDirectory = root,
+                    compilationUnit = compilationUnit,
+                    deriveSchemaFromMigrations = deriveSchemaFromMigrations,
+                ),
+            dialect = OracleDialect(),
+            verifyMigrations = true,
+            moduleName = "oracle-bind-test",
+            compilationUnit = compilationUnit,
+        )
+
+    LanguageParserDefinitions.INSTANCE.forLanguage(SqlDelightLanguage).createParser(environment.project)
+    LanguageParserDefinitions.INSTANCE.forLanguage(MigrationLanguage).createParser(environment.project)
+    environment.annotate(listOf(OptimisticLockCompilerAnnotator()), createAnnotationHolder(errors))
+
+    var count = 0
+    environment.forSourceFiles { psiFile ->
+        if (psiFile is SqlDelightQueriesFile) {
+            count += PsiTreeUtil.findChildrenOfType(psiFile, SqlBindExpr::class.java).size
+        }
+    }
+    return count
+}
+
+private fun queryParameterNames(
+    sql: String,
+    fileName: String = "Test.sq",
+): List<String> = queryParameterNames(mapOf(fileName to sql))
+
+private fun queryParameterNames(
+    files: Map<String, String>,
+    deriveSchemaFromMigrations: Boolean = false,
+): List<String> {
+    val root = Files.createTempDirectory("sqldelight-oracle-param-test").toFile()
+    val sourceDirectory = File(root, "com/example").apply { mkdirs() }
+    files.forEach { (fileName, sql) ->
+        File(sourceDirectory, fileName).writeText(sql)
+    }
+
+    val errors = mutableListOf<String>()
+    val compilationUnit = OracleParserTestCompilationUnit(File(root, "output"))
+    val environment =
+        SqlDelightEnvironment(
+            sourceFolders = listOf(root),
+            dependencyFolders = emptyList(),
+            properties =
+                OracleParserTestDatabaseProperties(
+                    rootDirectory = root,
+                    compilationUnit = compilationUnit,
+                    deriveSchemaFromMigrations = deriveSchemaFromMigrations,
+                ),
+            dialect = OracleDialect(),
+            verifyMigrations = true,
+            moduleName = "oracle-param-test",
+            compilationUnit = compilationUnit,
+        )
+
+    LanguageParserDefinitions.INSTANCE.forLanguage(SqlDelightLanguage).createParser(environment.project)
+    LanguageParserDefinitions.INSTANCE.forLanguage(MigrationLanguage).createParser(environment.project)
+    environment.annotate(listOf(OptimisticLockCompilerAnnotator()), createAnnotationHolder(errors))
+
+    val names = mutableListOf<String>()
+    environment.forSourceFiles { psiFile ->
+        if (psiFile is SqlDelightQueriesFile) {
+            psiFile.namedQueries.forEach { query ->
+                query.parameters.forEach { names += it.name }
+            }
+        }
+    }
+    return names
 }
 
 private data class OracleParserTestCompilationUnit(
@@ -8118,12 +9248,12 @@ private data class OracleParserTestCompilationUnit(
 private data class OracleParserTestDatabaseProperties(
     override val rootDirectory: File,
     private val compilationUnit: SqlDelightCompilationUnit,
+    override val deriveSchemaFromMigrations: Boolean = false,
 ) : SqlDelightDatabaseProperties {
     override val packageName: String = "com.example"
     override val className: String = "TestDatabase"
     override val dependencies: List<SqlDelightDatabaseName> = emptyList()
     override val compilationUnits: List<SqlDelightCompilationUnit> = listOf(compilationUnit)
-    override val deriveSchemaFromMigrations: Boolean = false
     override val generateAsync: Boolean = false
     override val expandSelectStar: Boolean = true
     override val treatNullAsUnknownForEquality: Boolean = false

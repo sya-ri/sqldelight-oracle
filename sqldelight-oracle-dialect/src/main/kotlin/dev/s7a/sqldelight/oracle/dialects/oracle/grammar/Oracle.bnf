@@ -34,7 +34,7 @@
   ]
 }
 
-overrides ::= stmt | type_name | column_constraint | generated_clause | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | drop_index_stmt | create_view_stmt | drop_view_stmt | insert_stmt | update_stmt | update_stmt_limited | delete_stmt | delete_stmt_limited | qualified_table_name | compound_select_stmt | select_stmt | with_clause | table_alias | table_or_subquery | group_by | join_operator | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt | extension_expr
+overrides ::= stmt | type_name | column_constraint | generated_clause | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | drop_index_stmt | create_view_stmt | drop_view_stmt | drop_table_stmt | insert_stmt | update_stmt | update_stmt_limited | delete_stmt | delete_stmt_limited | qualified_table_name | compound_select_stmt | select_stmt | with_clause | table_alias | table_or_subquery | group_by | join_operator | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt | extension_expr | bind_parameter
 
 stmt ::= explain_plan_stmt | oracle_core_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlStmtImpl"
@@ -43,6 +43,7 @@ stmt ::= explain_plan_stmt | oracle_core_stmt {
 }
 
 private oracle_core_stmt ::= (
+  drop_table_stmt |
   drop_database_link_stmt |
   drop_database_stmt |
   drop_pluggable_database_stmt |
@@ -210,6 +211,11 @@ private oracle_core_stmt ::= (
   {drop_trigger_stmt} |
   {drop_view_stmt} |
   {drop_index_stmt} |
+  create_materialized_view_log_stmt |
+  create_materialized_view_stmt |
+  create_schema_qualified_synonym_stmt |
+  create_unqualified_synonym_stmt |
+  create_synonym_stmt |
   {extension_stmt} |
   {alter_table_stmt} |
   {analyze_stmt} |
@@ -241,9 +247,20 @@ type_name ::= oracle_type_name | core_type_name {
   override = true
 }
 
-extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_boolean_literal_expr | oracle_boolean_not_expr | oracle_boolean_test_expr | oracle_extract_datetime_expr | oracle_character_function_expr | oracle_object_method_expr | oracle_object_attribute_expr | oracle_user_function_expr | oracle_collection_function_expr | oracle_object_reference_function_expr | oracle_oml_function_expr | oracle_ordered_aggregate_expr | oracle_analytic_function_expr | oracle_aggregate_function_expr | oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_condition_expr | oracle_multiset_expr | oracle_collate_expr | oracle_cursor_expr | oracle_validate_conversion_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_type_constructor_expr | oracle_bind_placeholder_expr {
+extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_boolean_literal_expr | oracle_boolean_not_expr | oracle_boolean_test_expr | oracle_extract_datetime_expr | oracle_character_function_expr | oracle_object_method_expr | oracle_object_attribute_expr | oracle_datetime_conversion_expr | oracle_number_conversion_expr | oracle_interval_conversion_expr | oracle_user_function_expr | oracle_collection_function_expr | oracle_object_reference_function_expr | oracle_oml_function_expr | oracle_ordered_aggregate_expr | oracle_analytic_function_expr | oracle_aggregate_function_expr | oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_condition_expr | oracle_multiset_expr | oracle_collate_expr | oracle_cursor_expr | oracle_validate_conversion_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_type_constructor_expr {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionExprImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionExpr"
+  override = true
+}
+
+// Overrides the base `bind_parameter` (which only accepts `?`) so the Oracle dialect also accepts
+// Oracle host-variable syntax: `:name` (named) and `:N` (numbered). Must stay non-private so it
+// produces a `SqlBindParameter` element; SQLDelight reads the `identifier`/`DIGIT` child to name the
+// argument (`:name` -> "name", `:1` -> index 1) and collapses repeated markers into one parameter.
+bind_parameter ::= ( '?' | ':' ( {identifier} | DIGIT ) ) {
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleBindParameterMixin"
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlBindParameterImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlBindParameter"
   override = true
 }
 
@@ -270,7 +287,7 @@ private oracle_datetime_field ::= (
   'TIMEZONE_HOUR' | 'TIMEZONE_MINUTE' | 'TIMEZONE_REGION' | 'TIMEZONE_ABBR' | 'TIMEZONE_OFFSET'
 )
 
-private oracle_character_function_expr ::= oracle_replace_expr | oracle_regexp_count_expr | oracle_regexp_instr_expr
+private oracle_character_function_expr ::= oracle_replace_expr | oracle_regexp_count_expr | oracle_regexp_instr_expr | oracle_translate_using_expr | oracle_trim_expr
 
 private oracle_replace_expr ::= 'REPLACE' LP <<expr '-1'>> COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] RP
 
@@ -279,6 +296,18 @@ private oracle_regexp_count_expr ::= 'REGEXP_COUNT' LP <<expr '-1'>> COMMA <<exp
 
 private oracle_regexp_instr_expr ::= 'REGEXP_INSTR' LP <<expr '-1'>> COMMA <<expr '-1'>>
   [ COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] ] ] ] ] RP
+
+private oracle_translate_using_expr ::= 'TRANSLATE' LP <<expr '-1'>> 'USING' ( 'CHAR_CS' | 'NCHAR_CS' ) RP
+
+private oracle_trim_expr ::= 'TRIM' LP [ 'LEADING' | 'TRAILING' | 'BOTH' ] [ <<expr '-1'>> ] 'FROM' <<expr '-1'>> RP
+
+private oracle_datetime_conversion_expr ::= ( 'TO_DATE' | 'TO_TIMESTAMP' | 'TO_TIMESTAMP_TZ' ) LP <<expr '-1'>> 'DEFAULT' <<expr '-1'>> 'ON' 'CONVERSION' 'ERROR'
+  [ COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] ] RP
+
+private oracle_number_conversion_expr ::= ( 'TO_NUMBER' | 'TO_BINARY_DOUBLE' | 'TO_BINARY_FLOAT' ) LP <<expr '-1'>> 'DEFAULT' <<expr '-1'>> 'ON' 'CONVERSION' 'ERROR'
+  [ COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] ] RP
+
+private oracle_interval_conversion_expr ::= ( 'TO_DSINTERVAL' | 'TO_YMINTERVAL' ) LP <<expr '-1'>> 'DEFAULT' <<expr '-1'>> 'ON' 'CONVERSION' 'ERROR' RP
 
 private oracle_user_function_expr ::= (
   oracle_qualified_user_function_name [ oracle_dblink_clause ] LP [ oracle_user_function_argument ( COMMA oracle_user_function_argument ) * ] RP |
@@ -370,7 +399,7 @@ private oracle_aggregate_function_name ::= (
   'STDDEV' | 'STDDEV_POP' | 'STDDEV_SAMP' | 'SUM' | 'VARIANCE' | 'VAR_POP' | 'VAR_SAMP'
 )
 
-private oracle_ordered_aggregate_expr ::= ( oracle_approx_percentile_expr | oracle_percentile_expr | oracle_listagg_expr ) [ oracle_filter_clause ] [ oracle_over_clause ]
+private oracle_ordered_aggregate_expr ::= ( oracle_approx_percentile_expr | oracle_percentile_expr | oracle_listagg_expr ) [ oracle_filter_clause ] [ oracle_over_clause [ oracle_filter_clause ] ]
 
 private oracle_approx_percentile_expr ::=
   'APPROX_PERCENTILE' LP <<expr '-1'>> [ 'DETERMINISTIC' ] [ COMMA <<expr '-1'>> ] RP oracle_within_group_clause
@@ -378,7 +407,7 @@ private oracle_approx_percentile_expr ::=
 private oracle_percentile_expr ::= ( 'PERCENTILE_CONT' | 'PERCENTILE_DISC' ) LP <<expr '-1'>> RP oracle_within_group_clause
 
 private oracle_listagg_expr ::=
-  'LISTAGG' LP [ 'DISTINCT' ] <<expr '-1'>> [ COMMA <<expr '-1'>> ] [ oracle_listagg_overflow_clause ] RP oracle_within_group_clause
+  'LISTAGG' LP [ 'ALL' | 'DISTINCT' ] <<expr '-1'>> [ COMMA <<expr '-1'>> ] [ oracle_listagg_overflow_clause ] RP oracle_within_group_clause
 
 private oracle_listagg_overflow_clause ::= 'ON' 'OVERFLOW' ( 'ERROR' | 'TRUNCATE' [ <<expr '-1'>> ] [ ( 'WITH' | 'WITHOUT' ) 'COUNT' ] )
 
@@ -414,18 +443,31 @@ private oracle_xml_expr ::= (
   oracle_xmlparse_expr |
   oracle_xmlpi_expr |
   oracle_xmlquery_expr |
+  oracle_xmlroot_expr |
   oracle_xmlserialize_expr |
   oracle_xmlexists_expr |
   oracle_simple_xml_function_expr
 )
 
-private oracle_xmlelement_expr ::= 'XMLELEMENT' LP oracle_xml_name ( COMMA oracle_xml_element_content ) * RP
+private oracle_xmlelement_expr ::= 'XMLELEMENT' LP [ oracle_xml_escaping_clause ] oracle_xmlelement_name ( COMMA oracle_xml_element_content ) * RP
 
-private oracle_xml_element_content ::= oracle_xmlattributes_expr | <<expr '-1'>> [ 'AS' oracle_xml_name ]
+private oracle_xml_escaping_clause ::= 'ENTITYESCAPING' | 'NOENTITYESCAPING'
 
-private oracle_xmlattributes_expr ::= 'XMLATTRIBUTES' LP oracle_xml_attribute ( COMMA oracle_xml_attribute ) * RP
+private oracle_xmlelement_name ::= [ 'NAME' ] oracle_xml_name
 
-private oracle_xml_attribute ::= <<expr '-1'>> [ 'AS' oracle_xml_name ]
+private oracle_xml_element_content ::= oracle_xmlattributes_expr | <<expr '-1'>> [ oracle_xml_content_alias ]
+
+private oracle_xml_content_alias ::= [ 'AS' ] oracle_xml_alias_name | 'AS' 'EVALNAME' <<expr '-1'>>
+
+private oracle_xml_alias_name ::= {string_literal} | string | oracle_object_name_part
+
+private oracle_xmlattributes_expr ::= 'XMLATTRIBUTES' LP [ oracle_xml_escaping_clause ] [ oracle_xml_schema_check_clause ] oracle_xml_attribute ( COMMA oracle_xml_attribute ) * RP
+
+private oracle_xml_schema_check_clause ::= 'SCHEMACHECK' | 'NOSCHEMACHECK'
+
+private oracle_xml_attribute ::= <<expr '-1'>> [ oracle_xml_attribute_alias ]
+
+private oracle_xml_attribute_alias ::= [ 'AS' ] oracle_xml_alias_name | 'AS' 'EVALNAME' <<expr '-1'>>
 
 private oracle_xmlagg_expr ::= 'XMLAGG' LP <<expr '-1'>> [ 'ORDER' 'BY' <<orderingTermExt <<ordering_term_real>>>> ( COMMA <<orderingTermExt <<ordering_term_real>>>> ) * ] RP
 
@@ -435,11 +477,17 @@ private oracle_xmlforest_expr ::= 'XMLFOREST' LP oracle_xml_element_content ( CO
 
 private oracle_xmlparse_expr ::= 'XMLPARSE' LP ( 'DOCUMENT' | 'CONTENT' ) <<expr '-1'>> [ 'WELLFORMED' ] RP
 
-private oracle_xmlpi_expr ::= 'XMLPI' LP [ 'NAME' ] oracle_xml_name [ COMMA <<expr '-1'>> ] RP
+private oracle_xmlpi_expr ::= 'XMLPI' LP ( 'EVALNAME' <<expr '-1'>> | [ 'NAME' ] oracle_xml_name ) [ COMMA <<expr '-1'>> ] RP
 
 private oracle_xmlquery_expr ::= 'XMLQUERY' LP {string_literal} [ oracle_xml_passing_clause ] 'RETURNING' 'CONTENT' [ 'NULL' 'ON' 'EMPTY' ] RP
 
 private oracle_xmlexists_expr ::= 'XMLEXISTS' LP {string_literal} [ oracle_xml_passing_clause ] RP
+
+private oracle_xmlroot_expr ::= 'XMLROOT' LP <<expr '-1'>> COMMA 'VERSION' oracle_xmlroot_version [ COMMA 'STANDALONE' oracle_xmlroot_standalone ] RP
+
+private oracle_xmlroot_version ::= 'NO' 'VALUE' | <<expr '-1'>>
+
+private oracle_xmlroot_standalone ::= 'NO' 'VALUE' | 'YES' | 'NO'
 
 private oracle_xmlserialize_expr ::= 'XMLSERIALIZE' LP ( 'DOCUMENT' | 'CONTENT' ) <<expr '-1'>> [ 'AS' oracle_type_name ] oracle_xmlserialize_option * RP
 
@@ -499,9 +547,11 @@ private oracle_vector_dimension_format ::= 'INT8' | 'BINARY' | 'FLOAT32' | 'FLOA
 
 private oracle_vector_embedding_expr ::= 'VECTOR_EMBEDDING' LP oracle_schema_object_name 'USING' <<expr '-1'>> 'AS' 'DATA' RP
 
-private oracle_vector_serialize_expr ::= 'VECTOR_SERIALIZE' LP <<expr '-1'>> [ 'RETURNING' oracle_vector_returning_type ] RP
+private oracle_vector_serialize_expr ::= 'VECTOR_SERIALIZE' LP <<expr '-1'>> [ 'RETURNING' oracle_vector_returning_type [ 'FORMAT' oracle_vector_serialize_format ] ] RP
 
 private oracle_vector_returning_type ::= oracle_object_name_part [ oracle_type_parameters ]
+
+private oracle_vector_serialize_format ::= 'SPARSE' | 'DENSE'
 
 private oracle_sql_json_expr ::= oracle_sql_json_generation_expr | oracle_sql_json_query_expr | oracle_json_mergepatch_expr | oracle_json_dataguide_expr
 
@@ -544,11 +594,13 @@ private oracle_sql_json_query_expr ::= oracle_json_value_expr | oracle_json_quer
 
 private oracle_json_value_expr ::= 'JSON_VALUE' LP <<expr '-1'>> [ oracle_json_format_clause ] COMMA oracle_json_path_expression oracle_json_value_clause * RP
 
-private oracle_json_value_clause ::= oracle_json_returning_clause | oracle_json_ascii_clause | oracle_json_value_on_error_clause | oracle_json_value_on_empty_clause | oracle_json_on_mismatch_clause
+private oracle_json_value_clause ::= oracle_json_value_returning_clause | oracle_json_ascii_clause | oracle_json_value_on_error_clause | oracle_json_value_on_empty_clause | oracle_json_on_mismatch_clause | oracle_json_value_type_clause
+
+private oracle_json_value_returning_clause ::= 'RETURNING' oracle_type_name [ 'TRUNCATE' ]
 
 private oracle_json_query_expr ::= 'JSON_QUERY' LP <<expr '-1'>> [ oracle_json_format_clause ] COMMA oracle_json_path_expression oracle_json_query_clause * RP
 
-private oracle_json_query_clause ::= oracle_json_returning_clause | oracle_json_ascii_clause | oracle_json_pretty_clause | oracle_json_query_wrapper_clause | oracle_json_disallow_scalars_clause | oracle_json_query_on_error_clause | oracle_json_query_on_empty_clause | oracle_json_on_mismatch_clause
+private oracle_json_query_clause ::= oracle_json_returning_clause | oracle_json_ascii_clause | oracle_json_pretty_clause | oracle_json_query_wrapper_clause | oracle_json_query_quotes_clause | oracle_json_disallow_scalars_clause | oracle_json_query_on_error_clause | oracle_json_query_on_empty_clause | oracle_json_on_mismatch_clause | oracle_json_query_type_clause
 
 private oracle_json_serialize_expr ::= 'JSON_SERIALIZE' LP <<expr '-1'>> oracle_json_serialize_clause * RP
 
@@ -561,7 +613,9 @@ private oracle_json_dataguide_expr ::= 'JSON_DATAGUIDE' LP <<expr '-1'>> [ COMMA
 
 private oracle_json_transform_expr ::= 'JSON_TRANSFORM' LP <<expr '-1'>> COMMA oracle_json_transform_operation ( COMMA oracle_json_transform_operation ) * oracle_json_transform_clause * RP
 
-private oracle_json_transform_clause ::= oracle_json_returning_clause | oracle_json_passing_clause
+private oracle_json_transform_clause ::= oracle_json_transform_type_clause | oracle_json_returning_clause | oracle_json_passing_clause
+
+private oracle_json_transform_type_clause ::= 'TYPE' LP ( 'STRICT' | 'LAX' ) RP
 
 private oracle_json_passing_clause ::= 'PASSING' oracle_json_passing_binding ( COMMA oracle_json_passing_binding ) *
 
@@ -609,7 +663,11 @@ private oracle_json_query_wrapper_clause ::= (
   'WITH' [ 'UNCONDITIONAL' | 'CONDITIONAL' ] [ 'ARRAY' ] 'WRAPPER'
 )
 
+private oracle_json_query_quotes_clause ::= ( 'KEEP' | 'OMIT' ) 'QUOTES' [ 'ON' 'SCALAR' 'STRING' ]
+
 private oracle_json_disallow_scalars_clause ::= 'DISALLOW' 'SCALARS'
+
+private oracle_json_query_type_clause ::= 'TYPE' LP ( 'STRICT' | 'LAX' ) RP
 
 private oracle_json_value_on_error_clause ::= oracle_json_scalar_error_behavior 'ON' 'ERROR'
 
@@ -623,21 +681,23 @@ private oracle_json_query_on_empty_clause ::= oracle_json_query_error_behavior '
 
 private oracle_json_query_error_behavior ::= 'NULL' | 'ERROR' | 'EMPTY' [ 'ARRAY' | 'OBJECT' ]
 
-private oracle_json_serialize_on_error_clause ::= ( 'NULL' | 'ERROR' ) 'ON' 'ERROR'
+private oracle_json_serialize_on_error_clause ::= ( 'NULL' | 'ERROR' | 'EMPTY' [ 'ARRAY' | 'OBJECT' ] ) 'ON' 'ERROR'
 
 private oracle_json_on_mismatch_clause ::= ( 'NULL' | 'ERROR' | 'IGNORE' ) 'ON' 'MISMATCH' [ LP oracle_json_mismatch_kind ( COMMA oracle_json_mismatch_kind ) * RP ]
 
 private oracle_json_mismatch_kind ::= 'MISSING' 'DATA' | 'EXTRA' 'DATA' | 'TYPE' 'ERROR'
 
-private oracle_type_conversion_expr ::= oracle_treat_expr
+private oracle_json_value_type_clause ::= 'TYPE' LP ( 'STRICT' | 'LAX' ) RP
 
-private oracle_validate_conversion_expr ::= 'VALIDATE_CONVERSION' LP <<expr '-1'>> 'AS' type_name RP
+private oracle_type_conversion_expr ::= oracle_cast_expr | oracle_treat_expr
+
+private oracle_cast_expr ::= 'CAST' LP <<expr '-1'>> 'AS' oracle_type_name [ 'DEFAULT' <<expr '-1'>> 'ON' 'CONVERSION' 'ERROR' ] [ COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] ] RP
+
+private oracle_validate_conversion_expr ::= 'VALIDATE_CONVERSION' LP <<expr '-1'>> 'AS' type_name [ COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] ] RP
 
 private oracle_treat_expr ::= 'TREAT' LP <<expr '-1'>> 'AS' oracle_type_name RP
 
 private oracle_type_constructor_expr ::= [ 'NEW' ] oracle_schema_object_name LP [ <<expr '-1'>> ( COMMA <<expr '-1'>> ) * ] RP
-
-private oracle_bind_placeholder_expr ::= ':' ( oracle_object_name_part | {signed_number} )
 
 private oracle_cursor_expr ::= 'CURSOR' LP <<compoundSelectStmtExt <<compound_select_stmt_real>>>> RP
 
@@ -725,7 +785,9 @@ private oracle_sql_json_condition_expr ::= (
   oracle_json_textcontains_condition_expr
 )
 
-private oracle_is_json_condition_expr ::= oracle_condition_operand 'IS' [ 'NOT' ] 'JSON' oracle_is_json_modifier *
+private oracle_is_json_condition_expr ::= oracle_condition_operand [ oracle_json_format_clause ] 'IS' [ 'NOT' ] 'JSON' ( oracle_is_json_args | oracle_is_json_modifier * )
+
+private oracle_is_json_args ::= LP [ oracle_json_format_clause ] [ LP ( 'STRICT' | 'LAX' ) RP ] [ ( 'ALLOW' | 'DISALLOW' ) 'SCALARS' ] [ ( 'WITH' | 'WITHOUT' ) 'UNIQUE' 'KEYS' ] RP
 
 private oracle_is_json_modifier ::= (
   'STRICT' |
@@ -741,11 +803,13 @@ private oracle_is_json_modifier ::= (
 private oracle_json_exists_condition_expr ::= 'JSON_EXISTS' LP <<expr '-1'>> [ oracle_json_format_clause ]
   COMMA oracle_json_path_expression oracle_json_exists_clause * RP
 
-private oracle_json_exists_clause ::= oracle_json_passing_clause | oracle_json_exists_on_error_clause | oracle_json_exists_on_empty_clause
+private oracle_json_exists_clause ::= oracle_json_passing_clause | oracle_json_exists_on_error_clause | oracle_json_exists_type_clause | oracle_json_exists_on_empty_clause
 
 private oracle_json_exists_on_error_clause ::= ( 'ERROR' | 'TRUE' | 'FALSE' ) 'ON' 'ERROR'
 
-private oracle_json_exists_on_empty_clause ::= ( 'ERROR' | 'TRUE' | 'FALSE' ) 'ON' 'EMPTY'
+private oracle_json_exists_type_clause ::= 'TYPE' LP ( 'STRICT' | 'LAX' ) RP
+
+private oracle_json_exists_on_empty_clause ::= ( 'NULL' | 'ERROR' | 'TRUE' | 'FALSE' | 'DEFAULT' <<expr '-1'>> ) 'ON' 'EMPTY'
 
 private oracle_json_equal_condition_expr ::= 'JSON_EQUAL' LP <<expr '-1'>> COMMA <<expr '-1'>>
   [ ( 'ERROR' | 'TRUE' | 'FALSE' ) 'ON' 'ERROR' ] RP
@@ -775,7 +839,12 @@ private oracle_collate_operand ::= oracle_qualified_object_name | {string_litera
 
 private oracle_qualified_object_name ::= oracle_object_name_part ( DOT oracle_object_name_part ) *
 
-private oracle_pseudocolumn_expr ::= oracle_simple_pseudocolumn
+private oracle_pseudocolumn_expr ::= oracle_qualified_table_pseudocolumn | oracle_simple_pseudocolumn
+
+private oracle_qualified_table_pseudocolumn ::= oracle_object_name_part DOT (
+  'ORA_ROWSCN' |
+  'ROWID'
+)
 
 private oracle_simple_pseudocolumn ::= (
   'COLUMN_VALUE' |
@@ -1054,7 +1123,7 @@ compound_select_stmt ::= [ {with_clause} ] {select_stmt}
   [ 'ORDER' [ 'SIBLINGS' ] 'BY' {ordering_term} ( COMMA {ordering_term} ) * ]
   [ {limit_stmt} ]
   [ oracle_for_update_clause ] {
-  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCompoundSelectStmtImpl"
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleCompoundSelectStmtMixin"
   implements = "com.alecstrong.sql.psi.core.psi.SqlCompoundSelectStmt"
   override = true
 }
@@ -1062,6 +1131,7 @@ compound_select_stmt ::= [ {with_clause} ] {select_stmt}
 select_stmt ::= oracle_select_query | oracle_values_query {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlSelectStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlSelectStmt"
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleSelectStmtMixin"
   override = true
 }
 
@@ -1071,8 +1141,46 @@ private oracle_select_query ::= 'SELECT' [ 'DISTINCT' | 'UNIQUE' | 'ALL' ]
   [ 'WHERE' <<expr '-1'>> ]
   [ oracle_hierarchical_query_clause ]
   [ oracle_group_by_having_clause ]
+  [ oracle_model_clause ]
   [ oracle_window_clause ]
   [ oracle_qualify_clause ]
+
+private oracle_model_clause ::= 'MODEL' oracle_model_clause_token +
+
+private oracle_model_clause_token ::= (
+  oracle_trigger_source_token |
+  {string_literal} |
+  {signed_number} |
+  COMMA |
+  DOT |
+  EQ |
+  GT |
+  LP |
+  RP |
+  '[' |
+  ']' |
+  '+' |
+  '-' |
+  '*' |
+  '/' |
+  'ALL' |
+  'DIMENSION' |
+  'IGNORE' |
+  'ITERATE' |
+  'MEASURES' |
+  'NAV' |
+  'ORDER' |
+  'PARTITION' |
+  'REFERENCE' |
+  'RETURN' |
+  'ROWS' |
+  'RULES' |
+  'SEQUENTIAL' |
+  'UNIQUE' |
+  'UNTIL' |
+  'UPDATED' |
+  'UPSERT'
+)
 
 private oracle_window_clause ::= 'WINDOW' oracle_window_definition ( COMMA oracle_window_definition ) *
 
@@ -1087,17 +1195,7 @@ private oracle_hierarchical_query_clause ::= (
   'START' 'WITH' oracle_clause_condition 'CONNECT' 'BY' [ 'NOCYCLE' ] oracle_clause_condition
 )
 
-private oracle_clause_condition ::= oracle_clause_condition_operand [ oracle_clause_comparison_operator oracle_clause_condition_operand ]
-
-private oracle_clause_condition_operand ::= [ 'PRIOR' | 'CONNECT_BY_ROOT' ] (
-  oracle_qualified_object_name |
-  {string_literal} |
-  DIGIT |
-  {signed_number} |
-  LP oracle_clause_condition RP
-)
-
-private oracle_clause_comparison_operator ::= EQ | '^=' | '!=' | '<>' | '>' | '<'
+private oracle_clause_condition ::= <<expr '-1'>>
 
 private oracle_group_by_having_clause ::= (
   'HAVING' <<expr '-1'>> {group_by} [ 'HAVING' <<expr '-1'>> ] |
@@ -1187,12 +1285,14 @@ private oracle_graphql_passing_clause ::= 'PASSING' oracle_graphql_variable_bind
 private oracle_graphql_variable_binding ::= <<expr '-1'>> 'AS' oracle_object_name_part
 
 oracle_json_table_reference ::= 'JSON_TABLE' LP <<expr '-1'>> [ oracle_json_format_clause ]
-  COMMA oracle_json_path_expression [ oracle_json_passing_clause ] oracle_json_table_row_clause * oracle_json_table_columns_clause RP
+  [ COMMA oracle_json_path_expression [ oracle_json_passing_clause ] ] oracle_json_table_row_clause * oracle_json_table_columns_clause RP
   [ oracle_table_alias_clause ]
 
-private oracle_json_table_row_clause ::= oracle_json_table_on_error_clause | oracle_json_table_on_empty_clause
+private oracle_json_table_row_clause ::= oracle_json_table_on_error_clause | oracle_json_table_type_clause | oracle_json_table_on_empty_clause
 
 private oracle_json_table_on_error_clause ::= ( 'NULL' | 'ERROR' ) 'ON' 'ERROR'
+
+private oracle_json_table_type_clause ::= 'TYPE' LP ( 'STRICT' | 'LAX' ) RP
 
 private oracle_json_table_on_empty_clause ::= oracle_json_scalar_error_behavior 'ON' 'EMPTY'
 
@@ -1215,7 +1315,7 @@ oracle_json_table_exists_column ::= <<columnAliasExt <<column_alias_real>>>> [ o
 
 oracle_json_table_nested_column ::= 'NESTED' [ 'PATH' ] oracle_json_path_expression oracle_json_table_columns_clause
 
-private oracle_json_table_datatype ::= oracle_object_name_part [ oracle_type_parameters ]
+private oracle_json_table_datatype ::= oracle_object_name_part [ oracle_type_parameters ] [ 'WITH' [ 'LOCAL' ] 'TIME' 'ZONE' ]
 
 private oracle_json_table_path_clause ::= 'PATH' oracle_json_path_expression
 
@@ -1246,7 +1346,7 @@ oracle_xmltable_column ::= <<columnAliasExt <<column_alias_real>>>> (
   oracle_xmltable_datatype [ oracle_xmltype_sequence_clause ] [ 'PATH' {string_literal} ] [ 'DEFAULT' <<expr '-1'>> ]
 )
 
-private oracle_xmltable_datatype ::= oracle_object_name_part [ oracle_type_parameters ]
+private oracle_xmltable_datatype ::= oracle_object_name_part [ oracle_type_parameters ] [ 'WITH' [ 'LOCAL' ] 'TIME' 'ZONE' ]
 
 private oracle_xmltype_sequence_clause ::= [ 'SEQUENCE' ] 'BY' 'REF'
 
@@ -1394,7 +1494,18 @@ private oracle_row_pattern_order_by_clause ::= 'ORDER' 'BY' <<orderingTermExt <<
 
 oracle_row_pattern_measures_clause ::= 'MEASURES' oracle_row_pattern_measure_column ( COMMA oracle_row_pattern_measure_column ) *
 
-oracle_row_pattern_measure_column ::= [ 'RUNNING' | 'FINAL' ] oracle_row_pattern_operand [ [ 'AS' ] <<columnAliasExt <<column_alias_real>>>> ]
+oracle_row_pattern_measure_column ::= [ 'RUNNING' | 'FINAL' ] oracle_row_pattern_measure_expr [ [ 'AS' ] <<columnAliasExt <<column_alias_real>>>> ]
+
+private oracle_row_pattern_measure_expr ::= (
+  oracle_row_pattern_navigation_expr |
+  oracle_row_pattern_function_expr |
+  <<expr '-1'>>
+)
+
+private oracle_row_pattern_function_expr ::= ( 'CLASSIFIER' | 'MATCH_NUMBER' | 'ROW_NUMBER' ) LP RP
+
+private oracle_row_pattern_navigation_expr ::= ( 'FIRST' | 'LAST' | 'PREV' | 'NEXT' ) LP
+  oracle_schema_object_name [ COMMA <<expr '-1'>> ] RP ( DOT oracle_object_name_part ) *
 
 private oracle_row_pattern_rows_per_match_clause ::= (
   'ONE' 'ROW' 'PER' 'MATCH' |
@@ -1440,7 +1551,7 @@ private oracle_row_pattern_bounded_quantifier ::= (
 
 private oracle_sample_clause ::= 'SAMPLE' [ 'BLOCK' ] LP <<expr '-1'>> RP [ 'SEED' LP <<expr '-1'>> RP ]
 
-private oracle_table_alias_clause ::= [ 'AS' ] <<tableAliasExt <<table_alias_real>>>>
+private oracle_table_alias_clause ::= [ 'AS' ] !'MODEL' <<tableAliasExt <<table_alias_real>>>>
 
 private oracle_indexed_by_clause ::= (
   'INDEXED' 'BY' <<indexNameExt <<index_name_real>>>> |
@@ -1595,7 +1706,7 @@ private oracle_update_stmt ::= [ {with_clause} ] 'UPDATE' {qualified_table_name}
   [ oracle_error_logging_clause ]
 
 private oracle_update_set_clause ::= (
-  {column_name} EQ oracle_update_set_expr |
+  oracle_schema_object_name EQ oracle_update_set_expr |
   LP {column_name} ( COMMA {column_name} ) * RP EQ LP ( <<compoundSelectStmtExt <<compound_select_stmt_real>>>> | oracle_update_set_expr ( COMMA oracle_update_set_expr ) * ) RP |
   'VALUE' LP <<tableAliasExt <<table_alias_real>>>> RP EQ {setter_expression}
 )
@@ -1693,6 +1804,7 @@ private oracle_plsql_procedure_declaration ::= 'PROCEDURE' oracle_object_name_pa
   ( 'AS' | 'IS' ) oracle_inline_plsql_source_token * 'END' [ oracle_object_name_part ] ';'
 
 private oracle_inline_plsql_source_token ::= (
+  oracle_inline_plsql_block_end |
   oracle_object_name_part |
   {string_literal} |
   string |
@@ -1701,6 +1813,7 @@ private oracle_inline_plsql_source_token ::= (
   COMMA |
   DOT |
   EQ |
+  GT |
   LP |
   RP |
   ':' |
@@ -1711,14 +1824,27 @@ private oracle_inline_plsql_source_token ::= (
   ';' |
   'BEGIN' |
   'DEFAULT' |
+  'ELSE' |
+  'ELSIF' |
+  'FOR' |
+  'FROM' |
   'IF' |
   'IN' |
+  'INSERT' |
   'INOUT' |
+  'INTO' |
+  'LOOP' |
   'NULL' |
   'NOCOPY' |
   'OUT' |
-  'RETURN'
+  'RETURN' |
+  'SELECT' |
+  'THEN' |
+  'VALUES' |
+  'WHERE'
 )
+
+private oracle_inline_plsql_block_end ::= 'END' ( 'IF' | 'LOOP' ) ';'
 
 private oracle_subquery_factoring_clause ::= {cte_table_name} 'AS' LP {with_clause_auxiliary_stmt} RP
   [ oracle_search_clause ] [ oracle_cycle_clause ]
@@ -1791,6 +1917,7 @@ create_table_stmt ::= 'CREATE' (
 ) oracle_create_table_top_level_clause * {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCreateTableStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlCreateTableStmt"
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleCreateTableStmtMixin"
   elementTypeClass = "com.alecstrong.sql.psi.core.psi.mixins.CreateTableElementType"
   stubClass = "com.alecstrong.sql.psi.core.psi.SchemaContributorStub"
   override = true
@@ -2944,7 +3071,7 @@ create_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'FORCE' | 'NO' 'FORCE' ]
   [ oracle_annotations_clause ] 'AS' {compound_select_stmt} [ 'BEQUEATH' ( 'CURRENT_USER' | 'DEFINER' ) ]
   [ oracle_subquery_restriction_clause ]
   [ 'CONTAINER_MAP' | 'CONTAINERS_DEFAULT' ] {
-  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCreateViewStmtImpl"
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleCreateViewStmtMixin"
   implements = "com.alecstrong.sql.psi.core.psi.TableElement"
   elementTypeClass = "com.alecstrong.sql.psi.core.psi.mixins.CreateViewElementType"
   stubClass = "com.alecstrong.sql.psi.core.psi.SchemaContributorStub"
@@ -3127,6 +3254,14 @@ private oracle_alter_view_drop_constraint ::= 'DROP' (
   'UNIQUE' LP oracle_object_name_part ( COMMA oracle_object_name_part ) * RP
 )
 
+drop_table_stmt ::= 'DROP' 'TABLE' [ 'IF' 'EXISTS' ] oracle_schema_object_name
+  [ 'CASCADE' 'CONSTRAINTS' ] [ 'PURGE' ] {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlDropTableStmtImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlDropTableStmt"
+  override = true
+  pin = 2
+}
+
 drop_view_stmt ::= 'DROP' 'VIEW' [ 'IF' 'EXISTS' ] oracle_schema_object_name [ 'CASCADE' 'CONSTRAINTS' ] {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlDropViewStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlDropViewStmt"
@@ -3134,7 +3269,7 @@ drop_view_stmt ::= 'DROP' 'VIEW' [ 'IF' 'EXISTS' ] oracle_schema_object_name [ '
   pin = 2
 }
 
-extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | create_materialized_zonemap_stmt | create_materialized_view_log_stmt | create_materialized_view_stmt | alter_view_stmt | alter_materialized_view_log_stmt | alter_materialized_view_stmt | alter_materialized_zonemap_stmt | alter_analytic_view_stmt | alter_attribute_dimension_stmt | alter_hierarchy_stmt | alter_dimension_stmt | alter_cluster_stmt | create_cluster_stmt | alter_database_link_stmt | create_database_link_stmt | create_directory_stmt | alter_index_stmt | create_indextype_stmt | alter_indextype_stmt | alter_operator_stmt | alter_outline_stmt | create_profile_stmt | create_schema_stmt | create_flashback_archive_stmt | create_context_stmt | create_domain_stmt | alter_domain_stmt | drop_domain_stmt | create_mle_module_stmt | create_mle_env_stmt | alter_mle_env_stmt | alter_mle_module_stmt | alter_property_graph_stmt | alter_json_relational_duality_view_stmt | create_assertion_stmt | create_directive_stmt | create_edition_stmt | create_inmemory_join_group_stmt | create_java_stmt | create_logical_partition_tracking_stmt | alter_assertion_stmt | alter_directive_stmt | alter_flashback_archive_stmt | alter_inmemory_join_group_stmt | alter_lockdown_profile_stmt | alter_pmem_filestore_stmt | alter_profile_stmt | alter_resource_cost_stmt | alter_rollback_segment_stmt | alter_database_dictionary_stmt | alter_database_stmt | alter_pluggable_database_stmt | alter_tablespace_set_stmt | alter_tablespace_stmt | alter_diskgroup_stmt | create_database_stmt | create_pluggable_database_stmt | create_controlfile_stmt | create_tablespace_set_stmt | create_tablespace_stmt | create_diskgroup_stmt | create_spfile_stmt | create_pfile_stmt | create_true_cache_stmt | create_lockdown_profile_stmt | create_pmem_filestore_stmt | create_restore_point_stmt | create_rollback_segment_stmt | create_synonym_stmt | create_operator_stmt | create_outline_stmt | create_iceberg_table_stmt | create_json_relational_duality_view_stmt | create_property_graph_stmt | create_analytic_view_stmt | create_attribute_dimension_stmt | create_hierarchy_stmt | create_dimension_stmt | drop_materialized_view_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | drop_synonym_stmt | drop_type_body_stmt | drop_type_stmt | drop_function_stmt | drop_procedure_stmt | drop_package_stmt | drop_library_stmt | drop_java_stmt | drop_analytic_view_stmt | drop_attribute_dimension_stmt | drop_hierarchy_stmt | drop_dimension_stmt | drop_cluster_stmt | drop_database_link_stmt | drop_directory_stmt | drop_indextype_stmt | drop_operator_stmt | drop_outline_stmt | drop_property_graph_stmt | drop_iceberg_table_stmt | drop_context_stmt | drop_mle_env_stmt | drop_mle_module_stmt | drop_assertion_stmt | drop_directive_stmt | drop_edition_stmt | drop_flashback_archive_stmt | drop_inmemory_join_group_stmt | drop_lockdown_profile_stmt | drop_pmem_filestore_stmt | drop_profile_stmt | drop_rollback_segment_stmt | drop_database_stmt | drop_pluggable_database_stmt | drop_tablespace_set_stmt | drop_tablespace_stmt | drop_diskgroup_stmt | drop_restore_point_stmt | set_transaction_stmt | set_constraints_stmt | set_role_stmt | set_use_data_grants_only_stmt | alter_session_stmt | alter_system_stmt | alter_synonym_stmt | alter_trigger_stmt | alter_type_stmt | alter_function_stmt | alter_procedure_stmt | alter_package_stmt | alter_library_stmt | alter_java_stmt | administer_key_management_stmt | create_function_stmt | create_procedure_stmt | create_package_body_stmt | create_package_stmt | create_type_body_stmt | create_type_stmt | create_library_stmt | create_audit_policy_stmt | alter_audit_policy_stmt | drop_audit_policy_stmt | audit_stmt | noaudit_stmt | create_data_role_stmt | drop_data_role_stmt | grant_data_role_stmt | revoke_data_role_stmt | create_data_grant_stmt | drop_data_grant_stmt | create_application_identity_stmt | drop_application_identity_stmt | create_end_user_context_stmt | drop_end_user_context_stmt | update_end_user_context_stmt | create_end_user_stmt | alter_end_user_stmt | drop_end_user_stmt | create_user_stmt | alter_user_stmt | create_role_stmt | alter_role_stmt | grant_stmt | revoke_stmt | drop_role_stmt | drop_user_stmt | associate_statistics_stmt | disassociate_statistics_stmt | rename_stmt | comment_on_stmt | purge_stmt | flashback_table_stmt | flashback_database_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
+extension_stmt ::= create_sequence_stmt | alter_sequence_stmt | drop_sequence_stmt | create_materialized_zonemap_stmt | create_materialized_view_log_stmt | create_materialized_view_stmt | alter_view_stmt | alter_materialized_view_log_stmt | alter_materialized_view_stmt | alter_materialized_zonemap_stmt | alter_analytic_view_stmt | alter_attribute_dimension_stmt | alter_hierarchy_stmt | alter_dimension_stmt | alter_cluster_stmt | create_cluster_stmt | alter_database_link_stmt | create_database_link_stmt | create_directory_stmt | alter_index_stmt | create_indextype_stmt | alter_indextype_stmt | alter_operator_stmt | alter_outline_stmt | create_profile_stmt | create_schema_stmt | create_flashback_archive_stmt | create_context_stmt | create_domain_stmt | alter_domain_stmt | drop_domain_stmt | create_mle_module_stmt | create_mle_env_stmt | alter_mle_env_stmt | alter_mle_module_stmt | alter_property_graph_stmt | alter_json_relational_duality_view_stmt | create_assertion_stmt | create_directive_stmt | create_edition_stmt | create_inmemory_join_group_stmt | create_java_stmt | create_logical_partition_tracking_stmt | alter_assertion_stmt | alter_directive_stmt | alter_flashback_archive_stmt | alter_inmemory_join_group_stmt | alter_lockdown_profile_stmt | alter_pmem_filestore_stmt | alter_profile_stmt | alter_resource_cost_stmt | alter_rollback_segment_stmt | alter_database_dictionary_stmt | alter_database_stmt | alter_pluggable_database_stmt | alter_tablespace_set_stmt | alter_tablespace_stmt | alter_diskgroup_stmt | create_database_stmt | create_pluggable_database_stmt | create_controlfile_stmt | create_tablespace_set_stmt | create_tablespace_stmt | create_diskgroup_stmt | create_spfile_stmt | create_pfile_stmt | create_true_cache_stmt | create_lockdown_profile_stmt | create_pmem_filestore_stmt | create_restore_point_stmt | create_rollback_segment_stmt | create_schema_qualified_synonym_stmt | create_unqualified_synonym_stmt | create_synonym_stmt | create_operator_stmt | create_outline_stmt | create_iceberg_table_stmt | create_json_relational_duality_view_stmt | create_property_graph_stmt | create_analytic_view_stmt | create_attribute_dimension_stmt | create_hierarchy_stmt | create_dimension_stmt | drop_materialized_view_stmt | drop_materialized_view_log_stmt | drop_materialized_zonemap_stmt | drop_synonym_stmt | drop_type_body_stmt | drop_type_stmt | drop_function_stmt | drop_procedure_stmt | drop_package_stmt | drop_library_stmt | drop_java_stmt | drop_analytic_view_stmt | drop_attribute_dimension_stmt | drop_hierarchy_stmt | drop_dimension_stmt | drop_cluster_stmt | drop_database_link_stmt | drop_directory_stmt | drop_indextype_stmt | drop_operator_stmt | drop_outline_stmt | drop_property_graph_stmt | drop_iceberg_table_stmt | drop_context_stmt | drop_mle_env_stmt | drop_mle_module_stmt | drop_assertion_stmt | drop_directive_stmt | drop_edition_stmt | drop_flashback_archive_stmt | drop_inmemory_join_group_stmt | drop_lockdown_profile_stmt | drop_pmem_filestore_stmt | drop_profile_stmt | drop_rollback_segment_stmt | drop_database_stmt | drop_pluggable_database_stmt | drop_tablespace_set_stmt | drop_tablespace_stmt | drop_diskgroup_stmt | drop_restore_point_stmt | set_transaction_stmt | set_constraints_stmt | set_role_stmt | set_use_data_grants_only_stmt | alter_session_stmt | alter_system_stmt | alter_synonym_stmt | alter_trigger_stmt | alter_type_stmt | alter_function_stmt | alter_procedure_stmt | alter_package_stmt | alter_library_stmt | alter_java_stmt | administer_key_management_stmt | create_function_stmt | create_procedure_stmt | create_package_body_stmt | create_package_stmt | create_type_body_stmt | create_type_stmt | create_library_stmt | create_audit_policy_stmt | alter_audit_policy_stmt | drop_audit_policy_stmt | audit_stmt | noaudit_stmt | create_data_role_stmt | drop_data_role_stmt | grant_data_role_stmt | revoke_data_role_stmt | create_data_grant_stmt | drop_data_grant_stmt | create_application_identity_stmt | drop_application_identity_stmt | create_end_user_context_stmt | drop_end_user_context_stmt | update_end_user_context_stmt | create_end_user_stmt | alter_end_user_stmt | drop_end_user_stmt | create_user_stmt | alter_user_stmt | create_role_stmt | alter_role_stmt | grant_stmt | revoke_stmt | drop_role_stmt | drop_user_stmt | associate_statistics_stmt | disassociate_statistics_stmt | rename_stmt | comment_on_stmt | purge_stmt | flashback_table_stmt | flashback_database_stmt | merge_stmt | call_stmt | lock_table_stmt | explain_plan_stmt | truncate_table_stmt | truncate_cluster_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionStmtImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionStmt"
   override = true
@@ -3180,8 +3315,12 @@ create_materialized_view_log_stmt ::= 'CREATE' 'MATERIALIZED' 'VIEW' 'LOG' [ 'IF
 }
 
 create_materialized_view_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] 'MATERIALIZED' 'VIEW' [ 'IF' 'NOT' 'EXISTS' ]
-  oracle_schema_object_name [ LP oracle_object_name_part ( COMMA oracle_object_name_part ) * RP ]
+  [ {database_name} DOT ] {view_name} [ LP oracle_object_name_part ( COMMA oracle_object_name_part ) * RP ]
   oracle_materialized_view_create_clause * [ oracle_annotations_clause ] 'AS' {compound_select_stmt} [ oracle_annotations_clause ] {
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleCreateMaterializedViewStmtMixin"
+  implements = "com.alecstrong.sql.psi.core.psi.TableElement"
+  elementTypeClass = "com.alecstrong.sql.psi.core.psi.mixins.CreateViewElementType"
+  stubClass = "com.alecstrong.sql.psi.core.psi.SchemaContributorStub"
   pin = 4
 }
 
@@ -3242,14 +3381,36 @@ drop_materialized_zonemap_stmt ::= 'DROP' 'MATERIALIZED' 'ZONEMAP' [ 'IF' 'EXIST
 }
 
 create_synonym_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'EDITIONABLE' | 'NONEDITIONABLE' ]
-  [ oracle_public_qualifier ] 'SYNONYM' [ 'IF' 'NOT' 'EXISTS' ] oracle_schema_object_name
+  [ oracle_public_qualifier ] 'SYNONYM' [ 'IF' 'NOT' 'EXISTS' ] oracle_qualified_schema_object_name
   [ oracle_synonym_sharing_clause ] 'FOR' oracle_synonym_target
+
+create_schema_qualified_synonym_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'EDITIONABLE' | 'NONEDITIONABLE' ]
+  [ oracle_public_qualifier ] 'SYNONYM' [ 'IF' 'NOT' 'EXISTS' ] {database_name} DOT {view_name}
+  [ oracle_synonym_sharing_clause ] 'FOR' oracle_local_synonym_target {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCreateViewStmtImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.TableElement"
+  elementTypeClass = "com.alecstrong.sql.psi.core.psi.mixins.CreateViewElementType"
+  stubClass = "com.alecstrong.sql.psi.core.psi.SchemaContributorStub"
+}
+
+create_unqualified_synonym_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'EDITIONABLE' | 'NONEDITIONABLE' ]
+  [ oracle_public_qualifier ] 'SYNONYM' [ 'IF' 'NOT' 'EXISTS' ] {table_name}
+  [ oracle_synonym_sharing_clause ] 'FOR' oracle_synonym_target {
+  extends = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.impl.OracleCreateSynonymMixin"
+  implements = "com.alecstrong.sql.psi.core.psi.TableElement"
+  elementTypeClass = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleCreateSynonymElementType"
+  stubClass = "com.alecstrong.sql.psi.core.psi.SchemaContributorStub"
+}
 
 private oracle_public_qualifier ::= 'PUBLIC' | '"PUBLIC"'
 
 private oracle_synonym_sharing_clause ::= 'SHARING' EQ ( 'METADATA' | 'NONE' )
 
-private oracle_synonym_target ::= oracle_schema_object_name [ '@' oracle_database_link_reference ]
+oracle_local_synonym_target ::= oracle_object_name_part !DOT [ '@' oracle_database_link_reference ]
+
+oracle_synonym_target ::= oracle_schema_object_name [ '@' oracle_database_link_reference ]
+
+private oracle_qualified_schema_object_name ::= oracle_object_name_part DOT oracle_object_name_part
 
 private oracle_database_link_reference ::= oracle_object_name_part ( DOT oracle_object_name_part ) *
 
@@ -5844,6 +6005,7 @@ private oracle_sequence_clause ::= (
 merge_stmt ::= 'MERGE' 'INTO' oracle_merge_table_reference [ oracle_merge_using_clause ] 'ON' LP <<expr '-1'>> RP
   ( oracle_merge_update_clause | oracle_merge_insert_clause ) +
   [ oracle_wait_clause ] [ oracle_error_logging_clause ] [ oracle_returning_clause ] {
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleMergeStmtMixin"
   pin = 1
 }
 

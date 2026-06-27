@@ -13,19 +13,27 @@ import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleFromUsi
 internal abstract class OracleUpdateStmtMixin(
     node: ASTNode,
 ) : SqlUpdateStmtImpl(node) {
-    override fun queryAvailable(child: PsiElement): Collection<QueryResult> = oracleUpdateQueryAvailable(super.queryAvailable(child))
+    override fun queryAvailable(child: PsiElement): Collection<QueryResult> =
+        oracleUpdateQueryAvailable(this, super.queryAvailable(child), child) { target, targetName ->
+            tableAvailable(target, targetName)
+        }
 }
 
 internal abstract class OracleUpdateStmtLimitedMixin(
     node: ASTNode,
 ) : SqlUpdateStmtLimitedImpl(node) {
-    override fun queryAvailable(child: PsiElement): Collection<QueryResult> = oracleUpdateQueryAvailable(super.queryAvailable(child))
+    override fun queryAvailable(child: PsiElement): Collection<QueryResult> =
+        oracleUpdateQueryAvailable(this, super.queryAvailable(child), child) { target, targetName ->
+            tableAvailable(target, targetName)
+        }
 }
 
-private fun PsiElement.oracleUpdateQueryAvailable(base: Collection<QueryResult>): Collection<QueryResult> =
-    aliasUpdateTarget(base) + fromUsingQueryExposed()
-
-private fun PsiElement.aliasUpdateTarget(base: Collection<QueryResult>): Collection<QueryResult> = oracleAliasNamedTarget(base)
+private fun oracleUpdateQueryAvailable(
+    statement: PsiElement,
+    base: Collection<QueryResult>,
+    child: PsiElement,
+    tableResolver: (PsiElement, String) -> Collection<QueryResult>,
+): Collection<QueryResult> = statement.oracleDmlTargetAvailable(base, child, tableResolver) + statement.fromUsingQueryExposed()
 
 private fun PsiElement.fromUsingQueryExposed(): Collection<QueryResult> {
     val fromUsingClause = PsiTreeUtil.getChildOfType(this, OracleOracleFromUsingClause::class.java) ?: return emptyList()

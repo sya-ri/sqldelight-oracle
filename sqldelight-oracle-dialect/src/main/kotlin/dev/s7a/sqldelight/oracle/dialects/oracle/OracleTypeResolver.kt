@@ -48,9 +48,15 @@ public class OracleTypeResolver(
         functionExpr: SqlFunctionExpr,
     ): IntermediateType? =
         when (functionName.trim().uppercase()) {
+            "JSON_ARRAY",
+            "JSON_ARRAYAGG",
+            "JSON_OBJECT",
+            "JSON_OBJECTAGG",
             "JSON_VALUE",
             "JSON_QUERY",
             "JSON_SERIALIZE",
+            "JSON_MERGEPATCH",
+            "JSON_TRANSFORM",
             "XMLSERIALIZE",
             -> {
                 functionExpr.text.oracleReturningTypeName()?.let { typeName -> IntermediateType(OracleType.fromSqlTypeName(typeName)) }
@@ -107,22 +113,14 @@ public class OracleTypeResolver(
             "round", "trunc" -> {
                 when (functionExpr.exprList.size) {
                     1 -> {
-                        parentResolver
-                            .resolvedType(functionExpr.exprList.single())
-                            .takeIf { type -> type.dialectType in NUMERIC_TYPE_ORDER }
+                        parentResolver.resolvedType(functionExpr.exprList.single()).roundOrTruncSingleArgumentType()
                     }
 
                     2 -> {
                         functionExpr.exprList
                             .map { expression ->
                                 parentResolver.resolvedType(expression).dialectType
-                            }.let { argumentTypes ->
-                                if (argumentTypes.all { type -> type in NUMERIC_TYPE_ORDER }) {
-                                    IntermediateType(DECIMAL_NUMBER)
-                                } else {
-                                    null
-                                }
-                            }
+                            }.roundOrTruncTwoArgumentType()
                     }
 
                     else -> {
@@ -275,9 +273,23 @@ public class OracleTypeResolver(
             }
 
             "extract" -> {
-                functionExpr.exprList
-                    .takeIf { exprList -> exprList.size == 2 }
-                    ?.let { IntermediateType(OracleType.TEXT) }
+                when (functionExpr.exprList.size) {
+                    1 -> {
+                        when (functionExpr.text.oracleExtractDatetimeField()) {
+                            "TIMEZONE_REGION", "TIMEZONE_ABBR" -> IntermediateType(OracleType.TEXT)
+                            null -> null
+                            else -> IntermediateType(DECIMAL_NUMBER)
+                        }
+                    }
+
+                    2 -> {
+                        IntermediateType(OracleType.TEXT)
+                    }
+
+                    else -> {
+                        null
+                    }
+                }
             }
 
             else -> {
@@ -295,6 +307,13 @@ public class OracleTypeResolver(
 
         private fun String.oracleCastTypeName(): String? = oracleTypeNameAfterKeyword("AS")
 
+        private fun String.oracleExtractDatetimeField(): String? =
+            Regex("""(?i)^\s*EXTRACT\s*\(\s*([A-Z_]+)\s+FROM\b""")
+                .find(this)
+                ?.groupValues
+                ?.get(1)
+                ?.uppercase()
+
         private fun String.oracleTypeNameAfterKeyword(keyword: String): String? {
             val match = oracleReturningTypeRegex(keyword).find(this)
             return match?.groupValues?.get(1)?.trim()
@@ -309,6 +328,20 @@ public class OracleTypeResolver(
                     """CHARACTER\s+VARYING\s*\([^)]*\)|VARYING\s+ARRAY\s*(?:\([^)]*\))?|""" +
                     """[A-Z_]+(?:\s*\([^)]*\))?)""",
             )
+
+        private fun IntermediateType.roundOrTruncSingleArgumentType(): IntermediateType? =
+            when (dialectType) {
+                in NUMERIC_TYPE_ORDER -> this
+                in DATETIME_TYPE_ORDER -> IntermediateType(DATE)
+                else -> null
+            }
+
+        private fun List<DialectType>.roundOrTruncTwoArgumentType(): IntermediateType? =
+            when {
+                all { type -> type in NUMERIC_TYPE_ORDER } -> IntermediateType(DECIMAL_NUMBER)
+                first() in DATETIME_TYPE_ORDER && this[1] in TEXT_TYPE_ORDER -> IntermediateType(DATE)
+                else -> null
+            }
 
         private val COMPARABLE_TYPE_ORDER: Array<DialectType> =
             arrayOf(
@@ -340,6 +373,19 @@ public class OracleTypeResolver(
                 REAL,
                 BINARY_FLOAT,
                 BINARY_DOUBLE,
+            )
+
+        private val DATETIME_TYPE_ORDER: Array<DialectType> =
+            arrayOf(
+                DATE,
+                TIMESTAMP,
+                TIMESTAMP_TIME_ZONE,
+            )
+
+        private val TEXT_TYPE_ORDER: Array<DialectType> =
+            arrayOf(
+                TEXT,
+                OracleType.TEXT,
             )
 
         private val MIN_TYPE_ORDER: Array<DialectType> =

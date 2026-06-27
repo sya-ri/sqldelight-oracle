@@ -32,6 +32,10 @@ jobs:
         uses: gradle/actions/setup-gradle@v6.2.0
 
       - name: Release check
+        env:
+          RUN_ORACLE_VALIDATION: "true"
+          ORACLE_TESTCONTAINERS_IMAGE: gvenzl/oracle-free:23.26.2-slim-faststart
+          ORACLE_TESTCONTAINERS_SERVICE_NAME: FREEPDB1
         run: ./gradlew releaseCheck --stacktrace
 
   qodana:

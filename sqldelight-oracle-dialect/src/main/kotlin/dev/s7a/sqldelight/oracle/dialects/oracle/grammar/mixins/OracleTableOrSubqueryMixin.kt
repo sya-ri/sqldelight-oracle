@@ -1,6 +1,7 @@
 package dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins
 
 import com.alecstrong.sql.psi.core.ModifiableFileLazy
+import com.alecstrong.sql.psi.core.psi.NamedElement
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryColumn
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryResult
 import com.alecstrong.sql.psi.core.psi.QueryElement.SynthesizedColumn
@@ -14,6 +15,9 @@ import com.alecstrong.sql.psi.core.psi.SqlTableName
 import com.alecstrong.sql.psi.core.psi.SqlTableOrSubquery
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.util.PsiTreeUtil
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableColumnsClause
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableReference
@@ -34,20 +38,30 @@ internal abstract class OracleTableOrSubqueryMixin(
             }
 
             tableName?.let { tableNameElement ->
-                val result = tableAvailable(tableNameElement, tableNameElement.name)
+                val result =
+                    oracleSynonymTargetAvailable(tableNameElement) { target, targetName ->
+                        tableAvailable(target, targetName)
+                    }
+                        ?: tableAvailable(tableNameElement, tableNameElement.name)
                 if (result.isEmpty()) {
                     return@lazy emptyList()
                 }
+                val containersColumns = oracleContainersSynthesizedColumns()
                 tableAlias?.let { alias ->
                     return@lazy listOf(
-                        QueryResult(
+                        result.oracleQueryResultFor(
                             alias,
-                            result.flatMap { it.columns },
-                            result.flatMap { it.synthesizedColumns },
+                            containersColumns.map { name -> SynthesizedColumn(alias, listOf(name)) },
                         ),
                     )
                 }
-                return@lazy result
+                return@lazy result.map { query ->
+                    query.copy(
+                        synthesizedColumns =
+                            query.synthesizedColumns +
+                                containersColumns.map { name -> SynthesizedColumn(query.table ?: tableNameElement, listOf(name)) },
+                    )
+                }
             }
 
             compoundSelectStmt?.let {
@@ -66,6 +80,20 @@ internal abstract class OracleTableOrSubqueryMixin(
         }
 
     override fun queryExposed() = queryExposed.forFile(containingFile)
+
+    override fun queryAvailable(child: PsiElement): Collection<QueryResult> {
+        val queryAvailable =
+            if (child == compoundSelectStmt && oracleCanReferenceLeftQuerySources()) {
+                super.queryAvailable(child) + oracleLateralLeftQueryExposed()
+            } else {
+                super.queryAvailable(child)
+            }
+        val rowPatternClause = PsiTreeUtil.findChildOfType(this, OracleOracleRowPatternClause::class.java)
+        if (rowPatternClause == null || !PsiTreeUtil.isAncestor(rowPatternClause, child, false)) {
+            return queryAvailable
+        }
+        return queryAvailable + oracleRowPatternVariableResults(rowPatternClause)
+    }
 
     override fun getCompoundSelectStmt(): SqlCompoundSelectStmt? = PsiTreeUtil.getChildOfType(this, SqlCompoundSelectStmt::class.java)
 
@@ -87,7 +115,7 @@ internal abstract class OracleTableOrSubqueryMixin(
             return jsonTable.oracleJsonTableColumnsClause
                 .queryColumns()
                 .ifEmpty { null }
-                ?.let { columns -> QueryResult(jsonTable.tableAlias() ?: tableAlias(), columns) }
+                ?.let { columns -> oracleColumnResultFor(jsonTable, columns) }
         }
 
         PsiTreeUtil.findChildOfType(this, OracleOracleXmltableReference::class.java)?.let { xmltable ->
@@ -95,46 +123,130 @@ internal abstract class OracleTableOrSubqueryMixin(
                 ?.oracleXmltableColumnList
                 ?.mapNotNull { column -> column.oracleColumnAliasQueryColumn() }
                 ?.ifEmpty { null }
-                ?.let { columns -> QueryResult(xmltable.tableAlias() ?: tableAlias(), columns) }
+                ?.let { columns -> oracleColumnResultFor(xmltable, columns) }
+                ?: QueryResult(
+                    table = xmltable.tableAlias() ?: tableAlias(),
+                    columns = emptyList(),
+                    synthesizedColumns =
+                        listOf(
+                            SynthesizedColumn(xmltable.tableAlias() ?: tableAlias() ?: this, listOf("COLUMN_VALUE")),
+                        ),
+                )
         }
 
         PsiTreeUtil.findChildOfType(this, OracleOracleValuesTableReference::class.java)?.let { valuesTable ->
             return valuesTable
                 .oracleColumnAliasQueryColumns()
                 .ifEmpty { null }
-                ?.let { columns -> QueryResult(valuesTable.tableAlias() ?: tableAlias(), columns) }
+                ?.let { columns -> oracleColumnResultFor(valuesTable, columns) }
+        }
+
+        oracleCollectionTableColumnResult()?.let {
+            return it
+        }
+
+        oracleInlineExternalColumns().ifEmpty { null }?.let { columns ->
+            return oracleGeneratedSynthesizedColumnResult(columns)
+        }
+
+        oracleGraphTableColumns().ifEmpty { null }?.let { columns ->
+            return oracleGeneratedSynthesizedColumnResult(columns)
         }
 
         oraclePivotColumns().ifEmpty { null }?.let { columns ->
-            return QueryResult(
-                table = tableAlias,
-                columns = emptyList(),
-                synthesizedColumns = columns.map { name -> SynthesizedColumn(tableAlias ?: this, listOf(name)) },
-            )
+            return oracleGeneratedSynthesizedColumnResult(columns, oraclePivotSourceColumns())
         }
 
         oracleUnpivotColumns().ifEmpty { null }?.let { columns ->
-            return QueryResult(
-                table = tableAlias,
-                columns = emptyList(),
-                synthesizedColumns = columns.map { name -> SynthesizedColumn(tableAlias ?: this, listOf(name)) },
-            )
+            return oracleGeneratedSynthesizedColumnResult(columns, oracleUnpivotSourceColumns())
         }
 
         return oracleRowPatternResult()
     }
 
+    private fun oracleGeneratedSynthesizedColumnResult(
+        columnNames: List<String>,
+        columns: List<QueryColumn> = emptyList(),
+    ): QueryResult =
+        QueryResult(
+            table = tableAlias,
+            columns = columns,
+            synthesizedColumns = columnNames.map { name -> SynthesizedColumn(tableAlias ?: this, listOf(name)) },
+        )
+
+    private fun oracleCollectionTableColumnResult(): QueryResult? {
+        val body = text.trimStart()
+        if (!body.startsWithOracleCollectionTableReference()) {
+            return null
+        }
+
+        return QueryResult(
+            table = tableAlias,
+            columns = emptyList(),
+            synthesizedColumns = listOf(SynthesizedColumn(tableAlias ?: this, listOf("COLUMN_VALUE"))),
+        )
+    }
+
+    private fun oracleInlineExternalColumns(): List<String> {
+        if (!text.trimStart().startsWith("EXTERNAL", ignoreCase = true)) return emptyList()
+        val externalBody = text.oracleParenthesizedBodyAfter("EXTERNAL") ?: return emptyList()
+        return externalBody
+            .oracleParenthesizedBodyAt(externalBody.indexOf('('))
+            .oracleTopLevelCommaParts()
+            .mapNotNull { column -> column.oracleFirstName() }
+    }
+
     private fun PsiElement.tableAlias(): SqlTableAlias? = PsiTreeUtil.findChildOfType(this, SqlTableAlias::class.java)
 
+    private fun oracleColumnResultFor(
+        source: PsiElement,
+        columns: List<QueryColumn>,
+    ): QueryResult = QueryResult(source.tableAlias() ?: tableAlias, columns)
+
+    private fun oracleCanReferenceLeftQuerySources(): Boolean {
+        if (text.trimStart().startsWith("LATERAL", ignoreCase = true)) return true
+
+        val joinClause = parent as? SqlJoinClause ?: return false
+        val index = joinClause.tableOrSubqueryList.indexOf(this)
+        if (index <= 0) return false
+
+        return joinClause.joinOperatorList
+            .getOrNull(index - 1)
+            ?.text
+            ?.contains("APPLY", ignoreCase = true) == true
+    }
+
+    private fun oracleLateralLeftQueryExposed(): Collection<QueryResult> {
+        val joinClause = parent as? SqlJoinClause ?: return emptyList()
+        val siblings = joinClause.tableOrSubqueryList
+        val index = siblings.indexOf(this)
+        if (index <= 0) return emptyList()
+
+        return siblings.take(index).flatMap { it.queryExposed() }
+    }
+
     private fun OracleOracleJsonTableColumnsClause.queryColumns(): List<QueryColumn> = oracleColumnAliasQueryColumns()
+
+    private fun oracleContainersSynthesizedColumns(): List<String> =
+        if (text.trimStart().startsWith("CONTAINERS", ignoreCase = true)) {
+            listOf("CON_ID")
+        } else {
+            emptyList()
+        }
+
+    private fun oracleGraphTableColumns(): List<String> {
+        if (!text.trimStart().startsWith("GRAPH_TABLE", ignoreCase = true)) return emptyList()
+        return text
+            .oracleParenthesizedBodyAfter("COLUMNS")
+            ?.oracleAliasesAfterAs()
+            ?: emptyList()
+    }
 
     private fun oracleRowPatternResult(): QueryResult? {
         val rowPatternClause = PsiTreeUtil.findChildOfType(this, OracleOracleRowPatternClause::class.java) ?: return null
         val sourceColumns =
             if (rowPatternClause.text.contains("ALL ROWS PER MATCH", ignoreCase = true)) {
-                tableName?.let { tableNameElement ->
-                    tableAvailable(tableNameElement, tableNameElement.name).flatMap { it.columns }
-                } ?: emptyList()
+                oracleRowPatternSourceResults().flatMap { it.columns }
             } else {
                 emptyList()
             }
@@ -148,6 +260,31 @@ internal abstract class OracleTableOrSubqueryMixin(
             .ifEmpty { null }
             ?.let { columns -> QueryResult(tableAlias, columns) }
     }
+
+    private fun oracleRowPatternVariableResults(rowPatternClause: OracleOracleRowPatternClause): Collection<QueryResult> {
+        val sourceResults = oracleRowPatternSourceResults()
+        val sourceColumns = sourceResults.flatMap { it.columns }
+        val sourceSynthesizedColumns = sourceResults.flatMap { it.synthesizedColumns }
+        if (sourceColumns.isEmpty() && sourceSynthesizedColumns.isEmpty()) return emptyList()
+
+        return rowPatternClause
+            .let(::oracleRowPatternVariables)
+            .map { variable ->
+                QueryResult(
+                    table = OraclePatternVariableElement(rowPatternClause, variable),
+                    columns = sourceColumns,
+                    synthesizedColumns = sourceSynthesizedColumns,
+                )
+            }
+    }
+
+    private fun oracleRowPatternSourceResults(): Collection<QueryResult> =
+        tableName?.let { tableNameElement ->
+            oracleSynonymTargetAvailable(tableNameElement) { target, targetName ->
+                tableAvailable(target, targetName)
+            }
+                ?: tableAvailable(tableNameElement, tableNameElement.name)
+        } ?: emptyList()
 
     private fun oraclePivotColumns(): List<String> {
         val pivotBody = text.oracleParenthesizedBodyAfter("PIVOT") ?: return emptyList()
@@ -165,6 +302,18 @@ internal abstract class OracleTableOrSubqueryMixin(
         }
     }
 
+    private fun oraclePivotSourceColumns(): List<QueryColumn> {
+        val pivotBody = text.oracleParenthesizedBodyAfter("PIVOT") ?: return emptyList()
+        val forOffset = pivotBody.indexOfKeyword("FOR") ?: return emptyList()
+        val inOffset = pivotBody.indexOfKeyword("IN", startIndex = forOffset + "FOR".length) ?: return emptyList()
+        val consumedColumns =
+            (
+                pivotBody.substring(0, forOffset).oracleNameList() +
+                    pivotBody.substring(forOffset + "FOR".length, inOffset).oracleNameList()
+            ).toSet()
+        return oracleSourceColumnsExcept(consumedColumns)
+    }
+
     private fun oracleUnpivotColumns(): List<String> {
         val unpivotBody = text.oracleParenthesizedBodyAfter("UNPIVOT") ?: return emptyList()
         val forOffset = unpivotBody.indexOfKeyword("FOR") ?: return emptyList()
@@ -177,54 +326,90 @@ internal abstract class OracleTableOrSubqueryMixin(
 
         return (measureColumns + forColumns).distinct()
     }
-}
 
-private fun String.oracleParenthesizedBodyAfter(keyword: String): String? {
-    val keywordOffset = indexOfKeyword(keyword) ?: return null
-    val openOffset = indexOf('(', startIndex = keywordOffset + keyword.length).takeIf { it != -1 } ?: return null
-    return oracleParenthesizedBodyAt(openOffset)
-}
-
-private fun String.oracleParenthesizedBodyAt(openOffset: Int): String {
-    if (openOffset !in indices || this[openOffset] != '(') return ""
-    var depth = 0
-    for (index in openOffset until length) {
-        when (this[index]) {
-            '(' -> {
-                depth++
-            }
-
-            ')' -> {
-                depth--
-                if (depth == 0) return substring(openOffset + 1, index)
-            }
-        }
+    private fun oracleUnpivotSourceColumns(): List<QueryColumn> {
+        val unpivotBody = text.oracleParenthesizedBodyAfter("UNPIVOT") ?: return emptyList()
+        val inOffset = unpivotBody.indexOfKeyword("IN") ?: return emptyList()
+        return oracleSourceColumnsExcept(unpivotBody.substring(inOffset + "IN".length).oracleNameList().toSet())
     }
-    return ""
+
+    private fun oracleSourceColumnsExcept(consumedColumns: Set<String>): List<QueryColumn> {
+        val tableNameElement = tableName ?: return emptyList()
+        return tableAvailable(tableNameElement, tableNameElement.name)
+            .flatMap { result -> result.columns }
+            .filterNot { column ->
+                val name = (column.element as? NamedElement)?.name ?: return@filterNot false
+                consumedColumns.any { consumed -> consumed.equals(name, ignoreCase = true) }
+            }
+    }
 }
 
-private fun String.indexOfKeyword(
-    keyword: String,
-    startIndex: Int = 0,
-): Int? {
-    var index = startIndex
-    while (index < length) {
-        index = indexOf(keyword, startIndex = index, ignoreCase = true)
-        if (index == -1) return null
-        if (isOracleIdentifierBoundary(index - 1) && isOracleIdentifierBoundary(index + keyword.length)) return index
-        index += keyword.length
-    }
-    return null
+private fun String.startsWithOracleCollectionTableReference(): Boolean =
+    startsWithOracleKeywordCall("TABLE") || startsWithOracleKeywordCall("THE")
+
+private fun String.startsWithOracleKeywordCall(keyword: String): Boolean {
+    if (!startsWith(keyword, ignoreCase = true)) return false
+    return drop(keyword.length).trimStart().startsWith("(")
+}
+
+private class OraclePatternVariableElement(
+    private val anchor: PsiElement,
+    private val variableName: String,
+) : LightElement(anchor.manager, anchor.language),
+    PsiNamedElement {
+    override fun getName(): String = variableName
+
+    override fun setName(name: String): PsiElement = this
+
+    override fun getText(): String = variableName
+
+    override fun getContainingFile(): PsiFile = anchor.containingFile
+
+    override fun getParent(): PsiElement = anchor
+
+    override fun toString(): String = "Oracle pattern variable: $variableName"
 }
 
 private fun String.substringBeforeKeyword(keyword: String): String =
     indexOfKeyword(keyword)?.let { keywordOffset -> substring(0, keywordOffset) } ?: this
+
+private fun String.substringAfterKeyword(keyword: String): String =
+    indexOfKeyword(keyword)?.let { keywordOffset -> substring(keywordOffset + keyword.length) } ?: ""
 
 private fun String.oracleAliasesAfterAs(): List<String> =
     Regex("""(?i)\bAS\s+("[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*)""")
         .findAll(this)
         .map { match -> match.groupValues[1].trimOracleIdentifier() }
         .toList()
+
+private fun oracleRowPatternVariables(rowPatternClause: OracleOracleRowPatternClause): List<String> {
+    val patternVariables =
+        rowPatternClause.text
+            .oracleParenthesizedBodyAfter("PATTERN")
+            ?.oracleNameList()
+            ?.filterNot { it.equals("PERMUTE", ignoreCase = true) }
+            ?: emptyList()
+    val defineVariables =
+        Regex("""(?is)(?:^|,)\s*("[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*)\s+AS\b""")
+            .findAll(rowPatternClause.text.substringAfterKeyword("DEFINE"))
+            .map { match -> match.groupValues[1].trimOracleIdentifier() }
+    val subsetVariables =
+        rowPatternClause.text
+            .substringAfterKeyword("SUBSET")
+            .substringBeforeKeyword("DEFINE")
+            .oracleTopLevelCommaParts()
+            .mapNotNull { part ->
+                part
+                    .substringBefore("=")
+                    .trim()
+                    .takeIf { it.isNotBlank() }
+                    ?.trimOracleIdentifier()
+            }
+
+    return (patternVariables.asSequence() + defineVariables + subsetVariables.asSequence())
+        .distinctBy { it.lowercase() }
+        .toList()
+}
 
 private fun String.oracleNameList(): List<String> {
     val body = trim().removeSurrounding("(", ")")
@@ -248,44 +433,4 @@ private fun String.oraclePivotImplicitValueNames(): List<String> =
                 ?.takeIf { name -> name.matches(Regex("""[A-Za-z_][A-Za-z0-9_$#]*""")) }
         }.toList()
 
-private fun String.oracleTopLevelCommaParts(): List<String> {
-    val parts = mutableListOf<String>()
-    var start = 0
-    var depth = 0
-    var index = 0
-    var inString = false
-    while (index < length) {
-        when {
-            inString && this[index] == '\'' && index + 1 < length && this[index + 1] == '\'' -> {
-                index++
-            }
-
-            this[index] == '\'' -> {
-                inString = !inString
-            }
-
-            !inString && this[index] == '(' -> {
-                depth++
-            }
-
-            !inString && this[index] == ')' -> {
-                depth--
-            }
-
-            !inString && depth == 0 && this[index] == ',' -> {
-                parts += substring(start, index)
-                start = index + 1
-            }
-        }
-        index++
-    }
-    parts += substring(start)
-    return parts
-}
-
-private fun String.trimOracleIdentifier(): String = trim().removeSurrounding("\"")
-
 private fun String.trimOracleStringLiteral(): String = trim().removeSurrounding("'").replace("''", "'")
-
-private fun String.isOracleIdentifierBoundary(index: Int): Boolean =
-    index !in indices || (!this[index].isLetterOrDigit() && this[index] != '_' && this[index] != '$' && this[index] != '#')

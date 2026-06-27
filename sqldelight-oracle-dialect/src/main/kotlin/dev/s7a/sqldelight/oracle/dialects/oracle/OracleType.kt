@@ -169,18 +169,22 @@ public enum class OracleType(
 
                 "POWER" -> {
                     when {
-                        argumentTypes.any { type -> type == BINARY_FLOAT || type == BINARY_DOUBLE } -> BINARY_DOUBLE
-                        argumentTypes.all { type -> type in numericTypes } -> DECIMAL_NUMBER
-                        else -> null
+                        argumentTypes.any { type -> type == BINARY_FLOAT || type == BINARY_DOUBLE } -> {
+                            BINARY_DOUBLE
+                        }
+
+                        argumentTypes.all { type -> type in numericTypes } -> {
+                            DECIMAL_NUMBER
+                        }
+
+                        else -> {
+                            null
+                        }
                     }
                 }
 
                 "ROUND", "TRUNC" -> {
-                    when (argumentTypes.size) {
-                        1 -> argumentTypes.single().takeIf { type -> type in numericTypes }
-                        2 -> DECIMAL_NUMBER.takeIf { argumentTypes.all { type -> type in numericTypes } }
-                        else -> null
-                    }
+                    argumentTypes.roundOrTruncType()
                 }
 
                 "COALESCE", "DECODE", "GREATEST", "LEAST", "NVL" -> {
@@ -319,11 +323,18 @@ public enum class OracleType(
                 BINARY_DOUBLE,
             )
 
+        private val datetimeTypes: Set<OracleType> =
+            setOf(
+                DATE,
+                TIMESTAMP,
+                TIMESTAMP_TIME_ZONE,
+            )
+
         private val functionReturnTypes: Map<String, OracleType> =
             mapOf(
                 "CURRENT_DATE" to DATE,
                 "SYSDATE" to DATE,
-                "CURRENT_TIMESTAMP" to TIMESTAMP,
+                "CURRENT_TIMESTAMP" to TIMESTAMP_TIME_ZONE,
                 "LOCALTIMESTAMP" to TIMESTAMP,
                 "SYSTIMESTAMP" to TIMESTAMP_TIME_ZONE,
                 "DBTIMEZONE" to TEXT,
@@ -734,6 +745,27 @@ public enum class OracleType(
                 TIMESTAMP,
                 DATE,
             )
+
+        private fun List<OracleType>.roundOrTruncType(): OracleType? =
+            when (size) {
+                1 -> single().roundOrTruncSingleArgumentType()
+                2 -> roundOrTruncTwoArgumentType()
+                else -> null
+            }
+
+        private fun OracleType.roundOrTruncSingleArgumentType(): OracleType? =
+            when (this) {
+                in numericTypes -> this
+                in datetimeTypes -> DATE
+                else -> null
+            }
+
+        private fun List<OracleType>.roundOrTruncTwoArgumentType(): OracleType? =
+            when {
+                all { type -> type in numericTypes } -> DECIMAL_NUMBER
+                first() in datetimeTypes && this[1] == TEXT -> DATE
+                else -> null
+            }
 
         private fun List<OracleType>.highestType(vararg typeOrder: OracleType): OracleType? = typeOrder.lastOrNull { type -> type in this }
     }

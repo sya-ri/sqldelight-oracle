@@ -56,6 +56,34 @@ class OracleDialectTest :
                 IntermediateType(OracleType.TEXT)
         }
 
+        test("resolves Oracle datetime EXTRACT field types exactly") {
+            val resolver = OracleDialect().typeResolver(ParentTypeResolver)
+
+            listOf(
+                "EXTRACT(YEAR FROM hire_date)",
+                "EXTRACT(MONTH FROM hire_date)",
+                "EXTRACT(TIMEZONE_HOUR FROM shift_time_tz)",
+            ).map { text ->
+                resolver.functionType(sqlFunctionExpr("EXTRACT", exprList = listOf(sqlExpr("argument")), text = text))
+            } shouldBe
+                listOf(
+                    IntermediateType(OracleType.DECIMAL_NUMBER),
+                    IntermediateType(OracleType.DECIMAL_NUMBER),
+                    IntermediateType(OracleType.DECIMAL_NUMBER),
+                )
+
+            listOf(
+                "EXTRACT(TIMEZONE_REGION FROM shift_time_tz)",
+                "EXTRACT(TIMEZONE_ABBR FROM shift_time_tz)",
+            ).map { text ->
+                resolver.functionType(sqlFunctionExpr("EXTRACT", exprList = listOf(sqlExpr("argument")), text = text))
+            } shouldBe
+                listOf(
+                    IntermediateType(OracleType.TEXT),
+                    IntermediateType(OracleType.TEXT),
+                )
+        }
+
         test("resolves Oracle argument-dependent function types exactly") {
             val parentResolver =
                 ArgumentTypeResolver(
@@ -84,6 +112,31 @@ class OracleDialectTest :
                     resolver.functionType(sqlFunctionExpr(functionName, parentResolver.exprList(argumentCount))),
                 )
             } shouldBe mappings
+        }
+
+        test("resolves Oracle datetime round and trunc function types exactly") {
+            val dateArguments = ArgumentTypeResolver(listOf(OracleType.DATE))
+            val timestampArguments = ArgumentTypeResolver(listOf(OracleType.TIMESTAMP, OracleType.TEXT))
+            val timestampTimeZoneArguments = ArgumentTypeResolver(listOf(OracleType.TIMESTAMP_TIME_ZONE, OracleType.TEXT))
+            val dateResolver = OracleDialect().typeResolver(dateArguments)
+            val timestampResolver = OracleDialect().typeResolver(timestampArguments)
+            val timestampTimeZoneResolver = OracleDialect().typeResolver(timestampTimeZoneArguments)
+
+            listOf(
+                "ROUND" to dateResolver.functionType(sqlFunctionExpr("ROUND", dateArguments.exprList(argumentCount = 1))),
+                "ROUND_FMT" to timestampResolver.functionType(sqlFunctionExpr("ROUND", timestampArguments.exprList(argumentCount = 2))),
+                "TRUNC" to dateResolver.functionType(sqlFunctionExpr("TRUNC", dateArguments.exprList(argumentCount = 1))),
+                "TRUNC_FMT" to
+                    timestampTimeZoneResolver.functionType(
+                        sqlFunctionExpr("TRUNC", timestampTimeZoneArguments.exprList(argumentCount = 2)),
+                    ),
+            ) shouldBe
+                listOf(
+                    "ROUND" to IntermediateType(OracleType.DATE),
+                    "ROUND_FMT" to IntermediateType(OracleType.DATE),
+                    "TRUNC" to IntermediateType(OracleType.DATE),
+                    "TRUNC_FMT" to IntermediateType(OracleType.DATE),
+                )
         }
 
         test("resolves Oracle numeric aggregate function types exactly") {
@@ -138,6 +191,9 @@ class OracleDialectTest :
 
             listOf(
                 "JSON_VALUE" to "JSON_VALUE(payload, '$.id' RETURNING NUMBER ERROR ON ERROR)",
+                "JSON_OBJECT" to "JSON_OBJECT('id' VALUE id RETURNING BLOB)",
+                "JSON_MERGEPATCH" to "JSON_MERGEPATCH(payload, patch RETURNING BLOB ERROR ON ERROR)",
+                "JSON_TRANSFORM" to "JSON_TRANSFORM(payload, SET '$.name' = name RETURNING BLOB)",
                 "JSON_SERIALIZE" to "JSON_SERIALIZE(payload RETURNING BLOB ERROR ON ERROR)",
                 "XMLSERIALIZE" to "XMLSERIALIZE(CONTENT payload AS CLOB)",
                 "XMLCAST" to "XMLCAST(XMLQUERY('/Warehouse' PASSING payload RETURNING CONTENT) AS NUMBER(10, 2))",
@@ -146,6 +202,9 @@ class OracleDialectTest :
             } shouldBe
                 listOf(
                     IntermediateType(OracleType.DECIMAL_NUMBER),
+                    IntermediateType(OracleType.BINARY),
+                    IntermediateType(OracleType.BINARY),
+                    IntermediateType(OracleType.BINARY),
                     IntermediateType(OracleType.BINARY),
                     IntermediateType(OracleType.TEXT),
                     IntermediateType(OracleType.DECIMAL_NUMBER),

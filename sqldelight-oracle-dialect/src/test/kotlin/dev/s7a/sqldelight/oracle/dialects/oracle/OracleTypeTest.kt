@@ -322,6 +322,7 @@ class OracleTypeTest :
                     "XMLPARSE" to OracleType.TEXT,
                     "XMLPATCH" to OracleType.TEXT,
                     "XMLPI" to OracleType.TEXT,
+                    "XMLROOT" to OracleType.TEXT,
                     "XMLSEQUENCE" to OracleType.TEXT,
                     "XMLTRANSFORM" to OracleType.TEXT,
                     "XMLTYPE" to OracleType.TEXT,

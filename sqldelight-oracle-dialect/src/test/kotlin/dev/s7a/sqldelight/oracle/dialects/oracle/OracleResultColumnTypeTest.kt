@@ -158,6 +158,10 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT CONNECT_BY_ROOT nickname AS c FROM emp CONNECT BY PRIOR id = dept_id") shouldBe "kotlin.String?"
         }
 
+        test("resolves Oracle XML root result column types exactly") {
+            typeOf("SELECT XMLROOT(XMLTYPE('<Warehouse/>'), VERSION NO VALUE) AS c FROM emp") shouldBe "kotlin.String"
+        }
+
         test("resolves Oracle SQL JSON null-returning result column types exactly") {
             typeOf("SELECT JSON_VALUE(name, '${'$'}.id' RETURNING NUMBER) AS c FROM emp") shouldBe "java.math.BigDecimal"
             typeOf("SELECT JSON_QUERY(name, '${'$'}.items' RETURNING CLOB) AS c FROM emp") shouldBe "kotlin.String"

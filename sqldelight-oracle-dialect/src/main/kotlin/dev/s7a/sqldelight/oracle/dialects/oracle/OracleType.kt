@@ -565,6 +565,7 @@ public enum class OracleType(
                 "XMLPARSE" to TEXT,
                 "XMLPATCH" to TEXT,
                 "XMLPI" to TEXT,
+                "XMLROOT" to TEXT,
                 "XMLSEQUENCE" to TEXT,
                 "XMLTRANSFORM" to TEXT,
                 "XMLTYPE" to TEXT,

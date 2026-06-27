@@ -27,6 +27,7 @@ import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.util.PsiTreeUtil
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableColumn
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableColumnsClause
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableReference
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleRowPatternClause
@@ -92,6 +93,8 @@ internal abstract class OracleTableOrSubqueryMixin(
     override fun queryAvailable(child: PsiElement): Collection<QueryResult> {
         val queryAvailable =
             if (child == compoundSelectStmt && oracleCanReferenceLeftQuerySources()) {
+                super.queryAvailable(child) + oracleLateralLeftQueryExposed()
+            } else if (oracleTableFunctionCanReferenceLeftQuerySources(child)) {
                 super.queryAvailable(child) + oracleLateralLeftQueryExposed()
             } else {
                 super.queryAvailable(child)
@@ -256,6 +259,14 @@ internal abstract class OracleTableOrSubqueryMixin(
         return siblings.take(index).flatMap { it.queryExposed() }
     }
 
+    private fun oracleTableFunctionCanReferenceLeftQuerySources(child: PsiElement): Boolean {
+        val jsonTable = PsiTreeUtil.findChildOfType(this, OracleOracleJsonTableReference::class.java)
+        if (jsonTable != null && PsiTreeUtil.isAncestor(jsonTable, child, false)) return true
+
+        val xmltable = PsiTreeUtil.findChildOfType(this, OracleOracleXmltableReference::class.java)
+        return xmltable != null && PsiTreeUtil.isAncestor(xmltable, child, false)
+    }
+
     private fun oraclePivotAggregateAvailable(child: PsiElement): Collection<QueryResult> {
         val tableNameElement = tableName ?: return emptyList()
         val pivotOffset = text.indexOfKeyword("PIVOT") ?: return emptyList()
@@ -270,7 +281,42 @@ internal abstract class OracleTableOrSubqueryMixin(
         } ?: tableAvailable(tableNameElement, tableNameElement.name)
     }
 
-    private fun OracleOracleJsonTableColumnsClause.queryColumns(): List<QueryColumn> = oracleColumnAliasQueryColumns()
+    private fun OracleOracleJsonTableColumnsClause.queryColumns(): List<QueryColumn> =
+        PsiTreeUtil
+            .findChildrenOfType(this, OracleOracleJsonTableColumn::class.java)
+            .mapNotNull { column -> column.oracleJsonTableQueryColumn() }
+
+    private fun OracleOracleJsonTableColumn.oracleJsonTableQueryColumn(): QueryColumn? {
+        val source =
+            oracleJsonTableOrdinalityColumn
+                ?: oracleJsonTableRegularColumn
+                ?: oracleJsonTableExistsColumn
+                ?: return null
+        val alias = PsiTreeUtil.getChildOfType(source, SqlColumnAlias::class.java) ?: return null
+        val type =
+            when {
+                oracleJsonTableOrdinalityColumn != null -> {
+                    IntermediateType(OracleType.LONG_NUMBER)
+                }
+
+                oracleJsonTableRegularColumn != null -> {
+                    source.text.oracleJsonTableColumnType(alias.text)?.let { typeName ->
+                        IntermediateType(OracleType.fromSqlTypeName(typeName)).asNullable()
+                    }
+                }
+
+                oracleJsonTableExistsColumn != null -> {
+                    source.text.oracleJsonTableColumnType(alias.text)?.let { typeName ->
+                        IntermediateType(OracleType.fromSqlTypeName(typeName)).asNullable()
+                    } ?: IntermediateType(OracleType.TEXT).asNullable()
+                }
+
+                else -> {
+                    null
+                }
+            } ?: return null
+        return QueryColumn(OracleGeneratedColumnElement(source, alias.name, type))
+    }
 
     private fun oracleContainersSynthesizedColumns(): List<String> =
         if (text.trimStart().startsWith("CONTAINERS", ignoreCase = true)) {
@@ -683,6 +729,21 @@ private fun String.oracleAliasesAfterAs(): List<String> =
         .findAll(this)
         .map { match -> match.groupValues[1].trimOracleIdentifier() }
         .toList()
+
+private fun String.oracleJsonTableColumnType(aliasText: String): String? {
+    val afterAlias = trim().removePrefix(aliasText).trimStart()
+    if (afterAlias.isBlank() || afterAlias.startsWith("FOR ", ignoreCase = true)) return null
+    return afterAlias
+        .substringBeforeKeyword("TRUNCATE")
+        .substringBeforeKeyword("FORMAT")
+        .substringBeforeKeyword("PATH")
+        .substringBeforeKeyword("EXISTS")
+        .substringBeforeKeyword("ERROR")
+        .substringBeforeKeyword("NULL")
+        .substringBeforeKeyword("DEFAULT")
+        .trim()
+        .takeIf { it.isNotBlank() }
+}
 
 private fun String.oracleTopLevelTrailingAliases(): List<String> =
     oracleTopLevelCommaParts().mapNotNull { part -> part.oracleTrailingAlias() }

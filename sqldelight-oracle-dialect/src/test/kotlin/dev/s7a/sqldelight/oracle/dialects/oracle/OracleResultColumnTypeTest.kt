@@ -309,6 +309,37 @@ class OracleResultColumnTypeTest :
             ) shouldBe "kotlin.String"
         }
 
+        test("resolves Oracle JSON_TABLE result column types exactly") {
+            typeOf(
+                """
+                SELECT item.line_number AS c
+                FROM emp,
+                  JSON_TABLE(
+                    json_doc,
+                    '$'
+                    COLUMNS (
+                      line_number FOR ORDINALITY,
+                      item_name VARCHAR2(100) PATH '$.name'
+                    )
+                  ) item
+                """.trimIndent(),
+            ) shouldBe "kotlin.Long"
+            typeOf(
+                """
+                SELECT item.item_name AS c
+                FROM emp,
+                  JSON_TABLE(
+                    json_doc,
+                    '$'
+                    COLUMNS (
+                      line_number FOR ORDINALITY,
+                      item_name VARCHAR2(100) PATH '$.name'
+                    )
+                  ) item
+                """.trimIndent(),
+            ) shouldBe "kotlin.String?"
+        }
+
         test("resolves Oracle XML root result column types exactly") {
             typeOf("SELECT XMLROOT(XMLTYPE('<Warehouse/>'), VERSION NO VALUE) AS c FROM emp") shouldBe "kotlin.String"
         }

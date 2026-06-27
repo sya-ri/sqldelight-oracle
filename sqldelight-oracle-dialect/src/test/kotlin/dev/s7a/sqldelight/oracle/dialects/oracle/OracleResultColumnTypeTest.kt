@@ -189,6 +189,14 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT TO_YMINTERVAL(nickname) AS c FROM emp") shouldBe "kotlin.String?"
         }
 
+        test("propagates Oracle system conversion nullability exactly") {
+            typeOf("SELECT SCN_TO_TIMESTAMP(dept_id) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
+            typeOf("SELECT TIMESTAMP_TO_SCN(created_ts) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT ORA_DST_AFFECTED(created_ts) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT ORA_DST_ERROR(created_ts) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT ORA_DST_CONVERT(created_ts) AS c FROM emp") shouldBe "java.time.OffsetDateTime?"
+        }
+
         test("resolves Oracle grouping function result column types exactly") {
             typeOf("SELECT GROUPING(dept_id) AS c FROM emp GROUP BY ROLLUP(dept_id)") shouldBe "kotlin.Long"
             typeOf("SELECT GROUPING_ID(dept_id) AS c FROM emp GROUP BY ROLLUP(dept_id)") shouldBe "kotlin.Long"

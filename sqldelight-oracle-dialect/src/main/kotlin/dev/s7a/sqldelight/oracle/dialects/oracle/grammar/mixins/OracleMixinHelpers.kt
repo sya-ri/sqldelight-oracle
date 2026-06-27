@@ -281,10 +281,29 @@ internal fun String.indexOfKeyword(
 ): Int? {
     var index = startIndex
     while (index < length) {
-        index = indexOf(keyword, startIndex = index, ignoreCase = true)
-        if (index == -1) return null
-        if (isOracleIdentifierBoundary(index - 1) && isOracleIdentifierBoundary(index + keyword.length)) return index
-        index += keyword.length
+        when {
+            startsOracleAlternativeQuotedString(index) -> {
+                index = skipOracleAlternativeQuotedString(index)
+                continue
+            }
+
+            this[index] == '\'' -> {
+                index = skipOracleQuotedString(index)
+                continue
+            }
+
+            this[index] == '"' -> {
+                index = skipOracleQuotedIdentifier(index)
+                continue
+            }
+
+            regionMatches(index, keyword, 0, keyword.length, ignoreCase = true) &&
+                isOracleIdentifierBoundary(index - 1) &&
+                isOracleIdentifierBoundary(index + keyword.length) -> {
+                return index
+            }
+        }
+        index++
     }
     return null
 }
@@ -346,6 +365,15 @@ private fun String.skipOracleQuotedString(start: Int): Int {
         } else {
             index++
         }
+    }
+    return length
+}
+
+private fun String.skipOracleQuotedIdentifier(start: Int): Int {
+    var index = start + 1
+    while (index < length) {
+        if (this[index] == '"') return index + 1
+        index++
     }
     return length
 }

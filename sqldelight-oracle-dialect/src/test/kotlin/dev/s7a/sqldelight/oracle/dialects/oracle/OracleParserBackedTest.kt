@@ -5251,6 +5251,12 @@ class OracleParserBackedTest :
                 SELECT id, status
                 FROM view_accounts;
 
+                CREATE VIEW annotated_account_view (
+                  annotated_account_id ANNOTATIONS (Display 'AS Account')
+                ) AS
+                SELECT id
+                FROM view_accounts;
+
                 CREATE VIEW IF NOT EXISTS constrained_account_view
                   SHARING = EXTENDED DATA
                   (
@@ -5296,6 +5302,10 @@ class OracleParserBackedTest :
                 selectRenamedColumns:
                 SELECT account_id, account_status
                 FROM renamed_account_view;
+
+                selectAnnotatedColumns:
+                SELECT annotated_account_id
+                FROM annotated_account_view;
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe

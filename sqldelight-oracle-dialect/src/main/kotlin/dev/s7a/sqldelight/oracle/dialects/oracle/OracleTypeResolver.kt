@@ -86,6 +86,10 @@ public class OracleTypeResolver(
             "UID",
             -> IntermediateType(LONG_NUMBER)
 
+            "VERSIONS_ENDSCN",
+            "VERSIONS_STARTSCN",
+            -> IntermediateType(LONG_NUMBER).asNullable()
+
             "CURRENT_DATE",
             "SYSDATE",
             -> IntermediateType(DATE)
@@ -93,9 +97,16 @@ public class OracleTypeResolver(
             "LOCALTIMESTAMP",
             -> IntermediateType(TIMESTAMP)
 
+            "VERSIONS_ENDTIME",
+            "VERSIONS_STARTTIME",
+            -> IntermediateType(TIMESTAMP).asNullable()
+
             "CURRENT_TIMESTAMP",
             "SYSTIMESTAMP",
             -> IntermediateType(TIMESTAMP_TIME_ZONE)
+
+            "VERSIONS_XID",
+            -> IntermediateType(OracleType.BINARY).asNullable()
 
             "DBTIMEZONE",
             "ORA_INVOKING_USER",
@@ -104,6 +115,9 @@ public class OracleTypeResolver(
             "SESSIONTIMEZONE",
             "USER",
             -> IntermediateType(OracleType.TEXT)
+
+            "VERSIONS_OPERATION",
+            -> IntermediateType(OracleType.TEXT).asNullable()
 
             else -> null
         }

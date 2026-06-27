@@ -152,6 +152,17 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT emp_seq.CURRVAL AS c FROM emp") shouldBe "kotlin.Long"
         }
 
+        test("resolves Oracle flashback versions pseudocolumn result column types exactly") {
+            val flashbackClause = "FROM emp VERSIONS BETWEEN SCN MINVALUE AND MAXVALUE"
+
+            typeOf("SELECT VERSIONS_STARTSCN AS c $flashbackClause") shouldBe "kotlin.Long?"
+            typeOf("SELECT VERSIONS_ENDSCN AS c $flashbackClause") shouldBe "kotlin.Long?"
+            typeOf("SELECT VERSIONS_STARTTIME AS c $flashbackClause") shouldBe "java.time.LocalDateTime?"
+            typeOf("SELECT VERSIONS_ENDTIME AS c $flashbackClause") shouldBe "java.time.LocalDateTime?"
+            typeOf("SELECT VERSIONS_XID AS c $flashbackClause") shouldBe "kotlin.ByteArray?"
+            typeOf("SELECT VERSIONS_OPERATION AS c $flashbackClause") shouldBe "kotlin.String?"
+        }
+
         test("resolves Oracle literal result column types exactly") {
             typeOf("SELECT DATE '2024-01-02' AS c FROM emp") shouldBe "java.time.LocalDateTime"
             typeOf("SELECT TIMESTAMP '2024-01-02 03:04:05' AS c FROM emp") shouldBe "java.time.LocalDateTime"

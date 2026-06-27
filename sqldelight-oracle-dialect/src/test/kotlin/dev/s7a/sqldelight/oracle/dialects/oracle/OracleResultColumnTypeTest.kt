@@ -182,6 +182,8 @@ class OracleResultColumnTypeTest :
         test("resolves Oracle concatenation operator result column types exactly") {
             typeOf("SELECT id || name AS c FROM emp") shouldBe "kotlin.String"
             typeOf("SELECT salary || name AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT CONCAT(nickname, nickname) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT CONCAT(nickname, name) AS c FROM emp") shouldBe "kotlin.String"
         }
 
         test("resolves Oracle analytic function result column types exactly") {

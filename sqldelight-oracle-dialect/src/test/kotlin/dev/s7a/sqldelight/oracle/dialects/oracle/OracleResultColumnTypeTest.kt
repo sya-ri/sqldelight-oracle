@@ -124,6 +124,12 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT created_ts - created_ts AS c FROM emp") shouldBe "kotlin.String?"
         }
 
+        test("resolves Oracle grouping function result column types exactly") {
+            typeOf("SELECT GROUPING(dept_id) AS c FROM emp GROUP BY ROLLUP(dept_id)") shouldBe "kotlin.Long"
+            typeOf("SELECT GROUPING_ID(dept_id) AS c FROM emp GROUP BY ROLLUP(dept_id)") shouldBe "kotlin.Long"
+            typeOf("SELECT GROUP_ID() AS c FROM emp GROUP BY dept_id") shouldBe "kotlin.Long"
+        }
+
         test("resolves Oracle concatenation operator result column types exactly") {
             typeOf("SELECT id || name AS c FROM emp") shouldBe "kotlin.String"
             typeOf("SELECT salary || name AS c FROM emp") shouldBe "kotlin.String"

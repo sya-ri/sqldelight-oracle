@@ -33,7 +33,12 @@ class OracleResultColumnTypeTest :
               target_embedding VECTOR NOT NULL,
               hire_date DATE NOT NULL,
               created_ts TIMESTAMP,
-              dept_id NUMBER(10)
+              dept_id NUMBER(10),
+              fiscal_start DATE,
+              periods NUMBER(10),
+              fmt VARCHAR2(100),
+              nls VARCHAR2(100),
+              restated VARCHAR2(20)
             );
 
             CREATE SEQUENCE emp_seq;
@@ -208,6 +213,22 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT ORA_DST_ERROR(created_ts) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT ORA_DST_CONVERT(created_ts) AS c FROM emp") shouldBe "java.time.OffsetDateTime?"
             typeOf("SELECT TZ_OFFSET(nickname) AS c FROM emp") shouldBe "kotlin.String?"
+        }
+
+        test("propagates Oracle calendar function nullability exactly") {
+            typeOf("SELECT CALENDAR_YEAR(created_ts) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT FISCAL_YEAR(created_ts, fiscal_start) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT RETAIL_YEAR(created_ts, fmt, restated) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT CALENDAR_YEAR_START_DATE(created_ts) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
+            typeOf("SELECT FISCAL_YEAR_START_DATE(created_ts, fiscal_start) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
+            typeOf("SELECT RETAIL_YEAR_START_DATE(created_ts, restated) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
+            typeOf("SELECT CALENDAR_YEAR_NUMBER(created_ts) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT FISCAL_YEAR_NUMBER(created_ts, fiscal_start) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT RETAIL_YEAR_NUMBER(created_ts, restated) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT CALENDAR_ADD_DAYS(created_ts, periods) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
+            typeOf("SELECT FISCAL_ADD_DAYS(created_ts, periods, fiscal_start) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
+            typeOf("SELECT RETAIL_ADD_DAYS(created_ts, periods, restated) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
+            typeOf("SELECT RETAIL_DAY_EXISTS(created_ts, restated) AS c FROM emp") shouldBe "kotlin.Boolean?"
         }
 
         test("propagates Oracle vector function nullability exactly") {

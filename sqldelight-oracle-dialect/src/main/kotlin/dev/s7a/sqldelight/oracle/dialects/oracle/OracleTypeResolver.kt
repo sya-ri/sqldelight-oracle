@@ -46,6 +46,7 @@ public class OracleTypeResolver(
                 oracleExtensionConditionType(expr)
                     ?: oracleExtensionFunctionType(expr)
                     ?: oracleExtensionOperatorType(expr)
+                    ?: oracleAtTimeZoneExpressionType(expr)
                     ?: oracleExtensionPseudocolumnType(expr)
                     ?: oracleExtensionLiteralType(expr)
                     ?: oracleCollateExpressionType(expr)
@@ -298,6 +299,34 @@ public class OracleTypeResolver(
             }
         }
     }
+
+    private fun oracleAtTimeZoneExpressionType(expr: SqlExpr): IntermediateType? {
+        val extensionExpr = expr.oracleExtensionExpr() ?: return null
+        val operandText = extensionExpr.text.oracleAtTimeZoneOperandText() ?: return null
+        val operandType =
+            when {
+                operandText.startsWith("(") -> {
+                    PsiTreeUtil
+                        .findChildrenOfType(extensionExpr, SqlExpr::class.java)
+                        .firstOrNull()
+                        ?.let(::resolvedType)
+                }
+
+                else -> {
+                    extensionExpr.oracleAvailableColumnType(operandText)
+                        ?: OracleType.fromFunctionName(operandText.oracleTerminalIdentifier())?.let(::IntermediateType)
+                }
+            } ?: return null
+        return IntermediateType(TIMESTAMP_TIME_ZONE)
+            .nullableIf(operandType.javaType.isNullable)
+    }
+
+    private fun String.oracleAtTimeZoneOperandText(): String? =
+        Regex("""(?is)^\s*(.+?)\s+AT\s+TIME\s+ZONE\b""")
+            .find(this)
+            ?.groupValues
+            ?.get(1)
+            ?.trim()
 
     private fun SqlExtensionExpr.oracleAvailableColumnType(operandText: String): IntermediateType? {
         val operandColumnName = operandText.substringAfterLast(".").trimOracleIdentifier()

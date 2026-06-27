@@ -1859,6 +1859,7 @@ class OracleParserBackedTest :
                   ORA_DST_AFFECTED(shift_time_tz) AS dst_affected,
                   ORA_DST_CONVERT(shift_time_tz) AS dst_converted,
                   ORA_DST_ERROR(shift_time_tz) AS dst_error,
+                  shift_time AT TIME ZONE 'UTC' AS shift_time_utc,
                   SYS_EXTRACT_UTC(shift_time_tz) AS utc_shift_time,
                   TO_DSINTERVAL('100 10:00:00') AS day_second_interval,
                   TO_TIMESTAMP_TZ('1999-12-01 10:00:00 -8:00', 'YYYY-MM-DD HH:MI:SS TZH:TZM') AS parsed_timestamp_tz,

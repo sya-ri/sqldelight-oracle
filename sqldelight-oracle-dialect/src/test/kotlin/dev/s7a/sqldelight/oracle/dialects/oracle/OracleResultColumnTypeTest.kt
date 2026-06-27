@@ -621,6 +621,12 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT CURRENT_TIMESTAMP(3) AS c FROM emp") shouldBe "java.time.OffsetDateTime"
         }
 
+        test("resolves Oracle AT TIME ZONE result column types exactly") {
+            typeOf("SELECT hire_date AT TIME ZONE 'UTC' AS c FROM emp") shouldBe "java.time.OffsetDateTime"
+            typeOf("SELECT created_ts AT TIME ZONE 'UTC' AS c FROM emp") shouldBe "java.time.OffsetDateTime?"
+            typeOf("SELECT SYSTIMESTAMP AT TIME ZONE 'UTC' AS c FROM emp") shouldBe "java.time.OffsetDateTime"
+        }
+
         test("resolves Oracle current environment result column types exactly") {
             typeOf("SELECT CURRENT_USER AS c FROM emp") shouldBe "kotlin.String"
         }

@@ -159,6 +159,7 @@ class OracleTypeTest :
                     "POWERMULTISET_BY_CARDINALITY" to OracleType.TEXT,
                     "SET" to OracleType.TEXT,
                     "ODCINUMBERLIST" to OracleType.DECIMAL_NUMBER,
+                    "ODCIVARCHAR2LIST" to OracleType.TEXT,
                     "SYS_CONNECT_BY_PATH" to OracleType.TEXT,
                     "DEREF" to OracleType.TEXT,
                     "MAKE_REF" to OracleType.TEXT,

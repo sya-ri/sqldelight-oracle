@@ -319,6 +319,12 @@ class OracleResultColumnTypeTest :
                 FROM TABLE(ODCINUMBERLIST(1, 2)) numbers
                 """.trimIndent(),
             ) shouldBe "java.math.BigDecimal"
+            typeOf(
+                """
+                SELECT names.COLUMN_VALUE AS c
+                FROM TABLE(SYS.ODCIVARCHAR2LIST('SCOTT', 'SMITH')) names
+                """.trimIndent(),
+            ) shouldBe "kotlin.String"
         }
 
         test("resolves Oracle values table result column types exactly") {

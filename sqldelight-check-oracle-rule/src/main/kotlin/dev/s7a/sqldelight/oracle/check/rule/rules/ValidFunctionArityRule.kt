@@ -216,6 +216,10 @@ private fun String.functionArgumentCountAt(openParenthesisOffset: Int): Int? {
                     skipSqlBlockComment(index)
                 }
 
+                startsSqlAlternativeQuotedString(index) -> {
+                    skipSqlAlternativeQuotedString(index)
+                }
+
                 this[index] == '\'' -> {
                     skipSqlQuotedString(index)
                 }

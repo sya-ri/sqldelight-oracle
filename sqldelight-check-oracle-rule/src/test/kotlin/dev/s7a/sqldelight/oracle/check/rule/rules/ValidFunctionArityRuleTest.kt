@@ -311,6 +311,7 @@ class ValidFunctionArityRuleTest :
                   LOCALTIMESTAMP(6),
                   REGR_SLOPE(amount, quantity),
                   COALESCE(nickname, name, 'unknown'),
+                  REGEXP_REPLACE(description, q'{literal ' marker, comma}', 'x'),
                   REGEXP_SUBSTR(description, '[A-Z]+', 1, 1, 'i', 0),
                   TO_TIMESTAMP(created_text, 'YYYY-MM-DD HH24:MI:SS')
                 FROM customers;
@@ -323,6 +324,17 @@ class ValidFunctionArityRuleTest :
                 """
                 -- SELECT POWER(amount)
                 SELECT 'REGEXP_LIKE(name, ''^a'', ''i'', ''x'')' AS sql_text,
+                  POWER(amount, 2) AS squared_amount
+                FROM invoices;
+                """,
+            ) shouldBe emptyList()
+        }
+
+        test("ignores function-like text inside Oracle alternative quoted literals") {
+            ValidFunctionArityRule().diagnostics(
+                """
+                SELECT q'{literal ' marker REGEXP_LIKE(name, '^a', 'i', 'x')}' AS sql_text,
+                  nq'[literal ' marker POWER(amount)]' AS national_sql_text,
                   POWER(amount, 2) AS squared_amount
                 FROM invoices;
                 """,

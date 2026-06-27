@@ -39,7 +39,8 @@ class OracleResultColumnTypeTest :
               fmt VARCHAR2(100),
               nls VARCHAR2(100),
               restated VARCHAR2(20),
-              xml_doc XMLTYPE
+              xml_doc XMLTYPE,
+              json_doc JSON
             );
 
             CREATE SEQUENCE emp_seq;
@@ -142,6 +143,10 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT CAST(hire_date AS TIMESTAMP WITH TIME ZONE) AS c FROM emp") shouldBe "java.time.OffsetDateTime"
             typeOf("SELECT XMLCAST(xml_doc AS NUMBER) AS c FROM emp") shouldBe
                 "java.math.BigDecimal?"
+        }
+
+        test("resolves Oracle TREAT result column types exactly") {
+            typeOf("SELECT TREAT(json_doc AS JSON) AS c FROM emp") shouldBe "kotlin.String?"
         }
 
         test("resolves Oracle SQL JSON null-returning result column types exactly") {

@@ -201,7 +201,7 @@ class OracleDialectTest :
                 resolver.functionType(sqlFunctionExpr(functionName, text = text))
             } shouldBe
                 listOf(
-                    IntermediateType(OracleType.DECIMAL_NUMBER),
+                    IntermediateType(OracleType.DECIMAL_NUMBER).asNullable(),
                     IntermediateType(OracleType.BINARY),
                     IntermediateType(OracleType.BINARY),
                     IntermediateType(OracleType.BINARY),

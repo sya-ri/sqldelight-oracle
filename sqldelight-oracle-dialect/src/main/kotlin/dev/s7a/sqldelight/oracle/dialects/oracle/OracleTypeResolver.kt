@@ -349,7 +349,9 @@ public class OracleTypeResolver(
             ?: nullableAggregateFunctionType(functionName)
             ?: OracleType.fromFunctionName(functionName)?.let { type ->
                 val propagatesNull = functionName.isOracleNullPropagatingFixedReturnFunction()
-                val hasNullableInput = propagatesNull && exprList.any { expression -> resolvedType(expression).javaType.isNullable }
+                val hasNullableInput =
+                    functionName.isOracleDefaultNullableSqlJsonFunction() ||
+                        (propagatesNull && exprList.any { expression -> resolvedType(expression).javaType.isNullable })
                 IntermediateType(type)
                     .nullableIf(hasNullableInput)
             }
@@ -386,7 +388,8 @@ public class OracleTypeResolver(
                 functionText.oracleReturningTypeName()?.let { typeName ->
                     IntermediateType(OracleType.fromSqlTypeName(typeName))
                         .nullableIf(
-                            functionText.hasOracleSqlJsonNullReturningClause() ||
+                            functionName.isOracleDefaultNullableSqlJsonFunction() ||
+                                functionText.hasOracleSqlJsonNullReturningClause() ||
                                 exprList.firstOrNull()?.let { expression -> resolvedType(expression).javaType.isNullable } == true,
                         )
                 }
@@ -1039,6 +1042,8 @@ public class OracleTypeResolver(
                     "SKEWNESS_POP",
                     "SKEWNESS_SAMP",
                 )
+
+        private fun String.isOracleDefaultNullableSqlJsonFunction(): Boolean = trim().uppercase() in setOf("JSON_QUERY", "JSON_VALUE")
 
         private fun String.oracleFunctionName(): String? =
             Regex("""(?i)^\s*(?:[A-Z_][A-Z0-9_$#]*\s*\.\s*)*([A-Z_][A-Z0-9_$#]*)\s*\(""")

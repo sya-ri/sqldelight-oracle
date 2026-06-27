@@ -553,8 +553,9 @@ class OracleResultColumnTypeTest :
         }
 
         test("resolves Oracle SQL JSON null-returning result column types exactly") {
-            typeOf("SELECT JSON_VALUE(name, '${'$'}.id' RETURNING NUMBER) AS c FROM emp") shouldBe "java.math.BigDecimal"
-            typeOf("SELECT JSON_QUERY(name, '${'$'}.items' RETURNING CLOB) AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT JSON_VALUE(name, '${'$'}.id' RETURNING NUMBER) AS c FROM emp") shouldBe
+                "java.math.BigDecimal?"
+            typeOf("SELECT JSON_QUERY(name, '${'$'}.items' RETURNING CLOB) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT JSON_VALUE(name, '${'$'}.id' RETURNING NUMBER NULL ON EMPTY) AS c FROM emp") shouldBe
                 "java.math.BigDecimal?"
             typeOf("SELECT JSON_QUERY(name, '${'$'}.items' RETURNING CLOB NULL ON ERROR) AS c FROM emp") shouldBe

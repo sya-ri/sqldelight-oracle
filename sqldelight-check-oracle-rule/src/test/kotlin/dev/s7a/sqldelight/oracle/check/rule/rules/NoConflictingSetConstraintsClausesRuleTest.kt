@@ -23,6 +23,24 @@ class NoConflictingSetConstraintsClausesRuleTest :
                 )
         }
 
+        test("reports conflicting singular set constraint timing clauses exactly") {
+            NoConflictingSetConstraintsClausesRule()
+                .diagnostics(
+                    """
+                    SET CONSTRAINT constraint_name IMMEDIATE DEFERRED;
+                    """,
+                ).summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Avoid conflicting Oracle SET CONSTRAINTS clauses: TIMING.",
+                        startLine = 1,
+                        startColumn = 32,
+                        endLine = 1,
+                        endColumn = 50,
+                    ),
+                )
+        }
+
         test("accepts one set constraints timing clause") {
             NoConflictingSetConstraintsClausesRule()
                 .diagnostics(

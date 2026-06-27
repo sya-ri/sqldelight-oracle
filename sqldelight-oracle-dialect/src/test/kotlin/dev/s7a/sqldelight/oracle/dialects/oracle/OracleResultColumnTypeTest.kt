@@ -25,6 +25,7 @@ class OracleResultColumnTypeTest :
               small_id NUMBER(5) NOT NULL,
               big_id NUMBER(19) NOT NULL,
               name VARCHAR2(100) NOT NULL,
+              nickname VARCHAR2(100),
               salary NUMBER(10, 2),
               bonus BINARY_DOUBLE,
               hire_date DATE NOT NULL,
@@ -56,8 +57,13 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT TO_CHAR(hire_date) AS c FROM emp") shouldBe "kotlin.String"
             typeOf("SELECT LENGTH(name) AS c FROM emp") shouldBe "kotlin.Long"
             typeOf("SELECT SUBSTR(name, 1, 3) AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT LENGTH(nickname) AS c FROM emp") shouldBe "kotlin.Long?"
+            typeOf("SELECT UPPER(nickname) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT SUBSTR(nickname, 1, 3) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT NVL(name, 'x') AS c FROM emp") shouldBe "kotlin.String"
             typeOf("SELECT COALESCE(salary, 0) AS c FROM emp") shouldBe "java.math.BigDecimal"
+            typeOf("SELECT TO_CHAR(created_ts) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT TO_NUMBER(nickname) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT NULLIF(id, small_id) AS c FROM emp") shouldBe "kotlin.Long?"
             typeOf("SELECT DECODE(name, 'A', id) AS c FROM emp") shouldBe "kotlin.Long?"
             typeOf("SELECT DECODE(name, 'A', id, small_id) AS c FROM emp") shouldBe "kotlin.Long"

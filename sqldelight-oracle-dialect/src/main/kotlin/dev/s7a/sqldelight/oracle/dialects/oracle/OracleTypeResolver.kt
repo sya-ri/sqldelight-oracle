@@ -224,7 +224,12 @@ public class OracleTypeResolver(
     ): IntermediateType? =
         argumentDependentFunctionType(functionName, functionText, exprList)
             ?: returningClauseFunctionType(functionName, functionText)
-            ?: OracleType.fromFunctionName(functionName)?.let { type -> IntermediateType(type) }
+            ?: OracleType.fromFunctionName(functionName)?.let { type ->
+                val propagatesNull = functionName.isOracleNullPropagatingFixedReturnFunction()
+                val hasNullableInput = propagatesNull && exprList.any { expression -> resolvedType(expression).javaType.isNullable }
+                IntermediateType(type)
+                    .nullableIf(hasNullableInput)
+            }
 
     private fun returningClauseFunctionType(
         functionName: String,
@@ -495,6 +500,43 @@ public class OracleTypeResolver(
 
         private fun String.hasOracleVectorDistanceShorthand(): Boolean =
             VECTOR_DISTANCE_SHORTHAND_OPERATORS.any { operator -> contains(operator) }
+
+        private fun String.isOracleNullPropagatingFixedReturnFunction(): Boolean =
+            trim().uppercase() in
+                setOf(
+                    "ASCII",
+                    "ASCIISTR",
+                    "INITCAP",
+                    "INSTR",
+                    "LENGTH",
+                    "LOWER",
+                    "LPAD",
+                    "LTRIM",
+                    "NLS_INITCAP",
+                    "NLS_LOWER",
+                    "NLS_UPPER",
+                    "REGEXP_COUNT",
+                    "REGEXP_INSTR",
+                    "REGEXP_REPLACE",
+                    "REGEXP_SUBSTR",
+                    "REPLACE",
+                    "RPAD",
+                    "RTRIM",
+                    "SUBSTR",
+                    "TO_BINARY_DOUBLE",
+                    "TO_BINARY_FLOAT",
+                    "TO_CHAR",
+                    "TO_DATE",
+                    "TO_MULTI_BYTE",
+                    "TO_NCHAR",
+                    "TO_NUMBER",
+                    "TO_SINGLE_BYTE",
+                    "TO_TIMESTAMP",
+                    "TO_TIMESTAMP_TZ",
+                    "TRANSLATE",
+                    "TRIM",
+                    "UPPER",
+                )
 
         private fun String.oracleFunctionName(): String? =
             Regex("""(?i)^\s*(?:[A-Z_][A-Z0-9_$#]*\s*\.\s*)*([A-Z_][A-Z0-9_$#]*)\s*\(""")

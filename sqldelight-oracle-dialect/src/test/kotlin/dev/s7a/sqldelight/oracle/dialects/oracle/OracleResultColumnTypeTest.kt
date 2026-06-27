@@ -505,6 +505,8 @@ class OracleResultColumnTypeTest :
                 "java.math.BigDecimal?"
             typeOf("SELECT JSON_QUERY(nickname, '${'$'}.items' RETURNING CLOB) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT JSON_MERGEPATCH(name, restated RETURNING CLOB) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT JSON_TRANSFORM(nickname, SET '${'$'}.name' = name RETURNING CLOB) AS c FROM emp") shouldBe
+                "kotlin.String?"
         }
 
         test("resolves Oracle serialization input nullability exactly") {

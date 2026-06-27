@@ -301,7 +301,6 @@ public class OracleTypeResolver(
         when (functionName.trim().uppercase()) {
             "JSON_ARRAY",
             "JSON_OBJECT",
-            "JSON_TRANSFORM",
             -> {
                 functionText.oracleReturningTypeName()?.let { typeName -> IntermediateType(OracleType.fromSqlTypeName(typeName)) }
             }
@@ -327,6 +326,7 @@ public class OracleTypeResolver(
             }
 
             "JSON_MERGEPATCH",
+            "JSON_TRANSFORM",
             -> {
                 functionText.oracleReturningTypeName()?.let { typeName ->
                     IntermediateType(OracleType.fromSqlTypeName(typeName))

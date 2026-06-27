@@ -2473,6 +2473,7 @@ class OracleParserBackedTest :
                   APPROX_COUNT_DISTINCT(employee_id) AS approximate_employee_count,
                   APPROX_SUM(amount) AS approximate_amount,
                   APPROX_MEDIAN(amount) AS approximate_median_amount,
+                  APPROX_MEDIAN(sold_at DETERMINISTIC, 'ERROR_RATE') AS approximate_median_error_rate,
                   APPROX_PERCENTILE(0.75) WITHIN GROUP (ORDER BY amount) AS approximate_percentile,
                   APPROX_PERCENTILE(0.75 DETERMINISTIC, 'ERROR_RATE') WITHIN GROUP (ORDER BY amount) AS percentile_error_rate
                 FROM sales
@@ -5940,6 +5941,12 @@ class OracleParserBackedTest :
                 WHERE target.order_id = ?
                 RETURNING target.order_total INTO ?;
 
+                updateReturningBulkCollect:
+                UPDATE partitioned_order_updates
+                SET order_total = order_total + ?
+                WHERE region_code = ?
+                RETURNING order_id, order_total BULK COLLECT INTO returned_order_ids, returned_totals;
+
                 updateWithWaitAndErrorLogging:
                 UPDATE partitioned_order_updates
                 SET archived_at = CURRENT_TIMESTAMP
@@ -6006,6 +6013,11 @@ class OracleParserBackedTest :
                 DELETE FROM partitioned_order_updates target
                 WHERE target.order_id = ?
                 RETURNING target.order_total INTO ?;
+
+                deleteReturningBulkCollect:
+                DELETE FROM partitioned_order_updates
+                WHERE region_code = ?
+                RETURNING order_id BULK COLLECT INTO deleted_order_ids;
 
                 deleteWithErrorLogging:
                 DELETE FROM partitioned_order_updates

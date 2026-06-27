@@ -63,7 +63,7 @@ public class OracleTypeResolver(
                 argument.textRange.startOffset - extensionExpr.textRange.startOffset < invocationEnd
             }
         val arguments =
-            if (functionName.isOracleOrderedSetPercentileFunction()) {
+            if (functionName.isOracleWithinGroupOrderedValueFunction()) {
                 invocationArguments + childExpressions.oracleWithinGroupOrderingExpressions(extensionExpr)
             } else {
                 invocationArguments
@@ -286,6 +286,36 @@ public class OracleTypeResolver(
                 }
             }
 
+            "median", "approx_median" -> {
+                exprList.singleOrNull()?.let { expression ->
+                    when (resolvedType(expression).dialectType) {
+                        INTEGER, INTEGER_NUMBER, LONG_NUMBER, DECIMAL_NUMBER -> {
+                            IntermediateType(DECIMAL_NUMBER).asNullable()
+                        }
+
+                        REAL -> {
+                            IntermediateType(REAL).asNullable()
+                        }
+
+                        BINARY_FLOAT -> {
+                            IntermediateType(BINARY_FLOAT).asNullable()
+                        }
+
+                        BINARY_DOUBLE -> {
+                            IntermediateType(BINARY_DOUBLE).asNullable()
+                        }
+
+                        in DATETIME_TYPE_ORDER -> {
+                            resolvedType(expression).asNullable()
+                        }
+
+                        else -> {
+                            null
+                        }
+                    }
+                }
+            }
+
             "mod", "remainder" -> {
                 exprList.takeIf { args -> args.size == 2 }?.let { args ->
                     encapsulatingTypePreferringKotlin(args, *NUMERIC_TYPE_ORDER)
@@ -407,7 +437,6 @@ public class OracleTypeResolver(
             }
 
             "avg",
-            "median",
             "stddev",
             "stddev_pop",
             "stddev_samp",
@@ -473,6 +502,18 @@ public class OracleTypeResolver(
             "percentile_cont", "percentile_disc" -> {
                 exprList.getOrNull(1)?.let { expression ->
                     resolvedType(expression).asNullable()
+                }
+            }
+
+            "approx_percentile" -> {
+                when {
+                    functionText.hasOracleApproxPercentileDiagnosticReturn() -> {
+                        IntermediateType(DECIMAL_NUMBER).asNullable()
+                    }
+
+                    else -> {
+                        exprList.lastOrNull()?.let { expression -> resolvedType(expression).asNullable() }
+                    }
                 }
             }
 
@@ -645,8 +686,13 @@ public class OracleTypeResolver(
                 ?.get(1)
                 ?.uppercase()
 
-        private fun String.isOracleOrderedSetPercentileFunction(): Boolean =
-            trim().uppercase() in setOf("PERCENTILE_CONT", "PERCENTILE_DISC")
+        private fun String.isOracleWithinGroupOrderedValueFunction(): Boolean =
+            trim().uppercase() in setOf("APPROX_PERCENTILE", "PERCENTILE_CONT", "PERCENTILE_DISC")
+
+        private fun String.hasOracleApproxPercentileDiagnosticReturn(): Boolean {
+            val normalized = uppercase()
+            return "DETERMINISTIC" in normalized && ("'ERROR_RATE'" in normalized || "'CONFIDENCE'" in normalized)
+        }
 
         private fun List<SqlExpr>.oracleWithinGroupOrderingExpressions(extensionExpr: SqlExtensionExpr): List<SqlExpr> {
             val orderByStart = extensionExpr.text.oracleWithinGroupOrderByExpressionStart() ?: return emptyList()

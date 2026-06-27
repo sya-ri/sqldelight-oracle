@@ -247,7 +247,7 @@ type_name ::= oracle_type_name | core_type_name {
   override = true
 }
 
-extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_boolean_literal_expr | oracle_boolean_not_expr | oracle_boolean_test_expr | oracle_extract_datetime_expr | oracle_character_function_expr | oracle_object_method_expr | oracle_object_attribute_expr | oracle_datetime_conversion_expr | oracle_number_conversion_expr | oracle_interval_conversion_expr | oracle_user_function_expr | oracle_collection_function_expr | oracle_object_reference_function_expr | oracle_oml_function_expr | oracle_ordered_aggregate_expr | oracle_analytic_function_expr | oracle_aggregate_function_expr | oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_condition_expr | oracle_multiset_expr | oracle_collate_expr | oracle_cursor_expr | oracle_validate_conversion_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_type_constructor_expr {
+extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_boolean_literal_expr | oracle_boolean_not_expr | oracle_boolean_test_expr | oracle_extract_datetime_expr | oracle_character_function_expr | oracle_object_method_expr | oracle_object_attribute_expr | oracle_datetime_conversion_expr | oracle_number_conversion_expr | oracle_interval_conversion_expr | oracle_user_function_expr | oracle_collection_function_expr | oracle_object_reference_function_expr | oracle_oml_function_expr | oracle_ordered_aggregate_expr | oracle_approx_median_expr | oracle_analytic_function_expr | oracle_aggregate_function_expr | oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_condition_expr | oracle_multiset_expr | oracle_collate_expr | oracle_cursor_expr | oracle_validate_conversion_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_type_constructor_expr {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionExprImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionExpr"
   override = true
@@ -407,6 +407,8 @@ private oracle_ordered_aggregate_expr ::= ( oracle_approx_percentile_expr | orac
 
 private oracle_approx_percentile_expr ::=
   'APPROX_PERCENTILE' LP <<expr '-1'>> [ 'DETERMINISTIC' ] [ COMMA <<expr '-1'>> ] RP oracle_within_group_clause
+
+private oracle_approx_median_expr ::= 'APPROX_MEDIAN' LP <<expr '-1'>> [ 'DETERMINISTIC' ] [ COMMA <<expr '-1'>> ] RP
 
 private oracle_percentile_expr ::= ( 'PERCENTILE_CONT' | 'PERCENTILE_DISC' ) LP <<expr '-1'>> RP oracle_within_group_clause
 
@@ -1757,7 +1759,7 @@ private oracle_from_using_source ::= <<tableOrSubqueryExt <<table_or_subquery_re
 
 private oracle_wait_clause ::= 'NOWAIT' | 'WAIT' ( 'FOREVER' | {signed_number} [ 'SECONDS' | 'MILLISECONDS' | 'MICROSECONDS' ] )
 
-private oracle_returning_clause ::= ( 'RETURN' | 'RETURNING' ) oracle_returning_expr ( COMMA oracle_returning_expr ) * 'INTO' oracle_returning_target ( COMMA oracle_returning_target ) *
+private oracle_returning_clause ::= ( 'RETURN' | 'RETURNING' ) oracle_returning_expr ( COMMA oracle_returning_expr ) * [ 'BULK' 'COLLECT' ] 'INTO' oracle_returning_target ( COMMA oracle_returning_target ) *
 
 private oracle_returning_expr ::= [ 'OLD' | 'NEW' ] <<expr '-1'>>
 

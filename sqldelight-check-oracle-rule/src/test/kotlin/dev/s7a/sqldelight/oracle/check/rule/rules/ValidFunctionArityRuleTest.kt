@@ -878,6 +878,108 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("reports wrong arity for Oracle simple XML functions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidXmlUtilities:
+                    SELECT DEPTH(), PATH(1, 2), XMLCDATA(), XMLCOMMENT(name, extra),
+                      SYS_XMLGEN(), SYS_XMLAGG(x, fmt, extra), XMLCOLATTVAL(),
+                      XMLCONCAT(), XMLDIFF(payload), XMLPATCH(payload),
+                      XMLSEQUENCE(), XMLTRANSFORM(payload)
+                    FROM xml_samples;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function DEPTH expects 1 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 13,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function PATH expects 1 argument(s), but got 2.",
+                        startLine = 2,
+                        startColumn = 17,
+                        endLine = 2,
+                        endColumn = 21,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLCDATA expects 1 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 29,
+                        endLine = 2,
+                        endColumn = 37,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLCOMMENT expects 1 argument(s), but got 2.",
+                        startLine = 2,
+                        startColumn = 41,
+                        endLine = 2,
+                        endColumn = 51,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function SYS_XMLGEN expects 1..2 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 13,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function SYS_XMLAGG expects 1..2 argument(s), but got 3.",
+                        startLine = 3,
+                        startColumn = 17,
+                        endLine = 3,
+                        endColumn = 27,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLCOLATTVAL expects 1..2147483647 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 44,
+                        endLine = 3,
+                        endColumn = 56,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLCONCAT expects 1..2147483647 argument(s), but got 0.",
+                        startLine = 4,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 12,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLDIFF expects 2 argument(s), but got 1.",
+                        startLine = 4,
+                        startColumn = 16,
+                        endLine = 4,
+                        endColumn = 23,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLPATCH expects 2 argument(s), but got 1.",
+                        startLine = 4,
+                        startColumn = 34,
+                        endLine = 4,
+                        endColumn = 42,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLSEQUENCE expects 1 argument(s), but got 0.",
+                        startLine = 5,
+                        startColumn = 3,
+                        endLine = 5,
+                        endColumn = 14,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLTRANSFORM expects 2 argument(s), but got 1.",
+                        startLine = 5,
+                        startColumn = 18,
+                        endLine = 5,
+                        endColumn = 30,
+                    ),
+                )
+        }
+
         test("reports wrong arity for Oracle calendar functions") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(
@@ -1530,6 +1632,19 @@ class ValidFunctionArityRuleTest :
                   VALIDATE_CONVERSION(text_value AS DATE, fmt, nls),
                   JSON_DATAGUIDE(details),
                   JSON_DATAGUIDE(details, format, pretty),
+                  DEPTH(1),
+                  PATH(1),
+                  SYS_XMLGEN(name),
+                  SYS_XMLGEN(name, xmlformat),
+                  SYS_XMLAGG(payload_xml),
+                  XMLCDATA(name),
+                  XMLCOLATTVAL(name, id),
+                  XMLCOMMENT(name),
+                  XMLCONCAT(payload_xml, archived_xml),
+                  XMLDIFF(payload_xml, archived_xml),
+                  XMLPATCH(payload_xml, archived_xml),
+                  XMLSEQUENCE(payload_xml),
+                  XMLTRANSFORM(payload_xml, archived_xml),
                   CALENDAR_YEAR(d),
                   CALENDAR_MONTH(d, fmt, nls),
                   FISCAL_YEAR(d, fiscal_start, fmt, nls),

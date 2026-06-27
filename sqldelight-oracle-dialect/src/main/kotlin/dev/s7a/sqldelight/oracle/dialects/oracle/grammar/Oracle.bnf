@@ -853,7 +853,9 @@ private oracle_collate_operand ::= oracle_qualified_object_name | {string_litera
 
 private oracle_qualified_object_name ::= oracle_object_name_part ( DOT oracle_object_name_part ) *
 
-private oracle_pseudocolumn_expr ::= oracle_qualified_table_pseudocolumn | oracle_simple_pseudocolumn
+private oracle_pseudocolumn_expr ::= oracle_qualified_table_pseudocolumn | oracle_current_datetime_precision_pseudocolumn | oracle_simple_pseudocolumn
+
+private oracle_current_datetime_precision_pseudocolumn ::= ( 'CURRENT_TIMESTAMP' | 'LOCALTIMESTAMP' ) LP {signed_number} RP
 
 private oracle_qualified_table_pseudocolumn ::= oracle_object_name_part DOT (
   'CURRVAL' |

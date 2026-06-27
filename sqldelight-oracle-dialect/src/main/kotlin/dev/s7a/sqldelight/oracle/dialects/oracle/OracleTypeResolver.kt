@@ -1115,6 +1115,7 @@ public class OracleTypeResolver(
 
         private fun String.oracleTerminalIdentifier(): String =
             trim()
+                .substringBefore("(")
                 .substringAfterLast(".")
                 .trim()
                 .uppercase()

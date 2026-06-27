@@ -615,8 +615,10 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT SYSDATE AS c FROM emp") shouldBe "java.time.LocalDateTime"
             typeOf("SELECT CURRENT_DATE AS c FROM emp") shouldBe "java.time.LocalDateTime"
             typeOf("SELECT LOCALTIMESTAMP AS c FROM emp") shouldBe "java.time.LocalDateTime"
+            typeOf("SELECT LOCALTIMESTAMP(3) AS c FROM emp") shouldBe "java.time.LocalDateTime"
             typeOf("SELECT SYSTIMESTAMP AS c FROM emp") shouldBe "java.time.OffsetDateTime"
             typeOf("SELECT CURRENT_TIMESTAMP AS c FROM emp") shouldBe "java.time.OffsetDateTime"
+            typeOf("SELECT CURRENT_TIMESTAMP(3) AS c FROM emp") shouldBe "java.time.OffsetDateTime"
         }
 
         test("resolves Oracle current environment result column types exactly") {

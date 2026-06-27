@@ -1864,6 +1864,8 @@ class OracleParserBackedTest :
                   TO_TIMESTAMP_TZ('1999-12-01 10:00:00 -8:00', 'YYYY-MM-DD HH:MI:SS TZH:TZM') AS parsed_timestamp_tz,
                   TO_YMINTERVAL('01-02') AS year_month_interval,
                   TZ_OFFSET('US/Eastern') AS eastern_offset,
+                  CURRENT_TIMESTAMP(3) AS current_timestamp_precision,
+                  LOCALTIMESTAMP(3) AS local_timestamp_precision,
                   MONTHS_BETWEEN(CURRENT_DATE, hire_date) AS tenure_months
                 FROM employees;
                 """.trimIndent()

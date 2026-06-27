@@ -118,7 +118,7 @@ class ValidFunctionArityRuleTest :
                 ValidFunctionArityRule().diagnostics(
                     """
                     invalidMath:
-                    SELECT POWER(amount), NVL2(status, 'Y'), REGR_SLOPE(amount)
+                    SELECT POWER(amount), NVL2(status, 'Y'), REGR_SLOPE(amount), CONCAT(label)
                     FROM invoices;
                     """,
                 )
@@ -145,6 +145,13 @@ class ValidFunctionArityRuleTest :
                         startColumn = 42,
                         endLine = 2,
                         endColumn = 52,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function CONCAT expects 2..2147483647 argument(s), but got 1.",
+                        startLine = 2,
+                        startColumn = 62,
+                        endLine = 2,
+                        endColumn = 68,
                     ),
                 )
         }
@@ -289,6 +296,7 @@ class ValidFunctionArityRuleTest :
                   USER,
                   POWER(amount, 2),
                   NVL2(status, 'Y', 'N'),
+                  CONCAT(first_name, ' ', last_name),
                   COUNT(*),
                   SUM(amount),
                   MAX(status),

@@ -55,4 +55,35 @@ class NoConflictingJsonStorageClausesRuleTest :
                     """,
                 ).summaries() shouldBe emptyList()
         }
+
+        test("accepts case-distinct quoted JSON storage columns") {
+            NoConflictingJsonStorageClausesRule()
+                .diagnostics(
+                    """
+                    ALTER TABLE documents
+                      MODIFY JSON COLUMN "Payload" STORE AS TEXT
+                      MODIFY JSON COLUMN "payload" STORE AS BLOB;
+                    """,
+                ).summaries() shouldBe emptyList()
+        }
+
+        test("reports repeated quoted JSON storage columns exactly") {
+            NoConflictingJsonStorageClausesRule()
+                .diagnostics(
+                    """
+                    ALTER TABLE documents
+                      MODIFY JSON COLUMN "payload" STORE AS TEXT
+                      MODIFY JSON COLUMN "payload" STORE AS BLOB;
+                    """,
+                ).summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Avoid multiple Oracle JSON storage clauses for column \"payload\".",
+                        startLine = 2,
+                        startColumn = 10,
+                        endLine = 3,
+                        endColumn = 45,
+                    ),
+                )
+        }
     })

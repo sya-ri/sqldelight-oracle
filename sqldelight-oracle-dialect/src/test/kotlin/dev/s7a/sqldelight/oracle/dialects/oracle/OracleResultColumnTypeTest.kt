@@ -38,7 +38,8 @@ class OracleResultColumnTypeTest :
               periods NUMBER(10),
               fmt VARCHAR2(100),
               nls VARCHAR2(100),
-              restated VARCHAR2(20)
+              restated VARCHAR2(20),
+              xml_doc XMLTYPE
             );
 
             CREATE SEQUENCE emp_seq;
@@ -134,10 +135,13 @@ class OracleResultColumnTypeTest :
         }
 
         test("resolves Oracle CAST result column types exactly") {
-            typeOf("SELECT CAST(salary AS NUMBER(5)) AS c FROM emp") shouldBe "kotlin.Int"
+            typeOf("SELECT CAST(salary AS NUMBER(5)) AS c FROM emp") shouldBe "kotlin.Int?"
+            typeOf("SELECT CAST(dept_id AS VARCHAR2(20)) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT CAST(id AS VARCHAR2(20)) AS c FROM emp") shouldBe "kotlin.String"
             typeOf("SELECT CAST(name AS DATE) AS c FROM emp") shouldBe "java.time.LocalDateTime"
             typeOf("SELECT CAST(hire_date AS TIMESTAMP WITH TIME ZONE) AS c FROM emp") shouldBe "java.time.OffsetDateTime"
+            typeOf("SELECT XMLCAST(xml_doc AS NUMBER) AS c FROM emp") shouldBe
+                "java.math.BigDecimal?"
         }
 
         test("resolves Oracle pseudocolumn result column types exactly") {

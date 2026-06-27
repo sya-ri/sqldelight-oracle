@@ -243,7 +243,7 @@ public class OracleTypeResolver(
         exprList: List<SqlExpr>,
     ): IntermediateType? =
         argumentDependentFunctionType(functionName, functionText, exprList)
-            ?: returningClauseFunctionType(functionName, functionText)
+            ?: returningClauseFunctionType(functionName, functionText, exprList)
             ?: nullableAggregateFunctionType(functionName)
             ?: OracleType.fromFunctionName(functionName)?.let { type ->
                 val propagatesNull = functionName.isOracleNullPropagatingFixedReturnFunction()
@@ -261,6 +261,7 @@ public class OracleTypeResolver(
     private fun returningClauseFunctionType(
         functionName: String,
         functionText: String,
+        exprList: List<SqlExpr>,
     ): IntermediateType? =
         when (functionName.trim().uppercase()) {
             "JSON_ARRAY",
@@ -280,7 +281,10 @@ public class OracleTypeResolver(
             "CAST",
             "XMLCAST",
             -> {
-                functionText.oracleCastTypeName()?.let { typeName -> IntermediateType(OracleType.fromSqlTypeName(typeName)) }
+                functionText.oracleCastTypeName()?.let { typeName ->
+                    IntermediateType(OracleType.fromSqlTypeName(typeName))
+                        .nullableIf(exprList.firstOrNull()?.let { expression -> resolvedType(expression).javaType.isNullable } == true)
+                }
             }
 
             else -> {

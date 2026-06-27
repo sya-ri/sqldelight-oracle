@@ -105,6 +105,53 @@ class NoEmptyStringComparisonRuleTest :
                 )
         }
 
+        test("reports LIKE predicates with empty string literals") {
+            val diagnostics =
+                NoEmptyStringComparisonRule().diagnostics(
+                    """
+                    findBlankPattern:
+                    SELECT *
+                    FROM customers
+                    WHERE name LIKE ''
+                      OR nickname NOT LIKE q'[]'
+                      OR alias LIKEC N''
+                      OR '' LIKE display_name;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = EMPTY_STRING_MESSAGE,
+                        startLine = 4,
+                        startColumn = 12,
+                        endLine = 4,
+                        endColumn = 19,
+                    ),
+                    DiagnosticSummary(
+                        message = EMPTY_STRING_MESSAGE,
+                        startLine = 5,
+                        startColumn = 15,
+                        endLine = 5,
+                        endColumn = 29,
+                    ),
+                    DiagnosticSummary(
+                        message = EMPTY_STRING_MESSAGE,
+                        startLine = 6,
+                        startColumn = 12,
+                        endLine = 6,
+                        endColumn = 21,
+                    ),
+                    DiagnosticSummary(
+                        message = EMPTY_STRING_MESSAGE,
+                        startLine = 7,
+                        startColumn = 6,
+                        endLine = 7,
+                        endColumn = 13,
+                    ),
+                )
+        }
+
         test("accepts null predicates") {
             NoEmptyStringComparisonRule().diagnostics(
                 """

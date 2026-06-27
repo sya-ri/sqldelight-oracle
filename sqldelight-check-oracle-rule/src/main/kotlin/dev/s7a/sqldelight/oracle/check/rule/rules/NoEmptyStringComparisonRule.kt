@@ -44,6 +44,10 @@ private fun String.emptyStringComparisonRange(literalRange: IntRange): IntRange?
         operatorRange.first..literalRange.last
     } ?: comparisonOperatorAfter(literalRange.last + 1)?.let { operatorRange ->
         literalRange.first..operatorRange.last
+    } ?: likePredicateBefore(literalRange.first)?.let { operatorRange ->
+        operatorRange.first..literalRange.last
+    } ?: likePredicateAfter(literalRange.last + 1)?.let { operatorRange ->
+        literalRange.first..operatorRange.last
     }
 
 private fun String.emptyStringLiteralRanges(): List<IntRange> {
@@ -96,6 +100,65 @@ private fun String.comparisonOperatorAfter(offset: Int): IntRange? {
         this[start] == '=' && getOrNull(start + 1) != '>' -> start..start
         else -> null
     }
+}
+
+private fun String.likePredicateBefore(offset: Int): IntRange? {
+    val likeRange = wordBefore(offset, likePredicates) ?: return null
+    val notRange = wordBefore(likeRange.first, setOf("NOT"))
+    return (notRange?.first ?: likeRange.first)..likeRange.last
+}
+
+private fun String.likePredicateAfter(offset: Int): IntRange? {
+    val firstWord = wordAfter(offset) ?: return null
+    val likeRange =
+        when {
+            firstWord.text.equals("NOT", ignoreCase = true) -> {
+                val secondWord = wordAfter(firstWord.range.last + 1) ?: return null
+                secondWord
+                    .takeIf { word -> word.text.uppercase() in likePredicates }
+                    ?.range
+                    ?.let { range -> firstWord.range.first..range.last }
+            }
+
+            firstWord.text.uppercase() in likePredicates -> {
+                firstWord.range
+            }
+
+            else -> {
+                null
+            }
+        }
+    return likeRange
+}
+
+private data class EmptyStringWord(
+    val text: String,
+    val range: IntRange,
+)
+
+private fun String.wordBefore(
+    offset: Int,
+    candidates: Set<String>,
+): IntRange? {
+    val word = wordBefore(offset) ?: return null
+    return word.range.takeIf { word.text.uppercase() in candidates }
+}
+
+private fun String.wordBefore(offset: Int): EmptyStringWord? {
+    var end = previousNonWhitespace(offset - 1) ?: return null
+    if (!this[end].isLetterOrDigit() && this[end] != '_') return null
+    while (end >= 0 && (this[end].isLetterOrDigit() || this[end] == '_')) end--
+    val start = end + 1
+    val last = previousNonWhitespace(offset - 1) ?: return null
+    return EmptyStringWord(substring(start, last + 1), start..last)
+}
+
+private fun String.wordAfter(offset: Int): EmptyStringWord? {
+    val start = nextNonWhitespace(offset) ?: return null
+    if (!this[start].isLetterOrDigit() && this[start] != '_') return null
+    var end = start
+    while (end < length && (this[end].isLetterOrDigit() || this[end] == '_')) end++
+    return EmptyStringWord(substring(start, end), start until end)
 }
 
 private fun String.previousNonWhitespace(offset: Int): Int? {
@@ -173,6 +236,8 @@ private fun String.maskQuotedTextUnlessEmpty(
     for (maskIndex in start until length) chars[maskIndex] = ' '
     return length
 }
+
+private val likePredicates = setOf("LIKE", "LIKE2", "LIKE4", "LIKEC")
 
 private fun String.maskAlternativeQuotedTextUnlessEmpty(
     chars: CharArray,

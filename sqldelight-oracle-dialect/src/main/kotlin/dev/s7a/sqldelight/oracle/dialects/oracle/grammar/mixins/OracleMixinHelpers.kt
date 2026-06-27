@@ -12,6 +12,7 @@ import com.alecstrong.sql.psi.core.psi.SqlQualifiedTableName
 import com.alecstrong.sql.psi.core.psi.SqlTableAlias
 import com.alecstrong.sql.psi.core.psi.SqlTableName
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.PsiTreeUtil
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleCreateSchemaQualifiedSynonymStmt
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleCreateUnqualifiedSynonymStmt
@@ -63,6 +64,16 @@ internal fun Collection<QueryResult>.oracleQueryResultFor(
         alias,
         flatMap { it.columns },
         flatMap { it.synthesizedColumns } + synthesizedColumns,
+    )
+
+internal fun QueryResult.withOracleSynthesizedColumns(
+    table: PsiNamedElement,
+    columnNames: List<String>,
+): QueryResult =
+    QueryResult(
+        table = table,
+        columns = columns,
+        synthesizedColumns = columnNames.map { columnName -> SynthesizedColumn(table, listOf(columnName)) },
     )
 
 internal fun List<QueryColumn>.replaceOracleColumn(
@@ -159,3 +170,124 @@ private fun PsiElement.oracleQuerySourceSynonym(): PsiElement? =
     }
 
 internal fun QueryColumn.matchesOracleNamedElement(element: NamedElement): Boolean = (this.element as NamedElement).textMatches(element)
+
+internal fun String.oracleCreateViewColumnNames(
+    viewNameText: String,
+    skipObjectViewSyntax: Boolean,
+    skipConstraintColumns: Boolean,
+): List<String> {
+    val beforeQuery = substringBeforeOracleKeyword("AS") ?: return emptyList()
+    val afterViewName = beforeQuery.substringAfter(viewNameText, missingDelimiterValue = "")
+    if (afterViewName.isBlank()) return emptyList()
+
+    val openIndex = afterViewName.indexOf('(')
+    if (openIndex == -1) return emptyList()
+
+    if (skipObjectViewSyntax) {
+        val prefix = afterViewName.substring(0, openIndex)
+        if (prefix.contains(Regex("""\b(AS|OF)\b|\bWITH\s+OBJECT\b""", RegexOption.IGNORE_CASE))) {
+            return emptyList()
+        }
+    }
+
+    return afterViewName
+        .oracleParenthesizedBodyAt(openIndex)
+        .oracleTopLevelCommaParts()
+        .mapNotNull { part ->
+            val trimmed = part.trim()
+            if (skipConstraintColumns && trimmed.startsWith("CONSTRAINT", ignoreCase = true)) {
+                null
+            } else {
+                ORACLE_IDENTIFIER_REGEX.find(trimmed)?.value?.trimOracleIdentifier()
+            }
+        }
+}
+
+internal fun String.oracleParenthesizedBodyAfter(keyword: String): String? {
+    val keywordOffset = indexOfKeyword(keyword) ?: return null
+    val openOffset = indexOf('(', startIndex = keywordOffset + keyword.length).takeIf { it != -1 } ?: return null
+    return oracleParenthesizedBodyAt(openOffset)
+}
+
+internal fun String.oracleParenthesizedBodyAt(openOffset: Int): String {
+    if (openOffset !in indices || this[openOffset] != '(') return ""
+    var depth = 0
+    for (index in openOffset until length) {
+        when (this[index]) {
+            '(' -> {
+                depth++
+            }
+
+            ')' -> {
+                depth--
+                if (depth == 0) return substring(openOffset + 1, index)
+            }
+        }
+    }
+    return ""
+}
+
+internal fun String.oracleTopLevelCommaParts(): List<String> {
+    val parts = mutableListOf<String>()
+    var start = 0
+    var depth = 0
+    var index = 0
+    var inString = false
+    while (index < length) {
+        when {
+            inString && this[index] == '\'' && index + 1 < length && this[index + 1] == '\'' -> {
+                index++
+            }
+
+            this[index] == '\'' -> {
+                inString = !inString
+            }
+
+            !inString && this[index] == '(' -> {
+                depth++
+            }
+
+            !inString && this[index] == ')' -> {
+                depth--
+            }
+
+            !inString && depth == 0 && this[index] == ',' -> {
+                parts += substring(start, index)
+                start = index + 1
+            }
+        }
+        index++
+    }
+    parts += substring(start)
+    return parts
+}
+
+internal fun String.indexOfKeyword(
+    keyword: String,
+    startIndex: Int = 0,
+): Int? {
+    var index = startIndex
+    while (index < length) {
+        index = indexOf(keyword, startIndex = index, ignoreCase = true)
+        if (index == -1) return null
+        if (isOracleIdentifierBoundary(index - 1) && isOracleIdentifierBoundary(index + keyword.length)) return index
+        index += keyword.length
+    }
+    return null
+}
+
+internal fun String.substringBeforeOracleKeyword(keyword: String): String? =
+    indexOfKeyword(keyword)?.let { keywordOffset -> substring(0, keywordOffset) }
+
+internal fun String.oracleFirstName(): String? =
+    ORACLE_IDENTIFIER_REGEX
+        .find(this)
+        ?.value
+        ?.trimOracleIdentifier()
+
+internal fun String.trimOracleIdentifier(): String = trim().removeSurrounding("\"")
+
+internal val ORACLE_IDENTIFIER_REGEX: Regex = Regex(""""[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*""")
+
+private fun String.isOracleIdentifierBoundary(index: Int): Boolean =
+    index !in indices || (!this[index].isLetterOrDigit() && this[index] != '_' && this[index] != '$' && this[index] != '#')

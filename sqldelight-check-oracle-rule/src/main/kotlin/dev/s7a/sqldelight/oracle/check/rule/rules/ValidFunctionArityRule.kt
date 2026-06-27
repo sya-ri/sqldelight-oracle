@@ -300,6 +300,7 @@ private val oracleFunctionArities =
         "VARIANCE" to exactArity(1),
         "VAR_POP" to exactArity(1),
         "VAR_SAMP" to exactArity(1),
+        "VECTOR" to exactArity(1),
         "VECTOR_DIMENSION_COUNT" to exactArity(1),
         "VECTOR_DIMENSION_FORMAT" to exactArity(1),
         "VECTOR_DISTANCE" to arityRange(2, 3),

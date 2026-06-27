@@ -1257,7 +1257,8 @@ class ValidFunctionArityRuleTest :
                       FROM_VECTOR(), L1_DISTANCE(embedding), L2_DISTANCE(embedding, target_embedding, extra),
                       COSINE_DISTANCE(embedding), INNER_PRODUCT(embedding), HAMMING_DISTANCE(embedding),
                       JACCARD_DISTANCE(embedding), VECTOR_NORM(), VECTOR_DIMS(),
-                      VECTOR_DIMENSION_COUNT(embedding, extra), VECTOR_DIMENSION_FORMAT()
+                      VECTOR_DIMENSION_COUNT(embedding, extra), VECTOR_DIMENSION_FORMAT(),
+                      VECTOR(), VECTOR('[1]', 'extra')
                     FROM vector_items;
                     """,
                 )
@@ -1368,6 +1369,20 @@ class ValidFunctionArityRuleTest :
                         startColumn = 45,
                         endLine = 7,
                         endColumn = 68,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function VECTOR expects 1 argument(s), but got 0.",
+                        startLine = 8,
+                        startColumn = 3,
+                        endLine = 8,
+                        endColumn = 9,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function VECTOR expects 1 argument(s), but got 2.",
+                        startLine = 8,
+                        startColumn = 13,
+                        endLine = 8,
+                        endColumn = 19,
                     ),
                 )
         }
@@ -1851,6 +1866,7 @@ class ValidFunctionArityRuleTest :
                   REGEXP_REPLACE(description, q'{literal ' marker, comma}', 'x'),
                   REGEXP_SUBSTR(description, '[A-Z]+', 1, 1, 'i', 0),
                   TO_TIMESTAMP(created_text, 'YYYY-MM-DD HH24:MI:SS'),
+                  VECTOR('[1,2,3]'),
                   TO_VECTOR('[1,2,3]', 3, FLOAT32),
                   VECTOR_DISTANCE(embedding, target_embedding, COSINE),
                   FROM_VECTOR(embedding),

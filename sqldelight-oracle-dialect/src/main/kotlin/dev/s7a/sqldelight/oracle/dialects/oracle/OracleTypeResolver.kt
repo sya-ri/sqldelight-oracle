@@ -38,6 +38,7 @@ public class OracleTypeResolver(
 
             else -> {
                 oracleExtensionFunctionType(expr)
+                    ?: oracleExtensionOperatorType(expr)
                     ?: oracleExtensionPseudocolumnType(expr)
                     ?: oracleExtensionLiteralType(expr)
                     ?: oracleConcatenationOperatorType(expr)
@@ -69,6 +70,14 @@ public class OracleTypeResolver(
                 invocationArguments
             }
         return oracleFunctionType(functionName, extensionExpr.text, arguments)
+    }
+
+    private fun oracleExtensionOperatorType(expr: SqlExpr): IntermediateType? {
+        val extensionExpr = expr.oracleExtensionExpr() ?: return null
+        return when (val operatorName = extensionExpr.text.oracleLeadingIdentifier()) {
+            "JSON_ID" -> OracleType.fromFunctionName(operatorName)?.let { type -> IntermediateType(type) }
+            else -> null
+        }
     }
 
     private fun oracleExtensionPseudocolumnType(expr: SqlExpr): IntermediateType? {
@@ -933,6 +942,12 @@ public class OracleTypeResolver(
         private fun String.oracleTerminalIdentifier(): String =
             trim()
                 .substringAfterLast(".")
+                .trim()
+                .uppercase()
+
+        private fun String.oracleLeadingIdentifier(): String =
+            trim()
+                .substringBefore("(")
                 .trim()
                 .uppercase()
 

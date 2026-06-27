@@ -149,6 +149,10 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT TREAT(json_doc AS JSON) AS c FROM emp") shouldBe "kotlin.String?"
         }
 
+        test("resolves Oracle JSON id operator result column types exactly") {
+            typeOf("SELECT JSON_ID('OID') AS c FROM emp") shouldBe "kotlin.ByteArray"
+        }
+
         test("resolves Oracle SQL JSON null-returning result column types exactly") {
             typeOf("SELECT JSON_VALUE(name, '${'$'}.id' RETURNING NUMBER) AS c FROM emp") shouldBe "java.math.BigDecimal"
             typeOf("SELECT JSON_QUERY(name, '${'$'}.items' RETURNING CLOB) AS c FROM emp") shouldBe "kotlin.String"

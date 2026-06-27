@@ -4847,6 +4847,10 @@ class OracleParserBackedTest :
                 ALTER TABLE alter_targets DROP COLUMN created_at CASCADE CONSTRAINTS;
                 ALTER TABLE alter_targets SET UNUSED COLUMN updated_at ONLINE;
                 ALTER TABLE alter_targets SET UNUSED (account_status) CASCADE CONSTRAINTS;
+                ALTER TABLE alter_targets DROP UNUSED COLUMNS CHECKPOINT 500;
+                ALTER TABLE alter_targets DROP UNUSED COLUMNS CHECKPOINT;
+                ALTER TABLE alter_targets DROP COLUMNS CONTINUE CHECKPOINT 500;
+                ALTER TABLE alter_targets DROP COLUMNS CONTINUE CHECKPOINT;
                 ALTER TABLE alter_targets DROP PERIOD FOR valid_time;
                 ALTER TABLE alter_targets MODIFY CONSTRAINT alter_targets_status_check ENABLE NOVALIDATE;
                 ALTER TABLE alter_targets RENAME CONSTRAINT alter_targets_status_check TO alter_targets_status_nn;

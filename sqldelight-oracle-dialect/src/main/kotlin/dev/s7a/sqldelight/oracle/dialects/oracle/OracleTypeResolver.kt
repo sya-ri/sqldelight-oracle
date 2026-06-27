@@ -92,6 +92,9 @@ public class OracleTypeResolver(
     private fun oracleExtensionPseudocolumnType(expr: SqlExpr): IntermediateType? {
         val extensionExpr = expr.oracleExtensionExpr() ?: return null
         return when (extensionExpr.text.oracleTerminalIdentifier()) {
+            "COLUMN_VALUE",
+            -> extensionExpr.oracleAvailableColumnType("COLUMN_VALUE")
+
             "CONNECT_BY_ISCYCLE",
             "CONNECT_BY_ISLEAF",
             "CURRVAL",

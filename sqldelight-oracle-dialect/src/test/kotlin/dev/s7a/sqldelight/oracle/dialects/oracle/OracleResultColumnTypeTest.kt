@@ -315,6 +315,12 @@ class OracleResultColumnTypeTest :
         test("resolves Oracle collection table result column types exactly") {
             typeOf(
                 """
+                SELECT COLUMN_VALUE AS c
+                FROM TABLE(ODCINUMBERLIST(1, 2))
+                """.trimIndent(),
+            ) shouldBe "java.math.BigDecimal"
+            typeOf(
+                """
                 SELECT numbers.COLUMN_VALUE AS c
                 FROM TABLE(ODCINUMBERLIST(1, 2)) numbers
                 """.trimIndent(),

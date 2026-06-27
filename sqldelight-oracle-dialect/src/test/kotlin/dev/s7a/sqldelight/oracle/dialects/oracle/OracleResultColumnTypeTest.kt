@@ -176,6 +176,11 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT UNDER_PATH(xml_doc, '/Warehouse', 1, 2) AS c FROM emp") shouldBe "java.math.BigDecimal"
         }
 
+        test("resolves Oracle data quality operator result column types exactly") {
+            typeOf("SELECT FUZZY_MATCH(LEVENSHTEIN, name, nickname) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT PHONIC_ENCODE(DOUBLE_METAPHONE, nickname) AS c FROM emp") shouldBe "kotlin.String?"
+        }
+
         test("resolves Oracle condition result column types exactly") {
             typeOf("SELECT NOT TRUE AS c FROM emp") shouldBe "kotlin.Boolean"
             typeOf("SELECT (TRUE IS NOT UNKNOWN) AS c FROM emp") shouldBe "kotlin.Boolean"

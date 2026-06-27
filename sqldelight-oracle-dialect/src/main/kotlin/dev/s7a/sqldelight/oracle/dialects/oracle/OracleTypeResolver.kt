@@ -545,7 +545,10 @@ public class OracleTypeResolver(
                 exprList.singleOrNull()?.let { expression ->
                     OracleType
                         .fromToLobArgumentType(resolvedType(expression).dialectType)
-                        ?.let { type -> IntermediateType(type) }
+                        ?.let { type ->
+                            IntermediateType(type)
+                                .nullableIf(resolvedType(expression).javaType.isNullable)
+                        }
                 }
             }
 
@@ -604,6 +607,7 @@ public class OracleTypeResolver(
                     "ATAN2",
                     "BIN_TO_NUM",
                     "BITAND",
+                    "CHARTOROWID",
                     "CHR",
                     "COMPOSE",
                     "CONVERT",
@@ -642,7 +646,11 @@ public class OracleTypeResolver(
                     "REGEXP_SUBSTR",
                     "REPLACE",
                     "RAWTOHEX",
+                    "RAWTONHEX",
+                    "RAW_TO_UUID",
                     "RATIO_TO_REPORT",
+                    "ROWIDTOCHAR",
+                    "ROWIDTONCHAR",
                     "RPAD",
                     "RTRIM",
                     "SCN_TO_TIMESTAMP",
@@ -656,6 +664,7 @@ public class OracleTypeResolver(
                     "TAN",
                     "TANH",
                     "TO_CLOB",
+                    "TO_BLOB",
                     "TO_BINARY_DOUBLE",
                     "TO_BINARY_FLOAT",
                     "TO_CHAR",
@@ -663,6 +672,7 @@ public class OracleTypeResolver(
                     "TO_DSINTERVAL",
                     "TO_MULTI_BYTE",
                     "TO_NCHAR",
+                    "TO_NCLOB",
                     "TO_NUMBER",
                     "TO_SINGLE_BYTE",
                     "TO_TIMESTAMP",
@@ -674,6 +684,7 @@ public class OracleTypeResolver(
                     "TIMESTAMP_TO_SCN",
                     "TZ_OFFSET",
                     "UPPER",
+                    "UUID_TO_RAW",
                     "VECTOR_DISTANCE",
                     "L1_DISTANCE",
                     "L2_DISTANCE",

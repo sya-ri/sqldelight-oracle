@@ -2191,6 +2191,36 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle analytic null treatment clauses exactly") {
+            val sql =
+                """
+                CREATE TABLE sales (
+                  id NUMBER PRIMARY KEY,
+                  department_id NUMBER,
+                  amount NUMBER,
+                  sold_at DATE
+                );
+
+                selectNullTreatment:
+                SELECT
+                  FIRST_VALUE(amount IGNORE NULLS) OVER (ORDER BY sold_at) AS first_amount,
+                  LAST_VALUE(amount) IGNORE NULLS OVER (ORDER BY sold_at) AS last_amount,
+                  FIRST_VALUE(amount RESPECT NULLS) OVER (ORDER BY sold_at) AS first_amount_respect,
+                  LAG(amount IGNORE NULLS) OVER (ORDER BY sold_at) AS previous_amount,
+                  LAG(amount, 1) IGNORE NULLS OVER (ORDER BY sold_at) AS previous_amount_offset,
+                  LEAD(amount) IGNORE NULLS OVER (ORDER BY sold_at) AS next_amount,
+                  NTH_VALUE(amount, 2) IGNORE NULLS OVER (ORDER BY sold_at) AS second_amount,
+                  NTH_VALUE(amount, 2) FROM LAST IGNORE NULLS OVER (ORDER BY sold_at) AS second_amount_from_last
+                FROM sales;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle analytic and aggregate function clauses exactly") {
             val sql =
                 """

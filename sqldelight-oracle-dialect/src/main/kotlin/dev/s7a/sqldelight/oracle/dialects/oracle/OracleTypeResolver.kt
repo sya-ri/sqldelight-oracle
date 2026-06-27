@@ -40,6 +40,7 @@ public class OracleTypeResolver(
                     ?: oracleExtensionPseudocolumnType(expr)
                     ?: oracleExtensionLiteralType(expr)
                     ?: oracleConcatenationOperatorType(expr)
+                    ?: oracleDatetimeOperatorType(expr)
                     ?: oracleNumericOperatorType(expr)
                     ?: parentResolver.resolvedType(expr)
             }
@@ -156,6 +157,49 @@ public class OracleTypeResolver(
         return IntermediateType(OracleType.TEXT).nullableIf(operandTypes.all { type -> type.javaType.isNullable })
     }
 
+    private fun oracleDatetimeOperatorType(expr: SqlExpr): IntermediateType? {
+        val operands =
+            runCatching { expr.children.filterIsInstance<SqlExpr>() }
+                .getOrNull()
+                ?.takeIf { children -> children.size == 2 }
+                ?: return null
+        val operator = expr.oracleBinaryOperatorBetween(operands) ?: return null
+        if (operator != "+" && operator != "-") return null
+        val operandTypes = operands.map { operand -> resolvedType(operand) }
+        val dialectTypes = operandTypes.map { type -> type.dialectType }
+        val datetimeCount = dialectTypes.count { type -> type in DATETIME_TYPE_ORDER }
+        if (datetimeCount == 0) return null
+        val nullable = operandTypes.any { type -> type.javaType.isNullable }
+        return when {
+            // Oracle datetime subtraction: DATE - DATE yields a NUMBER of days, while any
+            // subtraction involving TIMESTAMP/TIMESTAMP WITH TIME ZONE yields an INTERVAL DAY TO SECOND.
+            operator == "-" && datetimeCount == 2 -> {
+                if (dialectTypes.all { type -> type == DATE }) {
+                    IntermediateType(DECIMAL_NUMBER).nullableIf(nullable)
+                } else {
+                    IntermediateType(OracleType.TEXT).nullableIf(nullable)
+                }
+            }
+
+            // Oracle interprets a number added to or subtracted from any datetime value as a number of
+            // days, and the result is always a DATE (TIMESTAMP operands are converted to DATE first).
+            datetimeCount == 1 && dialectTypes.any { type -> type in NUMERIC_TYPE_ORDER } -> {
+                IntermediateType(DATE).nullableIf(nullable)
+            }
+
+            // Oracle datetime ± interval keeps the datetime operand's type
+            // (DATE -> DATE, TIMESTAMP -> TIMESTAMP, TIMESTAMP WITH TIME ZONE -> TIMESTAMP WITH TIME ZONE).
+            datetimeCount == 1 && operands.any { operand -> operand.isOracleIntervalOperand() } -> {
+                val datetimeType = dialectTypes.first { type -> type in DATETIME_TYPE_ORDER }
+                IntermediateType(datetimeType).nullableIf(nullable)
+            }
+
+            else -> {
+                null
+            }
+        }
+    }
+
     private fun SqlExpr.oracleExtensionExpr(): SqlExtensionExpr? =
         this as? SqlExtensionExpr
             ?: runCatching { children.filterIsInstance<SqlExtensionExpr>().singleOrNull() }.getOrNull()
@@ -165,6 +209,12 @@ public class OracleTypeResolver(
         val rightStart = operands[1].textRange.startOffset - textRange.startOffset
         val between = text.substring(leftEnd, rightStart)
         return listOf("||", "*", "/", "+", "-").firstOrNull { operator -> operator in between }
+    }
+
+    private fun SqlExpr.isOracleIntervalOperand(): Boolean {
+        val normalized = text.trim().uppercase()
+        return normalized.startsWith("INTERVAL ") ||
+            ORACLE_INTERVAL_FUNCTION_REGEX.containsMatchIn(normalized)
     }
 
     private fun oracleFunctionType(
@@ -439,6 +489,8 @@ public class OracleTypeResolver(
 
     private companion object {
         private val VECTOR_DISTANCE_SHORTHAND_OPERATORS = listOf("<->", "<=>", "<#>")
+
+        private val ORACLE_INTERVAL_FUNCTION_REGEX = Regex("""\b(?:NUMTODSINTERVAL|NUMTOYMINTERVAL|TO_DSINTERVAL|TO_YMINTERVAL)\s*\(""")
 
         private fun String.hasOracleVectorDistanceShorthand(): Boolean =
             VECTOR_DISTANCE_SHORTHAND_OPERATORS.any { operator -> contains(operator) }

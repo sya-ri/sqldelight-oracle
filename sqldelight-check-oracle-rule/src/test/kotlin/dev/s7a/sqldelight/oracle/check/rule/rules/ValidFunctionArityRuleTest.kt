@@ -466,6 +466,58 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("reports wrong arity for Oracle system conversion functions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidSystemConversions:
+                    SELECT SCN_TO_TIMESTAMP(), TIMESTAMP_TO_SCN(created_at, 'extra'),
+                      ORA_DST_AFFECTED(created_at, 'extra'), ORA_DST_ERROR(),
+                      ORA_DST_CONVERT(created_at, 'extra')
+                    FROM events;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function SCN_TO_TIMESTAMP expects 1 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 24,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function TIMESTAMP_TO_SCN expects 1 argument(s), but got 2.",
+                        startLine = 2,
+                        startColumn = 28,
+                        endLine = 2,
+                        endColumn = 44,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function ORA_DST_AFFECTED expects 1 argument(s), but got 2.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 19,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function ORA_DST_ERROR expects 1 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 42,
+                        endLine = 3,
+                        endColumn = 55,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function ORA_DST_CONVERT expects 1 argument(s), but got 2.",
+                        startLine = 4,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 18,
+                    ),
+                )
+        }
+
         test("reports wrong arity for Oracle analytic value functions") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(
@@ -699,6 +751,11 @@ class ValidFunctionArityRuleTest :
                   EXTRACTVALUE(payload_xml, '/a'),
                   EXISTSNODE(payload_xml, '/a', 'xmlns:x="urn:x"'),
                   XMLISVALID(payload_xml, 'schema.xsd'),
+                  SCN_TO_TIMESTAMP(scn_value),
+                  TIMESTAMP_TO_SCN(created_at),
+                  ORA_DST_AFFECTED(created_at),
+                  ORA_DST_ERROR(created_at),
+                  ORA_DST_CONVERT(created_at),
                   ROW_NUMBER() OVER (ORDER BY id),
                   LAG(amount, 1, 0) OVER (ORDER BY id),
                   LEAD(amount) OVER (ORDER BY id),

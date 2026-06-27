@@ -211,6 +211,15 @@ class OracleResultColumnTypeTest :
                 ) pivoted_orders
                 """.trimIndent(),
             ) shouldBe "java.math.BigDecimal?"
+            typeOf(
+                """
+                SELECT pivoted_orders.west_total_salary AS c
+                FROM emp PIVOT (
+                  SUM(NVL(salary, 0)) AS total_salary
+                  FOR name IN ('WEST' AS west)
+                ) pivoted_orders
+                """.trimIndent(),
+            ) shouldBe "java.math.BigDecimal?"
         }
 
         test("resolves Oracle unpivot result column types exactly") {

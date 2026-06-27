@@ -501,17 +501,14 @@ internal abstract class OracleTableOrSubqueryMixin(
             return IntermediateType(OracleType.LONG_NUMBER)
         }
 
-        val argumentName = sourceText.oracleParenthesizedBodyAt(sourceText.indexOf('(')).oracleNameList().singleOrNull() ?: return null
+        val argumentTypes =
+            sourceText
+                .oracleParenthesizedBodyAt(sourceText.indexOf('('))
+                .oracleReferencedColumnTypes()
         val argumentType =
-            oracleTableColumns()
-                .firstNotNullOfOrNull { column ->
-                    val columnDef = column.element.parent as? SqlColumnDef ?: return@firstNotNullOfOrNull null
-                    if (columnDef.columnName.name.equals(argumentName, ignoreCase = true)) {
-                        OracleType.fromSqlTypeName(columnDef.columnType.typeName.text)
-                    } else {
-                        null
-                    }
-                } ?: return OracleType.fromFunctionName(functionName)?.let { type -> IntermediateType(type).asNullable() }
+            argumentTypes.singleOrNull()
+                ?: argumentTypes.oraclePivotComparableType()
+                ?: return OracleType.fromFunctionName(functionName)?.let { type -> IntermediateType(type).asNullable() }
 
         return OracleType
             .fromAggregateFunctionType(functionName, argumentType)
@@ -575,6 +572,25 @@ internal abstract class OracleTableOrSubqueryMixin(
             ).toSet()
         return oracleSourceColumnsExcept(consumedColumns)
     }
+
+    private fun String.oracleReferencedColumnTypes(): List<OracleType> {
+        val names = oracleNameList().distinctBy { name -> name.uppercase() }
+        if (names.isEmpty()) return emptyList()
+        return oracleTableColumns().mapNotNull { column ->
+            val columnDef = column.element.parent as? SqlColumnDef ?: return@mapNotNull null
+            val columnName = columnDef.columnName.name
+            if (names.none { name -> columnName.equals(name, ignoreCase = true) }) return@mapNotNull null
+            OracleType.fromSqlTypeName(columnDef.columnType.typeName.text)
+        }
+    }
+
+    private fun List<OracleType>.oraclePivotComparableType(): OracleType? =
+        firstOrNull { type -> type == OracleType.BINARY_DOUBLE }
+            ?: firstOrNull { type -> type == OracleType.BINARY_FLOAT }
+            ?: firstOrNull { type -> type == OracleType.DECIMAL_NUMBER }
+            ?: firstOrNull { type -> type == OracleType.LONG_NUMBER }
+            ?: firstOrNull { type -> type == OracleType.INTEGER_NUMBER }
+            ?: firstOrNull()
 
     private fun oracleUnpivotColumns(): List<String> {
         val unpivotBody = text.oracleParenthesizedBodyAfter("UNPIVOT") ?: return emptyList()

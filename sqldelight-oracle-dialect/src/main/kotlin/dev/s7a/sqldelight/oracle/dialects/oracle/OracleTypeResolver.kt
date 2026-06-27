@@ -487,17 +487,21 @@ public class OracleTypeResolver(
             }
 
             "extract" -> {
+                val nullable =
+                    exprList.any { expression ->
+                        runCatching { resolvedType(expression).javaType.isNullable }.getOrDefault(false)
+                    }
                 when (exprList.size) {
                     1 -> {
                         when (functionText.oracleExtractDatetimeField()) {
-                            "TIMEZONE_REGION", "TIMEZONE_ABBR" -> IntermediateType(OracleType.TEXT)
+                            "TIMEZONE_REGION", "TIMEZONE_ABBR" -> IntermediateType(OracleType.TEXT).nullableIf(nullable)
                             null -> null
-                            else -> IntermediateType(DECIMAL_NUMBER)
+                            else -> IntermediateType(DECIMAL_NUMBER).nullableIf(nullable)
                         }
                     }
 
                     2 -> {
-                        IntermediateType(OracleType.TEXT)
+                        IntermediateType(OracleType.TEXT).nullableIf(nullable)
                     }
 
                     else -> {
@@ -523,6 +527,7 @@ public class OracleTypeResolver(
             trim().uppercase() in
                 setOf(
                     "ACOS",
+                    "ADD_MONTHS",
                     "ASCII",
                     "ASCIISTR",
                     "ASIN",
@@ -532,14 +537,19 @@ public class OracleTypeResolver(
                     "COS",
                     "COSH",
                     "EXP",
+                    "FROM_TZ",
                     "INITCAP",
                     "INSTR",
+                    "LAST_DAY",
                     "LENGTH",
                     "LN",
                     "LOG",
                     "LOWER",
                     "LPAD",
                     "LTRIM",
+                    "MONTHS_BETWEEN",
+                    "NEW_TIME",
+                    "NEXT_DAY",
                     "NLS_INITCAP",
                     "NLS_LOWER",
                     "NLS_UPPER",
@@ -555,6 +565,7 @@ public class OracleTypeResolver(
                     "SINH",
                     "SQRT",
                     "SUBSTR",
+                    "SYS_EXTRACT_UTC",
                     "TAN",
                     "TANH",
                     "TO_BINARY_DOUBLE",

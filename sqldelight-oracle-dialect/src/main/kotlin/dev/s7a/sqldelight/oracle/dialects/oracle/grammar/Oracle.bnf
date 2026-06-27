@@ -842,6 +842,8 @@ private oracle_qualified_object_name ::= oracle_object_name_part ( DOT oracle_ob
 private oracle_pseudocolumn_expr ::= oracle_qualified_table_pseudocolumn | oracle_simple_pseudocolumn
 
 private oracle_qualified_table_pseudocolumn ::= oracle_object_name_part DOT (
+  'CURRVAL' |
+  'NEXTVAL' |
   'ORA_ROWSCN' |
   'ROWID'
 )
@@ -850,8 +852,11 @@ private oracle_simple_pseudocolumn ::= (
   'COLUMN_VALUE' |
   'CONNECT_BY_ISCYCLE' |
   'CONNECT_BY_ISLEAF' |
+  'CURRENT_DATE' |
+  'CURRENT_TIMESTAMP' |
   'DBTIMEZONE' |
   'LEVEL' |
+  'LOCALTIMESTAMP' |
   'OBJECT_ID' |
   'OBJECT_VALUE' |
   'ORA_INVOKING_USER' |
@@ -861,6 +866,8 @@ private oracle_simple_pseudocolumn ::= (
   'ROWID' |
   'ROWNUM' |
   'SESSIONTIMEZONE' |
+  'SYSDATE' |
+  'SYSTIMESTAMP' |
   'UID' |
   'USER' |
   'VERSIONS_ENDSCN' |

@@ -10,6 +10,7 @@ import app.cash.sqldelight.dialect.api.PrimitiveType.TEXT
 import app.cash.sqldelight.dialect.api.TypeResolver
 import app.cash.sqldelight.dialect.api.encapsulatingTypePreferringKotlin
 import com.alecstrong.sql.psi.core.psi.SqlExpr
+import com.alecstrong.sql.psi.core.psi.SqlExtensionExpr
 import com.alecstrong.sql.psi.core.psi.SqlFunctionExpr
 import com.alecstrong.sql.psi.core.psi.SqlTypeName
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.BINARY
@@ -29,23 +30,155 @@ public class OracleTypeResolver(
     override fun definitionType(typeName: SqlTypeName): IntermediateType = IntermediateType(OracleType.fromSqlTypeName(typeName.text))
 
     override fun resolvedType(expr: SqlExpr): IntermediateType =
-        if (expr.text.hasOracleVectorDistanceShorthand()) {
-            IntermediateType(BINARY_DOUBLE)
-        } else {
-            parentResolver.resolvedType(expr)
+        when {
+            expr.text.hasOracleVectorDistanceShorthand() -> {
+                IntermediateType(BINARY_DOUBLE)
+            }
+
+            else -> {
+                oracleExtensionFunctionType(expr)
+                    ?: oracleExtensionPseudocolumnType(expr)
+                    ?: oracleExtensionLiteralType(expr)
+                    ?: oracleConcatenationOperatorType(expr)
+                    ?: oracleNumericOperatorType(expr)
+                    ?: parentResolver.resolvedType(expr)
+            }
         }
 
     override fun functionType(functionExpr: SqlFunctionExpr): IntermediateType? {
         val functionName = functionExpr.functionName.text
-        return argumentDependentFunctionType(functionName, functionExpr)
-            ?: returningClauseFunctionType(functionName, functionExpr)
-            ?: OracleType.fromFunctionName(functionName)?.let { type -> IntermediateType(type) }
+        return oracleFunctionType(functionName, functionExpr.text, functionExpr.exprList)
             ?: parentResolver.functionType(functionExpr)
     }
 
+    private fun oracleExtensionFunctionType(expr: SqlExpr): IntermediateType? {
+        val extensionExpr = expr.oracleExtensionExpr() ?: return null
+        val functionName = extensionExpr.text.oracleFunctionName() ?: return null
+        val invocationEnd = extensionExpr.text.oracleFirstFunctionInvocationEnd()
+        val arguments =
+            extensionExpr.children
+                .filterIsInstance<SqlExpr>()
+                .filter { argument ->
+                    argument.textRange.startOffset - extensionExpr.textRange.startOffset < invocationEnd
+                }
+        return oracleFunctionType(functionName, extensionExpr.text, arguments)
+    }
+
+    private fun oracleExtensionPseudocolumnType(expr: SqlExpr): IntermediateType? {
+        val extensionExpr = expr.oracleExtensionExpr() ?: return null
+        return when (extensionExpr.text.oracleTerminalIdentifier()) {
+            "CONNECT_BY_ISCYCLE",
+            "CONNECT_BY_ISLEAF",
+            "CURRVAL",
+            "LEVEL",
+            "NEXTVAL",
+            "OBJECT_ID",
+            "ORA_INVOKING_USERID",
+            "ORA_ROWSCN",
+            "ROWNUM",
+            "UID",
+            -> IntermediateType(LONG_NUMBER)
+
+            "CURRENT_DATE",
+            "SYSDATE",
+            -> IntermediateType(DATE)
+
+            "LOCALTIMESTAMP",
+            -> IntermediateType(TIMESTAMP)
+
+            "CURRENT_TIMESTAMP",
+            "SYSTIMESTAMP",
+            -> IntermediateType(TIMESTAMP_TIME_ZONE)
+
+            "DBTIMEZONE",
+            "ORA_INVOKING_USER",
+            "ORA_SHARDSPACE_NAME",
+            "ROWID",
+            "SESSIONTIMEZONE",
+            "USER",
+            -> IntermediateType(OracleType.TEXT)
+
+            else -> null
+        }
+    }
+
+    private fun oracleExtensionLiteralType(expr: SqlExpr): IntermediateType? {
+        val text =
+            expr
+                .oracleExtensionExpr()
+                ?.text
+                ?.trim()
+                ?.uppercase()
+                ?: return null
+        return when {
+            text == "TRUE" || text == "FALSE" || text == "UNKNOWN" -> IntermediateType(BOOLEAN_TYPE)
+            text.startsWith("DATE ") -> IntermediateType(DATE)
+            text.startsWith("TIMESTAMP ") && text.contains(" TIME ZONE ") -> IntermediateType(TIMESTAMP_TIME_ZONE)
+            text.startsWith("TIMESTAMP ") -> IntermediateType(TIMESTAMP)
+            text.startsWith("INTERVAL ") -> IntermediateType(OracleType.TEXT)
+            else -> null
+        }
+    }
+
+    private fun oracleNumericOperatorType(expr: SqlExpr): IntermediateType? {
+        val operands =
+            runCatching { expr.children.filterIsInstance<SqlExpr>() }
+                .getOrNull()
+                ?.takeIf { children -> children.size == 2 }
+                ?: return null
+        val operator = expr.oracleBinaryOperatorBetween(operands) ?: return null
+        val operandTypes = operands.map { operand -> resolvedType(operand) }
+        val operandDialectTypes = operandTypes.map { type -> type.dialectType }
+        if (operandDialectTypes.any { type -> type !in NUMERIC_TYPE_ORDER }) return null
+
+        val resultType =
+            when {
+                operator == "/" && operandDialectTypes.none { type -> type == REAL || type == BINARY_FLOAT || type == BINARY_DOUBLE } -> {
+                    DECIMAL_NUMBER
+                }
+
+                else -> {
+                    NUMERIC_TYPE_ORDER.last { type -> type in operandDialectTypes }
+                }
+            }
+        return IntermediateType(resultType).nullableIf(operandTypes.any { type -> type.javaType.isNullable })
+    }
+
+    private fun oracleConcatenationOperatorType(expr: SqlExpr): IntermediateType? {
+        val operands =
+            runCatching { expr.children.filterIsInstance<SqlExpr>() }
+                .getOrNull()
+                ?.takeIf { children -> children.size == 2 }
+                ?: return null
+        val operator = expr.oracleBinaryOperatorBetween(operands)
+        if (operator != "||") return null
+        val operandTypes = operands.map { operand -> resolvedType(operand) }
+        return IntermediateType(OracleType.TEXT).nullableIf(operandTypes.all { type -> type.javaType.isNullable })
+    }
+
+    private fun SqlExpr.oracleExtensionExpr(): SqlExtensionExpr? =
+        this as? SqlExtensionExpr
+            ?: runCatching { children.filterIsInstance<SqlExtensionExpr>().singleOrNull() }.getOrNull()
+
+    private fun SqlExpr.oracleBinaryOperatorBetween(operands: List<SqlExpr>): String? {
+        val leftEnd = operands[0].textRange.endOffset - textRange.startOffset
+        val rightStart = operands[1].textRange.startOffset - textRange.startOffset
+        val between = text.substring(leftEnd, rightStart)
+        return listOf("||", "*", "/", "+", "-").firstOrNull { operator -> operator in between }
+    }
+
+    private fun oracleFunctionType(
+        functionName: String,
+        functionText: String,
+        exprList: List<SqlExpr>,
+    ): IntermediateType? =
+        argumentDependentFunctionType(functionName, functionText, exprList)
+            ?: returningClauseFunctionType(functionName, functionText)
+            ?: OracleType.fromFunctionName(functionName)?.let { type -> IntermediateType(type) }
+
     private fun returningClauseFunctionType(
         functionName: String,
-        functionExpr: SqlFunctionExpr,
+        functionText: String,
     ): IntermediateType? =
         when (functionName.trim().uppercase()) {
             "JSON_ARRAY",
@@ -59,11 +192,13 @@ public class OracleTypeResolver(
             "JSON_TRANSFORM",
             "XMLSERIALIZE",
             -> {
-                functionExpr.text.oracleReturningTypeName()?.let { typeName -> IntermediateType(OracleType.fromSqlTypeName(typeName)) }
+                functionText.oracleReturningTypeName()?.let { typeName -> IntermediateType(OracleType.fromSqlTypeName(typeName)) }
             }
 
-            "XMLCAST" -> {
-                functionExpr.text.oracleCastTypeName()?.let { typeName -> IntermediateType(OracleType.fromSqlTypeName(typeName)) }
+            "CAST",
+            "XMLCAST",
+            -> {
+                functionText.oracleCastTypeName()?.let { typeName -> IntermediateType(OracleType.fromSqlTypeName(typeName)) }
             }
 
             else -> {
@@ -73,26 +208,27 @@ public class OracleTypeResolver(
 
     private fun argumentDependentFunctionType(
         functionName: String,
-        functionExpr: SqlFunctionExpr,
+        functionText: String,
+        exprList: List<SqlExpr>,
     ): IntermediateType? =
         when (functionName.trim().lowercase()) {
             "abs", "ceil", "floor" -> {
-                functionExpr.exprList.singleOrNull()?.let { expression ->
-                    parentResolver.resolvedType(expression).takeIf { type -> type.dialectType in NUMERIC_TYPE_ORDER }
+                exprList.singleOrNull()?.let { expression ->
+                    resolvedType(expression).takeIf { type -> type.dialectType in NUMERIC_TYPE_ORDER }
                 }
             }
 
             "mod", "remainder" -> {
-                functionExpr.exprList.takeIf { exprList -> exprList.size == 2 }?.let { exprList ->
-                    parentResolver.encapsulatingTypePreferringKotlin(exprList, *NUMERIC_TYPE_ORDER)
+                exprList.takeIf { args -> args.size == 2 }?.let { args ->
+                    encapsulatingTypePreferringKotlin(args, *NUMERIC_TYPE_ORDER)
                 }
             }
 
             "power" -> {
-                functionExpr.exprList
-                    .takeIf { exprList -> exprList.size == 2 }
+                exprList
+                    .takeIf { args -> args.size == 2 }
                     ?.map { expression ->
-                        parentResolver.resolvedType(expression).dialectType
+                        resolvedType(expression).dialectType
                     }?.let { argumentTypes ->
                         when {
                             argumentTypes.any { type -> type == REAL || type == BINARY_FLOAT || type == BINARY_DOUBLE } -> {
@@ -111,15 +247,15 @@ public class OracleTypeResolver(
             }
 
             "round", "trunc" -> {
-                when (functionExpr.exprList.size) {
+                when (exprList.size) {
                     1 -> {
-                        parentResolver.resolvedType(functionExpr.exprList.single()).roundOrTruncSingleArgumentType()
+                        resolvedType(exprList.single()).roundOrTruncSingleArgumentType()
                     }
 
                     2 -> {
-                        functionExpr.exprList
+                        exprList
                             .map { expression ->
-                                parentResolver.resolvedType(expression).dialectType
+                                resolvedType(expression)
                             }.roundOrTruncTwoArgumentType()
                     }
 
@@ -130,9 +266,9 @@ public class OracleTypeResolver(
             }
 
             "coalesce", "nvl" -> {
-                functionExpr.exprList.takeIf { exprList -> exprList.isNotEmpty() }?.let { exprList ->
-                    parentResolver.encapsulatingTypePreferringKotlin(
-                        exprList,
+                exprList.takeIf { args -> args.isNotEmpty() }?.let { args ->
+                    encapsulatingTypePreferringKotlin(
+                        args,
                         *COMPARABLE_TYPE_ORDER,
                         nullability = { nullability -> nullability.all { isNullable -> isNullable } },
                     )
@@ -140,15 +276,15 @@ public class OracleTypeResolver(
             }
 
             "nullif" -> {
-                functionExpr.exprList.takeIf { exprList -> exprList.size == 2 }?.firstOrNull()?.let { expression ->
-                    parentResolver.resolvedType(expression)
+                exprList.takeIf { args -> args.size == 2 }?.firstOrNull()?.let { expression ->
+                    resolvedType(expression)
                 }
             }
 
             "nvl2" -> {
-                functionExpr.exprList.drop(1).takeIf { exprList -> exprList.size == 2 }?.let { exprList ->
-                    parentResolver.encapsulatingTypePreferringKotlin(
-                        exprList,
+                exprList.drop(1).takeIf { args -> args.size == 2 }?.let { args ->
+                    encapsulatingTypePreferringKotlin(
+                        args,
                         *COMPARABLE_TYPE_ORDER,
                         nullability = { nullability -> nullability.all { isNullable -> isNullable } },
                     )
@@ -156,37 +292,41 @@ public class OracleTypeResolver(
             }
 
             "greatest", "least" -> {
-                functionExpr.exprList.takeIf { exprList -> exprList.isNotEmpty() }?.let { exprList ->
-                    parentResolver.encapsulatingTypePreferringKotlin(exprList, *COMPARABLE_TYPE_ORDER)
+                exprList.takeIf { args -> args.isNotEmpty() }?.let { args ->
+                    encapsulatingTypePreferringKotlin(
+                        args,
+                        *COMPARABLE_TYPE_ORDER,
+                        nullability = { nullability -> nullability.any { isNullable -> isNullable } },
+                    )
                 }
             }
 
             "decode" -> {
-                functionExpr.exprList.drop(1).takeIf { exprList -> exprList.size >= 2 }?.let { exprList ->
+                exprList.drop(1).takeIf { args -> args.size >= 2 }?.let { args ->
                     val resultExpressions =
-                        exprList
+                        args
                             .withIndex()
-                            .filter { (index) -> index % 2 == 1 || (index == exprList.lastIndex && exprList.size % 2 == 1) }
+                            .filter { (index) -> index % 2 == 1 || (index == args.lastIndex && args.size % 2 == 1) }
                             .map { (_, expression) -> expression }
-                    parentResolver.encapsulatingTypePreferringKotlin(resultExpressions, *COMPARABLE_TYPE_ORDER)
+                    encapsulatingTypePreferringKotlin(resultExpressions, *COMPARABLE_TYPE_ORDER)
                 }
             }
 
             "nanvl" -> {
-                functionExpr.exprList.takeIf { exprList -> exprList.size == 2 }?.let { exprList ->
-                    parentResolver.encapsulatingTypePreferringKotlin(exprList, *NUMERIC_TYPE_ORDER)
+                exprList.takeIf { args -> args.size == 2 }?.let { args ->
+                    encapsulatingTypePreferringKotlin(args, *NUMERIC_TYPE_ORDER)
                 }
             }
 
             "max" -> {
-                functionExpr.exprList.takeIf { exprList -> exprList.isNotEmpty() }?.let { exprList ->
-                    parentResolver.encapsulatingTypePreferringKotlin(exprList, *MAX_TYPE_ORDER).asNullable()
+                exprList.takeIf { args -> args.isNotEmpty() }?.let { args ->
+                    encapsulatingTypePreferringKotlin(args, *MAX_TYPE_ORDER).asNullable()
                 }
             }
 
             "min" -> {
-                functionExpr.exprList.takeIf { exprList -> exprList.isNotEmpty() }?.let { exprList ->
-                    parentResolver.encapsulatingTypePreferringKotlin(exprList, *MIN_TYPE_ORDER).asNullable()
+                exprList.takeIf { args -> args.isNotEmpty() }?.let { args ->
+                    encapsulatingTypePreferringKotlin(args, *MIN_TYPE_ORDER).asNullable()
                 }
             }
 
@@ -199,8 +339,8 @@ public class OracleTypeResolver(
             "var_pop",
             "var_samp",
             -> {
-                functionExpr.exprList.singleOrNull()?.let { expression ->
-                    when (parentResolver.resolvedType(expression).dialectType) {
+                exprList.singleOrNull()?.let { expression ->
+                    when (resolvedType(expression).dialectType) {
                         INTEGER, INTEGER_NUMBER, LONG_NUMBER, DECIMAL_NUMBER -> {
                             IntermediateType(DECIMAL_NUMBER).asNullable()
                         }
@@ -225,8 +365,8 @@ public class OracleTypeResolver(
             }
 
             "sum" -> {
-                functionExpr.exprList.singleOrNull()?.let { expression ->
-                    when (parentResolver.resolvedType(expression).dialectType) {
+                exprList.singleOrNull()?.let { expression ->
+                    when (resolvedType(expression).dialectType) {
                         INTEGER, INTEGER_NUMBER, LONG_NUMBER -> {
                             IntermediateType(LONG_NUMBER).asNullable()
                         }
@@ -255,27 +395,27 @@ public class OracleTypeResolver(
             }
 
             "first_value", "lag", "last_value", "lead", "nth_value" -> {
-                functionExpr.exprList.firstOrNull()?.let { expression -> parentResolver.resolvedType(expression).asNullable() }
+                exprList.firstOrNull()?.let { expression -> resolvedType(expression).asNullable() }
             }
 
             "to_lob" -> {
-                functionExpr.exprList.singleOrNull()?.let { expression ->
+                exprList.singleOrNull()?.let { expression ->
                     OracleType
-                        .fromToLobArgumentType(parentResolver.resolvedType(expression).dialectType)
+                        .fromToLobArgumentType(resolvedType(expression).dialectType)
                         ?.let { type -> IntermediateType(type) }
                 }
             }
 
             "userenv" -> {
-                functionExpr.exprList.singleOrNull()?.let { expression ->
+                exprList.singleOrNull()?.let { expression ->
                     IntermediateType(OracleType.fromUserEnvParameter(expression.text))
                 }
             }
 
             "extract" -> {
-                when (functionExpr.exprList.size) {
+                when (exprList.size) {
                     1 -> {
-                        when (functionExpr.text.oracleExtractDatetimeField()) {
+                        when (functionText.oracleExtractDatetimeField()) {
                             "TIMEZONE_REGION", "TIMEZONE_ABBR" -> IntermediateType(OracleType.TEXT)
                             null -> null
                             else -> IntermediateType(DECIMAL_NUMBER)
@@ -302,6 +442,55 @@ public class OracleTypeResolver(
 
         private fun String.hasOracleVectorDistanceShorthand(): Boolean =
             VECTOR_DISTANCE_SHORTHAND_OPERATORS.any { operator -> contains(operator) }
+
+        private fun String.oracleFunctionName(): String? =
+            Regex("""(?i)^\s*(?:[A-Z_][A-Z0-9_$#]*\s*\.\s*)*([A-Z_][A-Z0-9_$#]*)\s*\(""")
+                .find(this)
+                ?.groupValues
+                ?.get(1)
+                ?.uppercase()
+
+        private fun String.oracleTerminalIdentifier(): String =
+            trim()
+                .substringAfterLast(".")
+                .trim()
+                .uppercase()
+
+        private fun String.oracleFirstFunctionInvocationEnd(): Int {
+            val start = indexOf('(').takeIf { index -> index >= 0 } ?: return length
+            var depth = 0
+            var inStringLiteral = false
+            var index = start
+            while (index < length) {
+                val char = this[index]
+                if (inStringLiteral) {
+                    if (char == '\'' && getOrNull(index + 1) == '\'') {
+                        index += 2
+                        continue
+                    }
+                    if (char == '\'') {
+                        inStringLiteral = false
+                    }
+                } else {
+                    when (char) {
+                        '\'' -> {
+                            inStringLiteral = true
+                        }
+
+                        '(' -> {
+                            depth += 1
+                        }
+
+                        ')' -> {
+                            depth -= 1
+                            if (depth == 0) return index + 1
+                        }
+                    }
+                }
+                index += 1
+            }
+            return length
+        }
 
         private fun String.oracleReturningTypeName(): String? = oracleTypeNameAfterKeyword("RETURNING")
 
@@ -332,15 +521,23 @@ public class OracleTypeResolver(
         private fun IntermediateType.roundOrTruncSingleArgumentType(): IntermediateType? =
             when (dialectType) {
                 in NUMERIC_TYPE_ORDER -> this
-                in DATETIME_TYPE_ORDER -> IntermediateType(DATE)
+                in DATETIME_TYPE_ORDER -> IntermediateType(DATE).nullableIf(javaType.isNullable)
                 else -> null
             }
 
-        private fun List<DialectType>.roundOrTruncTwoArgumentType(): IntermediateType? =
+        private fun List<IntermediateType>.roundOrTruncTwoArgumentType(): IntermediateType? =
             when {
-                all { type -> type in NUMERIC_TYPE_ORDER } -> IntermediateType(DECIMAL_NUMBER)
-                first() in DATETIME_TYPE_ORDER && this[1] in TEXT_TYPE_ORDER -> IntermediateType(DATE)
-                else -> null
+                all { type -> type.dialectType in NUMERIC_TYPE_ORDER } -> {
+                    IntermediateType(DECIMAL_NUMBER).nullableIf(any { type -> type.javaType.isNullable })
+                }
+
+                first().dialectType in DATETIME_TYPE_ORDER && this[1].dialectType in TEXT_TYPE_ORDER -> {
+                    IntermediateType(DATE).nullableIf(any { type -> type.javaType.isNullable })
+                }
+
+                else -> {
+                    null
+                }
             }
 
         private val COMPARABLE_TYPE_ORDER: Array<DialectType> =

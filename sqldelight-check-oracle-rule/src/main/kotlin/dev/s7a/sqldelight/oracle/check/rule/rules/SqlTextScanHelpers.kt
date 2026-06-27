@@ -65,6 +65,10 @@ internal fun String.maskSqlCommentsAndQuotedTextPreservingOffsets(
                     sqlMaskRange(chars, index, skipSqlBlockComment(index))
                 }
 
+                startsSqlAlternativeQuotedString(index) -> {
+                    sqlMaskRange(chars, index, skipSqlAlternativeQuotedString(index))
+                }
+
                 chars[index] == '\'' -> {
                     val end = skipSqlQuotedString(index)
                     if (maskQuoteDelimiters) {
@@ -89,6 +93,38 @@ internal fun String.maskSqlCommentsAndQuotedTextPreservingOffsets(
 internal fun String.skipSqlLineComment(start: Int): Int = indexOf('\n', startIndex = start).let { if (it == -1) length else it }
 
 internal fun String.skipSqlBlockComment(start: Int): Int = indexOf("*/", startIndex = start + 2).let { if (it == -1) length else it + 2 }
+
+internal fun String.startsSqlAlternativeQuotedString(start: Int): Boolean {
+    val qIndex =
+        when {
+            getOrNull(start)?.equals('q', ignoreCase = true) == true -> start
+
+            getOrNull(start)?.equals('n', ignoreCase = true) == true &&
+                getOrNull(start + 1)?.equals('q', ignoreCase = true) == true -> start + 1
+
+            else -> return false
+        }
+    return getOrNull(qIndex + 1) == '\'' && getOrNull(qIndex + 2) != null
+}
+
+internal fun String.skipSqlAlternativeQuotedString(start: Int): Int {
+    val qIndex = if (getOrNull(start)?.equals('q', ignoreCase = true) == true) start else start + 1
+    val openDelimiter = getOrNull(qIndex + 2) ?: return start + 1
+    val closeDelimiter =
+        when (openDelimiter) {
+            '(' -> ')'
+            '[' -> ']'
+            '{' -> '}'
+            '<' -> '>'
+            else -> openDelimiter
+        }
+    var index = qIndex + 3
+    while (index < length - 1) {
+        if (this[index] == closeDelimiter && this[index + 1] == '\'') return index + 2
+        index++
+    }
+    return length
+}
 
 internal fun String.skipSqlQuotedString(start: Int): Int {
     var index = start + 1

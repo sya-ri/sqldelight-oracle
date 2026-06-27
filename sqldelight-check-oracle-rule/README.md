@@ -115,6 +115,7 @@ sqldelightCheck {
 | [`oracle:valid-audit-policy-form`](#oraclevalid-audit-policy-form) | Yes | Warning |  | Validate static unified audit policy statement forms. |
 | [`oracle:valid-boolean-test-condition`](#oraclevalid-boolean-test-condition) | Yes | Warning |  | Validate static Oracle boolean test conditions. |
 | [`oracle:valid-create-view-column-aliases`](#oraclevalid-create-view-column-aliases) | Yes | Warning |  | Validate static `CREATE VIEW` column alias lists. |
+| [`oracle:valid-function-arity`](#oraclevalid-function-arity) | Yes | Warning |  | Validate static Oracle function arity and no-parentheses expression calls. |
 | [`oracle:valid-nls-parameter`](#oraclevalid-nls-parameter) | Yes | Warning |  | Validate static Oracle NLS parameter literals in conversion functions. |
 | [`oracle:valid-json-condition-options`](#oraclevalid-json-condition-options) | Yes | Warning |  | Validate static SQL/JSON condition option combinations. |
 | [`oracle:valid-json-table-clauses`](#oraclevalid-json-table-clauses) | Yes | Warning |  | Validate static Oracle `JSON_TABLE` option groups. |
@@ -467,6 +468,22 @@ Prefer the documented boolean test forms:
 SELECT *
 FROM feature_flags
 WHERE enabled IS NOT FALSE;
+```
+
+## `oracle:valid-function-arity`
+
+Reports statically invalid Oracle built-in function calls.
+The rule checks fixed and ranged argument counts, Oracle expressions that do not accept call parentheses such as `SYSDATE` and `USER`, and parenthesized `CURRENT_TIMESTAMP` / `LOCALTIMESTAMP` calls that omit precision.
+
+Prefer documented call forms:
+
+```sql
+SELECT SYSDATE,
+       USER,
+       CURRENT_TIMESTAMP(3),
+       LOCALTIMESTAMP(6),
+       SYS_GUID()
+FROM dual;
 ```
 
 ## `oracle:valid-nls-parameter`

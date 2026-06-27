@@ -18,18 +18,97 @@ class ValidFunctionArityRuleTest :
             diagnostics.summaries() shouldBe
                 listOf(
                     DiagnosticSummary(
-                        message = "Oracle function SYSDATE expects 0 argument(s), but got 1.",
+                        message = "Oracle expression SYSDATE does not accept parentheses.",
                         startLine = 2,
                         startColumn = 8,
                         endLine = 2,
                         endColumn = 15,
                     ),
                     DiagnosticSummary(
-                        message = "Oracle function USER expects 0 argument(s), but got 1.",
+                        message = "Oracle expression USER does not accept parentheses.",
                         startLine = 2,
                         startColumn = 20,
                         endLine = 2,
                         endColumn = 24,
+                    ),
+                )
+        }
+
+        test("reports parentheses on Oracle datetime and user environment expressions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidNoParentheses:
+                    SELECT SYSDATE(), USER(), DBTIMEZONE(), SESSIONTIMEZONE(), SYSTIMESTAMP()
+                    FROM dual;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle expression SYSDATE does not accept parentheses.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 15,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression USER does not accept parentheses.",
+                        startLine = 2,
+                        startColumn = 19,
+                        endLine = 2,
+                        endColumn = 23,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression DBTIMEZONE does not accept parentheses.",
+                        startLine = 2,
+                        startColumn = 27,
+                        endLine = 2,
+                        endColumn = 37,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression SESSIONTIMEZONE does not accept parentheses.",
+                        startLine = 2,
+                        startColumn = 41,
+                        endLine = 2,
+                        endColumn = 56,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle expression SYSTIMESTAMP does not accept parentheses.",
+                        startLine = 2,
+                        startColumn = 60,
+                        endLine = 2,
+                        endColumn = 72,
+                    ),
+                )
+        }
+
+        test("reports missing precision in parenthesized current timestamp functions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidCurrentTimestamp:
+                    SELECT CURRENT_TIMESTAMP(), LOCALTIMESTAMP()
+                    FROM dual;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function CURRENT_TIMESTAMP expects 1 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 25,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function LOCALTIMESTAMP expects 1 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 29,
+                        endLine = 2,
+                        endColumn = 43,
                     ),
                 )
         }
@@ -39,7 +118,7 @@ class ValidFunctionArityRuleTest :
                 ValidFunctionArityRule().diagnostics(
                     """
                     invalidMath:
-                    SELECT POWER(amount), NVL2(status, 'Y'), REGR_SLOPE(amount)
+                    SELECT POWER(amount), NVL2(status, 'Y'), REGR_SLOPE(amount), CONCAT(label)
                     FROM invoices;
                     """,
                 )
@@ -66,6 +145,13 @@ class ValidFunctionArityRuleTest :
                         startColumn = 42,
                         endLine = 2,
                         endColumn = 52,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function CONCAT expects 2..2147483647 argument(s), but got 1.",
+                        startLine = 2,
+                        startColumn = 62,
+                        endLine = 2,
+                        endColumn = 68,
                     ),
                 )
         }
@@ -206,9 +292,11 @@ class ValidFunctionArityRuleTest :
             ValidFunctionArityRule().diagnostics(
                 """
                 validFunctions:
-                SELECT SYSDATE(),
+                SELECT SYSDATE,
+                  USER,
                   POWER(amount, 2),
                   NVL2(status, 'Y', 'N'),
+                  CONCAT(first_name, ' ', last_name),
                   COUNT(*),
                   SUM(amount),
                   MAX(status),
@@ -219,8 +307,11 @@ class ValidFunctionArityRuleTest :
                   APPROX_SUM(amount),
                   APPROX_COUNT(*),
                   APPROX_COUNT_DISTINCT(customer_id),
+                  CURRENT_TIMESTAMP(3),
+                  LOCALTIMESTAMP(6),
                   REGR_SLOPE(amount, quantity),
                   COALESCE(nickname, name, 'unknown'),
+                  REGEXP_REPLACE(description, q'{literal ' marker, comma}', 'x'),
                   REGEXP_SUBSTR(description, '[A-Z]+', 1, 1, 'i', 0),
                   TO_TIMESTAMP(created_text, 'YYYY-MM-DD HH24:MI:SS')
                 FROM customers;
@@ -233,6 +324,17 @@ class ValidFunctionArityRuleTest :
                 """
                 -- SELECT POWER(amount)
                 SELECT 'REGEXP_LIKE(name, ''^a'', ''i'', ''x'')' AS sql_text,
+                  POWER(amount, 2) AS squared_amount
+                FROM invoices;
+                """,
+            ) shouldBe emptyList()
+        }
+
+        test("ignores function-like text inside Oracle alternative quoted literals") {
+            ValidFunctionArityRule().diagnostics(
+                """
+                SELECT q'{literal ' marker REGEXP_LIKE(name, '^a', 'i', 'x')}' AS sql_text,
+                  nq'[literal ' marker POWER(amount)]' AS national_sql_text,
                   POWER(amount, 2) AS squared_amount
                 FROM invoices;
                 """,

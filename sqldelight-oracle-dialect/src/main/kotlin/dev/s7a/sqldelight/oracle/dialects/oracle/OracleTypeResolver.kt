@@ -379,6 +379,13 @@ public class OracleTypeResolver(
                 }
             }
 
+            "concat" -> {
+                exprList.takeIf { args -> args.size >= 2 }?.let { args ->
+                    IntermediateType(OracleType.TEXT)
+                        .nullableIf(args.all { expression -> resolvedType(expression).javaType.isNullable })
+                }
+            }
+
             "nullif" -> {
                 exprList.takeIf { args -> args.size == 2 }?.firstOrNull()?.let { expression ->
                     resolvedType(expression).asNullable()

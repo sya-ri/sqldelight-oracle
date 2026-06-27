@@ -82,7 +82,7 @@ private val oracleFunctionArities =
         "ACOS" to exactArity(1),
         "APPROX_COUNT" to exactArity(1),
         "APPROX_COUNT_DISTINCT" to exactArity(1),
-        "APPROX_MEDIAN" to exactArity(1),
+        "APPROX_MEDIAN" to arityRange(1, 2),
         "APPROX_SUM" to exactArity(1),
         "ANY_VALUE" to exactArity(1),
         "ASCII" to exactArity(1),

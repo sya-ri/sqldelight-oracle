@@ -278,7 +278,122 @@ private val oracleFunctionArities =
         "VECTOR_DIMS" to exactArity(1),
         "VECTOR_NORM" to exactArity(1),
         "XMLISVALID" to arityRange(1, 2),
-    )
+    ) + oracleCalendarFunctionArities()
+
+private fun oracleCalendarFunctionArities(): Map<String, FunctionArity> =
+    listOf(
+        "CALENDAR_DAY",
+        "CALENDAR_MONTH",
+        "CALENDAR_QUARTER",
+        "CALENDAR_SINCE",
+        "CALENDAR_WEEK",
+        "CALENDAR_YEAR",
+    ).associateWith { arityRange(1, 3) } +
+        listOf(
+            "FISCAL_DAY",
+            "FISCAL_MONTH",
+            "FISCAL_QUARTER",
+            "FISCAL_WEEK",
+            "FISCAL_YEAR",
+        ).associateWith { arityRange(2, 4) } +
+        listOf(
+            "RETAIL_DAY",
+            "RETAIL_MONTH",
+            "RETAIL_QUARTER",
+            "RETAIL_WEEK",
+            "RETAIL_YEAR",
+        ).associateWith { arityRange(3, 4) } +
+        listOf(
+            "CALENDAR_MONTH_END_DATE",
+            "CALENDAR_MONTH_START_DATE",
+            "CALENDAR_QUARTER_END_DATE",
+            "CALENDAR_QUARTER_START_DATE",
+            "CALENDAR_WEEK_END_DATE",
+            "CALENDAR_WEEK_START_DATE",
+            "CALENDAR_YEAR_END_DATE",
+            "CALENDAR_YEAR_START_DATE",
+        ).associateWith { arityRange(1, 2) } +
+        listOf(
+            "FISCAL_MONTH_END_DATE",
+            "FISCAL_MONTH_START_DATE",
+            "FISCAL_QUARTER_END_DATE",
+            "FISCAL_QUARTER_START_DATE",
+            "FISCAL_WEEK_END_DATE",
+            "FISCAL_WEEK_START_DATE",
+            "FISCAL_YEAR_END_DATE",
+            "FISCAL_YEAR_START_DATE",
+        ).associateWith { arityRange(2, 3) } +
+        listOf(
+            "RETAIL_MONTH_END_DATE",
+            "RETAIL_MONTH_START_DATE",
+            "RETAIL_QUARTER_END_DATE",
+            "RETAIL_QUARTER_START_DATE",
+            "RETAIL_WEEK_END_DATE",
+            "RETAIL_WEEK_START_DATE",
+            "RETAIL_YEAR_END_DATE",
+            "RETAIL_YEAR_START_DATE",
+        ).associateWith { exactArity(2) } +
+        listOf(
+            "CALENDAR_DAY_OF_MONTH",
+            "CALENDAR_DAY_OF_QUARTER",
+            "CALENDAR_DAY_OF_YEAR",
+            "CALENDAR_MONTH_OF_QUARTER",
+            "CALENDAR_MONTH_OF_YEAR",
+            "CALENDAR_QUARTER_OF_YEAR",
+            "CALENDAR_WEEK_OF_YEAR",
+            "CALENDAR_YEAR_NUMBER",
+        ).associateWith { arityRange(1, 2) } +
+        mapOf("CALENDAR_DAY_OF_WEEK" to arityRange(1, 3)) +
+        listOf(
+            "FISCAL_DAY_OF_MONTH",
+            "FISCAL_DAY_OF_QUARTER",
+            "FISCAL_DAY_OF_YEAR",
+            "FISCAL_MONTH_OF_QUARTER",
+            "FISCAL_QUARTER_OF_YEAR",
+            "FISCAL_WEEK_OF_YEAR",
+            "FISCAL_YEAR_NUMBER",
+        ).associateWith { arityRange(2, 3) } +
+        mapOf(
+            "FISCAL_DAY_OF_WEEK" to arityRange(2, 4),
+            "FISCAL_MONTH_OF_YEAR" to arityRange(2, 4),
+        ) +
+        listOf(
+            "RETAIL_DAY_OF_MONTH",
+            "RETAIL_DAY_OF_QUARTER",
+            "RETAIL_DAY_OF_YEAR",
+            "RETAIL_MONTH_OF_QUARTER",
+            "RETAIL_QUARTER_OF_YEAR",
+            "RETAIL_WEEK_OF_MONTH",
+            "RETAIL_WEEK_OF_QUARTER",
+            "RETAIL_WEEK_OF_YEAR",
+            "RETAIL_YEAR_NUMBER",
+        ).associateWith { exactArity(2) } +
+        mapOf(
+            "RETAIL_DAY_EXISTS" to exactArity(2),
+            "RETAIL_DAY_OF_WEEK" to arityRange(2, 3),
+            "RETAIL_MONTH_OF_YEAR" to arityRange(2, 3),
+        ) +
+        listOf(
+            "CALENDAR_ADD_DAYS",
+            "CALENDAR_ADD_MONTHS",
+            "CALENDAR_ADD_QUARTERS",
+            "CALENDAR_ADD_WEEKS",
+            "CALENDAR_ADD_YEARS",
+        ).associateWith { arityRange(2, 3) } +
+        listOf(
+            "FISCAL_ADD_DAYS",
+            "FISCAL_ADD_MONTHS",
+            "FISCAL_ADD_QUARTERS",
+            "FISCAL_ADD_WEEKS",
+            "FISCAL_ADD_YEARS",
+        ).associateWith { arityRange(3, 4) } +
+        listOf(
+            "RETAIL_ADD_DAYS",
+            "RETAIL_ADD_MONTHS",
+            "RETAIL_ADD_QUARTERS",
+            "RETAIL_ADD_WEEKS",
+            "RETAIL_ADD_YEARS",
+        ).associateWith { exactArity(3) }
 
 private val oracleNoParenthesesExpressions =
     setOf(

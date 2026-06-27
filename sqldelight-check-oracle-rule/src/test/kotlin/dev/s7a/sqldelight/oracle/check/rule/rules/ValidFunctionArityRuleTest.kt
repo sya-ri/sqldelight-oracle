@@ -739,6 +739,141 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("reports wrong arity for Oracle calendar functions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidCalendarFunctions:
+                    SELECT CALENDAR_YEAR(), CALENDAR_MONTH(d, fmt, nls, extra),
+                      FISCAL_YEAR(d), FISCAL_MONTH(d, fiscal_start, fmt, nls, extra),
+                      RETAIL_YEAR(d, fmt), RETAIL_MONTH(d, fmt, restated, nls, extra),
+                      CALENDAR_YEAR_START_DATE(d, nls, extra), FISCAL_YEAR_START_DATE(d),
+                      RETAIL_YEAR_START_DATE(d), CALENDAR_DAY_OF_WEEK(d, fmt, nls, extra),
+                      FISCAL_DAY_OF_WEEK(d, fiscal_start, fmt, nls, extra),
+                      RETAIL_DAY_OF_WEEK(d, restated, fmt, extra), CALENDAR_ADD_DAYS(d),
+                      FISCAL_ADD_DAYS(d, periods), RETAIL_ADD_DAYS(d, periods),
+                      RETAIL_DAY_EXISTS(d)
+                    FROM calendar_dates;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function CALENDAR_YEAR expects 1..3 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 21,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function CALENDAR_MONTH expects 1..3 argument(s), but got 4.",
+                        startLine = 2,
+                        startColumn = 25,
+                        endLine = 2,
+                        endColumn = 39,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function FISCAL_YEAR expects 2..4 argument(s), but got 1.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 14,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function FISCAL_MONTH expects 2..4 argument(s), but got 5.",
+                        startLine = 3,
+                        startColumn = 19,
+                        endLine = 3,
+                        endColumn = 31,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function RETAIL_YEAR expects 3..4 argument(s), but got 2.",
+                        startLine = 4,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 14,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function RETAIL_MONTH expects 3..4 argument(s), but got 5.",
+                        startLine = 4,
+                        startColumn = 24,
+                        endLine = 4,
+                        endColumn = 36,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function CALENDAR_YEAR_START_DATE expects 1..2 argument(s), but got 3.",
+                        startLine = 5,
+                        startColumn = 3,
+                        endLine = 5,
+                        endColumn = 27,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function FISCAL_YEAR_START_DATE expects 2..3 argument(s), but got 1.",
+                        startLine = 5,
+                        startColumn = 44,
+                        endLine = 5,
+                        endColumn = 66,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function RETAIL_YEAR_START_DATE expects 2 argument(s), but got 1.",
+                        startLine = 6,
+                        startColumn = 3,
+                        endLine = 6,
+                        endColumn = 25,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function CALENDAR_DAY_OF_WEEK expects 1..3 argument(s), but got 4.",
+                        startLine = 6,
+                        startColumn = 30,
+                        endLine = 6,
+                        endColumn = 50,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function FISCAL_DAY_OF_WEEK expects 2..4 argument(s), but got 5.",
+                        startLine = 7,
+                        startColumn = 3,
+                        endLine = 7,
+                        endColumn = 21,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function RETAIL_DAY_OF_WEEK expects 2..3 argument(s), but got 4.",
+                        startLine = 8,
+                        startColumn = 3,
+                        endLine = 8,
+                        endColumn = 21,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function CALENDAR_ADD_DAYS expects 2..3 argument(s), but got 1.",
+                        startLine = 8,
+                        startColumn = 48,
+                        endLine = 8,
+                        endColumn = 65,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function FISCAL_ADD_DAYS expects 3..4 argument(s), but got 2.",
+                        startLine = 9,
+                        startColumn = 3,
+                        endLine = 9,
+                        endColumn = 18,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function RETAIL_ADD_DAYS expects 3 argument(s), but got 2.",
+                        startLine = 9,
+                        startColumn = 32,
+                        endLine = 9,
+                        endColumn = 47,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function RETAIL_DAY_EXISTS expects 2 argument(s), but got 1.",
+                        startLine = 10,
+                        startColumn = 3,
+                        endLine = 10,
+                        endColumn = 20,
+                    ),
+                )
+        }
+
         test("reports wrong arity for Oracle vector functions") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(
@@ -1241,6 +1376,24 @@ class ValidFunctionArityRuleTest :
                   DOMAIN_CHECK(sample_domain, domain_value),
                   DOMAIN_CHECK_TYPE(sample_domain, domain_value),
                   DOMAIN_NAME(domain_value),
+                  CALENDAR_YEAR(d),
+                  CALENDAR_MONTH(d, fmt, nls),
+                  FISCAL_YEAR(d, fiscal_start, fmt, nls),
+                  RETAIL_YEAR(d, fmt, restated, nls),
+                  CALENDAR_YEAR_START_DATE(d, nls),
+                  FISCAL_YEAR_START_DATE(d, fiscal_start, nls),
+                  RETAIL_YEAR_START_DATE(d, restated),
+                  CALENDAR_YEAR_NUMBER(d, nls),
+                  CALENDAR_DAY_OF_WEEK(d, 'DATE', nls),
+                  FISCAL_YEAR_NUMBER(d, fiscal_start, nls),
+                  FISCAL_DAY_OF_WEEK(d, fiscal_start, 'POSITION', nls),
+                  RETAIL_YEAR_NUMBER(d, restated),
+                  RETAIL_DAY_OF_WEEK(d, restated, 'POSITION'),
+                  CALENDAR_ADD_DAYS(d, periods, nls),
+                  FISCAL_ADD_DAYS(d, periods, fiscal_start, nls),
+                  RETAIL_ADD_DAYS(d, periods, restated),
+                  CALENDAR_SINCE(d, fmt, nls),
+                  RETAIL_DAY_EXISTS(d, restated),
                   COMPOSE(label),
                   CONVERT(label, 'AL32UTF8', 'WE8ISO8859P1'),
                   DECOMPOSE(label, 'CANONICAL'),

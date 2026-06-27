@@ -213,6 +213,33 @@ class OracleResultColumnTypeTest :
             ) shouldBe "java.math.BigDecimal?"
         }
 
+        test("resolves Oracle unpivot result column types exactly") {
+            typeOf(
+                """
+                SELECT unpivoted_orders.id AS c
+                FROM emp UNPIVOT (
+                  amount FOR amount_type IN (salary AS 'SALARY', dept_id AS 'DEPT')
+                ) unpivoted_orders
+                """.trimIndent(),
+            ) shouldBe "kotlin.Long"
+            typeOf(
+                """
+                SELECT unpivoted_orders.amount AS c
+                FROM emp UNPIVOT (
+                  amount FOR amount_type IN (salary AS 'SALARY', dept_id AS 'DEPT')
+                ) unpivoted_orders
+                """.trimIndent(),
+            ) shouldBe "java.math.BigDecimal?"
+            typeOf(
+                """
+                SELECT unpivoted_orders.amount_type AS c
+                FROM emp UNPIVOT (
+                  amount FOR amount_type IN (salary AS 'SALARY', dept_id AS 'DEPT')
+                ) unpivoted_orders
+                """.trimIndent(),
+            ) shouldBe "kotlin.String"
+        }
+
         test("resolves Oracle XML root result column types exactly") {
             typeOf("SELECT XMLROOT(XMLTYPE('<Warehouse/>'), VERSION NO VALUE) AS c FROM emp") shouldBe "kotlin.String"
         }

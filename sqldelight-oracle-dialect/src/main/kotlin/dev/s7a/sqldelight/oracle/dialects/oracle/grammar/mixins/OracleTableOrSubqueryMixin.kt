@@ -171,8 +171,12 @@ internal abstract class OracleTableOrSubqueryMixin(
             )
         }
 
-        oracleUnpivotColumns().ifEmpty { null }?.let { columns ->
-            return oracleGeneratedSynthesizedColumnResult(columns, oracleUnpivotSourceColumns())
+        oracleUnpivotColumnResults()?.let { result ->
+            return QueryResult(
+                table = tableAlias,
+                columns = oracleUnpivotSourceColumns() + result.columns,
+                synthesizedColumns = result.synthesizedColumnNames.map { name -> SynthesizedColumn(tableAlias ?: this, listOf(name)) },
+            )
         }
 
         return oracleRowPatternResult()
@@ -314,12 +318,12 @@ internal abstract class OracleTableOrSubqueryMixin(
                 ?: tableAvailable(tableNameElement, tableNameElement.name)
         } ?: emptyList()
 
-    private data class OraclePivotColumns(
+    private data class OracleGeneratedColumns(
         val columns: List<QueryColumn>,
         val synthesizedColumnNames: List<String>,
     )
 
-    private fun oraclePivotColumnResults(): OraclePivotColumns? {
+    private fun oraclePivotColumnResults(): OracleGeneratedColumns? {
         val pivotBody = text.oracleParenthesizedBodyAfter("PIVOT") ?: return null
         val forOffset = pivotBody.indexOfKeyword("FOR")
         val inOffset = pivotBody.indexOfKeyword("IN", startIndex = forOffset?.let { it + "FOR".length } ?: 0) ?: return null
@@ -349,7 +353,7 @@ internal abstract class OracleTableOrSubqueryMixin(
                 columns += QueryColumn(OraclePivotColumnElement(this, name, type))
             }
         }
-        return OraclePivotColumns(columns, synthesizedColumnNames)
+        return OracleGeneratedColumns(columns, synthesizedColumnNames)
     }
 
     private fun oraclePivotAggregateType(aggregatePart: String): IntermediateType? {
@@ -450,6 +454,58 @@ internal abstract class OracleTableOrSubqueryMixin(
                 .oracleNameList()
 
         return (measureColumns + forColumns).distinct()
+    }
+
+    private fun oracleUnpivotColumnResults(): OracleGeneratedColumns? {
+        val unpivotBody = text.oracleParenthesizedBodyAfter("UNPIVOT") ?: return null
+        val forOffset = unpivotBody.indexOfKeyword("FOR") ?: return null
+        val inOffset = unpivotBody.indexOfKeyword("IN", startIndex = forOffset + "FOR".length) ?: return null
+        val measureColumns = unpivotBody.substring(0, forOffset).oracleNameList()
+        val forColumns =
+            unpivotBody
+                .substring(forOffset + "FOR".length, inOffset)
+                .oracleNameList()
+        val sourceTypes = unpivotBody.substring(inOffset + "IN".length).oracleNameList().mapNotNull(::oracleColumnType)
+        val measureType = sourceTypes.oracleUnpivotMeasureType()
+        val columns = mutableListOf<QueryColumn>()
+        val synthesizedColumnNames = mutableListOf<String>()
+
+        measureColumns.forEach { name ->
+            if (measureType == null) {
+                synthesizedColumnNames += name
+            } else {
+                columns += QueryColumn(OraclePivotColumnElement(this, name, IntermediateType(measureType).asNullable()))
+            }
+        }
+        forColumns.forEach { name ->
+            columns += QueryColumn(OraclePivotColumnElement(this, name, IntermediateType(OracleType.TEXT)))
+        }
+
+        return OracleGeneratedColumns(columns, synthesizedColumnNames)
+    }
+
+    private fun oracleColumnType(columnName: String): OracleType? =
+        oracleTableColumns().firstNotNullOfOrNull { column ->
+            val columnDef = column.element.parent as? SqlColumnDef ?: return@firstNotNullOfOrNull null
+            if (columnDef.columnName.name.equals(columnName, ignoreCase = true)) {
+                OracleType.fromSqlTypeName(columnDef.columnType.typeName.text)
+            } else {
+                null
+            }
+        }
+
+    private fun List<OracleType>.oracleUnpivotMeasureType(): OracleType? {
+        if (isEmpty()) return null
+        return when {
+            any { it == OracleType.BINARY_DOUBLE } -> OracleType.BINARY_DOUBLE
+            any { it == OracleType.BINARY_FLOAT } -> OracleType.BINARY_FLOAT
+            any { it == OracleType.DECIMAL_NUMBER } -> OracleType.DECIMAL_NUMBER
+            any { it == OracleType.LONG_NUMBER } -> OracleType.LONG_NUMBER
+            any { it == OracleType.INTEGER_NUMBER } -> OracleType.INTEGER_NUMBER
+            all { it == OracleType.TEXT } -> OracleType.TEXT
+            all { it == OracleType.BINARY } -> OracleType.BINARY
+            else -> first()
+        }
     }
 
     private fun oracleUnpivotSourceColumns(): List<QueryColumn> {

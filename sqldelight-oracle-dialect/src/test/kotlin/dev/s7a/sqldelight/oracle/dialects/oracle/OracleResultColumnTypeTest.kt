@@ -172,6 +172,24 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT UNDER_PATH(xml_doc, '/Warehouse', 1, 2) AS c FROM emp") shouldBe "java.math.BigDecimal"
         }
 
+        test("resolves Oracle condition result column types exactly") {
+            typeOf("SELECT NOT TRUE AS c FROM emp") shouldBe "kotlin.Boolean"
+            typeOf("SELECT (TRUE IS NOT UNKNOWN) AS c FROM emp") shouldBe "kotlin.Boolean"
+            typeOf("SELECT name LIKEC 'A%' AS c FROM emp") shouldBe "kotlin.Boolean"
+            typeOf("SELECT name LIKE2 'A%' AS c FROM emp") shouldBe "kotlin.Boolean"
+            typeOf("SELECT name LIKE4 'A%' AS c FROM emp") shouldBe "kotlin.Boolean"
+            typeOf("SELECT bonus IS NAN AS c FROM emp") shouldBe "kotlin.Boolean"
+            typeOf("SELECT bonus IS NOT INFINITE AS c FROM emp") shouldBe "kotlin.Boolean"
+            typeOf("SELECT json_doc IS JSON AS c FROM emp") shouldBe "kotlin.Boolean"
+            typeOf("SELECT json_doc IS NOT JSON AS c FROM emp") shouldBe "kotlin.Boolean"
+            typeOf("SELECT XMLEXISTS('/Warehouse' PASSING xml_doc) AS c FROM emp") shouldBe "kotlin.Boolean"
+            typeOf("SELECT id ^= dept_id AS c FROM emp") shouldBe "kotlin.Boolean"
+            typeOf("SELECT ODCINUMBERLIST(1, 2) IS NOT EMPTY AS c FROM emp") shouldBe "kotlin.Boolean"
+            typeOf("SELECT 1 MEMBER OF ODCINUMBERLIST(1, 2) AS c FROM emp") shouldBe "kotlin.Boolean"
+            typeOf("SELECT ODCINUMBERLIST(1) SUBMULTISET OF ODCINUMBERLIST(1, 2) AS c FROM emp") shouldBe
+                "kotlin.Boolean"
+        }
+
         test("resolves Oracle SQL JSON null-returning result column types exactly") {
             typeOf("SELECT JSON_VALUE(name, '${'$'}.id' RETURNING NUMBER) AS c FROM emp") shouldBe "java.math.BigDecimal"
             typeOf("SELECT JSON_QUERY(name, '${'$'}.items' RETURNING CLOB) AS c FROM emp") shouldBe "kotlin.String"

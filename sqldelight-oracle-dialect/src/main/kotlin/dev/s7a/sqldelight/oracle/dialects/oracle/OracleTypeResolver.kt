@@ -37,7 +37,8 @@ public class OracleTypeResolver(
             }
 
             else -> {
-                oracleExtensionFunctionType(expr)
+                oracleExtensionConditionType(expr)
+                    ?: oracleExtensionFunctionType(expr)
                     ?: oracleExtensionOperatorType(expr)
                     ?: oracleExtensionPseudocolumnType(expr)
                     ?: oracleExtensionLiteralType(expr)
@@ -149,6 +150,16 @@ public class OracleTypeResolver(
             text.startsWith("INTERVAL ") -> IntermediateType(OracleType.TEXT)
             else -> null
         }
+    }
+
+    private fun oracleExtensionConditionType(expr: SqlExpr): IntermediateType? {
+        val text =
+            expr
+                .oracleExtensionExpr()
+                ?.text
+                ?.trim()
+                ?: return null
+        return IntermediateType(BOOLEAN_TYPE).takeIf { text.isOracleBooleanConditionExpression() }
     }
 
     private fun oracleHierarchicalOperatorType(expr: SqlExpr): IntermediateType? {
@@ -1022,6 +1033,9 @@ public class OracleTypeResolver(
                 ?.get(1)
                 ?.uppercase()
 
+        private fun String.isOracleBooleanConditionExpression(): Boolean =
+            ORACLE_BOOLEAN_CONDITION_REGEXES.any { regex -> regex.containsMatchIn(this) }
+
         private fun String.oracleTypeNameAfterKeyword(keyword: String): String? {
             val match = oracleReturningTypeRegex(keyword).find(this)
             return match?.groupValues?.get(1)?.trim()
@@ -1109,6 +1123,22 @@ public class OracleTypeResolver(
             arrayOf(
                 TEXT,
                 OracleType.TEXT,
+            )
+
+        private val ORACLE_BOOLEAN_CONDITION_REGEXES: List<Regex> =
+            listOf(
+                Regex("""(?i)^\s*NOT\b"""),
+                Regex("""(?i)\bIS\s+(?:NOT\s+)?(?:TRUE|FALSE|UNKNOWN)\b"""),
+                Regex("""(?i)\bIS\s+(?:NOT\s+)?JSON\b"""),
+                Regex("""(?i)\bIS\s+(?:NOT\s+)?(?:NAN|INFINITE)\b"""),
+                Regex("""(?i)\bIS\s+(?:NOT\s+)?(?:OF\s+(?:TYPE\s+)?\(|DANGLING\b)"""),
+                Regex("""(?i)\bIS\s+(?:ANY|PRESENT)\b"""),
+                Regex("""(?i)\b(?:LIKEC|LIKE2|LIKE4)\b"""),
+                Regex("""(?i)^\s*XMLEXISTS\s*\("""),
+                Regex("""(?i)\bIS\s+(?:NOT\s+)?(?:A\s+SET|EMPTY)\b"""),
+                Regex("""(?i)\b(?:NOT\s+)?MEMBER(?:\s+OF)?\b"""),
+                Regex("""(?i)\b(?:NOT\s+)?SUBMULTISET(?:\s+OF)?\b"""),
+                Regex("""\^="""),
             )
 
         private val MIN_TYPE_ORDER: Array<DialectType> =

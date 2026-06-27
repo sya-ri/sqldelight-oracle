@@ -183,6 +183,36 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT CONNECT_BY_ROOT nickname AS c FROM emp CONNECT BY PRIOR id = dept_id") shouldBe "kotlin.String?"
         }
 
+        test("resolves Oracle pivot result column types exactly") {
+            typeOf(
+                """
+                SELECT pivoted_orders.id AS c
+                FROM emp PIVOT (
+                  COUNT(*) AS order_count
+                  FOR name IN ('WEST' AS west)
+                ) pivoted_orders
+                """.trimIndent(),
+            ) shouldBe "kotlin.Long"
+            typeOf(
+                """
+                SELECT pivoted_orders.west_order_count AS c
+                FROM emp PIVOT (
+                  COUNT(*) AS order_count
+                  FOR name IN ('WEST' AS west)
+                ) pivoted_orders
+                """.trimIndent(),
+            ) shouldBe "kotlin.Long"
+            typeOf(
+                """
+                SELECT pivoted_orders.west AS c
+                FROM emp PIVOT (
+                  SUM(salary)
+                  FOR name IN ('WEST' AS west)
+                ) pivoted_orders
+                """.trimIndent(),
+            ) shouldBe "java.math.BigDecimal?"
+        }
+
         test("resolves Oracle XML root result column types exactly") {
             typeOf("SELECT XMLROOT(XMLTYPE('<Warehouse/>'), VERSION NO VALUE) AS c FROM emp") shouldBe "kotlin.String"
         }

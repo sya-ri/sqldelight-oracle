@@ -49,11 +49,9 @@ internal abstract class OracleTableOrSubqueryMixin(
                 val containersColumns = oracleContainersSynthesizedColumns()
                 tableAlias?.let { alias ->
                     return@lazy listOf(
-                        QueryResult(
+                        result.oracleQueryResultFor(
                             alias,
-                            result.flatMap { it.columns },
-                            result.flatMap { it.synthesizedColumns } +
-                                containersColumns.map { name -> SynthesizedColumn(alias, listOf(name)) },
+                            containersColumns.map { name -> SynthesizedColumn(alias, listOf(name)) },
                         ),
                     )
                 }
@@ -117,7 +115,7 @@ internal abstract class OracleTableOrSubqueryMixin(
             return jsonTable.oracleJsonTableColumnsClause
                 .queryColumns()
                 .ifEmpty { null }
-                ?.let { columns -> QueryResult(jsonTable.tableAlias() ?: tableAlias(), columns) }
+                ?.let { columns -> oracleColumnResultFor(jsonTable, columns) }
         }
 
         PsiTreeUtil.findChildOfType(this, OracleOracleXmltableReference::class.java)?.let { xmltable ->
@@ -125,7 +123,7 @@ internal abstract class OracleTableOrSubqueryMixin(
                 ?.oracleXmltableColumnList
                 ?.mapNotNull { column -> column.oracleColumnAliasQueryColumn() }
                 ?.ifEmpty { null }
-                ?.let { columns -> QueryResult(xmltable.tableAlias() ?: tableAlias(), columns) }
+                ?.let { columns -> oracleColumnResultFor(xmltable, columns) }
                 ?: QueryResult(
                     table = xmltable.tableAlias() ?: tableAlias(),
                     columns = emptyList(),
@@ -140,7 +138,7 @@ internal abstract class OracleTableOrSubqueryMixin(
             return valuesTable
                 .oracleColumnAliasQueryColumns()
                 .ifEmpty { null }
-                ?.let { columns -> QueryResult(valuesTable.tableAlias() ?: tableAlias(), columns) }
+                ?.let { columns -> oracleColumnResultFor(valuesTable, columns) }
         }
 
         oracleCollectionTableColumnResult()?.let {
@@ -199,6 +197,11 @@ internal abstract class OracleTableOrSubqueryMixin(
     }
 
     private fun PsiElement.tableAlias(): SqlTableAlias? = PsiTreeUtil.findChildOfType(this, SqlTableAlias::class.java)
+
+    private fun oracleColumnResultFor(
+        source: PsiElement,
+        columns: List<QueryColumn>,
+    ): QueryResult = QueryResult(source.tableAlias() ?: tableAlias, columns)
 
     private fun oracleCanReferenceLeftQuerySources(): Boolean {
         if (text.trimStart().startsWith("LATERAL", ignoreCase = true)) return true

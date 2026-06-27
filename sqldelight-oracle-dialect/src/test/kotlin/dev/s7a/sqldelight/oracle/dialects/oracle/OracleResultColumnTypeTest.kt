@@ -167,6 +167,11 @@ class OracleResultColumnTypeTest :
                 "kotlin.String?"
         }
 
+        test("resolves Oracle XML path condition result column types exactly") {
+            typeOf("SELECT EQUALS_PATH(xml_doc, '/Warehouse') AS c FROM emp") shouldBe "java.math.BigDecimal"
+            typeOf("SELECT UNDER_PATH(xml_doc, '/Warehouse', 1, 2) AS c FROM emp") shouldBe "java.math.BigDecimal"
+        }
+
         test("resolves Oracle SQL JSON null-returning result column types exactly") {
             typeOf("SELECT JSON_VALUE(name, '${'$'}.id' RETURNING NUMBER) AS c FROM emp") shouldBe "java.math.BigDecimal"
             typeOf("SELECT JSON_QUERY(name, '${'$'}.items' RETURNING CLOB) AS c FROM emp") shouldBe "kotlin.String"

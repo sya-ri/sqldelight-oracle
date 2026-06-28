@@ -631,8 +631,13 @@ public class OracleTypeResolver(
 
             "nvl" -> {
                 exprList.takeIf { args -> args.size == 2 }?.let { args ->
-                    resolvedType(args.first())
-                        .nullableIf(args.all { expression -> resolvedType(expression).javaType.isNullable })
+                    val resultType =
+                        if (args.first().text.isOracleNullLiteral()) {
+                            resolvedType(args[1])
+                        } else {
+                            resolvedType(args.first())
+                        }
+                    resultType.nullableIf(args.all { expression -> resolvedType(expression).javaType.isNullable })
                 }
             }
 

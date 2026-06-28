@@ -378,6 +378,15 @@ class OracleResultColumnTypeTest :
             ) shouldBe "kotlin.String"
             typeOf(
                 """
+                SELECT value_names.first_name AS c
+                FROM (
+                  VALUES (nq'[SCOTT]'),
+                         (nq'[SMITH]')
+                ) value_names (first_name)
+                """.trimIndent(),
+            ) shouldBe "kotlin.String"
+            typeOf(
+                """
                 SELECT value_amounts.amount AS c
                 FROM (
                   VALUES (1),

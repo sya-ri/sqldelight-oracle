@@ -897,7 +897,10 @@ private fun List<IntermediateType>.oracleValuesCommonType(): IntermediateType? {
 private fun String.oracleValuesLiteralType(): IntermediateType? {
     val value = trim()
     return when {
-        value.startsWith("'") || value.startsWith("N'", ignoreCase = true) || value.startsWith("Q'", ignoreCase = true) -> {
+        value.startsWith("'") ||
+            value.startsWith("N'", ignoreCase = true) ||
+            value.startsWith("Q'", ignoreCase = true) ||
+            value.startsWith("NQ'", ignoreCase = true) -> {
             IntermediateType(OracleType.TEXT)
         }
 

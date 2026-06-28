@@ -139,7 +139,7 @@ private fun String.aliasesIn(
         if (startsWithConstraint) {
             return@forEach
         }
-        val aliasEnd = createViewIdentifierEnd(index, item.last + 1)
+        val aliasEnd = sqlIdentifierEnd(index, item.last + 1)
         if (aliasEnd > index) {
             aliases += ViewAlias(substring(index, aliasEnd), index until aliasEnd)
         }
@@ -275,37 +275,12 @@ private fun String.previousSqlDoubleQuotedIdentifierStart(closeOffset: Int): Int
     return closeOffset - 1
 }
 
-private fun String.skipCreateViewWhitespaceAndCommas(
-    startOffset: Int,
-    endOffset: Int,
-): Int {
-    var index = startOffset
-    while (index < endOffset && (this[index].isWhitespace() || this[index] == ',')) index++
-    return index
-}
-
 private fun String.skipCreateViewWhitespace(
     startOffset: Int,
     endOffset: Int,
 ): Int {
     var index = startOffset
     while (index < endOffset && this[index].isWhitespace()) index++
-    return index
-}
-
-private fun String.createViewIdentifierEnd(
-    startOffset: Int,
-    endOffset: Int,
-): Int {
-    if (startOffset >= endOffset) return startOffset
-    if (this[startOffset] == '"') {
-        val end = skipSqlDoubleQuotedIdentifier(startOffset)
-        return if (end <= endOffset) end else startOffset
-    }
-    var index = startOffset
-    while (index < endOffset && (this[index].isLetterOrDigit() || this[index] == '_' || this[index] == '$' || this[index] == '#')) {
-        index++
-    }
     return index
 }
 

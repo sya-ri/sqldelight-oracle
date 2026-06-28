@@ -6,3 +6,9 @@ profile:
   name: qodana.recommended
 exclude:
   - name: RedundantVisibilityModifier
+  - name: All
+    paths:
+      - build
+      - sqldelight-check-oracle-dialect/build
+      - sqldelight-check-oracle-rule/build
+      - sqldelight-oracle-dialect/build

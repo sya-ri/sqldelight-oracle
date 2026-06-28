@@ -130,7 +130,7 @@ public class OracleTypeResolver(
             -> IntermediateType(TIMESTAMP_TIME_ZONE)
 
             "VERSIONS_XID",
-            -> IntermediateType(OracleType.BINARY).asNullable()
+            -> IntermediateType(BINARY).asNullable()
 
             "DBTIMEZONE",
             "CURRENT_USER",
@@ -1274,26 +1274,25 @@ public class OracleTypeResolver(
 
         private fun String.isOracleEmptyAlternativeQuotedString(): Boolean {
             val value = trim()
-            val qIndex =
+            val openDelimiterIndex =
                 when {
-                    value.startsWith("q'", ignoreCase = true) -> 0
-                    value.startsWith("nq'", ignoreCase = true) -> 1
+                    value.startsWith("q'", ignoreCase = true) -> 2
+                    value.startsWith("nq'", ignoreCase = true) -> 3
                     else -> return false
                 }
-            if (value.length < qIndex + 4 || value[qIndex + 1] != '\'') return false
+            if (value.length < openDelimiterIndex + 3 || value[openDelimiterIndex - 1] != '\'') return false
 
-            val openDelimiter = value[qIndex + 2]
             val closeDelimiter =
-                when (openDelimiter) {
+                when (val openDelimiter = value[openDelimiterIndex]) {
                     '[' -> ']'
                     '{' -> '}'
                     '(' -> ')'
                     '<' -> '>'
                     else -> openDelimiter
                 }
-            return value.length == qIndex + 5 &&
-                value[qIndex + 3] == closeDelimiter &&
-                value[qIndex + 4] == '\''
+            return value.length == openDelimiterIndex + 3 &&
+                value[openDelimiterIndex + 1] == closeDelimiter &&
+                value[openDelimiterIndex + 2] == '\''
         }
 
         private fun SqlExpr.oracleCaseReturnExpressions(): List<OracleCaseReturnExpression> =

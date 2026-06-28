@@ -156,7 +156,7 @@ private fun constraintStateOccurrence(
     )
 
 private fun String.constraintStateScopeStart(offset: Int): Int? {
-    val openOffset = innermostConstraintStateParenthesisStart(offset) ?: return null
+    val openOffset = innermostSqlParenthesisStart(offset) ?: return null
     var depth = 0
     for (index in offset - 1 downTo openOffset + 1) {
         when (this[index]) {
@@ -174,23 +174,6 @@ private fun String.constraintStateScopeStart(offset: Int): Int? {
         }
     }
     return openOffset + 1
-}
-
-private fun String.innermostConstraintStateParenthesisStart(offset: Int): Int? {
-    var depth = 0
-    for (index in offset - 1 downTo 0) {
-        when (this[index]) {
-            ')' -> {
-                depth++
-            }
-
-            '(' -> {
-                if (depth == 0) return index
-                depth--
-            }
-        }
-    }
-    return null
 }
 
 private fun SqlToken?.constraintStateRuleHasText(text: String): Boolean = this?.text.equals(text, ignoreCase = true)

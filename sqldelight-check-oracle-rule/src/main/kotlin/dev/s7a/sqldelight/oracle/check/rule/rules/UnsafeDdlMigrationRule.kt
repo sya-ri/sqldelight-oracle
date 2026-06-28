@@ -153,9 +153,9 @@ private fun String.isRequiredColumnWithoutDefault(range: IntRange): Boolean {
     val tokens = unsafeDdlTokens(range)
     val firstToken = tokens.firstOrNull()?.uppercase() ?: return false
     val columnStartIndex =
-        when {
-            firstToken == "COLUMN" -> 1
-            firstToken in nonColumnAlterTableItems -> return false
+        when (firstToken) {
+            "COLUMN" -> 1
+            in nonColumnAlterTableItems -> return false
             else -> 0
         }
     val columnTokens = tokens.drop(columnStartIndex)

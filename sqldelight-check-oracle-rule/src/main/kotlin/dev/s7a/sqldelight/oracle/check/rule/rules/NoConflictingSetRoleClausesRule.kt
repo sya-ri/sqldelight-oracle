@@ -86,13 +86,15 @@ private fun List<SetRoleToken>.setRoleForms(): List<SetRoleOccurrence> =
                         val endOffset =
                             if (this@setRoleForms.getOrNull(index + 1).setRoleHasText("EXCEPT")) {
                                 index += 2
-                                while (index < this@setRoleForms.size &&
-                                    !this@setRoleForms[index].setRoleHasText(";") &&
-                                    !this@setRoleForms[index].setRoleHasText("ALL") &&
-                                    !this@setRoleForms[index].setRoleHasText("NONE")
-                                ) {
-                                    index++
-                                }
+                                val nextFormOffset =
+                                    this@setRoleForms
+                                        .drop(index)
+                                        .indexOfFirst { nextToken ->
+                                            nextToken.setRoleHasText(";") ||
+                                                nextToken.setRoleHasText("ALL") ||
+                                                nextToken.setRoleHasText("NONE")
+                                        }
+                                if (nextFormOffset == -1) index = this@setRoleForms.size else index += nextFormOffset
                                 this@setRoleForms.getOrNull(index - 1)?.endOffset ?: token.endOffset
                             } else {
                                 index++

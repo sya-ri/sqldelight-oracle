@@ -134,12 +134,12 @@ private fun String.ctasSkipQualifiedTableName(
     endOffset: Int,
 ): Int? {
     var index = ctasSkipWhitespace(startOffset, endOffset)
-    val firstNameEnd = ctasIdentifierEnd(index, endOffset)
+    val firstNameEnd = sqlIdentifierEnd(index, endOffset)
     if (firstNameEnd == index) return null
     index = ctasSkipWhitespace(firstNameEnd, endOffset)
     if (index < endOffset && this[index] == '.') {
         index = ctasSkipWhitespace(index + 1, endOffset)
-        val secondNameEnd = ctasIdentifierEnd(index, endOffset)
+        val secondNameEnd = sqlIdentifierEnd(index, endOffset)
         if (secondNameEnd == index) return null
         index = secondNameEnd
     }
@@ -160,7 +160,7 @@ private fun String.ctasSkipSharingClause(
             offset in startOffset until endOffset
         } ?: return startOffset
     var index = ctasSkipWhitespace(equalsOffset + 1, endOffset)
-    val valueEnd = ctasIdentifierEnd(index, endOffset)
+    val valueEnd = sqlIdentifierEnd(index, endOffset)
     if (valueEnd == index) return startOffset
     index = ctasSkipWhitespace(valueEnd, endOffset)
     if (regionMatches(index, "DATA", 0, "DATA".length, ignoreCase = true) && ctasIsBoundary(index + "DATA".length)) {
@@ -177,7 +177,7 @@ private fun String.ctasAliasesIn(
     var index = startOffset
     while (index < endOffset) {
         index = ctasSkipWhitespaceAndCommas(index, endOffset)
-        val aliasEnd = ctasIdentifierEnd(index, endOffset)
+        val aliasEnd = sqlIdentifierEnd(index, endOffset)
         if (aliasEnd > index) {
             aliases += CtasAlias(substring(index, aliasEnd), index until aliasEnd)
         }
@@ -242,22 +242,6 @@ private fun String.ctasSkipWhitespaceAndCommas(
 ): Int {
     var index = startOffset
     while (index < endOffset && (this[index].isWhitespace() || this[index] == ',')) index++
-    return index
-}
-
-private fun String.ctasIdentifierEnd(
-    startOffset: Int,
-    endOffset: Int,
-): Int {
-    if (startOffset >= endOffset) return startOffset
-    if (this[startOffset] == '"') {
-        val end = skipSqlDoubleQuotedIdentifier(startOffset)
-        return if (end <= endOffset) end else startOffset
-    }
-    var index = startOffset
-    while (index < endOffset && (this[index].isLetterOrDigit() || this[index] == '_' || this[index] == '$' || this[index] == '#')) {
-        index++
-    }
     return index
 }
 

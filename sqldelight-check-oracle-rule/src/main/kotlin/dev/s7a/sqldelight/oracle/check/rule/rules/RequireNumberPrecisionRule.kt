@@ -43,7 +43,7 @@ public class RequireNumberPrecisionRule : Rule {
 }
 
 private fun String.isExpressionNumberTypeClause(startOffset: Int): Boolean {
-    val previousWord = previousNumberPrecisionWord(startOffset) ?: return false
+    val previousWord = previousSqlWord(startOffset) ?: return false
     if (previousWord.text == "RETURNING") return true
     if (previousWord.text == "AS" && isOracleNumberConversionTypeClause(previousWord.startOffset)) return true
     if (previousWord.text != "AS") return false
@@ -51,20 +51,6 @@ private fun String.isExpressionNumberTypeClause(startOffset: Int): Boolean {
     val statementStart = lastIndexOf(';', startIndex = startOffset).let { index -> if (index == -1) 0 else index + 1 }
     val prefix = substring(statementStart, startOffset)
     return expressionStatementKeywordPattern.containsMatchIn(prefix)
-}
-
-private data class NumberPrecisionWord(
-    val text: String,
-    val startOffset: Int,
-)
-
-private fun String.previousNumberPrecisionWord(offset: Int): NumberPrecisionWord? {
-    var index = offset - 1
-    while (index >= 0 && !this[index].isLetterOrDigit() && this[index] != '_' && this[index] != '$' && this[index] != '#') index--
-    val end = index + 1
-    while (index >= 0 && (this[index].isLetterOrDigit() || this[index] == '_' || this[index] == '$' || this[index] == '#')) index--
-    val start = index + 1
-    return if (end > start) NumberPrecisionWord(substring(start, end).uppercase(), start) else null
 }
 
 private val expressionStatementKeywordPattern = Regex("""(?is)\b(SELECT|INSERT|UPDATE|DELETE|MERGE|WHERE|VALUES|SET)\b""")

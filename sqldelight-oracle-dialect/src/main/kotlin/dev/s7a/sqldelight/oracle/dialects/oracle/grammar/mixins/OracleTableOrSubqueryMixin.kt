@@ -29,7 +29,10 @@ import com.intellij.psi.util.PsiTreeUtil
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableColumn
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableColumnsClause
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableExistsColumn
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableOrdinalityColumn
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableReference
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableRegularColumn
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleRowPatternClause
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleValuesTableReference
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleXmltableReference
@@ -309,33 +312,21 @@ internal abstract class OracleTableOrSubqueryMixin(
 
     private fun OracleOracleJsonTableColumn.oracleJsonTableQueryColumn(): QueryColumn? {
         val source =
-            oracleJsonTableOrdinalityColumn
-                ?: oracleJsonTableRegularColumn
-                ?: oracleJsonTableExistsColumn
-                ?: return null
+            PsiTreeUtil.getChildOfAnyType(
+                this,
+                OracleOracleJsonTableOrdinalityColumn::class.java,
+                OracleOracleJsonTableRegularColumn::class.java,
+                OracleOracleJsonTableExistsColumn::class.java,
+            ) ?: return null
         val alias = PsiTreeUtil.getChildOfType(source, SqlColumnAlias::class.java) ?: return null
         val type =
-            when {
-                oracleJsonTableOrdinalityColumn != null -> {
-                    IntermediateType(OracleType.LONG_NUMBER)
-                }
-
-                oracleJsonTableRegularColumn != null -> {
-                    source.text.oracleJsonTableColumnType(alias.text)?.let { typeName ->
-                        IntermediateType(OracleType.fromSqlTypeName(typeName)).asNullable()
-                    } ?: IntermediateType(OracleType.TEXT).asNullable()
-                }
-
-                oracleJsonTableExistsColumn != null -> {
-                    source.text.oracleJsonTableColumnType(alias.text)?.let { typeName ->
-                        IntermediateType(OracleType.fromSqlTypeName(typeName)).asNullable()
-                    } ?: IntermediateType(OracleType.TEXT).asNullable()
-                }
-
-                else -> {
-                    null
-                }
-            } ?: return null
+            if (source is OracleOracleJsonTableOrdinalityColumn) {
+                IntermediateType(OracleType.LONG_NUMBER)
+            } else {
+                source.text.oracleJsonTableColumnType(alias.text)?.let { typeName ->
+                    IntermediateType(OracleType.fromSqlTypeName(typeName)).asNullable()
+                } ?: IntermediateType(OracleType.TEXT).asNullable()
+            }
         return QueryColumn(OracleGeneratedColumnElement(source, alias.name, type))
     }
 
@@ -554,11 +545,7 @@ internal abstract class OracleTableOrSubqueryMixin(
                 .find(trimmed)
                 ?: return trimmed
         val prefix = trimmed.substring(0, match.range.first).trim()
-        return if (prefix.isEmpty()) {
-            trimmed
-        } else {
-            prefix
-        }
+        return prefix.ifEmpty { trimmed }
     }
 
     private fun oraclePivotSourceColumns(): List<QueryColumn> {
@@ -591,19 +578,6 @@ internal abstract class OracleTableOrSubqueryMixin(
             ?: firstOrNull { type -> type == OracleType.LONG_NUMBER }
             ?: firstOrNull { type -> type == OracleType.INTEGER_NUMBER }
             ?: firstOrNull()
-
-    private fun oracleUnpivotColumns(): List<String> {
-        val unpivotBody = text.oracleParenthesizedBodyAfter("UNPIVOT") ?: return emptyList()
-        val forOffset = unpivotBody.indexOfKeyword("FOR") ?: return emptyList()
-        val measureColumns = unpivotBody.substring(0, forOffset).oracleNameList()
-        val forColumns =
-            unpivotBody
-                .substring(forOffset + "FOR".length)
-                .substringBeforeKeyword("IN")
-                .oracleNameList()
-
-        return (measureColumns + forColumns).distinct()
-    }
 
     private fun oracleUnpivotColumnResults(): OracleGeneratedColumns? {
         val unpivotBody = text.oracleParenthesizedBodyAfter("UNPIVOT") ?: return null

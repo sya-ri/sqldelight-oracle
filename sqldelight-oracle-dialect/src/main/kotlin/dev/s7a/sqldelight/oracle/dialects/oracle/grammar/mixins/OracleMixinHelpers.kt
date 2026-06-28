@@ -26,9 +26,6 @@ internal fun PsiElement.oracleSingleColumnDefinition(): SqlColumnDef = oracleCol
 internal fun PsiElement.oracleFirstColumnName(): SqlColumnName =
     PsiTreeUtil.getChildrenOfTypeAsList(this, SqlColumnName::class.java).first()
 
-internal fun PsiElement.oracleSingleColumnName(): SqlColumnName =
-    PsiTreeUtil.getChildrenOfTypeAsList(this, SqlColumnName::class.java).single()
-
 internal fun PsiElement.oracleColumnNames(): List<SqlColumnName> = PsiTreeUtil.getChildrenOfTypeAsList(this, SqlColumnName::class.java)
 
 internal fun PsiElement.oracleSingleColumnAlias(): SqlColumnAlias =
@@ -45,12 +42,6 @@ internal fun LazyQuery.withOracleColumns(transform: (List<QueryColumn>) -> List<
             query.copy(columns = transform(query.columns))
         },
     )
-
-internal fun PsiElement.oracleColumnAliasQueryColumn(): QueryColumn? =
-    PsiTreeUtil.getChildOfType(this, SqlColumnAlias::class.java)?.let(::QueryColumn)
-
-internal fun PsiElement.oracleColumnAliasQueryColumns(): List<QueryColumn> =
-    PsiTreeUtil.findChildrenOfType(this, SqlColumnAlias::class.java).map(::QueryColumn)
 
 internal fun Collection<LazyQuery>.oracleColumnsFor(tableName: SqlTableName): List<QueryColumn> =
     filter { it.tableName.textMatches(tableName) }.flatMap { it.query.columns }

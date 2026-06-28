@@ -140,7 +140,7 @@ private fun String.likePredicateAfter(offset: Int): IntRange? {
 }
 
 private fun String.inPredicateBefore(offset: Int): IntRange? {
-    val listStart = enclosingParenthesizedListStart(offset) ?: return null
+    val listStart = innermostSqlParenthesisStart(offset) ?: return null
     val inRange = wordBefore(listStart, setOf("IN")) ?: return null
     val notRange = wordBefore(inRange.first, setOf("NOT"))
     return (notRange?.first ?: inRange.first)..inRange.last
@@ -164,25 +164,6 @@ private fun String.inPredicateAfter(offset: Int): IntRange? {
             null
         }
     }
-}
-
-private fun String.enclosingParenthesizedListStart(offset: Int): Int? {
-    var index = offset - 1
-    var depth = 0
-    while (index >= 0) {
-        when (this[index]) {
-            ')' -> {
-                depth++
-            }
-
-            '(' -> {
-                if (depth == 0) return index
-                depth--
-            }
-        }
-        index--
-    }
-    return null
 }
 
 private fun String.betweenPredicateBefore(offset: Int): IntRange? {

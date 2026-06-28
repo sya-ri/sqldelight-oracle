@@ -152,6 +152,37 @@ class NoEmptyStringComparisonRuleTest :
                 )
         }
 
+        test("reports IN predicates with empty string literals") {
+            val diagnostics =
+                NoEmptyStringComparisonRule().diagnostics(
+                    """
+                    findBlankMembership:
+                    SELECT *
+                    FROM customers
+                    WHERE name IN ('')
+                      OR nickname NOT IN (N'');
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = EMPTY_STRING_MESSAGE,
+                        startLine = 4,
+                        startColumn = 12,
+                        endLine = 4,
+                        endColumn = 18,
+                    ),
+                    DiagnosticSummary(
+                        message = EMPTY_STRING_MESSAGE,
+                        startLine = 5,
+                        startColumn = 15,
+                        endLine = 5,
+                        endColumn = 26,
+                    ),
+                )
+        }
+
         test("accepts null predicates") {
             NoEmptyStringComparisonRule().diagnostics(
                 """

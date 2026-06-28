@@ -69,11 +69,16 @@ private fun String.rowValueArityMismatches(): List<RowValueArityMismatch> {
         when {
             hasRowValueOperator(afterLeft) -> {
                 val rightStart = skipRowValueWhitespace(afterLeft + rowValueOperatorLength(afterLeft))
-                if (rightStart < length && this[rightStart] == '(') {
-                    val rightEnd = matchingSqlParenthesis(rightStart) ?: return mismatches
-                    val rightArity = countTopLevelSqlItems(rightStart + 1, rightEnd)
-                    if (rightArity != leftArity) {
-                        mismatches += RowValueArityMismatch(leftArity, rightArity, rightStart..rightEnd)
+                val quantifiedListStart = rowValueQuantifiedListStart(rightStart)
+                if (quantifiedListStart != null) {
+                    mismatches += rowValueInListMismatches(leftArity, quantifiedListStart)
+                } else {
+                    if (rightStart < length && this[rightStart] == '(') {
+                        val rightEnd = matchingSqlParenthesis(rightStart) ?: return mismatches
+                        val rightArity = countTopLevelSqlItems(rightStart + 1, rightEnd)
+                        if (rightArity != leftArity) {
+                            mismatches += RowValueArityMismatch(leftArity, rightArity, rightStart..rightEnd)
+                        }
                     }
                 }
             }
@@ -95,6 +100,14 @@ private fun String.rowValueArityMismatches(): List<RowValueArityMismatch> {
         index = leftEnd + 1
     }
     return mismatches
+}
+
+private fun String.rowValueQuantifiedListStart(offset: Int): Int? {
+    val quantifier =
+        rowValueQuantifiers.firstOrNull { keyword -> startsWithKeyword(offset, keyword) }
+            ?: return null
+    val listStart = skipRowValueWhitespace(offset + quantifier.length)
+    return listStart.takeIf { index -> index < length && this[index] == '(' }
 }
 
 private fun String.rowValueInListMismatches(
@@ -125,6 +138,8 @@ private fun String.hasRowValueOperator(index: Int): Boolean =
 
 private fun String.rowValueOperatorLength(index: Int): Int =
     listOf("!=", "<>", ">=", "<=", "=", ">", "<").first { operator -> startsWith(operator, index) }.length
+
+private val rowValueQuantifiers = listOf("ANY", "SOME", "ALL")
 
 private fun String.startsWithKeyword(
     index: Int,

@@ -23,7 +23,7 @@ public class ValidValuesAliasColumnCountRule : Rule {
         reporter: DiagnosticReporter,
     ) {
         val content = context.file.content
-        content.maskSqlCommentsAndQuotedTextPreservingOffsets().valuesTables().forEach { table ->
+        content.maskSqlCommentsAndQuotedTextPreservingOffsets(maskDoubleQuotedIdentifiers = false).valuesTables().forEach { table ->
             table.rowCounts.withIndex().firstOrNull { (_, rowCount) -> rowCount != table.expectedColumnCount }?.let { (index, rowCount) ->
                 reporter.report(
                     RuleDiagnostic(
@@ -144,8 +144,7 @@ private fun String.skipOptionalAs(index: Int): Int =
 private fun String.identifierEnd(index: Int): Int {
     if (index !in indices) return index
     if (this[index] == '"') {
-        val end = indexOf('"', startIndex = index + 1)
-        return if (end == -1) index else end + 1
+        return skipSqlDoubleQuotedIdentifier(index)
     }
 
     var current = index

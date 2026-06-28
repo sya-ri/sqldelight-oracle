@@ -2,7 +2,16 @@ package dev.s7a.sqldelight.oracle.check.rule.rules
 
 internal fun String.matchingSqlParenthesis(openOffset: Int): Int? {
     var depth = 0
-    for (index in openOffset until length) {
+    var index = openOffset
+    while (index < length) {
+        if (index != openOffset) {
+            val skipped = skipSqlDelimitedText(index)
+            if (skipped != null) {
+                index = skipped
+                continue
+            }
+        }
+
         when (this[index]) {
             '(' -> {
                 depth++
@@ -13,6 +22,7 @@ internal fun String.matchingSqlParenthesis(openOffset: Int): Int? {
                 if (depth == 0) return index
             }
         }
+        index++
     }
     return null
 }
@@ -24,7 +34,15 @@ internal fun String.countTopLevelSqlItems(
     var count = 1
     var depth = 0
     var hasContent = false
-    for (index in startOffset until endOffset) {
+    var index = startOffset
+    while (index < endOffset) {
+        val skipped = skipSqlDelimitedText(index)
+        if (skipped != null) {
+            hasContent = true
+            index = skipped
+            continue
+        }
+
         when (this[index]) {
             '(' -> {
                 depth++
@@ -44,9 +62,18 @@ internal fun String.countTopLevelSqlItems(
                 if (!this[index].isWhitespace()) hasContent = true
             }
         }
+        index++
     }
     return if (hasContent) count else 0
 }
+
+internal fun String.skipSqlDelimitedText(start: Int): Int? =
+    when {
+        startsSqlAlternativeQuotedString(start) -> skipSqlAlternativeQuotedString(start)
+        getOrNull(start) == '\'' -> skipSqlQuotedString(start)
+        getOrNull(start) == '"' -> skipSqlDoubleQuotedIdentifier(start)
+        else -> null
+    }
 
 internal fun String.maskSqlCommentsAndQuotedTextPreservingOffsets(
     maskQuoteDelimiters: Boolean = true,
@@ -126,11 +153,75 @@ internal fun String.skipSqlAlternativeQuotedString(start: Int): Int {
     return length
 }
 
-internal fun String.skipSqlQuotedString(start: Int): Int {
+internal fun String.skipSqlQuotedString(start: Int): Int = skipSqlDelimitedString(start, '\'')
+
+internal fun String.skipSqlDoubleQuotedIdentifier(start: Int): Int = skipSqlDelimitedString(start, '"')
+
+internal fun String.sqlIdentifierEnd(
+    startOffset: Int,
+    endOffset: Int,
+): Int {
+    if (startOffset >= endOffset) return startOffset
+    if (this[startOffset] == '"') {
+        val end = skipSqlDoubleQuotedIdentifier(startOffset)
+        return if (end <= endOffset) end else startOffset
+    }
+
+    var index = startOffset
+    while (index < endOffset && this[index].isSqlIdentifierPart()) {
+        index++
+    }
+    return index
+}
+
+internal fun String.innermostSqlParenthesisStart(offset: Int): Int? {
+    var depth = 0
+    (offset - 1 downTo 0).forEach { index ->
+        when (this[index]) {
+            ')' -> {
+                depth++
+            }
+
+            '(' -> {
+                if (depth == 0) return index
+                depth--
+            }
+        }
+    }
+    return null
+}
+
+internal data class SqlWord(
+    val text: String,
+    val startOffset: Int,
+    val range: IntRange,
+)
+
+internal fun String.previousSqlWord(offset: Int): SqlWord? {
+    var index = offset - 1
+    while (index >= 0 && !this[index].isSqlIdentifierPart()) index--
+    val end = index + 1
+    while (index >= 0 && this[index].isSqlIdentifierPart()) index--
+    val start = index + 1
+    return if (end > start) {
+        SqlWord(
+            text = substring(start, end).uppercase(),
+            startOffset = start,
+            range = start until end,
+        )
+    } else {
+        null
+    }
+}
+
+private fun String.skipSqlDelimitedString(
+    start: Int,
+    delimiter: Char,
+): Int {
     var index = start + 1
     while (index < length) {
-        if (this[index] == '\'') {
-            if (index + 1 < length && this[index + 1] == '\'') {
+        if (this[index] == delimiter) {
+            if (index + 1 < length && this[index + 1] == delimiter) {
                 index += 2
             } else {
                 return index + 1
@@ -142,8 +233,7 @@ internal fun String.skipSqlQuotedString(start: Int): Int {
     return length
 }
 
-private fun String.skipSqlDoubleQuotedIdentifier(start: Int): Int =
-    indexOf('"', startIndex = start + 1).let { if (it == -1) length else it + 1 }
+private fun Char.isSqlIdentifierPart(): Boolean = isLetterOrDigit() || this == '_' || this == '$' || this == '#'
 
 internal data class SqlStaticStringLiteral(
     val value: String,
@@ -160,6 +250,16 @@ internal fun String.staticSqlStringLiteral(
     var end = endOffset
     while (end > start && this[end - 1].isWhitespace()) end--
     if (start >= end) return null
+    if (startsSqlAlternativeQuotedString(start)) {
+        val qIndex = if (this[start].equals('q', ignoreCase = true)) start else start + 1
+        val literalEnd = skipSqlAlternativeQuotedString(start)
+        if (literalEnd != end) return null
+        return SqlStaticStringLiteral(
+            value = substring(qIndex + 3, literalEnd - 2),
+            startOffset = start,
+            endOffset = literalEnd,
+        )
+    }
     if (this[start].equals('N', ignoreCase = true)) start++
     if (start >= end || this[start] != '\'') return null
     val literalEnd = skipSqlQuotedString(start)

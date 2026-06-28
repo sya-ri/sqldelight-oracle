@@ -26,8 +26,7 @@ internal fun PsiElement.oracleSingleColumnDefinition(): SqlColumnDef = oracleCol
 internal fun PsiElement.oracleFirstColumnName(): SqlColumnName =
     PsiTreeUtil.getChildrenOfTypeAsList(this, SqlColumnName::class.java).first()
 
-internal fun PsiElement.oracleSingleColumnName(): SqlColumnName =
-    PsiTreeUtil.getChildrenOfTypeAsList(this, SqlColumnName::class.java).single()
+internal fun PsiElement.oracleColumnNames(): List<SqlColumnName> = PsiTreeUtil.getChildrenOfTypeAsList(this, SqlColumnName::class.java)
 
 internal fun PsiElement.oracleSingleColumnAlias(): SqlColumnAlias =
     PsiTreeUtil.getChildrenOfTypeAsList(this, SqlColumnAlias::class.java).single()
@@ -43,12 +42,6 @@ internal fun LazyQuery.withOracleColumns(transform: (List<QueryColumn>) -> List<
             query.copy(columns = transform(query.columns))
         },
     )
-
-internal fun PsiElement.oracleColumnAliasQueryColumn(): QueryColumn? =
-    PsiTreeUtil.getChildOfType(this, SqlColumnAlias::class.java)?.let(::QueryColumn)
-
-internal fun PsiElement.oracleColumnAliasQueryColumns(): List<QueryColumn> =
-    PsiTreeUtil.findChildrenOfType(this, SqlColumnAlias::class.java).map(::QueryColumn)
 
 internal fun Collection<LazyQuery>.oracleColumnsFor(tableName: SqlTableName): List<QueryColumn> =
     filter { it.tableName.textMatches(tableName) }.flatMap { it.query.columns }
@@ -124,8 +117,9 @@ internal fun oracleSynonymTargetAvailable(
     val synonym =
         tableName.reference
             ?.resolve()
-            ?.parent
-            ?.oracleQuerySourceSynonym()
+            ?.let { resolved ->
+                resolved.oracleQuerySourceSynonym() ?: resolved.parent?.oracleQuerySourceSynonym()
+            }
             ?: return null
     return synonym.oracleSynonymTargetAvailable(exposedTableName, mutableSetOf(), tableResolver)
 }
@@ -212,17 +206,29 @@ internal fun String.oracleParenthesizedBodyAfter(keyword: String): String? {
 internal fun String.oracleParenthesizedBodyAt(openOffset: Int): String {
     if (openOffset !in indices || this[openOffset] != '(') return ""
     var depth = 0
-    for (index in openOffset until length) {
-        when (this[index]) {
-            '(' -> {
+    var index = openOffset
+    while (index < length) {
+        when {
+            startsOracleAlternativeQuotedString(index) -> {
+                index = skipOracleAlternativeQuotedString(index)
+                continue
+            }
+
+            this[index] == '\'' -> {
+                index = skipOracleQuotedString(index)
+                continue
+            }
+
+            this[index] == '(' -> {
                 depth++
             }
 
-            ')' -> {
+            this[index] == ')' -> {
                 depth--
                 if (depth == 0) return substring(openOffset + 1, index)
             }
         }
+        index++
     }
     return ""
 }
@@ -232,26 +238,27 @@ internal fun String.oracleTopLevelCommaParts(): List<String> {
     var start = 0
     var depth = 0
     var index = 0
-    var inString = false
     while (index < length) {
         when {
-            inString && this[index] == '\'' && index + 1 < length && this[index + 1] == '\'' -> {
-                index++
+            startsOracleAlternativeQuotedString(index) -> {
+                index = skipOracleAlternativeQuotedString(index)
+                continue
             }
 
             this[index] == '\'' -> {
-                inString = !inString
+                index = skipOracleQuotedString(index)
+                continue
             }
 
-            !inString && this[index] == '(' -> {
+            this[index] == '(' -> {
                 depth++
             }
 
-            !inString && this[index] == ')' -> {
+            this[index] == ')' -> {
                 depth--
             }
 
-            !inString && depth == 0 && this[index] == ',' -> {
+            depth == 0 && this[index] == ',' -> {
                 parts += substring(start, index)
                 start = index + 1
             }
@@ -268,10 +275,29 @@ internal fun String.indexOfKeyword(
 ): Int? {
     var index = startIndex
     while (index < length) {
-        index = indexOf(keyword, startIndex = index, ignoreCase = true)
-        if (index == -1) return null
-        if (isOracleIdentifierBoundary(index - 1) && isOracleIdentifierBoundary(index + keyword.length)) return index
-        index += keyword.length
+        when {
+            startsOracleAlternativeQuotedString(index) -> {
+                index = skipOracleAlternativeQuotedString(index)
+                continue
+            }
+
+            this[index] == '\'' -> {
+                index = skipOracleQuotedString(index)
+                continue
+            }
+
+            this[index] == '"' -> {
+                index = skipOracleQuotedIdentifier(index)
+                continue
+            }
+
+            regionMatches(index, keyword, 0, keyword.length, ignoreCase = true) &&
+                isOracleIdentifierBoundary(index - 1) &&
+                isOracleIdentifierBoundary(index + keyword.length) -> {
+                return index
+            }
+        }
+        index++
     }
     return null
 }
@@ -288,6 +314,63 @@ internal fun String.oracleFirstName(): String? =
 internal fun String.trimOracleIdentifier(): String = trim().removeSurrounding("\"")
 
 internal val ORACLE_IDENTIFIER_REGEX: Regex = Regex(""""[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*""")
+
+private fun String.startsOracleAlternativeQuotedString(start: Int): Boolean {
+    val qIndex =
+        when {
+            getOrNull(start)?.equals('q', ignoreCase = true) == true -> start
+
+            getOrNull(start)?.equals('n', ignoreCase = true) == true &&
+                getOrNull(start + 1)?.equals('q', ignoreCase = true) == true -> start + 1
+
+            else -> return false
+        }
+    return getOrNull(qIndex + 1) == '\'' && getOrNull(qIndex + 2) != null
+}
+
+private fun String.skipOracleAlternativeQuotedString(start: Int): Int {
+    val qIndex = if (getOrNull(start)?.equals('q', ignoreCase = true) == true) start else start + 1
+    val openDelimiter = getOrNull(qIndex + 2) ?: return start + 1
+    val closeDelimiter =
+        when (openDelimiter) {
+            '(' -> ')'
+            '[' -> ']'
+            '{' -> '}'
+            '<' -> '>'
+            else -> openDelimiter
+        }
+    var index = qIndex + 3
+    while (index < length - 1) {
+        if (this[index] == closeDelimiter && this[index + 1] == '\'') return index + 2
+        index++
+    }
+    return length
+}
+
+private fun String.skipOracleQuotedString(start: Int): Int {
+    var index = start + 1
+    while (index < length) {
+        if (this[index] == '\'') {
+            if (index + 1 < length && this[index + 1] == '\'') {
+                index += 2
+            } else {
+                return index + 1
+            }
+        } else {
+            index++
+        }
+    }
+    return length
+}
+
+private fun String.skipOracleQuotedIdentifier(start: Int): Int {
+    var index = start + 1
+    while (index < length) {
+        if (this[index] == '"') return index + 1
+        index++
+    }
+    return length
+}
 
 private fun String.isOracleIdentifierBoundary(index: Int): Boolean =
     index !in indices || (!this[index].isLetterOrDigit() && this[index] != '_' && this[index] != '$' && this[index] != '#')

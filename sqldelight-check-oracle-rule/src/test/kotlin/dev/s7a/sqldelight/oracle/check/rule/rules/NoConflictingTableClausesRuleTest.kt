@@ -79,6 +79,22 @@ class NoConflictingTableClausesRuleTest :
                 ).summaries() shouldBe emptyList()
         }
 
+        test("accepts partition read clauses with table read clauses") {
+            NoConflictingTableClausesRule()
+                .diagnostics(
+                    """
+                    CREATE TABLE customer_orders (
+                        order_id NUMBER(19) NOT NULL,
+                        created_at DATE NOT NULL
+                    )
+                    READ WRITE
+                    PARTITION BY RANGE (created_at) (
+                        PARTITION p_2025 VALUES LESS THAN (DATE '2026-01-01') READ ONLY
+                    );
+                    """,
+                ).summaries() shouldBe emptyList()
+        }
+
         test("ignores non-table DDL with overlapping clause names") {
             NoConflictingTableClausesRule()
                 .diagnostics(

@@ -84,8 +84,8 @@ public enum class OracleType(
                     INTEGER_NUMBER
                 }
 
-                "FLOAT", "REAL" -> {
-                    BINARY_DOUBLE
+                "FLOAT", "REAL", "DOUBLE PRECISION" -> {
+                    DECIMAL_NUMBER
                 }
 
                 "BINARY_FLOAT" -> {
@@ -159,8 +159,46 @@ public enum class OracleType(
             argumentTypes: List<OracleType>,
         ): OracleType? =
             when (functionName.trim().uppercase()) {
-                "ABS", "CEIL", "FLOOR" -> {
+                "ABS" -> {
                     argumentTypes.singleOrNull()?.takeIf { type -> type in numericTypes }
+                }
+
+                "ACOS", "ASIN", "ATAN", "COS", "COSH", "EXP", "LN", "SIN", "SINH", "SQRT", "TAN", "TANH" -> {
+                    argumentTypes.singleOrNull()?.let { type ->
+                        when (type) {
+                            BINARY_FLOAT -> {
+                                BINARY_DOUBLE
+                            }
+
+                            in numericTypes -> {
+                                type
+                            }
+
+                            else -> {
+                                null
+                            }
+                        }
+                    }
+                }
+
+                "ATAN2", "LOG" -> {
+                    when {
+                        argumentTypes.any { type -> type == BINARY_FLOAT || type == BINARY_DOUBLE } -> {
+                            BINARY_DOUBLE
+                        }
+
+                        argumentTypes.all { type -> type in numericTypes } -> {
+                            DECIMAL_NUMBER
+                        }
+
+                        else -> {
+                            null
+                        }
+                    }
+                }
+
+                "CEIL", "FLOOR" -> {
+                    argumentTypes.singleOrNull()?.ceilOrFloorSingleArgumentType()
                 }
 
                 "MOD", "REMAINDER" -> {
@@ -187,8 +225,12 @@ public enum class OracleType(
                     argumentTypes.roundOrTruncType()
                 }
 
-                "COALESCE", "DECODE", "GREATEST", "LEAST", "NVL" -> {
+                "COALESCE", "DECODE", "GREATEST", "LEAST" -> {
                     argumentTypes.highestComparableType()
+                }
+
+                "NVL" -> {
+                    argumentTypes.takeIf { types -> types.size == 2 }?.first()
                 }
 
                 "NVL2" -> {
@@ -339,6 +381,7 @@ public enum class OracleType(
                 "SYSTIMESTAMP" to TIMESTAMP_TIME_ZONE,
                 "DBTIMEZONE" to TEXT,
                 "SESSIONTIMEZONE" to TEXT,
+                "CURRENT_USER" to TEXT,
                 "ORA_INVOKING_USER" to TEXT,
                 "USER" to TEXT,
                 "SCN_TO_TIMESTAMP" to TIMESTAMP,
@@ -396,6 +439,7 @@ public enum class OracleType(
                 "POWERMULTISET_BY_CARDINALITY" to TEXT,
                 "SET" to TEXT,
                 "ODCINUMBERLIST" to DECIMAL_NUMBER,
+                "ODCIVARCHAR2LIST" to TEXT,
                 "SYS_CONNECT_BY_PATH" to TEXT,
                 "DEREF" to TEXT,
                 "MAKE_REF" to TEXT,
@@ -499,6 +543,7 @@ public enum class OracleType(
                 "CON_NAME_TO_ID" to DECIMAL_NUMBER,
                 "CON_UID_TO_ID" to DECIMAL_NUMBER,
                 "DEPTH" to DECIMAL_NUMBER,
+                "EQUALS_PATH" to DECIMAL_NUMBER,
                 "EXISTSNODE" to DECIMAL_NUMBER,
                 "ITERATION_NUMBER" to LONG_NUMBER,
                 "NUMTODSINTERVAL" to TEXT,
@@ -525,6 +570,7 @@ public enum class OracleType(
                 "RETAIL_WEEK_OF_QUARTER" to DECIMAL_NUMBER,
                 "RETAIL_WEEK_OF_YEAR" to DECIMAL_NUMBER,
                 "RETAIL_YEAR_NUMBER" to DECIMAL_NUMBER,
+                "UNDER_PATH" to DECIMAL_NUMBER,
                 "XMLISVALID" to DECIMAL_NUMBER,
                 "NLS_CHARSET_DECL_LEN" to DECIMAL_NUMBER,
                 "NLS_CHARSET_ID" to DECIMAL_NUMBER,
@@ -561,6 +607,7 @@ public enum class OracleType(
                 "XMLPARSE" to TEXT,
                 "XMLPATCH" to TEXT,
                 "XMLPI" to TEXT,
+                "XMLROOT" to TEXT,
                 "XMLSEQUENCE" to TEXT,
                 "XMLTRANSFORM" to TEXT,
                 "XMLTYPE" to TEXT,
@@ -584,8 +631,20 @@ public enum class OracleType(
                 "VECTOR_DIMENSION_FORMAT" to TEXT,
                 "VECTOR_EMBEDDING" to TEXT,
                 "VECTOR_SERIALIZE" to TEXT,
+                "SUBSTRB" to TEXT,
+                "SUBSTRC" to TEXT,
+                "SUBSTR2" to TEXT,
+                "SUBSTR4" to TEXT,
                 "LENGTH" to LONG_NUMBER,
+                "LENGTHB" to LONG_NUMBER,
+                "LENGTHC" to LONG_NUMBER,
+                "LENGTH2" to LONG_NUMBER,
+                "LENGTH4" to LONG_NUMBER,
                 "INSTR" to LONG_NUMBER,
+                "INSTRB" to LONG_NUMBER,
+                "INSTRC" to LONG_NUMBER,
+                "INSTR2" to LONG_NUMBER,
+                "INSTR4" to LONG_NUMBER,
                 "REGEXP_COUNT" to LONG_NUMBER,
                 "REGEXP_INSTR" to LONG_NUMBER,
                 "ASCII" to LONG_NUMBER,
@@ -597,8 +656,8 @@ public enum class OracleType(
                 "GROUPING" to LONG_NUMBER,
                 "GROUPING_ID" to LONG_NUMBER,
                 "GROUP_ID" to LONG_NUMBER,
-                "CUME_DIST" to BINARY_DOUBLE,
-                "PERCENT_RANK" to BINARY_DOUBLE,
+                "CUME_DIST" to DECIMAL_NUMBER,
+                "PERCENT_RANK" to DECIMAL_NUMBER,
                 "RATIO_TO_REPORT" to BINARY_DOUBLE,
                 "PERCENTILE_CONT" to DECIMAL_NUMBER,
                 "PERCENTILE_DISC" to DECIMAL_NUMBER,
@@ -659,17 +718,6 @@ public enum class OracleType(
                 "BITAND" to DECIMAL_NUMBER,
                 "SIGN" to DECIMAL_NUMBER,
                 "SCORE" to DECIMAL_NUMBER,
-                "SIN" to BINARY_DOUBLE,
-                "COS" to BINARY_DOUBLE,
-                "TAN" to BINARY_DOUBLE,
-                "ASIN" to BINARY_DOUBLE,
-                "ACOS" to BINARY_DOUBLE,
-                "ATAN" to BINARY_DOUBLE,
-                "ATAN2" to BINARY_DOUBLE,
-                "EXP" to BINARY_DOUBLE,
-                "LN" to BINARY_DOUBLE,
-                "LOG" to BINARY_DOUBLE,
-                "SQRT" to BINARY_DOUBLE,
                 "WIDTH_BUCKET" to LONG_NUMBER,
                 "UID" to LONG_NUMBER,
                 "IS_UUID" to BOOLEAN_TYPE,
@@ -686,9 +734,6 @@ public enum class OracleType(
                 "PHONIC_ENCODE" to TEXT,
                 "USERENV" to TEXT,
                 "VSIZE" to DECIMAL_NUMBER,
-                "COSH" to BINARY_DOUBLE,
-                "SINH" to BINARY_DOUBLE,
-                "TANH" to BINARY_DOUBLE,
             )
 
         private fun String.numberType(): OracleType {
@@ -772,6 +817,13 @@ public enum class OracleType(
                 else -> null
             }
 
+        private fun OracleType.ceilOrFloorSingleArgumentType(): OracleType? =
+            when (this) {
+                in numericTypes -> this
+                in datetimeTypes -> DATE
+                else -> null
+            }
+
         private fun List<OracleType>.roundOrTruncTwoArgumentType(): OracleType? =
             when {
                 all { type -> type in numericTypes } -> DECIMAL_NUMBER
@@ -807,7 +859,7 @@ private fun String.oracleStringLiteralValue(): String {
 private fun String.baseOracleTypeName(): String =
     when {
         startsWith("LONG RAW") -> "LONG RAW"
-        startsWith("DOUBLE PRECISION") -> "BINARY_DOUBLE"
+        startsWith("DOUBLE PRECISION") -> "DOUBLE PRECISION"
         startsWith("CHARACTER VARYING") -> "VARCHAR"
         startsWith("CHARACTER") -> "CHAR"
         startsWith("NATIONAL CHARACTER VARYING") -> "NVARCHAR2"

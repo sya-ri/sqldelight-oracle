@@ -51,6 +51,29 @@ class ValidDmlHintPlacementRuleTest :
                 )
         }
 
+        test("reports APPEND_VALUES hints when VALUES belongs to a source table") {
+            val diagnostics =
+                ValidDmlHintPlacementRule().diagnostics(
+                    """
+                    archiveCustomers:
+                    INSERT /*+ APPEND_VALUES */ INTO archived_customers(id, name)
+                    SELECT id, name
+                    FROM (VALUES (1, 'alpha')) source(id, name);
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = DML_HINT_MESSAGE,
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 28,
+                    ),
+                )
+        }
+
         test("reports line APPEND_VALUES hints outside INSERT VALUES") {
             val diagnostics =
                 ValidDmlHintPlacementRule().diagnostics(

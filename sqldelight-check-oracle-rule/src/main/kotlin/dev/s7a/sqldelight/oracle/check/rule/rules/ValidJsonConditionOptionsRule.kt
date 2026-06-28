@@ -132,6 +132,11 @@ private fun List<JsonOptionToken>.jsonOptionConflicts(
                     "WITH UNIQUE KEYS/WITHOUT UNIQUE KEYS"
                 }
 
+                (token.jsonOptionHasText("ALLOW") || token.jsonOptionHasText("DISALLOW")) &&
+                    getOrNull(index + 1).jsonOptionHasText("SCALARS") -> {
+                    "ALLOW SCALARS/DISALLOW SCALARS"
+                }
+
                 token.jsonOptionHasText("ON") && getOrNull(index + 1).jsonOptionHasText("ERROR") -> {
                     "ON ERROR"
                 }
@@ -170,6 +175,11 @@ private fun List<JsonOptionToken>.jsonConditionOptionOccurrence(index: Int): Jso
             jsonConditionOptionOccurrence("WITH UNIQUE KEYS/WITHOUT UNIQUE KEYS", index, index + 2)
         }
 
+        (getOrNull(index).jsonOptionHasText("ALLOW") || getOrNull(index).jsonOptionHasText("DISALLOW")) &&
+            getOrNull(index + 1).jsonOptionHasText("SCALARS") -> {
+            jsonConditionOptionOccurrence("ALLOW SCALARS/DISALLOW SCALARS", index, index + 1)
+        }
+
         getOrNull(index).jsonOptionHasText("ON") &&
             (getOrNull(index + 1).jsonOptionHasText("ERROR") || getOrNull(index + 1).jsonOptionHasText("EMPTY")) -> {
             jsonConditionOptionOccurrence("${this[index].text} ${this[index + 1].text}", index, index + 1)
@@ -198,12 +208,17 @@ private fun List<JsonOptionToken>.indexOfNextJsonConditionBoundary(startIndex: I
         when {
             this[index].jsonOptionHasText("(") -> depth++
             this[index].jsonOptionHasText(")") -> if (depth == 0) return index else depth--
-            depth == 0 && (this[index].jsonOptionHasText("AND") || this[index].jsonOptionHasText("OR")) -> return index
+            depth == 0 && this[index].isJsonConditionBoundaryToken() -> return index
         }
         index++
     }
     return size
 }
+
+private fun JsonOptionToken.isJsonConditionBoundaryToken(): Boolean =
+    text == "," ||
+        listOf("AND", "OR", "AS", "FROM", "WHERE", "GROUP", "HAVING", "ORDER", "FETCH", "OFFSET")
+            .any { boundary -> jsonOptionHasText(boundary) }
 
 private fun List<JsonOptionToken>.indexOfNextToken(
     startIndex: Int,
@@ -227,7 +242,7 @@ private fun List<JsonOptionToken>.matchingRightParenthesis(openIndex: Int): Int?
     return null
 }
 
-private val jsonOptionTokenPattern = Regex("""[A-Za-z_][A-Za-z0-9_$#]*|\(|\)""")
+private val jsonOptionTokenPattern = Regex("""[A-Za-z_][A-Za-z0-9_$#]*|\(|\)|,""")
 
 private fun String.jsonOptionTokens(): List<JsonOptionToken> =
     jsonOptionTokenPattern

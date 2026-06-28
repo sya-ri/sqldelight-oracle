@@ -62,6 +62,25 @@ class ValidNlsParameterRuleTest :
                 )
         }
 
+        test("reports invalid alternative quoted NLS parameter literals") {
+            ValidNlsParameterRule()
+                .diagnostics(
+                    """
+                    SELECT TO_NUMBER(amount_text, '999G999D99', q'[NLS_NUMERIC_CHARACTERS = ',,']') AS amount
+                    FROM invoices;
+                    """,
+                ).summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = NUMBER_NLS_PARAMETER_MESSAGE,
+                        startLine = 1,
+                        startColumn = 45,
+                        endLine = 1,
+                        endColumn = 79,
+                    ),
+                )
+        }
+
         test("accepts documented datetime and number NLS parameter literals") {
             ValidNlsParameterRule()
                 .diagnostics(

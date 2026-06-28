@@ -13,6 +13,9 @@ class ValidLikeEscapeRuleTest :
                     FROM customers
                     WHERE name LIKE 'A%' ESCAPE ''
                        OR alias LIKE 'B%' ESCAPE 'xy';
+                    SELECT *
+                    FROM customers
+                    WHERE code LIKE 'C%' ESCAPE q'[xy]';
                     """,
                 ).summaries() shouldBe
                 listOf(
@@ -30,6 +33,13 @@ class ValidLikeEscapeRuleTest :
                         endLine = 4,
                         endColumn = 34,
                     ),
+                    DiagnosticSummary(
+                        message = LIKE_ESCAPE_MESSAGE,
+                        startLine = 7,
+                        startColumn = 29,
+                        endLine = 7,
+                        endColumn = 36,
+                    ),
                 )
         }
 
@@ -41,7 +51,8 @@ class ValidLikeEscapeRuleTest :
                     FROM customers
                     WHERE name LIKE 'A\_%' ESCAPE '\'
                        OR quoted_name LIKE 'A''_%' ESCAPE ''''
-                       OR national_name LIKE N'A~_%' ESCAPE N'~';
+                       OR national_name LIKE N'A~_%' ESCAPE N'~'
+                       OR code LIKE 'C!_%' ESCAPE q'[!]';
                     """,
                 ).summaries() shouldBe emptyList()
         }

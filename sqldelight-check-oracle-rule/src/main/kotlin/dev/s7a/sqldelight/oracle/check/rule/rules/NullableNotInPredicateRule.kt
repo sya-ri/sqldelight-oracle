@@ -31,7 +31,7 @@ public class NullableNotInPredicateRule : Rule {
             val inToken = tokens.getOrNull(index + 1) ?: return@forEachIndexed
             if (!inToken.text.equals("IN", ignoreCase = true)) return@forEachIndexed
             val subqueryTokens = tokens.subqueryTokensAfterNotIn(index, content) ?: return@forEachIndexed
-            if (subqueryTokens.hasExplicitNotNullFilter()) return@forEachIndexed
+            if (subqueryTokens.hasExplicitNotNullFilter(content)) return@forEachIndexed
 
             reporter.report(
                 RuleDiagnostic(
@@ -54,9 +54,16 @@ private fun List<SqlToken>.subqueryTokensAfterNotIn(
     val selectIndex = notIndex + 2
     val selectToken = getOrNull(selectIndex) ?: return null
     if (!selectToken.hasText("SELECT")) return null
-    if ('(' !in content.substring(inToken.endOffset, selectToken.startOffset)) return null
+    val openOffset =
+        content
+            .lastIndexOf('(', startIndex = selectToken.startOffset)
+            .takeIf { offset -> offset >= inToken.endOffset }
+            ?: return null
+    val closeOffset = content.matchingSqlParenthesis(openOffset) ?: return null
 
-    val endIndex = indexOfFirstAfter(selectIndex) { token -> token.text == ";" }.let { if (it == -1) size else it }
+    val endIndex =
+        indexOfFirstAfter(selectIndex) { token -> token.startOffset >= closeOffset }
+            .let { if (it == -1) size else it }
     return subList(selectIndex, endIndex)
 }
 
@@ -70,9 +77,95 @@ private inline fun List<SqlToken>.indexOfFirstAfter(
     return -1
 }
 
-private fun List<SqlToken>.hasExplicitNotNullFilter(): Boolean =
-    windowed(size = 3).any { tokens ->
-        tokens[0].hasText("IS") && tokens[1].hasText("NOT") && tokens[2].hasText("NULL")
+private fun List<SqlToken>.hasExplicitNotNullFilter(content: String): Boolean {
+    val selectedColumn = selectedSubqueryColumnName(content)
+    if (selectedColumn != null) {
+        return indices.any { index ->
+            selectedColumn.matchesNotNullFilterAt(this, index, content)
+        }
     }
 
+    return windowed(size = 3).any { tokens ->
+        tokens[0].hasText("IS") && tokens[1].hasText("NOT") && tokens[2].hasText("NULL")
+    }
+}
+
+private fun List<SqlToken>.selectedSubqueryColumnName(content: String): NotInColumnName? {
+    if (!getOrNull(0).hasText("SELECT")) return null
+    val fromIndex = indexOfFirstAfter(0) { token -> token.hasText("FROM") }.takeIf { index -> index > 1 } ?: return null
+    val selectedTokens =
+        subList(1, fromIndex)
+            .filterNot { token -> token.hasText("DISTINCT") || token.hasText("ALL") }
+            .withoutExplicitAlias()
+    return when (selectedTokens.size) {
+        1 -> {
+            selectedTokens
+                .single()
+                .text
+                .takeUnless { text -> text == "*" }
+                ?.let { name -> NotInColumnName(qualifier = null, name = name) }
+        }
+
+        2 -> {
+            selectedTokens
+                .takeIf { (qualifier, name) -> content.hasDotBetween(qualifier, name) }
+                ?.let { (qualifier, name) -> NotInColumnName(qualifier = qualifier.text, name = name.text) }
+        }
+
+        else -> {
+            null
+        }
+    }
+}
+
+private fun List<SqlToken>.withoutExplicitAlias(): List<SqlToken> {
+    val asIndex = indexOfFirst { token -> token.hasText("AS") }
+    return if (asIndex > 0) subList(0, asIndex) else this
+}
+
 private fun SqlToken?.hasText(text: String): Boolean = this?.text.equals(text, ignoreCase = true)
+
+private data class NotInColumnName(
+    val qualifier: String?,
+    val name: String,
+) {
+    fun matchesNotNullFilterAt(
+        tokens: List<SqlToken>,
+        index: Int,
+        content: String,
+    ): Boolean =
+        matchesUnqualifiedNotNullFilterAt(tokens, index) ||
+            matchesQualifiedNotNullFilterAt(tokens, index, content)
+
+    private fun matchesUnqualifiedNotNullFilterAt(
+        tokens: List<SqlToken>,
+        index: Int,
+    ): Boolean =
+        tokens.getOrNull(index).hasText(name) &&
+            tokens.getOrNull(index + 1).hasText("IS") &&
+            tokens.getOrNull(index + 2).hasText("NOT") &&
+            tokens.getOrNull(index + 3).hasText("NULL")
+
+    private fun matchesQualifiedNotNullFilterAt(
+        tokens: List<SqlToken>,
+        index: Int,
+        content: String,
+    ): Boolean {
+        val qualifier = qualifier ?: return false
+        val qualifierToken = tokens.getOrNull(index)
+        val nameToken = tokens.getOrNull(index + 1)
+        return qualifierToken.hasText(qualifier) &&
+            nameToken.hasText(name) &&
+            qualifierToken != null &&
+            nameToken != null &&
+            content.hasDotBetween(qualifierToken, nameToken) &&
+            tokens.getOrNull(index + 2).hasText("IS") &&
+            tokens.getOrNull(index + 3).hasText("NOT") &&
+            tokens.getOrNull(index + 4).hasText("NULL")
+    }
+}
+
+private fun String.hasDotBetween(
+    first: SqlToken,
+    second: SqlToken,
+): Boolean = substring(first.endOffset, second.startOffset).contains('.')

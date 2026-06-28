@@ -84,6 +84,10 @@ private fun String.functionArgumentsAt(openParenthesisOffset: Int): List<Argumen
                     skipSqlBlockComment(index)
                 }
 
+                startsSqlAlternativeQuotedString(index) -> {
+                    skipSqlAlternativeQuotedString(index)
+                }
+
                 this[index] == '\'' -> {
                     skipSqlQuotedString(index)
                 }
@@ -129,6 +133,14 @@ private fun String.trimmedArgumentRange(
 
 private fun String.staticStringLiteral(argument: ArgumentRange): String? {
     val text = substring(argument.startOffset, argument.endOffset)
+    if (text.startsSqlAlternativeQuotedString(0)) {
+        val qIndex = if (text[0].equals('q', ignoreCase = true)) 0 else 1
+        val literalEnd = text.skipSqlAlternativeQuotedString(0)
+        if (literalEnd != text.length) return null
+        return text
+            .substring(qIndex + 3, literalEnd - 2)
+            .lowercase()
+    }
     val literalStart =
         when {
             text.startsWith("N'", ignoreCase = true) -> 1

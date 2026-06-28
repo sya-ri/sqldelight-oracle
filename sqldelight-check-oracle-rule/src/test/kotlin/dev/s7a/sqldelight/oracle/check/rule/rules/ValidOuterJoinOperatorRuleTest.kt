@@ -45,6 +45,71 @@ class ValidOuterJoinOperatorRuleTest :
                 )
         }
 
+        test("reports legacy outer join operator across AND before OR") {
+            ValidOuterJoinOperatorRule()
+                .diagnostics(
+                    """
+                    SELECT *
+                    FROM orders o, customers c
+                    WHERE o.customer_id = c.id(+)
+                      AND c.region(+) = o.region
+                       OR c.status = 'ACTIVE';
+                    """,
+                ).summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = OUTER_JOIN_MESSAGE,
+                        startLine = 3,
+                        startColumn = 7,
+                        endLine = 5,
+                        endColumn = 15,
+                    ),
+                )
+        }
+
+        test("reports legacy outer join operator mixed with from clause joins") {
+            ValidOuterJoinOperatorRule()
+                .diagnostics(
+                    """
+                    SELECT *
+                    FROM orders o
+                    JOIN shipments s ON s.order_id = o.id,
+                      customers c
+                    WHERE o.customer_id = c.id(+);
+                    """,
+                ).summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = MIXED_JOIN_MESSAGE,
+                        startLine = 3,
+                        startColumn = 1,
+                        endLine = 5,
+                        endColumn = 29,
+                    ),
+                )
+        }
+
+        test("reports legacy outer join operator with subquery comparisons") {
+            ValidOuterJoinOperatorRule()
+                .diagnostics(
+                    """
+                    SELECT *
+                    FROM orders o, customers c
+                    WHERE o.customer_id = c.id(+)
+                      AND c.region = (SELECT region FROM default_region);
+                    """,
+                ).summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = SUBQUERY_MESSAGE,
+                        startLine = 3,
+                        startColumn = 7,
+                        endLine = 4,
+                        endColumn = 53,
+                    ),
+                )
+        }
+
         test("accepts legacy outer join operator in simple comparisons") {
             ValidOuterJoinOperatorRule()
                 .diagnostics(
@@ -72,3 +137,9 @@ class ValidOuterJoinOperatorRuleTest :
 
 private const val OUTER_JOIN_MESSAGE =
     "Avoid Oracle legacy outer join operator (+) with OR or IN conditions."
+
+private const val MIXED_JOIN_MESSAGE =
+    "Avoid mixing Oracle legacy outer join operator (+) with FROM clause JOIN syntax."
+
+private const val SUBQUERY_MESSAGE =
+    "Avoid Oracle legacy outer join operator (+) with subquery comparisons."

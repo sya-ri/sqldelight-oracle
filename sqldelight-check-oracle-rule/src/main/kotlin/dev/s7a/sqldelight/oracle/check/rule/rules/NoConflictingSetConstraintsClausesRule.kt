@@ -69,7 +69,14 @@ private fun String.setConstraintsStatements(): List<List<SetConstraintsToken>> {
 }
 
 private fun List<SetConstraintsToken>.conflictingSetConstraintsClause(): SetConstraintsConflict? {
-    if (!getOrNull(0).setConstraintsHasText("SET") || !getOrNull(1).setConstraintsHasText("CONSTRAINTS")) return null
+    if (!getOrNull(0).setConstraintsHasText("SET") ||
+        (
+            !getOrNull(1).setConstraintsHasText("CONSTRAINT") &&
+                !getOrNull(1).setConstraintsHasText("CONSTRAINTS")
+        )
+    ) {
+        return null
+    }
     val timings =
         filter { token -> token.setConstraintsHasText("IMMEDIATE") || token.setConstraintsHasText("DEFERRED") }
             .map { token ->

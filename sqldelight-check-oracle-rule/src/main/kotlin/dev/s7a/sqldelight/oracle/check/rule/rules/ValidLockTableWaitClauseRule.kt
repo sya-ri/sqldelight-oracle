@@ -71,7 +71,7 @@ private fun String.lockWaitStatements(): List<List<LockWaitToken>> {
 }
 
 private fun List<LockWaitToken>.invalidLockWaitClauses(): List<InvalidLockWaitClause> {
-    if (!getOrNull(0).lockWaitHasText("LOCK") || !getOrNull(1).lockWaitHasText("TABLE")) return emptyList()
+    if (!isLockTableStatement()) return emptyList()
     val firstByGroup = linkedMapOf<String, LockWaitOccurrence>()
     return lockWaitOccurrences().mapNotNull { occurrence ->
         val first = firstByGroup.putIfAbsent(occurrence.group, occurrence)
@@ -84,6 +84,14 @@ private fun List<LockWaitToken>.invalidLockWaitClauses(): List<InvalidLockWaitCl
         }
     }
 }
+
+private fun List<LockWaitToken>.isLockTableStatement(): Boolean =
+    (getOrNull(0).lockWaitHasText("LOCK") && getOrNull(1).lockWaitHasText("TABLE")) ||
+        (
+            getOrNull(1).lockWaitHasText(":") &&
+                getOrNull(2).lockWaitHasText("LOCK") &&
+                getOrNull(3).lockWaitHasText("TABLE")
+        )
 
 private fun List<LockWaitToken>.lockWaitOccurrences(): List<LockWaitOccurrence> =
     buildList {
@@ -109,7 +117,7 @@ private fun List<LockWaitToken>.lockWaitOccurrences(): List<LockWaitOccurrence> 
                             endOffset = endOffset,
                         ),
                     )
-                    if (waitValue == null || waitValue.text.toLongOrNull() == null) {
+                    if (waitValue == null || !waitValue.isValidLockWaitValue()) {
                         add(
                             LockWaitOccurrence(
                                 group = "WAIT VALUE",
@@ -130,7 +138,9 @@ private fun List<LockWaitToken>.lockWaitOccurrences(): List<LockWaitOccurrence> 
         }
     }
 
-private val lockWaitTokenPattern = Regex("""-?\d+|[A-Za-z_][A-Za-z0-9_$#]*|;""")
+private val lockWaitTokenPattern = Regex("""-?\d+|[A-Za-z_][A-Za-z0-9_$#]*|:|;""")
+
+private fun LockWaitToken.isValidLockWaitValue(): Boolean = text.toLongOrNull()?.let { value -> value >= 0 } == true
 
 private fun String.lockWaitTokens(offset: Int): List<LockWaitToken> =
     lockWaitTokenPattern

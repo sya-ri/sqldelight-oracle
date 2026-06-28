@@ -27,6 +27,28 @@ class ValidValuesAliasColumnCountRuleTest :
                 )
         }
 
+        test("reports VALUES quoted alias column count mismatches exactly") {
+            val diagnostics =
+                ValidValuesAliasColumnCountRule().diagnostics(
+                    """
+                    invalidValuesAlias:
+                    SELECT source.order_id, source.order_total
+                    FROM (VALUES (1, 100), (2, 200)) "source"(order_id);
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle VALUES alias declares 1 column(s), but VALUES rows have 2.",
+                        startLine = 3,
+                        startColumn = 42,
+                        endLine = 3,
+                        endColumn = 52,
+                    ),
+                )
+        }
+
         test("reports VALUES row arity mismatches exactly") {
             val diagnostics =
                 ValidValuesAliasColumnCountRule().diagnostics(
@@ -55,6 +77,16 @@ class ValidValuesAliasColumnCountRuleTest :
                 validValuesAlias:
                 SELECT source.order_id, source.order_total
                 FROM (VALUES (1, 100), (2, 200)) source(order_id, order_total);
+                """,
+            ) shouldBe emptyList()
+        }
+
+        test("accepts VALUES aliases with quoted column names containing separators") {
+            ValidValuesAliasColumnCountRule().diagnostics(
+                """
+                validQuotedValuesAlias:
+                SELECT source."label), text", source.amount
+                FROM (VALUES ('a', 100), ('b', 200)) source("label), text", amount);
                 """,
             ) shouldBe emptyList()
         }

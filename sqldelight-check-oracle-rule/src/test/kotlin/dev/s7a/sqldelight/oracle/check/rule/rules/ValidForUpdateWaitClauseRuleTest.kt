@@ -45,6 +45,26 @@ class ValidForUpdateWaitClauseRuleTest :
                 )
         }
 
+        test("reports invalid static for update wait values") {
+            ValidForUpdateWaitClauseRule()
+                .diagnostics(
+                    """
+                    SELECT *
+                    FROM customer
+                    FOR UPDATE WAIT seconds;
+                    """,
+                ).summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = FOR_UPDATE_WAIT_MESSAGE,
+                        startLine = 3,
+                        startColumn = 12,
+                        endLine = 3,
+                        endColumn = 24,
+                    ),
+                )
+        }
+
         test("accepts documented for update wait clauses") {
             ValidForUpdateWaitClauseRule()
                 .diagnostics(

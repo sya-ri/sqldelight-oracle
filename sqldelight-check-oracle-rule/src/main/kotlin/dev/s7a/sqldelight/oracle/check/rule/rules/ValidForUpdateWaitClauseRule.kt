@@ -67,7 +67,7 @@ private fun List<ForUpdateWaitToken>.negativeForUpdateWaitClauses(): List<ForUpd
                     waitToken.depth == token.depth &&
                     waitToken.forUpdateWaitHasText("WAIT") &&
                     valueToken?.depth == token.depth &&
-                    valueToken.text.toLongOrNull()?.let { value -> value < 0 } == true
+                    !valueToken.isValidForUpdateWaitValue()
                 ) {
                     ForUpdateWaitClause(waitToken.startOffset, valueToken.endOffset)
                 } else {
@@ -86,6 +86,10 @@ private fun List<ForUpdateWaitToken>.indexOfForUpdateWaitClauseBoundary(startInd
     } ?: size
 
 private val forUpdateWaitTokenPattern = Regex("""-?\d+|[A-Za-z_][A-Za-z0-9_$#]*|\(|\)|;""")
+
+private fun ForUpdateWaitToken.isValidForUpdateWaitValue(): Boolean =
+    forUpdateWaitHasText("FOREVER") ||
+        text.toLongOrNull()?.let { value -> value >= 0 } == true
 
 private fun String.forUpdateWaitTokens(): List<ForUpdateWaitToken> {
     var depth = 0

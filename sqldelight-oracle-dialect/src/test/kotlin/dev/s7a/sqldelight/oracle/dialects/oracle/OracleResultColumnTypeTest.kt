@@ -165,6 +165,7 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT ROWIDTONCHAR(nickname) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT RAW_TO_UUID(raw_col) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT UUID_TO_RAW(nickname) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+            typeOf("SELECT UNISTR(nickname) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT BIN_TO_NUM(dept_id, 0) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT GREATEST(id, small_id) AS c FROM emp") shouldBe "kotlin.Long"
             typeOf("SELECT GREATEST(id, dept_id) AS c FROM emp") shouldBe "kotlin.Long?"

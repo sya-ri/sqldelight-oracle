@@ -970,6 +970,7 @@ public class OracleTypeResolver(
                     "TRIM",
                     "TIMESTAMP_TO_SCN",
                     "TZ_OFFSET",
+                    "UNISTR",
                     "UPPER",
                     "UUID_TO_RAW",
                     "VECTOR_DISTANCE",

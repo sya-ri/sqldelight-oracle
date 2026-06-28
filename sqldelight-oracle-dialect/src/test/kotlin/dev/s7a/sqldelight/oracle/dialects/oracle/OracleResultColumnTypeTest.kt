@@ -157,6 +157,7 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT STANDARD_HASH(nickname) AS c FROM emp") shouldBe "kotlin.ByteArray?"
             typeOf("SELECT NLS_CHARSET_ID(nickname) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT NLS_CHARSET_NAME(dept_id) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT NLS_CHARSET_DECL_LEN(periods, dept_id) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT NLS_COLLATION_ID(nickname) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT NLS_COLLATION_NAME(dept_id) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT CHARTOROWID(nickname) AS c FROM emp") shouldBe "kotlin.String?"

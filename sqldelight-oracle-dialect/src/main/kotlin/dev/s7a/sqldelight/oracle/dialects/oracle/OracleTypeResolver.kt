@@ -907,6 +907,7 @@ public class OracleTypeResolver(
                     "NEW_TIME",
                     "NEXT_DAY",
                     "NCHR",
+                    "NLS_CHARSET_DECL_LEN",
                     "NLS_CHARSET_ID",
                     "NLS_CHARSET_NAME",
                     "NLS_COLLATION_ID",

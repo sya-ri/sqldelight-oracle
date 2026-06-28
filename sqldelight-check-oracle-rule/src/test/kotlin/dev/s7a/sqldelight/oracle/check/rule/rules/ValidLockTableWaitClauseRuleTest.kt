@@ -23,6 +23,25 @@ class ValidLockTableWaitClauseRuleTest :
                 )
         }
 
+        test("reports conflicting lock table wait clauses after a SQLDelight query label") {
+            ValidLockTableWaitClauseRule()
+                .diagnostics(
+                    """
+                    lockCustomer:
+                    LOCK TABLE customer IN EXCLUSIVE MODE NOWAIT WAIT 5;
+                    """,
+                ).summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Use a valid Oracle LOCK TABLE wait clause: WAIT.",
+                        startLine = 2,
+                        startColumn = 39,
+                        endLine = 2,
+                        endColumn = 52,
+                    ),
+                )
+        }
+
         test("reports invalid lock table wait value exactly") {
             ValidLockTableWaitClauseRule()
                 .diagnostics(
@@ -39,6 +58,15 @@ class ValidLockTableWaitClauseRuleTest :
                         endColumn = 47,
                     ),
                 )
+        }
+
+        test("ignores lock table text that does not start a statement or labeled statement") {
+            ValidLockTableWaitClauseRule()
+                .diagnostics(
+                    """
+                    SELECT lock TABLE FROM audit_log NOWAIT WAIT 5;
+                    """,
+                ).summaries() shouldBe emptyList()
         }
 
         test("reports negative lock table wait values") {

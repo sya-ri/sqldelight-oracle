@@ -183,6 +183,37 @@ class NoEmptyStringComparisonRuleTest :
                 )
         }
 
+        test("reports BETWEEN predicates with empty string literals") {
+            val diagnostics =
+                NoEmptyStringComparisonRule().diagnostics(
+                    """
+                    findBlankRange:
+                    SELECT *
+                    FROM customers
+                    WHERE name BETWEEN '' AND 'M'
+                      OR nickname NOT BETWEEN 'A' AND N'';
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = EMPTY_STRING_MESSAGE,
+                        startLine = 4,
+                        startColumn = 12,
+                        endLine = 4,
+                        endColumn = 22,
+                    ),
+                    DiagnosticSummary(
+                        message = EMPTY_STRING_MESSAGE,
+                        startLine = 5,
+                        startColumn = 15,
+                        endLine = 5,
+                        endColumn = 38,
+                    ),
+                )
+        }
+
         test("accepts null predicates") {
             NoEmptyStringComparisonRule().diagnostics(
                 """

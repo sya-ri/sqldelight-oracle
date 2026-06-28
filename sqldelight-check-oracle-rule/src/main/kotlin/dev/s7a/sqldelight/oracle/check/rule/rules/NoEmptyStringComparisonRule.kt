@@ -52,6 +52,10 @@ private fun String.emptyStringComparisonRange(literalRange: IntRange): IntRange?
         operatorRange.first..literalRange.last
     } ?: inPredicateAfter(literalRange.last + 1)?.let { operatorRange ->
         literalRange.first..operatorRange.last
+    } ?: betweenPredicateBefore(literalRange.first)?.let { operatorRange ->
+        operatorRange.first..literalRange.last
+    } ?: betweenPredicateAfter(literalRange.last + 1)?.let { operatorRange ->
+        literalRange.first..operatorRange.last
     }
 
 private fun String.emptyStringLiteralRanges(): List<IntRange> {
@@ -179,6 +183,49 @@ private fun String.enclosingParenthesizedListStart(offset: Int): Int? {
         index--
     }
     return null
+}
+
+private fun String.betweenPredicateBefore(offset: Int): IntRange? {
+    val betweenRange = betweenWordBefore(offset) ?: return null
+    val notRange = wordBefore(betweenRange.first, setOf("NOT"))
+    return (notRange?.first ?: betweenRange.first)..betweenRange.last
+}
+
+private fun String.betweenWordBefore(offset: Int): IntRange? {
+    val word = wordBefore(offset) ?: return null
+    return when {
+        word.text.equals("BETWEEN", ignoreCase = true) -> {
+            word.range
+        }
+
+        word.text.equals("AND", ignoreCase = true) -> {
+            wordBefore(word.range.first, setOf("BETWEEN"))
+        }
+
+        else -> {
+            null
+        }
+    }
+}
+
+private fun String.betweenPredicateAfter(offset: Int): IntRange? {
+    val firstWord = wordAfter(offset) ?: return null
+    return when {
+        firstWord.text.equals("NOT", ignoreCase = true) -> {
+            val secondWord = wordAfter(firstWord.range.last + 1) ?: return null
+            secondWord
+                .takeIf { word -> word.text.equals("BETWEEN", ignoreCase = true) }
+                ?.let { word -> firstWord.range.first..word.range.last }
+        }
+
+        firstWord.text.equals("BETWEEN", ignoreCase = true) -> {
+            firstWord.range
+        }
+
+        else -> {
+            null
+        }
+    }
 }
 
 private data class EmptyStringWord(

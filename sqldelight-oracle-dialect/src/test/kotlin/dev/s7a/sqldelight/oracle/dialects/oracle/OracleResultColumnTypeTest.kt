@@ -617,6 +617,10 @@ class OracleResultColumnTypeTest :
         }
 
         test("resolves Oracle literal result column types exactly") {
+            typeOf("SELECT '' AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT N'' AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT q'[]' AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT nq'[]' AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT DATE '2024-01-02' AS c FROM emp") shouldBe "java.time.LocalDateTime"
             typeOf("SELECT TIMESTAMP '2024-01-02 03:04:05' AS c FROM emp") shouldBe "java.time.LocalDateTime"
             typeOf("SELECT TIMESTAMP '2024-01-02 03:04:05' AT TIME ZONE 'UTC' AS c FROM emp") shouldBe "java.time.OffsetDateTime"

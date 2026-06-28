@@ -54,6 +54,7 @@ public class OracleTypeResolver(
                     ?: oracleConcatenationOperatorType(expr)
                     ?: oracleDatetimeOperatorType(expr)
                     ?: oracleNumericOperatorType(expr)
+                    ?: oracleEmptyStringLiteralType(expr)
                     ?: parentResolver.resolvedType(expr)
             }
         }
@@ -165,6 +166,11 @@ public class OracleTypeResolver(
             else -> null
         }
     }
+
+    private fun oracleEmptyStringLiteralType(expr: SqlExpr): IntermediateType? =
+        IntermediateType(OracleType.TEXT)
+            .asNullable()
+            .takeIf { expr.text.isOracleEmptyStringLiteral() }
 
     private fun oracleExtensionConditionType(expr: SqlExpr): IntermediateType? {
         val text =
@@ -1220,6 +1226,37 @@ public class OracleTypeResolver(
             indexOfKeyword("ERROR", startIndex = conversionOffset + "CONVERSION".length) ?: return false
 
             return substring(defaultOffset + "DEFAULT".length, onOffset).trim().equals("NULL", ignoreCase = true)
+        }
+
+        private fun String.isOracleEmptyStringLiteral(): Boolean {
+            val value = trim()
+            return value == "''" ||
+                value.equals("N''", ignoreCase = true) ||
+                value.isOracleEmptyAlternativeQuotedString()
+        }
+
+        private fun String.isOracleEmptyAlternativeQuotedString(): Boolean {
+            val value = trim()
+            val qIndex =
+                when {
+                    value.startsWith("q'", ignoreCase = true) -> 0
+                    value.startsWith("nq'", ignoreCase = true) -> 1
+                    else -> return false
+                }
+            if (value.length < qIndex + 4 || value[qIndex + 1] != '\'') return false
+
+            val openDelimiter = value[qIndex + 2]
+            val closeDelimiter =
+                when (openDelimiter) {
+                    '[' -> ']'
+                    '{' -> '}'
+                    '(' -> ')'
+                    '<' -> '>'
+                    else -> openDelimiter
+                }
+            return value.length == qIndex + 5 &&
+                value[qIndex + 3] == closeDelimiter &&
+                value[qIndex + 4] == '\''
         }
 
         private fun String.oracleExtractDatetimeField(): String? =

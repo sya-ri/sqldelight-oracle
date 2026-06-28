@@ -109,6 +109,8 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT EXTRACT(YEAR FROM hire_date) AS c FROM emp") shouldBe "java.math.BigDecimal"
             typeOf("SELECT CASE WHEN dept_id IS NULL THEN name ELSE nickname END AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT CASE name WHEN 'A' THEN id ELSE dept_id END AS c FROM emp") shouldBe "kotlin.Long?"
+            typeOf("SELECT CASE WHEN dept_id IS NULL THEN id ELSE NULL END AS c FROM emp") shouldBe "kotlin.Long?"
+            typeOf("SELECT CASE WHEN dept_id IS NULL THEN NULL ELSE name END AS c FROM emp") shouldBe "kotlin.String?"
         }
 
         test("propagates Oracle function result column nullability exactly") {

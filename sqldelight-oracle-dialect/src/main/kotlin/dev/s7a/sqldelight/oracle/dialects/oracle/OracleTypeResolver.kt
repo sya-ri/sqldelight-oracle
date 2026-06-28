@@ -179,9 +179,11 @@ public class OracleTypeResolver(
         val branches = expr.oracleCaseReturnExpressions()
         if (branches.isEmpty()) return null
         val resultExpressions = branches.map { branch -> branch.expression }
-        return encapsulatingTypePreferringKotlin(resultExpressions, *COMPARABLE_TYPE_ORDER)
+        val typedResultExpressions = resultExpressions.filterNot { expression -> expression.text.isOracleNullLiteral() }
+        return encapsulatingTypePreferringKotlin(typedResultExpressions.ifEmpty { resultExpressions }, *COMPARABLE_TYPE_ORDER)
             .nullableIf(
                 branches.none { branch -> branch.isElse } ||
+                    resultExpressions.any { expression -> expression.text.isOracleNullLiteral() } ||
                     resultExpressions.any { expression -> resolvedType(expression).javaType.isNullable },
             )
     }

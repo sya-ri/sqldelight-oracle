@@ -2,7 +2,7 @@
 
 `sqldelight-check-oracle-rule` is the Oracle Database-specific rule set for sqldelight-check.
 
-These rules are gated by `OracleDialectId` and focus on Oracle null semantics, generated keys, numeric type declarations, sequence semantics, and migration DDL that can surprise live Oracle databases.
+These rules are gated by `OracleDialectId` and focus on Oracle null semantics, generated keys, numeric type declarations, sequence semantics, function arity, row limiting, DML `RETURNING` clauses, JSON/XML options, outer joins, clause conflicts, and migration DDL that can surprise live Oracle databases.
 
 ## Install
 
@@ -10,7 +10,7 @@ Add this artifact to the SQLDelight project checked by sqldelight-check:
 
 ```kotlin
 dependencies {
-    sqldelightCheckRuleSet("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-rule:0.1.1")
+    sqldelightCheckRuleSet("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-rule:0.1.2")
 }
 ```
 
@@ -18,8 +18,8 @@ Oracle rules need Oracle dialect metadata from `sqldelight-check-oracle-dialect`
 
 ```kotlin
 dependencies {
-    sqldelightCheckDialects("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-dialect:0.1.1")
-    sqldelightCheckRuleSet("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-rule:0.1.1")
+    sqldelightCheckDialects("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-dialect:0.1.2")
+    sqldelightCheckRuleSet("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-rule:0.1.2")
 }
 ```
 

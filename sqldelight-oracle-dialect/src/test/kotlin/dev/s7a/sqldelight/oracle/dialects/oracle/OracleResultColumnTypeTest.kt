@@ -153,6 +153,8 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT HEXTORAW(nickname) AS c FROM emp") shouldBe "kotlin.ByteArray?"
             typeOf("SELECT RAWTONHEX(raw_col) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT RAWTOHEX(raw_col) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT NLSSORT(nickname) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+            typeOf("SELECT STANDARD_HASH(nickname) AS c FROM emp") shouldBe "kotlin.ByteArray?"
             typeOf("SELECT CHARTOROWID(nickname) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT ROWIDTOCHAR(nickname) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT ROWIDTONCHAR(nickname) AS c FROM emp") shouldBe "kotlin.String?"

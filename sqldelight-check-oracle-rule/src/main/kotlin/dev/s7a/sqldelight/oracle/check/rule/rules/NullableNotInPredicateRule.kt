@@ -96,6 +96,7 @@ private fun List<SqlToken>.selectedSubqueryColumnName(content: String): NotInCol
     val selectedTokens =
         subList(1, fromIndex)
             .filterNot { token -> token.hasText("DISTINCT") || token.hasText("ALL") }
+            .withoutExplicitAlias()
     return when (selectedTokens.size) {
         1 -> {
             selectedTokens
@@ -115,6 +116,11 @@ private fun List<SqlToken>.selectedSubqueryColumnName(content: String): NotInCol
             null
         }
     }
+}
+
+private fun List<SqlToken>.withoutExplicitAlias(): List<SqlToken> {
+    val asIndex = indexOfFirst { token -> token.hasText("AS") }
+    return if (asIndex > 0) subList(0, asIndex) else this
 }
 
 private fun SqlToken?.hasText(text: String): Boolean = this?.text.equals(text, ignoreCase = true)

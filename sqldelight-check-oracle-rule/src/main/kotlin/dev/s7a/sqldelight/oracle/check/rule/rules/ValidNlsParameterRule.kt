@@ -160,6 +160,10 @@ private fun String.nlsRuleFunctionArgumentsAt(openParenthesisOffset: Int): List<
                     skipSqlBlockComment(index)
                 }
 
+                startsSqlAlternativeQuotedString(index) -> {
+                    skipSqlAlternativeQuotedString(index)
+                }
+
                 this[index] == '\'' -> {
                     skipSqlQuotedString(index)
                 }

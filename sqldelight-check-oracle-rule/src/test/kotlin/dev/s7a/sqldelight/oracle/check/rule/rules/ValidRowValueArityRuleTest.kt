@@ -51,6 +51,45 @@ class ValidRowValueArityRuleTest :
                 )
         }
 
+        test("reports quantified row-value comparison arity mismatches exactly") {
+            val diagnostics =
+                ValidRowValueArityRule().diagnostics(
+                    """
+                    invalidQuantifiedRows:
+                    SELECT id
+                    FROM orders
+                    WHERE (customer_id, status) = ANY ((1, 'ACTIVE'), (2, 'PENDING', 'EXTRA'))
+                       OR (customer_id, status) != SOME ((3, 'CANCELLED', 'EXTRA'))
+                       OR (customer_id, status) <> ALL ((4, 'SHIPPED'), (5));
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle row value has 3 column(s), but the left row has 2.",
+                        startLine = 4,
+                        startColumn = 51,
+                        endLine = 4,
+                        endColumn = 74,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle row value has 3 column(s), but the left row has 2.",
+                        startLine = 5,
+                        startColumn = 38,
+                        endLine = 5,
+                        endColumn = 63,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle row value has 1 column(s), but the left row has 2.",
+                        startLine = 6,
+                        startColumn = 53,
+                        endLine = 6,
+                        endColumn = 56,
+                    ),
+                )
+        }
+
         test("accepts matching row-value arity exactly") {
             ValidRowValueArityRule().diagnostics(
                 """
@@ -58,7 +97,10 @@ class ValidRowValueArityRuleTest :
                 SELECT id
                 FROM orders
                 WHERE (customer_id, status) = (1, 'ACTIVE')
-                  AND (customer_id, status) IN ((1, 'ACTIVE'), (2, 'PENDING'));
+                  AND (customer_id, status) IN ((1, 'ACTIVE'), (2, 'PENDING'))
+                  AND (customer_id, status) = ANY ((1, 'ACTIVE'), (2, 'PENDING'))
+                  AND (customer_id, status) != SOME ((3, 'CANCELLED'))
+                  AND (customer_id, status) <> ALL ((4, 'SHIPPED'), (5, 'RETURNED'));
                 """,
             ) shouldBe emptyList()
         }

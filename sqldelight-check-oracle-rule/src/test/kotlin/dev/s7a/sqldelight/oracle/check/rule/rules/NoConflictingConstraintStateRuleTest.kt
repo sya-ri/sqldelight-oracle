@@ -83,6 +83,20 @@ class NoConflictingConstraintStateRuleTest :
                 ).summaries() shouldBe emptyList()
         }
 
+        test("accepts different constraint states on separate table constraints") {
+            NoConflictingConstraintStateRule()
+                .diagnostics(
+                    """
+                    CREATE TABLE customer_order (
+                        order_id NUMBER(19) NOT NULL,
+                        status VARCHAR2(20) NOT NULL,
+                        CONSTRAINT customer_order_pk PRIMARY KEY (order_id) ENABLE VALIDATE,
+                        CONSTRAINT customer_order_status_check CHECK (status IS NOT NULL) DISABLE NOVALIDATE
+                    );
+                    """,
+                ).summaries() shouldBe emptyList()
+        }
+
         test("ignores non-table statements with overlapping clause names") {
             NoConflictingConstraintStateRule()
                 .diagnostics(

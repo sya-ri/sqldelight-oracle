@@ -2,7 +2,7 @@
 
 `sqldelight-check-oracle-rule` is the Oracle Database-specific rule set for sqldelight-check.
 
-These rules are gated by `OracleDialectId` and focus on Oracle null semantics, generated keys, numeric type declarations, sequence semantics, and migration DDL that can surprise live Oracle databases.
+These rules are gated by `OracleDialectId` and focus on Oracle null semantics, generated keys, numeric type declarations, sequence semantics, function arity, row limiting, DML `RETURNING` clauses, JSON/XML options, outer joins, clause conflicts, and migration DDL that can surprise live Oracle databases.
 
 ## Install
 
@@ -10,7 +10,7 @@ Add this artifact to the SQLDelight project checked by sqldelight-check:
 
 ```kotlin
 dependencies {
-    sqldelightCheckRuleSet("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-rule:0.1.1")
+    sqldelightCheckRuleSet("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-rule:0.1.2")
 }
 ```
 
@@ -18,8 +18,8 @@ Oracle rules need Oracle dialect metadata from `sqldelight-check-oracle-dialect`
 
 ```kotlin
 dependencies {
-    sqldelightCheckDialects("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-dialect:0.1.1")
-    sqldelightCheckRuleSet("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-rule:0.1.1")
+    sqldelightCheckDialects("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-dialect:0.1.2")
+    sqldelightCheckRuleSet("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-rule:0.1.2")
 }
 ```
 
@@ -115,6 +115,7 @@ sqldelightCheck {
 | [`oracle:valid-audit-policy-form`](#oraclevalid-audit-policy-form) | Yes | Warning |  | Validate static unified audit policy statement forms. |
 | [`oracle:valid-boolean-test-condition`](#oraclevalid-boolean-test-condition) | Yes | Warning |  | Validate static Oracle boolean test conditions. |
 | [`oracle:valid-create-view-column-aliases`](#oraclevalid-create-view-column-aliases) | Yes | Warning |  | Validate static `CREATE VIEW` column alias lists. |
+| [`oracle:valid-function-arity`](#oraclevalid-function-arity) | Yes | Warning |  | Validate static Oracle function arity and no-parentheses expression calls. |
 | [`oracle:valid-nls-parameter`](#oraclevalid-nls-parameter) | Yes | Warning |  | Validate static Oracle NLS parameter literals in conversion functions. |
 | [`oracle:valid-json-condition-options`](#oraclevalid-json-condition-options) | Yes | Warning |  | Validate static SQL/JSON condition option combinations. |
 | [`oracle:valid-json-table-clauses`](#oraclevalid-json-table-clauses) | Yes | Warning |  | Validate static Oracle `JSON_TABLE` option groups. |
@@ -430,11 +431,18 @@ Reports migration DDL that can rewrite, lock, or destructively change large Orac
 The checked `ALTER TABLE` column forms are based on Oracle's [`column_clauses`](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-TABLE.html#GUID-7D361BC5-2B09-4BBE-8D8E-1CBA20C5363C__BABGAABA) syntax.
 The current checks cover:
 
+- `DROP TABLE`
+- `DROP MATERIALIZED VIEW`
+- `DROP CLUSTER ... INCLUDING TABLES`
+- `DROP TABLESPACE ... INCLUDING CONTENTS`
 - `TRUNCATE TABLE`
+- `TRUNCATE CLUSTER`
 - `ALTER TABLE ... DROP COLUMN`
 - `ALTER TABLE ... DROP COLUMNS`
+- `ALTER TABLE ... DROP (...)`
 - `ALTER TABLE ... SET UNUSED COLUMN`
 - `ALTER TABLE ... SET UNUSED COLUMNS`
+- `ALTER TABLE ... SET UNUSED (...)`
 - `ALTER TABLE ... DROP UNUSED COLUMNS`
 - `ALTER TABLE ... DROP/TRUNCATE/MOVE/MERGE/SPLIT/EXCHANGE PARTITION`
 - `ALTER TABLE ... DROP/TRUNCATE/MOVE/MERGE/SPLIT/EXCHANGE SUBPARTITION`
@@ -467,6 +475,22 @@ Prefer the documented boolean test forms:
 SELECT *
 FROM feature_flags
 WHERE enabled IS NOT FALSE;
+```
+
+## `oracle:valid-function-arity`
+
+Reports statically invalid Oracle built-in function calls.
+The rule checks fixed and ranged argument counts, Oracle expressions that do not accept call parentheses such as `SYSDATE` and `USER`, and parenthesized `CURRENT_TIMESTAMP` / `LOCALTIMESTAMP` calls that omit precision.
+
+Prefer documented call forms:
+
+```sql
+SELECT SYSDATE,
+       USER,
+       CURRENT_TIMESTAMP(3),
+       LOCALTIMESTAMP(6),
+       SYS_GUID()
+FROM dual;
 ```
 
 ## `oracle:valid-nls-parameter`

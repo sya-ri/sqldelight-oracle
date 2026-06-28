@@ -26,6 +26,7 @@ public class ValidDmlHintPlacementRule : Rule {
         reporter: DiagnosticReporter,
     ) {
         val content = context.file.content
+        val maskedContent = content.maskSqlCommentsAndQuotedTextPreservingOffsets()
         content
             .sqlTokens()
             .toList()
@@ -33,7 +34,7 @@ public class ValidDmlHintPlacementRule : Rule {
             .forEach { statement ->
                 val statementKind = statement.firstDmlKeyword() ?: return@forEach
                 val statementRange = statement.first().startOffset until statement.last().endOffset
-                val hasValuesClause = statement.any { token -> token.text.equals("VALUES", ignoreCase = true) }
+                val hasValuesClause = statement.hasTopLevelValuesClause(maskedContent)
                 content.oracleHintComments(statementRange).forEach { hint ->
                     if (hint.hasHint("APPEND") && statementKind != "INSERT") {
                         reporter.reportHint(context, hint)
@@ -50,6 +51,26 @@ private fun List<SqlToken>.firstDmlKeyword(): String? =
     firstOrNull { token ->
         token.text.uppercase() in dmlStatementKeywords
     }?.text?.uppercase()
+
+private fun List<SqlToken>.hasTopLevelValuesClause(maskedContent: String): Boolean =
+    any { token ->
+        token.text.equals("VALUES", ignoreCase = true) &&
+            maskedContent.parenthesisDepthBetween(first().startOffset, token.startOffset) == 0
+    }
+
+private fun String.parenthesisDepthBetween(
+    startOffset: Int,
+    endOffset: Int,
+): Int {
+    var depth = 0
+    for (index in startOffset until endOffset) {
+        when (this[index]) {
+            '(' -> depth++
+            ')' -> if (depth > 0) depth--
+        }
+    }
+    return depth
+}
 
 private val dmlStatementKeywords = setOf("SELECT", "INSERT", "UPDATE", "DELETE", "MERGE")
 

@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.1.2
+
+### Added
+
+- Expand Oracle result-column resolution for functions, casts, literals, pseudocolumns, sequence pseudocolumns, numeric and concatenation operators, datetime arithmetic, grouping functions, aggregates, pivot/unpivot, row pattern measures, collection tables, XMLTABLE, JSON_TABLE, inline external tables, `CONTAINERS` / `SHARDS`, `VALUES` table references, object pseudocolumns, `AT TIME ZONE`, `CASE` expressions, and typed null casts.
+- Propagate Oracle result nullability for scalar, conditional, aggregate, numeric, datetime, conversion, vector, XML, JSON, RAW, NLS metadata, charset declaration, `CASE`, empty string, SQL/JSON, XML, and BFILE expressions.
+- Add parser coverage for analytic null treatment clauses, hypothetical rank aggregates, cast multiset subqueries, bulk collect returning clauses, `OLD` / `NEW` returning expressions, `CHR` character set clauses, drop unused columns, drop column variants, CTAS column aliases, quoted table aliases, current datetime precision, JSON_TABLE default column types, and Oracle national literals in `VALUES` tables.
+- Add sqldelight-check validation for Oracle function arity, no-parentheses expressions, `CONCAT`, aggregate, statistical, vector, XML, JSON, utility, domain, metadata, calendar, collection conversion functions, pseudocolumn parentheses, row limiting, `RETURNING` clauses, CTAS/view alias lists, `WAIT` clauses, unsafe DDL, outer join restrictions, JSON condition/table options, empty-string predicates, `NOT IN` nullable filters, NUMBER conversion clauses, and quoted or alternative-quoted literal forms.
+- Add statement and clause scoping for Oracle sqldelight-check rules so checks respect labels, nested subqueries, table clauses, constraint states, identity triggers, annotations, set role clauses, and qualified or aliased references.
+
+### Fixed
+
+- Fix Oracle type and column resolution for `NVL`, `NVL2`, `DECODE`, `CONCAT`, current-user expressions, pivot aliases and quoted pivot values, `FLOAT`, numeric math and distribution functions, vector functions, JSON/XML expressions, XMLROOT/XMLQUERY/XMLSERIALIZE, `TREAT`, JSON id operators, hierarchical operators, and nullable `VALUES` columns.
+- Fix Qodana findings by excluding generated build outputs from Qodana and simplifying duplicated scanner helpers and generated-column resolution helpers.
+
 ## 0.1.1
 
 ### Added

@@ -95,7 +95,7 @@ class OracleDialectTest :
             val resolver = OracleDialect().typeResolver(parentResolver)
             val mappings =
                 listOf(
-                    Triple("NULLIF", 2, IntermediateType(OracleType.TEXT)),
+                    Triple("NULLIF", 2, IntermediateType(OracleType.TEXT).asNullable()),
                     Triple("FIRST_VALUE", 1, IntermediateType(OracleType.TEXT).asNullable()),
                     Triple("LAG", 2, IntermediateType(OracleType.TEXT).asNullable()),
                     Triple("LAST_VALUE", 1, IntermediateType(OracleType.TEXT).asNullable()),
@@ -201,7 +201,7 @@ class OracleDialectTest :
                 resolver.functionType(sqlFunctionExpr(functionName, text = text))
             } shouldBe
                 listOf(
-                    IntermediateType(OracleType.DECIMAL_NUMBER),
+                    IntermediateType(OracleType.DECIMAL_NUMBER).asNullable(),
                     IntermediateType(OracleType.BINARY),
                     IntermediateType(OracleType.BINARY),
                     IntermediateType(OracleType.BINARY),

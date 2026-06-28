@@ -53,6 +53,15 @@ private fun String.staticLikeEscapeLiteralAfter(offset: Int): LikeEscapeLiteral?
     var index = offset
     while (index < length && this[index].isWhitespace()) index++
     if (index >= length) return null
+    if (startsSqlAlternativeQuotedString(index)) {
+        val end = skipSqlAlternativeQuotedString(index)
+        val qIndex = if (this[index].equals('q', ignoreCase = true)) index else index + 1
+        return LikeEscapeLiteral(
+            value = substring(qIndex + 3, end - 2),
+            startOffset = index,
+            endOffset = end,
+        )
+    }
     if (this[index].equals('N', ignoreCase = true) && index + 1 < length && this[index + 1] == '\'') {
         index++
     }

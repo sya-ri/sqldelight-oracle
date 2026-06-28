@@ -400,7 +400,7 @@ class OracleParserBackedTest :
                               amount_sold NUMBER(10, 2) NOT NULL
                             );
 
-                            CREATE SYNONYM reporting.sales_synonym FOR sales;
+                            CREATE SYNONYM reporting.sales_synonym FOR warehouse.sales;
                             """.trimIndent(),
                         "Test.sq" to
                             """
@@ -444,6 +444,44 @@ class OracleParserBackedTest :
 
                             deleteSales:
                             DELETE FROM sales_synonym
+                            WHERE cust_id = ?;
+                            """.trimIndent(),
+                    ),
+            ) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
+        test("resolves Oracle migration-created schema-qualified synonym DML targets from query files exactly") {
+            parseOracleSqlFiles(
+                deriveSchemaFromMigrations = true,
+                files =
+                    mapOf(
+                        "1.sqm" to
+                            """
+                            CREATE TABLE sales (
+                              cust_id NUMBER NOT NULL,
+                              prod_id NUMBER NOT NULL,
+                              amount_sold NUMBER(10, 2) NOT NULL
+                            );
+
+                            CREATE SYNONYM reporting.sales_synonym FOR warehouse.sales;
+                            """.trimIndent(),
+                        "Test.sq" to
+                            """
+                            insertSales:
+                            INSERT INTO reporting.sales_synonym (cust_id, prod_id, amount_sold)
+                            VALUES (?, ?, ?);
+
+                            updateSales:
+                            UPDATE reporting.sales_synonym
+                            SET amount_sold = ?
+                            WHERE cust_id = ?;
+
+                            deleteSales:
+                            DELETE FROM reporting.sales_synonym
                             WHERE cust_id = ?;
                             """.trimIndent(),
                     ),
@@ -712,6 +750,7 @@ class OracleParserBackedTest :
                   CON_GUID_TO_ID(raw_value) AS container_id_from_guid,
                   CON_NAME_TO_ID(label) AS container_id_from_name,
                   CON_UID_TO_ID(amount) AS container_id_from_uid,
+                  CHR(196 USING NCHAR_CS) AS national_character_value,
                   COSH(amount) AS hyperbolic_cosine,
                   DUMP(label) AS dumped_label,
                   LNNVL(enabled) AS not_false_enabled,
@@ -777,6 +816,46 @@ class OracleParserBackedTest :
                   AND other_tags IS NOT EMPTY
                   AND tag_value MEMBER OF tags
                   AND tags NOT SUBMULTISET OF other_tags;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle CAST MULTISET subquery expressions exactly") {
+            val sql =
+                """
+                CREATE TYPE employee_name_list AS TABLE OF VARCHAR2(100);
+
+                CREATE TABLE departments (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(100)
+                );
+
+                CREATE TABLE employees (
+                  id NUMBER PRIMARY KEY,
+                  department_id NUMBER,
+                  name VARCHAR2(100)
+                );
+
+                SELECT d.id,
+                  CAST(MULTISET(
+                    SELECT e.name
+                    FROM employees e
+                    WHERE e.department_id = d.id
+                  ) AS employee_name_list) AS employee_names
+                FROM departments d;
+
+                SELECT d.id,
+                  CAST(MULTISET(
+                    SELECT e.name
+                    FROM employees e
+                    WHERE e.department_id = d.id
+                  ) AS SYS.ODCIVARCHAR2LIST) AS employee_names
+                FROM departments d;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe
@@ -1581,7 +1660,8 @@ class OracleParserBackedTest :
                   JSON_TABLE(
                     '{"id":1}' FORMAT JSON
                     COLUMNS (
-                      document_id NUMBER PATH '${'$'}.id'
+                      document_id NUMBER PATH '${'$'}.id',
+                      document_status PATH '${'$'}.status'
                     )
                   ) jtd;
                 """.trimIndent()
@@ -1779,11 +1859,14 @@ class OracleParserBackedTest :
                   ORA_DST_AFFECTED(shift_time_tz) AS dst_affected,
                   ORA_DST_CONVERT(shift_time_tz) AS dst_converted,
                   ORA_DST_ERROR(shift_time_tz) AS dst_error,
+                  shift_time AT TIME ZONE 'UTC' AS shift_time_utc,
                   SYS_EXTRACT_UTC(shift_time_tz) AS utc_shift_time,
                   TO_DSINTERVAL('100 10:00:00') AS day_second_interval,
                   TO_TIMESTAMP_TZ('1999-12-01 10:00:00 -8:00', 'YYYY-MM-DD HH:MI:SS TZH:TZM') AS parsed_timestamp_tz,
                   TO_YMINTERVAL('01-02') AS year_month_interval,
                   TZ_OFFSET('US/Eastern') AS eastern_offset,
+                  CURRENT_TIMESTAMP(3) AS current_timestamp_precision,
+                  LOCALTIMESTAMP(3) AS local_timestamp_precision,
                   MONTHS_BETWEEN(CURRENT_DATE, hire_date) AS tenure_months
                 FROM employees;
                 """.trimIndent()
@@ -2191,6 +2274,36 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle analytic null treatment clauses exactly") {
+            val sql =
+                """
+                CREATE TABLE sales (
+                  id NUMBER PRIMARY KEY,
+                  department_id NUMBER,
+                  amount NUMBER,
+                  sold_at DATE
+                );
+
+                selectNullTreatment:
+                SELECT
+                  FIRST_VALUE(amount IGNORE NULLS) OVER (ORDER BY sold_at) AS first_amount,
+                  LAST_VALUE(amount) IGNORE NULLS OVER (ORDER BY sold_at) AS last_amount,
+                  FIRST_VALUE(amount RESPECT NULLS) OVER (ORDER BY sold_at) AS first_amount_respect,
+                  LAG(amount IGNORE NULLS) OVER (ORDER BY sold_at) AS previous_amount,
+                  LAG(amount, 1) IGNORE NULLS OVER (ORDER BY sold_at) AS previous_amount_offset,
+                  LEAD(amount) IGNORE NULLS OVER (ORDER BY sold_at) AS next_amount,
+                  NTH_VALUE(amount, 2) IGNORE NULLS OVER (ORDER BY sold_at) AS second_amount,
+                  NTH_VALUE(amount, 2) FROM LAST IGNORE NULLS OVER (ORDER BY sold_at) AS second_amount_from_last
+                FROM sales;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle analytic and aggregate function clauses exactly") {
             val sql =
                 """
@@ -2403,6 +2516,7 @@ class OracleParserBackedTest :
                   APPROX_COUNT_DISTINCT(employee_id) AS approximate_employee_count,
                   APPROX_SUM(amount) AS approximate_amount,
                   APPROX_MEDIAN(amount) AS approximate_median_amount,
+                  APPROX_MEDIAN(sold_at DETERMINISTIC, 'ERROR_RATE') AS approximate_median_error_rate,
                   APPROX_PERCENTILE(0.75) WITHIN GROUP (ORDER BY amount) AS approximate_percentile,
                   APPROX_PERCENTILE(0.75 DETERMINISTIC, 'ERROR_RATE') WITHIN GROUP (ORDER BY amount) AS percentile_error_rate
                 FROM sales
@@ -2435,6 +2549,31 @@ class OracleParserBackedTest :
                   PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY amount DESC) OVER (PARTITION BY region) AS analytic_continuous,
                   PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY amount DESC) OVER (PARTITION BY region) AS analytic_discrete
                 FROM sales;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle hypothetical rank ordered aggregate functions exactly") {
+            val sql =
+                """
+                CREATE TABLE sales (
+                  id NUMBER PRIMARY KEY,
+                  region VARCHAR2(20),
+                  amount NUMBER
+                );
+
+                SELECT region,
+                  RANK(1000) WITHIN GROUP (ORDER BY amount DESC) AS hypothetical_rank,
+                  DENSE_RANK(1000) WITHIN GROUP (ORDER BY amount DESC) AS hypothetical_dense_rank,
+                  PERCENT_RANK(1000) WITHIN GROUP (ORDER BY amount DESC) AS hypothetical_percent_rank,
+                  CUME_DIST(1000) WITHIN GROUP (ORDER BY amount DESC) AS hypothetical_cume_dist
+                FROM sales
+                GROUP BY region;
                 """.trimIndent()
 
             parseOracleSql(sql, fileName = "1.sqm") shouldBe
@@ -3093,6 +3232,10 @@ class OracleParserBackedTest :
                 SELECT account_id, external_id
                 FROM staged_accounts;
 
+                CREATE TABLE renamed_account_snapshot (snapshot_id, snapshot_external_id) AS
+                SELECT account_id, external_id
+                FROM staged_accounts;
+
                 CREATE GLOBAL TEMPORARY TABLE staged_account_snapshot
                 ON COMMIT PRESERVE ROWS
                 AS SELECT account_id, external_id
@@ -3252,6 +3395,10 @@ class OracleParserBackedTest :
                 selectAll:
                 SELECT account_id, external_id
                 FROM account_snapshot;
+
+                selectRenamed:
+                SELECT snapshot_id, snapshot_external_id
+                FROM renamed_account_snapshot;
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe
@@ -3672,6 +3819,19 @@ class OracleParserBackedTest :
                 SELECT id
                 FROM leaf_units;
 
+                selectRecursiveFactored:
+                WITH generated_units (id) AS (
+                  SELECT id
+                  FROM org_units
+                  WHERE parent_id IS NULL
+                  UNION ALL
+                  SELECT generated_units.id + 1
+                  FROM generated_units
+                  WHERE generated_units.id < 10
+                )
+                SELECT id
+                FROM generated_units;
+
                 selectNestedFactored:
                 WITH outer_units AS (
                   WITH inner_units AS (
@@ -3857,6 +4017,10 @@ class OracleParserBackedTest :
                 valuesTableReference:
                 SELECT col1, col2
                 FROM (VALUES (1, 2), (3, 4)) v (col1, col2);
+
+                valuesQuotedTableReference:
+                SELECT "order_id", "order_total"
+                FROM (VALUES (1, 100), (2, 200)) "source" ("order_id", "order_total");
 
                 valuesInCondition:
                 SELECT id
@@ -4211,6 +4375,20 @@ class OracleParserBackedTest :
                 FROM partitioned_orders PIVOT (
                   COUNT(*) AS order_count
                   FOR region IN ('WEST' AS west, 'EAST' AS east)
+                ) pivoted_orders;
+
+                selectPivotQuotedValueWithParenthesis:
+                SELECT pivoted_orders.oreilly_order_count
+                FROM partitioned_orders PIVOT (
+                  COUNT(*) AS order_count
+                  FOR region IN (q'[O)Reilly]' AS oreilly)
+                ) pivoted_orders;
+
+                selectPivotGeneratedColumnsWithoutAs:
+                SELECT pivoted_orders.west_order_count, pivoted_orders.east_order_count
+                FROM partitioned_orders PIVOT (
+                  COUNT(*) order_count
+                  FOR region IN ('WEST' west, 'EAST' east)
                 ) pivoted_orders;
 
                 selectPivotSourceColumns:
@@ -4698,7 +4876,10 @@ class OracleParserBackedTest :
                   id NUMBER PRIMARY KEY,
                   status VARCHAR2(16),
                   valid_from DATE,
-                  valid_to DATE
+                  valid_to DATE,
+                  drop_checkpoint_at TIMESTAMP,
+                  drop_batch_a NUMBER,
+                  drop_batch_b NUMBER
                 );
 
                 ALTER TABLE alter_targets ADD created_at TIMESTAMP;
@@ -4720,9 +4901,15 @@ class OracleParserBackedTest :
                 ALTER TABLE alter_targets MODIFY COLUMN preferred_contact ELEMENT IS OF TYPE (ONLY account_contact_type);
                 ALTER TABLE alter_targets RENAME COLUMN status TO account_status;
                 ALTER TABLE alter_targets DROP COLUMN archived_at CASCADE CONSTRAINTS;
+                ALTER TABLE alter_targets DROP COLUMN drop_checkpoint_at CHECKPOINT 500;
+                ALTER TABLE alter_targets DROP (drop_batch_a, drop_batch_b) CASCADE CONSTRAINTS CHECKPOINT 500;
                 ALTER TABLE alter_targets DROP COLUMN created_at CASCADE CONSTRAINTS;
                 ALTER TABLE alter_targets SET UNUSED COLUMN updated_at ONLINE;
                 ALTER TABLE alter_targets SET UNUSED (account_status) CASCADE CONSTRAINTS;
+                ALTER TABLE alter_targets DROP UNUSED COLUMNS CHECKPOINT 500;
+                ALTER TABLE alter_targets DROP UNUSED COLUMNS CHECKPOINT;
+                ALTER TABLE alter_targets DROP COLUMNS CONTINUE CHECKPOINT 500;
+                ALTER TABLE alter_targets DROP COLUMNS CONTINUE CHECKPOINT;
                 ALTER TABLE alter_targets DROP PERIOD FOR valid_time;
                 ALTER TABLE alter_targets MODIFY CONSTRAINT alter_targets_status_check ENABLE NOVALIDATE;
                 ALTER TABLE alter_targets RENAME CONSTRAINT alter_targets_status_check TO alter_targets_status_nn;
@@ -5127,6 +5314,12 @@ class OracleParserBackedTest :
                 SELECT id, status
                 FROM view_accounts;
 
+                CREATE VIEW annotated_account_view (
+                  annotated_account_id ANNOTATIONS (Display 'AS Account')
+                ) AS
+                SELECT id
+                FROM view_accounts;
+
                 CREATE VIEW IF NOT EXISTS constrained_account_view
                   SHARING = EXTENDED DATA
                   (
@@ -5172,6 +5365,10 @@ class OracleParserBackedTest :
                 selectRenamedColumns:
                 SELECT account_id, account_status
                 FROM renamed_account_view;
+
+                selectAnnotatedColumns:
+                SELECT annotated_account_id
+                FROM annotated_account_view;
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe
@@ -5832,6 +6029,12 @@ class OracleParserBackedTest :
                 WHERE target.order_id = ?
                 RETURNING target.order_total INTO ?;
 
+                updateReturningBulkCollect:
+                UPDATE partitioned_order_updates
+                SET order_total = order_total + ?
+                WHERE region_code = ?
+                RETURNING order_id, order_total BULK COLLECT INTO returned_order_ids, returned_totals;
+
                 updateWithWaitAndErrorLogging:
                 UPDATE partitioned_order_updates
                 SET archived_at = CURRENT_TIMESTAMP
@@ -5898,6 +6101,11 @@ class OracleParserBackedTest :
                 DELETE FROM partitioned_order_updates target
                 WHERE target.order_id = ?
                 RETURNING target.order_total INTO ?;
+
+                deleteReturningBulkCollect:
+                DELETE FROM partitioned_order_updates
+                WHERE region_code = ?
+                RETURNING order_id BULK COLLECT INTO deleted_order_ids;
 
                 deleteWithErrorLogging:
                 DELETE FROM partitioned_order_updates
@@ -6208,7 +6416,7 @@ class OracleParserBackedTest :
                 CREATE NONEDITIONABLE PUBLIC SYNONYM emp_table
                   FOR hr.employees@remote.us.example.com;
 
-                CREATE PUBLIC SYNONYM customers
+                CREATE PUBLIC SYNONYM public_customers
                   FOR oe.customers;
 
                 CREATE "PUBLIC" SYNONYM quoted_public_customers

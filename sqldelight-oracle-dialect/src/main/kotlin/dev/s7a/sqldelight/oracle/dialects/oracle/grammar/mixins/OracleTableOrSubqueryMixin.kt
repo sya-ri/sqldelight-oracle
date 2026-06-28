@@ -1,13 +1,20 @@
 package dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins
 
+import app.cash.sqldelight.dialect.api.ExposableType
+import app.cash.sqldelight.dialect.api.IntermediateType
 import com.alecstrong.sql.psi.core.ModifiableFileLazy
+import com.alecstrong.sql.psi.core.SqlAnnotationHolder
+import com.alecstrong.sql.psi.core.psi.AliasElement
 import com.alecstrong.sql.psi.core.psi.NamedElement
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryColumn
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryResult
 import com.alecstrong.sql.psi.core.psi.QueryElement.SynthesizedColumn
+import com.alecstrong.sql.psi.core.psi.SqlColumnAlias
+import com.alecstrong.sql.psi.core.psi.SqlColumnDef
 import com.alecstrong.sql.psi.core.psi.SqlCompositeElementImpl
 import com.alecstrong.sql.psi.core.psi.SqlCompoundSelectStmt
 import com.alecstrong.sql.psi.core.psi.SqlDatabaseName
+import com.alecstrong.sql.psi.core.psi.SqlExpr
 import com.alecstrong.sql.psi.core.psi.SqlIndexName
 import com.alecstrong.sql.psi.core.psi.SqlJoinClause
 import com.alecstrong.sql.psi.core.psi.SqlTableAlias
@@ -19,8 +26,13 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.util.PsiTreeUtil
+import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableColumn
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableColumnsClause
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableExistsColumn
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableOrdinalityColumn
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableReference
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleJsonTableRegularColumn
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleRowPatternClause
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleValuesTableReference
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleXmltableReference
@@ -46,21 +58,18 @@ internal abstract class OracleTableOrSubqueryMixin(
                 if (result.isEmpty()) {
                     return@lazy emptyList()
                 }
-                val containersColumns = oracleContainersSynthesizedColumns()
+                val tableFunctionColumns = oracleContainersQueryColumns() + oracleShardsQueryColumns()
                 tableAlias?.let { alias ->
                     return@lazy listOf(
-                        result.oracleQueryResultFor(
+                        QueryResult(
                             alias,
-                            containersColumns.map { name -> SynthesizedColumn(alias, listOf(name)) },
+                            result.flatMap { it.columns } + tableFunctionColumns,
+                            result.flatMap { it.synthesizedColumns },
                         ),
                     )
                 }
                 return@lazy result.map { query ->
-                    query.copy(
-                        synthesizedColumns =
-                            query.synthesizedColumns +
-                                containersColumns.map { name -> SynthesizedColumn(query.table ?: tableNameElement, listOf(name)) },
-                    )
+                    query.copy(columns = query.columns + tableFunctionColumns)
                 }
             }
 
@@ -85,9 +94,15 @@ internal abstract class OracleTableOrSubqueryMixin(
         val queryAvailable =
             if (child == compoundSelectStmt && oracleCanReferenceLeftQuerySources()) {
                 super.queryAvailable(child) + oracleLateralLeftQueryExposed()
+            } else if (oracleTableFunctionCanReferenceLeftQuerySources(child)) {
+                super.queryAvailable(child) + oracleLateralLeftQueryExposed()
             } else {
                 super.queryAvailable(child)
             }
+        val pivotAggregateAvailable = oraclePivotAggregateAvailable(child)
+        if (pivotAggregateAvailable.isNotEmpty()) {
+            return queryAvailable + pivotAggregateAvailable
+        }
         val rowPatternClause = PsiTreeUtil.findChildOfType(this, OracleOracleRowPatternClause::class.java)
         if (rowPatternClause == null || !PsiTreeUtil.isAncestor(rowPatternClause, child, false)) {
             return queryAvailable
@@ -121,22 +136,27 @@ internal abstract class OracleTableOrSubqueryMixin(
         PsiTreeUtil.findChildOfType(this, OracleOracleXmltableReference::class.java)?.let { xmltable ->
             return xmltable.oracleXmltableColumnsClause
                 ?.oracleXmltableColumnList
-                ?.mapNotNull { column -> column.oracleColumnAliasQueryColumn() }
+                ?.mapNotNull { column -> column.oracleXmltableQueryColumn() }
                 ?.ifEmpty { null }
                 ?.let { columns -> oracleColumnResultFor(xmltable, columns) }
                 ?: QueryResult(
                     table = xmltable.tableAlias() ?: tableAlias(),
-                    columns = emptyList(),
-                    synthesizedColumns =
+                    columns =
                         listOf(
-                            SynthesizedColumn(xmltable.tableAlias() ?: tableAlias() ?: this, listOf("COLUMN_VALUE")),
+                            QueryColumn(
+                                OracleGeneratedColumnElement(
+                                    xmltable,
+                                    "COLUMN_VALUE",
+                                    IntermediateType(OracleType.TEXT),
+                                ),
+                            ),
                         ),
                 )
         }
 
         PsiTreeUtil.findChildOfType(this, OracleOracleValuesTableReference::class.java)?.let { valuesTable ->
             return valuesTable
-                .oracleColumnAliasQueryColumns()
+                .oracleValuesQueryColumns()
                 .ifEmpty { null }
                 ?.let { columns -> oracleColumnResultFor(valuesTable, columns) }
         }
@@ -145,20 +165,28 @@ internal abstract class OracleTableOrSubqueryMixin(
             return it
         }
 
-        oracleInlineExternalColumns().ifEmpty { null }?.let { columns ->
-            return oracleGeneratedSynthesizedColumnResult(columns)
+        oracleInlineExternalColumnResults()?.let { result ->
+            return oracleGeneratedSynthesizedColumnResult(result.synthesizedColumnNames, result.columns)
         }
 
         oracleGraphTableColumns().ifEmpty { null }?.let { columns ->
             return oracleGeneratedSynthesizedColumnResult(columns)
         }
 
-        oraclePivotColumns().ifEmpty { null }?.let { columns ->
-            return oracleGeneratedSynthesizedColumnResult(columns, oraclePivotSourceColumns())
+        oraclePivotColumnResults()?.let { result ->
+            return QueryResult(
+                table = tableAlias,
+                columns = oraclePivotSourceColumns() + result.columns,
+                synthesizedColumns = result.synthesizedColumnNames.map { name -> SynthesizedColumn(tableAlias ?: this, listOf(name)) },
+            )
         }
 
-        oracleUnpivotColumns().ifEmpty { null }?.let { columns ->
-            return oracleGeneratedSynthesizedColumnResult(columns, oracleUnpivotSourceColumns())
+        oracleUnpivotColumnResults()?.let { result ->
+            return QueryResult(
+                table = tableAlias,
+                columns = oracleUnpivotSourceColumns() + result.columns,
+                synthesizedColumns = result.synthesizedColumnNames.map { name -> SynthesizedColumn(tableAlias ?: this, listOf(name)) },
+            )
         }
 
         return oracleRowPatternResult()
@@ -180,6 +208,12 @@ internal abstract class OracleTableOrSubqueryMixin(
             return null
         }
 
+        body.oracleCollectionTableType()?.let { type ->
+            return QueryResult(
+                table = tableAlias,
+                columns = listOf(QueryColumn(OracleGeneratedColumnElement(this, "COLUMN_VALUE", IntermediateType(type)))),
+            )
+        }
         return QueryResult(
             table = tableAlias,
             columns = emptyList(),
@@ -187,13 +221,37 @@ internal abstract class OracleTableOrSubqueryMixin(
         )
     }
 
-    private fun oracleInlineExternalColumns(): List<String> {
-        if (!text.trimStart().startsWith("EXTERNAL", ignoreCase = true)) return emptyList()
-        val externalBody = text.oracleParenthesizedBodyAfter("EXTERNAL") ?: return emptyList()
-        return externalBody
-            .oracleParenthesizedBodyAt(externalBody.indexOf('('))
-            .oracleTopLevelCommaParts()
-            .mapNotNull { column -> column.oracleFirstName() }
+    private fun oracleInlineExternalColumnResults(): OracleGeneratedColumns? {
+        if (!text.trimStart().startsWith("EXTERNAL", ignoreCase = true)) return null
+        val externalBody = text.oracleParenthesizedBodyAfter("EXTERNAL") ?: return null
+        if (!externalBody.trimStart().startsWith("(")) return null
+        val columnParts =
+            externalBody
+                .oracleParenthesizedBodyAt(externalBody.indexOf('('))
+                .oracleTopLevelCommaParts()
+        val columns = mutableListOf<QueryColumn>()
+        val synthesizedColumnNames = mutableListOf<String>()
+        columnParts.forEach { column ->
+            val name = column.oracleFirstName() ?: return@forEach
+            val typeName = column.oracleInlineExternalColumnType(name)
+            if (typeName == null) {
+                synthesizedColumnNames += name
+            } else {
+                val type = runCatching { OracleType.fromSqlTypeName(typeName) }.getOrNull()
+                if (type == null) {
+                    synthesizedColumnNames += name
+                } else {
+                    val intermediateType =
+                        IntermediateType(type).let { generatedType ->
+                            if (column.hasOracleNotNullConstraint()) generatedType else generatedType.asNullable()
+                        }
+                    columns += QueryColumn(OracleGeneratedColumnElement(this, name, intermediateType))
+                }
+            }
+        }
+        return OracleGeneratedColumns(columns, synthesizedColumnNames).takeIf {
+            it.columns.isNotEmpty() || it.synthesizedColumnNames.isNotEmpty()
+        }
     }
 
     private fun PsiElement.tableAlias(): SqlTableAlias? = PsiTreeUtil.findChildOfType(this, SqlTableAlias::class.java)
@@ -225,11 +283,95 @@ internal abstract class OracleTableOrSubqueryMixin(
         return siblings.take(index).flatMap { it.queryExposed() }
     }
 
-    private fun OracleOracleJsonTableColumnsClause.queryColumns(): List<QueryColumn> = oracleColumnAliasQueryColumns()
+    private fun oracleTableFunctionCanReferenceLeftQuerySources(child: PsiElement): Boolean {
+        val jsonTable = PsiTreeUtil.findChildOfType(this, OracleOracleJsonTableReference::class.java)
+        if (jsonTable != null && PsiTreeUtil.isAncestor(jsonTable, child, false)) return true
 
-    private fun oracleContainersSynthesizedColumns(): List<String> =
+        val xmltable = PsiTreeUtil.findChildOfType(this, OracleOracleXmltableReference::class.java)
+        return xmltable != null && PsiTreeUtil.isAncestor(xmltable, child, false)
+    }
+
+    private fun oraclePivotAggregateAvailable(child: PsiElement): Collection<QueryResult> {
+        val tableNameElement = tableName ?: return emptyList()
+        val pivotOffset = text.indexOfKeyword("PIVOT") ?: return emptyList()
+        val pivotOpenOffset = text.indexOf('(', startIndex = pivotOffset + "PIVOT".length).takeIf { it != -1 } ?: return emptyList()
+        val pivotBody = text.oracleParenthesizedBodyAt(pivotOpenOffset)
+        val forOffset = pivotBody.indexOfKeyword("FOR") ?: return emptyList()
+        val childOffset = child.textRange.startOffset - textRange.startOffset
+        if (childOffset !in (pivotOpenOffset + 1) until (pivotOpenOffset + 1 + forOffset)) return emptyList()
+
+        return oracleSynonymTargetAvailable(tableNameElement) { target, targetName ->
+            tableAvailable(target, targetName)
+        } ?: tableAvailable(tableNameElement, tableNameElement.name)
+    }
+
+    private fun OracleOracleJsonTableColumnsClause.queryColumns(): List<QueryColumn> =
+        PsiTreeUtil
+            .findChildrenOfType(this, OracleOracleJsonTableColumn::class.java)
+            .mapNotNull { column -> column.oracleJsonTableQueryColumn() }
+
+    private fun OracleOracleJsonTableColumn.oracleJsonTableQueryColumn(): QueryColumn? {
+        val source =
+            PsiTreeUtil.getChildOfAnyType(
+                this,
+                OracleOracleJsonTableOrdinalityColumn::class.java,
+                OracleOracleJsonTableRegularColumn::class.java,
+                OracleOracleJsonTableExistsColumn::class.java,
+            ) ?: return null
+        val alias = PsiTreeUtil.getChildOfType(source, SqlColumnAlias::class.java) ?: return null
+        val type =
+            if (source is OracleOracleJsonTableOrdinalityColumn) {
+                IntermediateType(OracleType.LONG_NUMBER)
+            } else {
+                source.text.oracleJsonTableColumnType(alias.text)?.let { typeName ->
+                    IntermediateType(OracleType.fromSqlTypeName(typeName)).asNullable()
+                } ?: IntermediateType(OracleType.TEXT).asNullable()
+            }
+        return QueryColumn(OracleGeneratedColumnElement(source, alias.name, type))
+    }
+
+    private fun OracleOracleValuesTableReference.oracleValuesQueryColumns(): List<QueryColumn> {
+        val aliases = PsiTreeUtil.findChildrenOfType(this, SqlColumnAlias::class.java).toList()
+        if (aliases.isEmpty()) return emptyList()
+
+        val expressions = PsiTreeUtil.findChildrenOfType(this, SqlExpr::class.java).toList()
+        return aliases.mapIndexedNotNull { index, alias ->
+            val columnSources = expressions.filterIndexed { expressionIndex, _ -> expressionIndex % aliases.size == index }
+            val type = columnSources.oracleValuesColumnType() ?: return@mapIndexedNotNull null
+            columnSources.firstOrNull()?.let {
+                QueryColumn(OracleGeneratedColumnElement(this, alias.name, type))
+            }
+        }
+    }
+
+    private fun PsiElement.oracleXmltableQueryColumn(): QueryColumn? {
+        val alias = PsiTreeUtil.getChildOfType(this, SqlColumnAlias::class.java) ?: return null
+        val afterAlias =
+            text
+                .trim()
+                .removePrefix(alias.text)
+                .trimStart()
+        val type =
+            if (afterAlias.startsWith("FOR ", ignoreCase = true)) {
+                IntermediateType(OracleType.LONG_NUMBER)
+            } else {
+                text.oracleXmltableColumnType(alias.text)?.let { typeName ->
+                    IntermediateType(OracleType.fromSqlTypeName(typeName)).asNullable()
+                }
+            } ?: return null
+        return QueryColumn(OracleGeneratedColumnElement(this, alias.name, type))
+    }
+
+    private fun oracleContainersQueryColumns(): List<QueryColumn> =
         if (text.trimStart().startsWith("CONTAINERS", ignoreCase = true)) {
-            listOf("CON_ID")
+            listOf(QueryColumn(OracleGeneratedColumnElement(this, "CON_ID", IntermediateType(OracleType.LONG_NUMBER))))
+        } else {
+            emptyList()
+        }
+
+    private fun oracleShardsQueryColumns(): List<QueryColumn> =
+        if (text.trimStart().startsWith("SHARDS", ignoreCase = true)) {
+            listOf(QueryColumn(OracleGeneratedColumnElement(this, "ORA_SHARDSPACE_NAME", IntermediateType(OracleType.TEXT))))
         } else {
             emptyList()
         }
@@ -254,11 +396,25 @@ internal abstract class OracleTableOrSubqueryMixin(
             rowPatternClause
                 .oracleRowPatternMeasuresClause
                 ?.oracleRowPatternMeasureColumnList
-                ?.mapNotNull { column -> column.oracleColumnAliasQueryColumn() }
+                ?.mapNotNull { column -> column.oracleRowPatternMeasureQueryColumn() }
                 ?: emptyList()
         return (sourceColumns + measureColumns)
             .ifEmpty { null }
             ?.let { columns -> QueryResult(tableAlias, columns) }
+    }
+
+    private fun PsiElement.oracleRowPatternMeasureQueryColumn(): QueryColumn? {
+        val alias = PsiTreeUtil.getChildOfType(this, SqlColumnAlias::class.java) ?: return null
+        PsiTreeUtil.getChildOfType(this, SqlExpr::class.java)?.let { source ->
+            return QueryColumn(OracleRowPatternMeasureElement(this, alias.name, source))
+        }
+        val type =
+            when (text.withoutOracleTrailingAlias().trim().uppercase()) {
+                "CLASSIFIER()" -> IntermediateType(OracleType.TEXT)
+                "MATCH_NUMBER()", "ROW_NUMBER()" -> IntermediateType(OracleType.LONG_NUMBER)
+                else -> return null
+            }
+        return QueryColumn(OracleRowPatternMeasureTypeElement(this, alias.name, type))
     }
 
     private fun oracleRowPatternVariableResults(rowPatternClause: OracleOracleRowPatternClause): Collection<QueryResult> {
@@ -286,20 +442,110 @@ internal abstract class OracleTableOrSubqueryMixin(
                 ?: tableAvailable(tableNameElement, tableNameElement.name)
         } ?: emptyList()
 
-    private fun oraclePivotColumns(): List<String> {
-        val pivotBody = text.oracleParenthesizedBodyAfter("PIVOT") ?: return emptyList()
-        val forOffset = pivotBody.indexOfKeyword("FOR")
-        val inOffset = pivotBody.indexOfKeyword("IN", startIndex = forOffset?.let { it + "FOR".length } ?: 0) ?: return emptyList()
-        val aggregateAliases = pivotBody.substring(0, inOffset).oracleAliasesAfterAs()
-        val pivotInBody = pivotBody.oracleParenthesizedBodyAt(pivotBody.indexOf('(', startIndex = inOffset))
-        val pivotAliases = pivotInBody.oracleAliasesAfterAs().ifEmpty { pivotInBody.oraclePivotImplicitValueNames() }
-        if (pivotAliases.isEmpty()) return emptyList()
+    private data class OracleGeneratedColumns(
+        val columns: List<QueryColumn>,
+        val synthesizedColumnNames: List<String>,
+    )
 
-        return if (aggregateAliases.isEmpty()) {
-            pivotAliases
-        } else {
-            pivotAliases.flatMap { pivotAlias -> aggregateAliases.map { aggregateAlias -> "${pivotAlias}_$aggregateAlias" } }
+    private fun oraclePivotColumnResults(): OracleGeneratedColumns? {
+        val pivotBody = text.oracleParenthesizedBodyAfter("PIVOT") ?: return null
+        val forOffset = pivotBody.indexOfKeyword("FOR")
+        val inOffset = pivotBody.indexOfKeyword("IN", startIndex = forOffset?.let { it + "FOR".length } ?: 0) ?: return null
+        val aggregateParts = forOffset?.let { pivotBody.substring(0, it).oracleTopLevelCommaParts() } ?: emptyList()
+        val aggregateAliases = aggregateParts.mapNotNull { part -> part.oracleTrailingAlias() }
+        val aggregateTypes = aggregateParts.map { part -> oraclePivotAggregateType(part) }
+        val pivotInBody = pivotBody.oracleParenthesizedBodyAt(pivotBody.indexOf('(', startIndex = inOffset))
+        val pivotAliases = pivotInBody.oracleTopLevelTrailingAliases().ifEmpty { pivotInBody.oraclePivotImplicitValueNames() }
+        if (pivotAliases.isEmpty()) return null
+
+        val pivotColumns =
+            if (aggregateAliases.isEmpty()) {
+                pivotAliases.map { pivotAlias -> pivotAlias to aggregateTypes.firstOrNull() }
+            } else {
+                pivotAliases.flatMap { pivotAlias ->
+                    aggregateAliases.mapIndexed { index, aggregateAlias ->
+                        "${pivotAlias}_$aggregateAlias" to aggregateTypes.getOrNull(index)
+                    }
+                }
+            }
+        val columns = mutableListOf<QueryColumn>()
+        val synthesizedColumnNames = mutableListOf<String>()
+        pivotColumns.forEach { (name, type) ->
+            if (type == null) {
+                synthesizedColumnNames += name
+            } else {
+                columns += QueryColumn(OraclePivotColumnElement(this, name, type))
+            }
         }
+        return OracleGeneratedColumns(columns, synthesizedColumnNames)
+    }
+
+    private fun oraclePivotAggregateType(aggregatePart: String): IntermediateType? {
+        val sourceText = aggregatePart.withoutOracleTrailingAlias()
+        val functionName =
+            Regex("""(?i)^\s*([A-Z_][A-Z0-9_$#]*)\s*\(""")
+                .find(sourceText)
+                ?.groupValues
+                ?.get(1)
+                ?: return null
+        if (functionName.equals("COUNT", ignoreCase = true)) {
+            return IntermediateType(OracleType.LONG_NUMBER)
+        }
+
+        val argumentTypes =
+            sourceText
+                .oracleParenthesizedBodyAt(sourceText.indexOf('('))
+                .oracleReferencedColumnTypes()
+        val argumentType =
+            argumentTypes.singleOrNull()
+                ?: argumentTypes.oraclePivotComparableType()
+                ?: return OracleType.fromFunctionName(functionName)?.let { type -> IntermediateType(type).asNullable() }
+
+        return OracleType
+            .fromAggregateFunctionType(functionName, argumentType)
+            ?.let { type -> IntermediateType(type).asNullable() }
+            ?: when (functionName.trim().uppercase()) {
+                "MIN", "MAX" -> IntermediateType(argumentType).asNullable()
+                else -> OracleType.fromFunctionName(functionName)?.let { type -> IntermediateType(type).asNullable() }
+            }
+    }
+
+    private class OraclePivotColumnElement(
+        private val anchor: PsiElement,
+        private val columnName: String,
+        private val columnType: IntermediateType,
+    ) : LightElement(anchor.manager, anchor.language),
+        AliasElement,
+        ExposableType {
+        override fun type(): IntermediateType = columnType.copy(name = columnName)
+
+        override fun annotate(annotationHolder: SqlAnnotationHolder) = Unit
+
+        override fun source(): PsiElement = anchor
+
+        override fun getName(): String = columnName
+
+        override fun setName(name: String): PsiElement = this
+
+        override fun getText(): String = columnName
+
+        override fun getContainingFile(): PsiFile = anchor.containingFile
+
+        override fun getParent(): PsiElement = anchor
+
+        override fun getNameIdentifier(): PsiElement? = null
+
+        override fun toString(): String = "Oracle PIVOT column: $columnName"
+    }
+
+    private fun String.withoutOracleTrailingAlias(): String {
+        val trimmed = trim()
+        val match =
+            Regex("""(?is)(?:\bAS\s+)?("[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*)\s*$""")
+                .find(trimmed)
+                ?: return trimmed
+        val prefix = trimmed.substring(0, match.range.first).trim()
+        return prefix.ifEmpty { trimmed }
     }
 
     private fun oraclePivotSourceColumns(): List<QueryColumn> {
@@ -314,17 +560,90 @@ internal abstract class OracleTableOrSubqueryMixin(
         return oracleSourceColumnsExcept(consumedColumns)
     }
 
-    private fun oracleUnpivotColumns(): List<String> {
-        val unpivotBody = text.oracleParenthesizedBodyAfter("UNPIVOT") ?: return emptyList()
-        val forOffset = unpivotBody.indexOfKeyword("FOR") ?: return emptyList()
+    private fun String.oracleReferencedColumnTypes(): List<OracleType> {
+        val names = oracleNameList().distinctBy { name -> name.uppercase() }
+        if (names.isEmpty()) return emptyList()
+        return oracleTableColumns().mapNotNull { column ->
+            val columnDef = column.element.parent as? SqlColumnDef ?: return@mapNotNull null
+            val columnName = columnDef.columnName.name
+            if (names.none { name -> columnName.equals(name, ignoreCase = true) }) return@mapNotNull null
+            OracleType.fromSqlTypeName(columnDef.columnType.typeName.text)
+        }
+    }
+
+    private fun List<OracleType>.oraclePivotComparableType(): OracleType? =
+        firstOrNull { type -> type == OracleType.BINARY_DOUBLE }
+            ?: firstOrNull { type -> type == OracleType.BINARY_FLOAT }
+            ?: firstOrNull { type -> type == OracleType.DECIMAL_NUMBER }
+            ?: firstOrNull { type -> type == OracleType.LONG_NUMBER }
+            ?: firstOrNull { type -> type == OracleType.INTEGER_NUMBER }
+            ?: firstOrNull()
+
+    private fun oracleUnpivotColumnResults(): OracleGeneratedColumns? {
+        val unpivotBody = text.oracleParenthesizedBodyAfter("UNPIVOT") ?: return null
+        val forOffset = unpivotBody.indexOfKeyword("FOR") ?: return null
+        val inOffset = unpivotBody.indexOfKeyword("IN", startIndex = forOffset + "FOR".length) ?: return null
         val measureColumns = unpivotBody.substring(0, forOffset).oracleNameList()
         val forColumns =
             unpivotBody
-                .substring(forOffset + "FOR".length)
-                .substringBeforeKeyword("IN")
+                .substring(forOffset + "FOR".length, inOffset)
                 .oracleNameList()
+        val sourceTypesByMeasure =
+            unpivotBody
+                .substring(inOffset + "IN".length)
+                .oracleUnpivotSourceTypesByMeasure(measureColumns.size)
+        val columns = mutableListOf<QueryColumn>()
+        val synthesizedColumnNames = mutableListOf<String>()
 
-        return (measureColumns + forColumns).distinct()
+        measureColumns.forEachIndexed { index, name ->
+            val measureType = sourceTypesByMeasure.getOrNull(index)?.oracleUnpivotMeasureType()
+            if (measureType == null) {
+                synthesizedColumnNames += name
+            } else {
+                columns += QueryColumn(OraclePivotColumnElement(this, name, IntermediateType(measureType).asNullable()))
+            }
+        }
+        forColumns.forEach { name ->
+            columns += QueryColumn(OraclePivotColumnElement(this, name, IntermediateType(OracleType.TEXT)))
+        }
+
+        return OracleGeneratedColumns(columns, synthesizedColumnNames)
+    }
+
+    private fun oracleColumnType(columnName: String): OracleType? =
+        oracleTableColumns().firstNotNullOfOrNull { column ->
+            val columnDef = column.element.parent as? SqlColumnDef ?: return@firstNotNullOfOrNull null
+            if (columnDef.columnName.name.equals(columnName, ignoreCase = true)) {
+                OracleType.fromSqlTypeName(columnDef.columnType.typeName.text)
+            } else {
+                null
+            }
+        }
+
+    private fun String.oracleUnpivotSourceTypesByMeasure(measureColumnCount: Int): List<List<OracleType>> {
+        if (measureColumnCount <= 0) return emptyList()
+        val groupedTypes =
+            oracleNameList()
+                .mapNotNull(::oracleColumnType)
+                .chunked(measureColumnCount)
+                .filter { types -> types.size == measureColumnCount }
+        return List(measureColumnCount) { index ->
+            groupedTypes.map { types -> types[index] }
+        }
+    }
+
+    private fun List<OracleType>.oracleUnpivotMeasureType(): OracleType? {
+        if (isEmpty()) return null
+        return when {
+            any { it == OracleType.BINARY_DOUBLE } -> OracleType.BINARY_DOUBLE
+            any { it == OracleType.BINARY_FLOAT } -> OracleType.BINARY_FLOAT
+            any { it == OracleType.DECIMAL_NUMBER } -> OracleType.DECIMAL_NUMBER
+            any { it == OracleType.LONG_NUMBER } -> OracleType.LONG_NUMBER
+            any { it == OracleType.INTEGER_NUMBER } -> OracleType.INTEGER_NUMBER
+            all { it == OracleType.TEXT } -> OracleType.TEXT
+            all { it == OracleType.BINARY } -> OracleType.BINARY
+            else -> first()
+        }
     }
 
     private fun oracleUnpivotSourceColumns(): List<QueryColumn> {
@@ -334,13 +653,17 @@ internal abstract class OracleTableOrSubqueryMixin(
     }
 
     private fun oracleSourceColumnsExcept(consumedColumns: Set<String>): List<QueryColumn> {
-        val tableNameElement = tableName ?: return emptyList()
-        return tableAvailable(tableNameElement, tableNameElement.name)
-            .flatMap { result -> result.columns }
+        return oracleTableColumns()
             .filterNot { column ->
                 val name = (column.element as? NamedElement)?.name ?: return@filterNot false
                 consumedColumns.any { consumed -> consumed.equals(name, ignoreCase = true) }
             }
+    }
+
+    private fun oracleTableColumns(): List<QueryColumn> {
+        val tableNameElement = tableName ?: return emptyList()
+        return tableAvailable(tableNameElement, tableNameElement.name)
+            .flatMap { result -> result.columns }
     }
 }
 
@@ -350,6 +673,17 @@ private fun String.startsWithOracleCollectionTableReference(): Boolean =
 private fun String.startsWithOracleKeywordCall(keyword: String): Boolean {
     if (!startsWith(keyword, ignoreCase = true)) return false
     return drop(keyword.length).trimStart().startsWith("(")
+}
+
+private fun String.oracleCollectionTableType(): OracleType? {
+    val tableBody = oracleParenthesizedBodyAfter("TABLE") ?: return null
+    val collectionName =
+        Regex("""(?i)^\s*(?:[A-Z_][A-Z0-9_$#]*\s*\.\s*)*([A-Z_][A-Z0-9_$#]*)\s*\(""")
+            .find(tableBody)
+            ?.groupValues
+            ?.get(1)
+            ?: return null
+    return OracleType.fromFunctionName(collectionName)
 }
 
 private class OraclePatternVariableElement(
@@ -370,6 +704,85 @@ private class OraclePatternVariableElement(
     override fun toString(): String = "Oracle pattern variable: $variableName"
 }
 
+private class OracleRowPatternMeasureElement(
+    private val anchor: PsiElement,
+    private val columnName: String,
+    private val source: PsiElement,
+) : LightElement(anchor.manager, anchor.language),
+    AliasElement {
+    override fun source(): PsiElement = source
+
+    override fun getName(): String = columnName
+
+    override fun setName(name: String): PsiElement = this
+
+    override fun getText(): String = columnName
+
+    override fun getContainingFile(): PsiFile = anchor.containingFile
+
+    override fun getParent(): PsiElement = anchor
+
+    override fun getNameIdentifier(): PsiElement? = null
+
+    override fun toString(): String = "Oracle row pattern measure: $columnName"
+}
+
+private class OracleGeneratedColumnElement(
+    private val anchor: PsiElement,
+    private val columnName: String,
+    private val columnType: IntermediateType,
+) : LightElement(anchor.manager, anchor.language),
+    AliasElement,
+    ExposableType {
+    override fun type(): IntermediateType = columnType.copy(name = columnName)
+
+    override fun annotate(annotationHolder: SqlAnnotationHolder) = Unit
+
+    override fun source(): PsiElement = anchor
+
+    override fun getName(): String = columnName
+
+    override fun setName(name: String): PsiElement = this
+
+    override fun getText(): String = columnName
+
+    override fun getContainingFile(): PsiFile = anchor.containingFile
+
+    override fun getParent(): PsiElement = anchor
+
+    override fun getNameIdentifier(): PsiElement? = null
+
+    override fun toString(): String = "Oracle generated column: $columnName"
+}
+
+private class OracleRowPatternMeasureTypeElement(
+    private val anchor: PsiElement,
+    private val columnName: String,
+    private val columnType: IntermediateType,
+) : LightElement(anchor.manager, anchor.language),
+    AliasElement,
+    ExposableType {
+    override fun type(): IntermediateType = columnType.copy(name = columnName)
+
+    override fun annotate(annotationHolder: SqlAnnotationHolder) = Unit
+
+    override fun source(): PsiElement = anchor
+
+    override fun getName(): String = columnName
+
+    override fun setName(name: String): PsiElement = this
+
+    override fun getText(): String = columnName
+
+    override fun getContainingFile(): PsiFile = anchor.containingFile
+
+    override fun getParent(): PsiElement = anchor
+
+    override fun getNameIdentifier(): PsiElement? = null
+
+    override fun toString(): String = "Oracle row pattern measure: $columnName"
+}
+
 private fun String.substringBeforeKeyword(keyword: String): String =
     indexOfKeyword(keyword)?.let { keywordOffset -> substring(0, keywordOffset) } ?: this
 
@@ -381,6 +794,150 @@ private fun String.oracleAliasesAfterAs(): List<String> =
         .findAll(this)
         .map { match -> match.groupValues[1].trimOracleIdentifier() }
         .toList()
+
+private fun String.oracleJsonTableColumnType(aliasText: String): String? {
+    val afterAlias = trim().removePrefix(aliasText).trimStart()
+    if (afterAlias.isBlank() || afterAlias.startsWith("FOR ", ignoreCase = true)) return null
+    return afterAlias
+        .substringBeforeKeyword("TRUNCATE")
+        .substringBeforeKeyword("FORMAT")
+        .substringBeforeKeyword("PATH")
+        .substringBeforeKeyword("EXISTS")
+        .substringBeforeKeyword("ERROR")
+        .substringBeforeKeyword("NULL")
+        .substringBeforeKeyword("DEFAULT")
+        .trim()
+        .takeIf { it.isNotBlank() }
+}
+
+private fun String.oracleXmltableColumnType(aliasText: String): String? {
+    val afterAlias = trim().removePrefix(aliasText).trimStart()
+    if (afterAlias.isBlank() || afterAlias.startsWith("FOR ", ignoreCase = true)) return null
+    return afterAlias
+        .substringBeforeKeyword("SEQUENCE")
+        .substringBeforeKeyword("PATH")
+        .substringBeforeKeyword("DEFAULT")
+        .trim()
+        .takeIf { it.isNotBlank() }
+}
+
+private fun String.oracleInlineExternalColumnType(columnName: String): String? {
+    val afterName = trim().removePrefix(columnName).trimStart()
+    if (afterName.isBlank()) return null
+    return afterName
+        .substringBeforeKeyword("CONSTRAINT")
+        .substringBeforeKeyword("NOT")
+        .substringBeforeKeyword("NULL")
+        .substringBeforeKeyword("DEFAULT")
+        .substringBeforeKeyword("COLLATE")
+        .trim()
+        .takeIf { it.isNotBlank() }
+}
+
+private fun String.hasOracleNotNullConstraint(): Boolean = Regex("""(?i)\bNOT\s+NULL\b""").containsMatchIn(this)
+
+private fun PsiElement.isOracleNullLiteral(): Boolean = text.trim().equals("NULL", ignoreCase = true)
+
+private fun List<SqlExpr>.oracleValuesColumnType(): IntermediateType? {
+    val valueTypes =
+        mapNotNull { expression ->
+            expression
+                .takeUnless { it.isOracleNullLiteral() }
+                ?.text
+                ?.oracleValuesLiteralType()
+        }
+    val valueType = valueTypes.oracleValuesCommonType() ?: return null
+    return if (any { expression -> expression.isOracleNullLiteral() }) valueType.asNullable() else valueType
+}
+
+private fun List<IntermediateType>.oracleValuesCommonType(): IntermediateType? {
+    if (isEmpty()) return null
+    val dialectTypes = map { type -> type.dialectType }
+    return when {
+        dialectTypes.all { type -> type in oracleValuesNumericTypeOrder } -> {
+            IntermediateType(oracleValuesNumericTypeOrder.last { type -> type in dialectTypes })
+        }
+
+        dialectTypes.all { type -> type == dialectTypes.first() } -> {
+            first()
+        }
+
+        else -> {
+            first()
+        }
+    }
+}
+
+private fun String.oracleValuesLiteralType(): IntermediateType? {
+    val value = trim()
+    return when {
+        value.startsWith("'") ||
+            value.startsWith("N'", ignoreCase = true) ||
+            value.startsWith("Q'", ignoreCase = true) ||
+            value.startsWith("NQ'", ignoreCase = true) -> {
+            IntermediateType(OracleType.TEXT)
+        }
+
+        value.equals("TRUE", ignoreCase = true) || value.equals("FALSE", ignoreCase = true) -> {
+            IntermediateType(OracleType.BOOLEAN_TYPE)
+        }
+
+        value.startsWith("DATE ", ignoreCase = true) -> {
+            IntermediateType(OracleType.DATE)
+        }
+
+        value.startsWith("TIMESTAMP ", ignoreCase = true) -> {
+            IntermediateType(
+                if (value.contains("TIME ZONE", ignoreCase = true)) {
+                    OracleType.TIMESTAMP_TIME_ZONE
+                } else {
+                    OracleType.TIMESTAMP
+                },
+            )
+        }
+
+        value.matches(Regex("""[+-]?\d+""")) -> {
+            IntermediateType(OracleType.LONG_NUMBER)
+        }
+
+        value.matches(Regex("""[+-]?(?:\d+\.\d*|\.\d+)(?:[eE][+-]?\d+)?""")) ||
+            value.matches(Regex("""[+-]?\d+[eE][+-]?\d+""")) -> {
+            IntermediateType(OracleType.DECIMAL_NUMBER)
+        }
+
+        else -> {
+            null
+        }
+    }
+}
+
+private val oracleValuesNumericTypeOrder =
+    listOf(
+        OracleType.LONG_NUMBER,
+        OracleType.DECIMAL_NUMBER,
+    )
+
+private fun String.oracleTopLevelTrailingAliases(): List<String> =
+    oracleTopLevelCommaParts().mapNotNull { part -> part.oracleTrailingAlias() }
+
+private fun String.oracleTrailingAlias(): String? {
+    val trimmed = trim()
+    if (
+        trimmed.isEmpty() ||
+        trimmed.equals("ANY", ignoreCase = true) ||
+        trimmed.startsWith("SELECT", ignoreCase = true)
+    ) {
+        return null
+    }
+
+    val match =
+        Regex("""(?is)(?:\bAS\s+)?("[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*)\s*$""")
+            .find(trimmed)
+            ?: return null
+    val prefix = trimmed.substring(0, match.range.first).trim()
+    if (prefix.isEmpty()) return null
+    return match.groupValues[1].trimOracleIdentifier()
+}
 
 private fun oracleRowPatternVariables(rowPatternClause: OracleOracleRowPatternClause): List<String> {
     val patternVariables =

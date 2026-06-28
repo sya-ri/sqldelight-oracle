@@ -24,9 +24,9 @@ public class NoConflictingAnnotationOperationsRule : Rule {
     ) {
         val content = context.file.content
         content
-            .maskSqlCommentsAndQuotedTextPreservingOffsets()
-            .annotationStatements()
-            .flatMap { statement -> statement.conflictingAnnotationOperations() }
+            .maskSqlCommentsAndQuotedTextPreservingOffsets(maskDoubleQuotedIdentifiers = false)
+            .annotationClauses(originalContent = content)
+            .flatMap { clause -> clause.conflictingAnnotationOperations() }
             .forEach { conflict ->
                 reporter.report(
                     RuleDiagnostic(
@@ -59,19 +59,29 @@ private data class AnnotationConflict(
     val second: AnnotationOperation,
 )
 
-private fun String.annotationStatements(): List<List<AnnotationToken>> {
-    val statements = mutableListOf<List<AnnotationToken>>()
-    var start = 0
-    while (start < length) {
-        val end = indexOf(';', startIndex = start).let { if (it == -1) length else it + 1 }
-        statements += substring(start, end).annotationTokens(offset = start)
-        start = end
+private fun String.annotationClauses(originalContent: String): List<List<AnnotationToken>> {
+    val clauses = mutableListOf<List<AnnotationToken>>()
+    var searchOffset = 0
+    while (searchOffset < length) {
+        val annotationsOffset = indexOfAnnotationKeyword(searchOffset)
+        if (annotationsOffset == -1) break
+
+        val listStart = skipAnnotationWhitespace(annotationsOffset + ANNOTATIONS.length)
+        if (getOrNull(listStart) == '(') {
+            val listEnd = matchingSqlParenthesis(listStart)
+            if (listEnd != null) {
+                clauses += originalContent.substring(listStart + 1, listEnd).annotationTokens(offset = listStart + 1)
+                searchOffset = listEnd + 1
+                continue
+            }
+        }
+
+        searchOffset = annotationsOffset + ANNOTATIONS.length
     }
-    return statements
+    return clauses
 }
 
 private fun List<AnnotationToken>.conflictingAnnotationOperations(): List<AnnotationConflict> {
-    if (none { token -> token.annotationHasText("ANNOTATIONS") }) return emptyList()
     val firstByAnnotation = linkedMapOf<String, AnnotationOperation>()
     return annotationOperations().mapNotNull { operation ->
         val first = firstByAnnotation.putIfAbsent(operation.annotationName.lowercase(), operation)
@@ -90,7 +100,7 @@ private fun List<AnnotationToken>.annotationOperations(): List<AnnotationOperati
         if (!token.isAnnotationOperationKeyword()) return@mapIndexedNotNull null
         val nameToken = annotationNameTokenAfter(index) ?: return@mapIndexedNotNull null
         AnnotationOperation(
-            annotationName = nameToken.text,
+            annotationName = nameToken.text.unquotedAnnotationName(),
             startOffset = token.startOffset,
             endOffset = nameToken.endOffset,
         )
@@ -110,7 +120,9 @@ private fun List<AnnotationToken>.annotationNameTokenAfter(operationIndex: Int):
     return getOrNull(index)
 }
 
-private val annotationTokenPattern = Regex("""[A-Za-z_][A-Za-z0-9_$#]*|;""")
+private val annotationTokenPattern = Regex("'(?:''|[^'])*'|\"(?:\"\"|[^\"])*\"|[A-Za-z_][A-Za-z0-9_$#]*|;")
+
+private const val ANNOTATIONS = "ANNOTATIONS"
 
 private fun String.annotationTokens(offset: Int): List<AnnotationToken> =
     annotationTokenPattern
@@ -127,3 +139,30 @@ private fun AnnotationToken?.annotationHasText(text: String): Boolean = this?.te
 
 private fun AnnotationToken.isAnnotationOperationKeyword(): Boolean =
     annotationHasText("ADD") || annotationHasText("DROP") || annotationHasText("REPLACE")
+
+private fun String.unquotedAnnotationName(): String =
+    when {
+        startsWith("\"") -> removeSurrounding("\"").replace("\"\"", "\"")
+        startsWith("'") -> removeSurrounding("'").replace("''", "'")
+        else -> this
+    }
+
+private fun String.indexOfAnnotationKeyword(startIndex: Int): Int {
+    var index = startIndex
+    while (index < length) {
+        index = indexOf(ANNOTATIONS, startIndex = index, ignoreCase = true)
+        if (index == -1) return -1
+        if (isAnnotationKeywordBoundary(index - 1) && isAnnotationKeywordBoundary(index + ANNOTATIONS.length)) return index
+        index += ANNOTATIONS.length
+    }
+    return -1
+}
+
+private fun String.isAnnotationKeywordBoundary(index: Int): Boolean =
+    index !in indices || (!this[index].isLetterOrDigit() && this[index] != '_' && this[index] != '$' && this[index] != '#')
+
+private fun String.skipAnnotationWhitespace(index: Int): Int {
+    var current = index
+    while (current < length && this[current].isWhitespace()) current++
+    return current
+}

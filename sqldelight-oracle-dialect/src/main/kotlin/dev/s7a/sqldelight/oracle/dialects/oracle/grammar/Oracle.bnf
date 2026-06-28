@@ -247,7 +247,7 @@ type_name ::= oracle_type_name | core_type_name {
   override = true
 }
 
-extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_boolean_literal_expr | oracle_boolean_not_expr | oracle_boolean_test_expr | oracle_extract_datetime_expr | oracle_character_function_expr | oracle_object_method_expr | oracle_object_attribute_expr | oracle_datetime_conversion_expr | oracle_number_conversion_expr | oracle_interval_conversion_expr | oracle_user_function_expr | oracle_collection_function_expr | oracle_object_reference_function_expr | oracle_oml_function_expr | oracle_ordered_aggregate_expr | oracle_analytic_function_expr | oracle_aggregate_function_expr | oracle_datetime_literal | oracle_interval_literal | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_condition_expr | oracle_multiset_expr | oracle_collate_expr | oracle_cursor_expr | oracle_validate_conversion_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_type_constructor_expr {
+extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_boolean_literal_expr | oracle_boolean_not_expr | oracle_boolean_test_expr | oracle_extract_datetime_expr | oracle_character_function_expr | oracle_object_method_expr | oracle_object_attribute_expr | oracle_datetime_conversion_expr | oracle_number_conversion_expr | oracle_interval_conversion_expr | oracle_user_function_expr | oracle_collection_function_expr | oracle_object_reference_function_expr | oracle_oml_function_expr | oracle_ordered_aggregate_expr | oracle_approx_median_expr | oracle_analytic_function_expr | oracle_aggregate_function_expr | oracle_datetime_literal | oracle_interval_literal | oracle_at_time_zone_expr | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_condition_expr | oracle_multiset_expr | oracle_collate_expr | oracle_cursor_expr | oracle_validate_conversion_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_type_constructor_expr {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionExprImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionExpr"
   override = true
@@ -287,7 +287,9 @@ private oracle_datetime_field ::= (
   'TIMEZONE_HOUR' | 'TIMEZONE_MINUTE' | 'TIMEZONE_REGION' | 'TIMEZONE_ABBR' | 'TIMEZONE_OFFSET'
 )
 
-private oracle_character_function_expr ::= oracle_replace_expr | oracle_regexp_count_expr | oracle_regexp_instr_expr | oracle_translate_using_expr | oracle_trim_expr
+private oracle_character_function_expr ::= oracle_chr_expr | oracle_replace_expr | oracle_regexp_count_expr | oracle_regexp_instr_expr | oracle_translate_using_expr | oracle_trim_expr
+
+private oracle_chr_expr ::= 'CHR' LP <<expr '-1'>> [ 'USING' ( 'CHAR_CS' | 'NCHAR_CS' ) ] RP
 
 private oracle_replace_expr ::= 'REPLACE' LP <<expr '-1'>> COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] RP
 
@@ -383,11 +385,15 @@ private oracle_mining_attribute_clause ::= 'USING' ( '*' | oracle_mining_attribu
 
 private oracle_mining_attribute ::= ( oracle_object_name_part DOT '*' | <<expr '-1'>> ) [ [ 'AS' ] oracle_object_name_part ]
 
-private oracle_analytic_function_expr ::= oracle_function_invocation ( oracle_keep_clause [ oracle_over_clause ] | oracle_over_clause )
+private oracle_analytic_function_expr ::= oracle_function_invocation ( oracle_keep_clause [ oracle_over_clause ] | [ oracle_from_first_last_clause ] [ oracle_null_treatment_clause ] oracle_over_clause )
 
 private oracle_function_invocation ::= oracle_object_name_part LP [ oracle_function_argument ( COMMA oracle_function_argument ) * ] RP
 
-private oracle_function_argument ::= '*' | ( 'DISTINCT' | 'UNIQUE' | 'ALL' ) <<expr '-1'>> | <<expr '-1'>>
+private oracle_function_argument ::= '*' | ( 'DISTINCT' | 'UNIQUE' | 'ALL' ) <<expr '-1'>> | <<expr '-1'>> [ oracle_null_treatment_clause ]
+
+private oracle_null_treatment_clause ::= ( 'RESPECT' | 'IGNORE' ) 'NULLS'
+
+private oracle_from_first_last_clause ::= 'FROM' ( 'FIRST' | 'LAST' )
 
 private oracle_aggregate_function_expr ::= oracle_aggregate_function_name LP [ oracle_function_argument ( COMMA oracle_function_argument ) * ] RP [ oracle_filter_clause ] [ oracle_over_clause ]
 
@@ -399,12 +405,16 @@ private oracle_aggregate_function_name ::= (
   'STDDEV' | 'STDDEV_POP' | 'STDDEV_SAMP' | 'SUM' | 'VARIANCE' | 'VAR_POP' | 'VAR_SAMP'
 )
 
-private oracle_ordered_aggregate_expr ::= ( oracle_approx_percentile_expr | oracle_percentile_expr | oracle_listagg_expr ) [ oracle_filter_clause ] [ oracle_over_clause [ oracle_filter_clause ] ]
+private oracle_ordered_aggregate_expr ::= ( oracle_approx_percentile_expr | oracle_percentile_expr | oracle_listagg_expr | oracle_hypothetical_rank_expr ) [ oracle_filter_clause ] [ oracle_over_clause [ oracle_filter_clause ] ]
 
 private oracle_approx_percentile_expr ::=
   'APPROX_PERCENTILE' LP <<expr '-1'>> [ 'DETERMINISTIC' ] [ COMMA <<expr '-1'>> ] RP oracle_within_group_clause
 
+private oracle_approx_median_expr ::= 'APPROX_MEDIAN' LP <<expr '-1'>> [ 'DETERMINISTIC' ] [ COMMA <<expr '-1'>> ] RP
+
 private oracle_percentile_expr ::= ( 'PERCENTILE_CONT' | 'PERCENTILE_DISC' ) LP <<expr '-1'>> RP oracle_within_group_clause
+
+private oracle_hypothetical_rank_expr ::= ( 'RANK' | 'DENSE_RANK' | 'PERCENT_RANK' | 'CUME_DIST' ) LP <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP oracle_within_group_clause
 
 private oracle_listagg_expr ::=
   'LISTAGG' LP [ 'ALL' | 'DISTINCT' ] <<expr '-1'>> [ COMMA <<expr '-1'>> ] [ oracle_listagg_overflow_clause ] RP oracle_within_group_clause
@@ -691,7 +701,11 @@ private oracle_json_value_type_clause ::= 'TYPE' LP ( 'STRICT' | 'LAX' ) RP
 
 private oracle_type_conversion_expr ::= oracle_cast_expr | oracle_treat_expr
 
-private oracle_cast_expr ::= 'CAST' LP <<expr '-1'>> 'AS' oracle_type_name [ 'DEFAULT' <<expr '-1'>> 'ON' 'CONVERSION' 'ERROR' ] [ COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] ] RP
+private oracle_cast_expr ::= 'CAST' LP ( oracle_multiset_subquery_expr | <<expr '-1'>> ) 'AS' oracle_cast_type_name [ 'DEFAULT' <<expr '-1'>> 'ON' 'CONVERSION' 'ERROR' ] [ COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] ] RP
+
+private oracle_multiset_subquery_expr ::= 'MULTISET' LP <<compoundSelectStmtExt <<compound_select_stmt_real>>>> RP
+
+private oracle_cast_type_name ::= oracle_type_name | oracle_schema_object_name
 
 private oracle_validate_conversion_expr ::= 'VALIDATE_CONVERSION' LP <<expr '-1'>> 'AS' type_name [ COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] ] RP
 
@@ -839,9 +853,13 @@ private oracle_collate_operand ::= oracle_qualified_object_name | {string_litera
 
 private oracle_qualified_object_name ::= oracle_object_name_part ( DOT oracle_object_name_part ) *
 
-private oracle_pseudocolumn_expr ::= oracle_qualified_table_pseudocolumn | oracle_simple_pseudocolumn
+private oracle_pseudocolumn_expr ::= oracle_qualified_table_pseudocolumn | oracle_current_datetime_precision_pseudocolumn | oracle_simple_pseudocolumn
+
+private oracle_current_datetime_precision_pseudocolumn ::= ( 'CURRENT_TIMESTAMP' | 'LOCALTIMESTAMP' ) LP {signed_number} RP
 
 private oracle_qualified_table_pseudocolumn ::= oracle_object_name_part DOT (
+  'CURRVAL' |
+  'NEXTVAL' |
   'ORA_ROWSCN' |
   'ROWID'
 )
@@ -850,8 +868,12 @@ private oracle_simple_pseudocolumn ::= (
   'COLUMN_VALUE' |
   'CONNECT_BY_ISCYCLE' |
   'CONNECT_BY_ISLEAF' |
+  'CURRENT_DATE' |
+  'CURRENT_TIMESTAMP' |
+  'CURRENT_USER' |
   'DBTIMEZONE' |
   'LEVEL' |
+  'LOCALTIMESTAMP' |
   'OBJECT_ID' |
   'OBJECT_VALUE' |
   'ORA_INVOKING_USER' |
@@ -861,6 +883,8 @@ private oracle_simple_pseudocolumn ::= (
   'ROWID' |
   'ROWNUM' |
   'SESSIONTIMEZONE' |
+  'SYSDATE' |
+  'SYSTIMESTAMP' |
   'UID' |
   'USER' |
   'VERSIONS_ENDSCN' |
@@ -876,6 +900,10 @@ private oracle_datetime_literal ::= (
   'DATE' {string_literal} |
   'TIMESTAMP' {string_literal} [ 'AT' [ 'LOCAL' ] 'TIME' 'ZONE' ( {string_literal} | <<expr '-1'>> ) ]
 )
+
+private oracle_at_time_zone_expr ::= oracle_at_time_zone_operand 'AT' 'TIME' 'ZONE' ( {string_literal} | <<expr '-1'>> )
+
+private oracle_at_time_zone_operand ::= oracle_qualified_object_name | oracle_current_datetime_precision_pseudocolumn | oracle_simple_pseudocolumn | LP <<expr '-1'>> RP
 
 private oracle_interval_literal ::= 'INTERVAL' {string_literal} oracle_interval_qualifier
 
@@ -1307,7 +1335,19 @@ oracle_json_table_column ::= (
 
 oracle_json_table_ordinality_column ::= <<columnAliasExt <<column_alias_real>>>> 'FOR' 'ORDINALITY'
 
-oracle_json_table_regular_column ::= <<columnAliasExt <<column_alias_real>>>> oracle_json_table_datatype [ 'TRUNCATE' ]
+oracle_json_table_regular_column ::= <<columnAliasExt <<column_alias_real>>>> [
+  oracle_json_table_regular_column_no_datatype |
+  oracle_json_table_regular_column_with_datatype
+]
+
+private oracle_json_table_regular_column_no_datatype ::= (
+  'TRUNCATE' [ oracle_json_format_clause ] [ oracle_json_table_path_clause ] oracle_json_table_value_clause * |
+  oracle_json_format_clause [ oracle_json_table_path_clause ] oracle_json_table_value_clause * |
+  oracle_json_table_path_clause oracle_json_table_value_clause * |
+  oracle_json_table_value_clause +
+)
+
+private oracle_json_table_regular_column_with_datatype ::= oracle_json_table_datatype [ 'TRUNCATE' ]
   [ oracle_json_format_clause ] [ oracle_json_table_path_clause ] oracle_json_table_value_clause *
 
 oracle_json_table_exists_column ::= <<columnAliasExt <<column_alias_real>>>> [ oracle_json_table_datatype ]
@@ -1740,7 +1780,7 @@ private oracle_from_using_source ::= <<tableOrSubqueryExt <<table_or_subquery_re
 
 private oracle_wait_clause ::= 'NOWAIT' | 'WAIT' ( 'FOREVER' | {signed_number} [ 'SECONDS' | 'MILLISECONDS' | 'MICROSECONDS' ] )
 
-private oracle_returning_clause ::= ( 'RETURN' | 'RETURNING' ) oracle_returning_expr ( COMMA oracle_returning_expr ) * 'INTO' oracle_returning_target ( COMMA oracle_returning_target ) *
+private oracle_returning_clause ::= ( 'RETURN' | 'RETURNING' ) oracle_returning_expr ( COMMA oracle_returning_expr ) * [ 'BULK' 'COLLECT' ] 'INTO' oracle_returning_target ( COMMA oracle_returning_target ) *
 
 private oracle_returning_expr ::= [ 'OLD' | 'NEW' ] <<expr '-1'>>
 
@@ -1756,7 +1796,7 @@ qualified_table_name ::= (
   override = true
 }
 
-table_alias ::= !oracle_table_alias_stop_keyword ( <<identifierExt <<identifier_real>>>> | string ) {
+table_alias ::= !oracle_table_alias_stop_keyword ( <<identifierExt <<identifier_real>>>> | <<columnAliasExt <<column_alias_real>>>> | string ) {
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleTableAliasMixin"
   implements = [
     "com.alecstrong.sql.psi.core.psi.SqlTableAlias";
@@ -1927,9 +1967,12 @@ create_table_stmt ::= 'CREATE' (
 private oracle_create_relational_table ::= (
   oracle_create_xmltype_table |
   oracle_create_object_table |
+  oracle_ctas_column_aliases [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_as_property * 'AS' {compound_select_stmt} |
   LP {column_def} ( COMMA {column_def} ) * ( COMMA oracle_create_table_element ) * RP [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_property * |
   [ oracle_annotations_clause ] [ oracle_on_commit_clause ] oracle_create_table_as_property * 'AS' {compound_select_stmt}
 )
+
+private oracle_ctas_column_aliases ::= LP {column_alias} ( COMMA {column_alias} ) * RP
 
 private oracle_create_xmltype_table ::= 'OF' 'XMLTYPE'
   oracle_xmltype_table_property *
@@ -2571,6 +2614,7 @@ alter_table_rules ::= (
   alter_table_rename_table |
   alter_table_drop_supplemental_logging |
   alter_table_drop_constraint |
+  alter_table_drop_unused_columns |
   alter_table_drop_column |
   alter_table_set_unused_column |
   alter_table_rename_column |
@@ -2721,10 +2765,18 @@ alter_table_drop_constraint ::= 'DROP' (
   pin = 2
 }
 
-alter_table_drop_column ::= 'DROP' [ 'COLUMN' ] {column_name} [ 'CASCADE' 'CONSTRAINTS' ] {
+alter_table_drop_column ::= 'DROP' (
+  [ 'COLUMN' ] {column_name} |
+  LP {column_name} ( COMMA {column_name} ) * RP
+) [ 'CASCADE' 'CONSTRAINTS' ] [ 'CHECKPOINT' [ {signed_number} ] ] {
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.AlterTableDropColumnMixin"
   pin = 1
 }
+
+private alter_table_drop_unused_columns ::= 'DROP' (
+  'UNUSED' 'COLUMNS' [ 'CHECKPOINT' [ {signed_number} ] ] |
+  'COLUMNS' 'CONTINUE' [ 'CHECKPOINT' [ {signed_number} ] ]
+)
 
 private alter_table_set_unused_column ::= 'SET' 'UNUSED' [ 'COLUMN' ] ( {column_name} | LP {column_name} ( COMMA {column_name} ) * RP ) [ 'CASCADE' 'CONSTRAINTS' ] [ 'ONLINE' ]
 
@@ -3385,11 +3437,11 @@ create_synonym_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'EDITIONABLE' | 'NONEDITIO
   [ oracle_synonym_sharing_clause ] 'FOR' oracle_synonym_target
 
 create_schema_qualified_synonym_stmt ::= 'CREATE' [ 'OR' 'REPLACE' ] [ 'EDITIONABLE' | 'NONEDITIONABLE' ]
-  [ oracle_public_qualifier ] 'SYNONYM' [ 'IF' 'NOT' 'EXISTS' ] {database_name} DOT {view_name}
-  [ oracle_synonym_sharing_clause ] 'FOR' oracle_local_synonym_target {
-  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlCreateViewStmtImpl"
+  [ oracle_public_qualifier ] 'SYNONYM' [ 'IF' 'NOT' 'EXISTS' ] {database_name} DOT {table_name}
+  [ oracle_synonym_sharing_clause ] 'FOR' oracle_synonym_target {
+  extends = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.impl.OracleCreateSynonymMixin"
   implements = "com.alecstrong.sql.psi.core.psi.TableElement"
-  elementTypeClass = "com.alecstrong.sql.psi.core.psi.mixins.CreateViewElementType"
+  elementTypeClass = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleCreateSchemaQualifiedSynonymElementType"
   stubClass = "com.alecstrong.sql.psi.core.psi.SchemaContributorStub"
 }
 

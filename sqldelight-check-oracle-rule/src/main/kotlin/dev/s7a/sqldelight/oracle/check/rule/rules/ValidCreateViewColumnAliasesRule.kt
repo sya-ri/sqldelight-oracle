@@ -23,7 +23,12 @@ public class ValidCreateViewColumnAliasesRule : Rule {
         reporter: DiagnosticReporter,
     ) {
         val content = context.file.content
-        content.maskSqlCommentsAndQuotedTextPreservingOffsets(maskQuoteDelimiters = false).createViewAliasChecks().forEach { check ->
+        val maskedContent =
+            content.maskSqlCommentsAndQuotedTextPreservingOffsets(
+                maskQuoteDelimiters = false,
+                maskDoubleQuotedIdentifiers = false,
+            )
+        maskedContent.createViewAliasChecks().forEach { check ->
             check.duplicateAlias()?.let { duplicate ->
                 reporter.report(
                     RuleDiagnostic(
@@ -65,9 +70,16 @@ private data class CreateViewAliasCheck(
 ) {
     fun duplicateAlias(): ViewAlias? {
         val seen = mutableSetOf<String>()
-        return aliases.firstOrNull { alias -> !seen.add(alias.text.trim('"').uppercase()) }
+        return aliases.firstOrNull { alias -> !seen.add(alias.text.createViewAliasKey()) }
     }
 }
+
+private fun String.createViewAliasKey(): String =
+    if (startsWith("\"") && endsWith("\"")) {
+        removeSurrounding("\"").replace("\"\"", "\"")
+    } else {
+        uppercase()
+    }
 
 private fun String.createViewAliasChecks(): List<CreateViewAliasCheck> {
     val checks = mutableListOf<CreateViewAliasCheck>()
@@ -82,7 +94,9 @@ private fun String.createViewStatementRanges(): List<IntRange> {
     var start = 0
     while (start < length) {
         val end = indexOf(';', startIndex = start).let { if (it == -1) length else it + 1 }
-        if (substring(start, end).contains(Regex("""(?i)\bCREATE\b.+\bVIEW\b"""))) {
+        val createOffset = indexOfKeyword("CREATE", start, end)
+        val viewOffset = createOffset?.let { indexOfKeyword("VIEW", it + "CREATE".length, end) }
+        if (viewOffset != null) {
             ranges += start until end
         }
         start = end
@@ -112,16 +126,62 @@ private fun String.aliasesIn(
     endOffset: Int,
 ): List<ViewAlias> {
     val aliases = mutableListOf<ViewAlias>()
-    var index = startOffset
-    while (index < endOffset) {
-        index = skipCreateViewWhitespaceAndCommas(index, endOffset)
-        val aliasEnd = createViewIdentifierEnd(index, endOffset)
+    viewColumnItems(startOffset, endOffset).forEach { item ->
+        val index = skipCreateViewWhitespace(item.first, item.last + 1)
+        val startsWithConstraint =
+            regionMatches(
+                index,
+                "CONSTRAINT",
+                0,
+                "CONSTRAINT".length,
+                ignoreCase = true,
+            ) && isCreateViewBoundary(index + "CONSTRAINT".length)
+        if (startsWithConstraint) {
+            return@forEach
+        }
+        val aliasEnd = sqlIdentifierEnd(index, item.last + 1)
         if (aliasEnd > index) {
             aliases += ViewAlias(substring(index, aliasEnd), index until aliasEnd)
         }
-        index = aliasEnd + 1
     }
     return aliases
+}
+
+private fun String.viewColumnItems(
+    startOffset: Int,
+    endOffset: Int,
+): List<IntRange> {
+    val items = mutableListOf<IntRange>()
+    var itemStart = startOffset
+    var index = startOffset
+    var depth = 0
+    while (index < endOffset) {
+        val skipped = skipSqlDelimitedText(index)
+        if (skipped != null) {
+            index = skipped
+            continue
+        }
+
+        when (this[index]) {
+            '(' -> {
+                depth++
+            }
+
+            ')' -> {
+                depth--
+            }
+
+            ',' -> {
+                if (depth == 0) {
+                    items += itemStart until index
+                    itemStart = index + 1
+                }
+            }
+        }
+        index++
+    }
+    items += itemStart until endOffset
+    return items
 }
 
 private fun String.indexOfKeyword(
@@ -131,10 +191,19 @@ private fun String.indexOfKeyword(
 ): Int? {
     var index = startOffset
     while (index < endOffset) {
-        index = indexOf(keyword, startIndex = index, ignoreCase = true)
-        if (index == -1 || index >= endOffset) return null
-        if (isCreateViewBoundary(index - 1) && isCreateViewBoundary(index + keyword.length)) return index
-        index += keyword.length
+        val skipped = skipSqlDelimitedText(index)
+        if (skipped != null) {
+            index = skipped
+            continue
+        }
+
+        if (regionMatches(index, keyword, 0, keyword.length, ignoreCase = true) &&
+            isCreateViewBoundary(index - 1) &&
+            isCreateViewBoundary(index + keyword.length)
+        ) {
+            return index
+        }
+        index++
     }
     return null
 }
@@ -147,6 +216,12 @@ private fun String.indexOfTopLevelKeyword(
     var index = startOffset
     var depth = 0
     while (index < endOffset) {
+        val skipped = skipSqlDelimitedText(index)
+        if (skipped != null) {
+            index = skipped
+            continue
+        }
+
         when (this[index]) {
             '(' -> depth++
             ')' -> depth--
@@ -161,7 +236,13 @@ private fun String.indexOfTopLevelKeyword(
 
 private fun String.matchingOpenParenthesis(closeOffset: Int): Int? {
     var depth = 0
-    for (index in closeOffset downTo 0) {
+    var index = closeOffset
+    while (index >= 0) {
+        if (this[index] == '"') {
+            index = previousSqlDoubleQuotedIdentifierStart(index)
+            continue
+        }
+
         when (this[index]) {
             ')' -> {
                 depth++
@@ -172,32 +253,34 @@ private fun String.matchingOpenParenthesis(closeOffset: Int): Int? {
                 if (depth == 0) return index
             }
         }
+        index--
     }
     return null
 }
 
-private fun String.skipCreateViewWhitespaceAndCommas(
-    startOffset: Int,
-    endOffset: Int,
-): Int {
-    var index = startOffset
-    while (index < endOffset && (this[index].isWhitespace() || this[index] == ',')) index++
-    return index
+private fun String.previousSqlDoubleQuotedIdentifierStart(closeOffset: Int): Int {
+    var index = closeOffset - 1
+    while (index >= 0) {
+        if (this[index] == '"') {
+            val escapedQuote = index > 0 && this[index - 1] == '"'
+            if (escapedQuote) {
+                index -= 2
+            } else {
+                return index - 1
+            }
+        } else {
+            index--
+        }
+    }
+    return closeOffset - 1
 }
 
-private fun String.createViewIdentifierEnd(
+private fun String.skipCreateViewWhitespace(
     startOffset: Int,
     endOffset: Int,
 ): Int {
-    if (startOffset >= endOffset) return startOffset
-    if (this[startOffset] == '"') {
-        val end = indexOf('"', startIndex = startOffset + 1).takeIf { it in startOffset until endOffset }
-        return if (end == null) startOffset else end + 1
-    }
     var index = startOffset
-    while (index < endOffset && (this[index].isLetterOrDigit() || this[index] == '_' || this[index] == '$' || this[index] == '#')) {
-        index++
-    }
+    while (index < endOffset && this[index].isWhitespace()) index++
     return index
 }
 

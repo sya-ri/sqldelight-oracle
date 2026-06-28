@@ -30,6 +30,110 @@ class NullableNotInPredicateRuleTest :
                 )
         }
 
+        test("reports NOT IN subquery when only the outer query filters nulls") {
+            val diagnostics =
+                NullableNotInPredicateRule().diagnostics(
+                    """
+                    SELECT *
+                    FROM customer
+                    WHERE id NOT IN (
+                        SELECT customer_id
+                        FROM invoice
+                    )
+                    AND status IS NOT NULL;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = NULLABLE_NOT_IN_MESSAGE,
+                        startLine = 3,
+                        startColumn = 10,
+                        endLine = 3,
+                        endColumn = 16,
+                    ),
+                )
+        }
+
+        test("reports NOT IN subquery when a different subquery column filters nulls") {
+            val diagnostics =
+                NullableNotInPredicateRule().diagnostics(
+                    """
+                    SELECT *
+                    FROM customer
+                    WHERE id NOT IN (
+                        SELECT customer_id
+                        FROM invoice
+                        WHERE deleted_at IS NOT NULL
+                    );
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = NULLABLE_NOT_IN_MESSAGE,
+                        startLine = 3,
+                        startColumn = 10,
+                        endLine = 3,
+                        endColumn = 16,
+                    ),
+                )
+        }
+
+        test("reports qualified NOT IN subquery when a different subquery column filters nulls") {
+            val diagnostics =
+                NullableNotInPredicateRule().diagnostics(
+                    """
+                    SELECT *
+                    FROM customer
+                    WHERE id NOT IN (
+                        SELECT i.customer_id
+                        FROM invoice i
+                        WHERE i.deleted_at IS NOT NULL
+                    );
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = NULLABLE_NOT_IN_MESSAGE,
+                        startLine = 3,
+                        startColumn = 10,
+                        endLine = 3,
+                        endColumn = 16,
+                    ),
+                )
+        }
+
+        test("reports aliased NOT IN subquery when a different subquery column filters nulls") {
+            val diagnostics =
+                NullableNotInPredicateRule().diagnostics(
+                    """
+                    SELECT *
+                    FROM customer
+                    WHERE id NOT IN (
+                        SELECT i.customer_id AS invoice_customer_id
+                        FROM invoice i
+                        WHERE i.deleted_at IS NOT NULL
+                    );
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = NULLABLE_NOT_IN_MESSAGE,
+                        startLine = 3,
+                        startColumn = 10,
+                        endLine = 3,
+                        endColumn = 16,
+                    ),
+                )
+        }
+
         test("accepts NOT IN subquery with explicit null filtering") {
             NullableNotInPredicateRule().diagnostics(
                 """
@@ -39,6 +143,34 @@ class NullableNotInPredicateRuleTest :
                     SELECT customer_id
                     FROM invoice
                     WHERE customer_id IS NOT NULL
+                );
+                """,
+            ) shouldBe emptyList()
+        }
+
+        test("accepts qualified NOT IN subquery with explicit null filtering") {
+            NullableNotInPredicateRule().diagnostics(
+                """
+                SELECT *
+                FROM customer
+                WHERE id NOT IN (
+                    SELECT i.customer_id
+                    FROM invoice i
+                    WHERE i.customer_id IS NOT NULL
+                );
+                """,
+            ) shouldBe emptyList()
+        }
+
+        test("accepts aliased NOT IN subquery with explicit null filtering") {
+            NullableNotInPredicateRule().diagnostics(
+                """
+                SELECT *
+                FROM customer
+                WHERE id NOT IN (
+                    SELECT i.customer_id AS invoice_customer_id
+                    FROM invoice i
+                    WHERE i.customer_id IS NOT NULL
                 );
                 """,
             ) shouldBe emptyList()

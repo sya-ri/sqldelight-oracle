@@ -26,6 +26,28 @@ class ValidReturningClauseRuleTest :
                 )
         }
 
+        test("reports repeated returning clauses after a SQLDelight query label") {
+            ValidReturningClauseRule()
+                .diagnostics(
+                    """
+                    updateCustomer:
+                    UPDATE customer
+                    SET name = :name
+                    RETURNING id INTO :id
+                    RETURNING name INTO :name_out;
+                    """,
+                ).summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Use a valid Oracle RETURNING clause: RETURNING.",
+                        startLine = 4,
+                        startColumn = 1,
+                        endLine = 5,
+                        endColumn = 10,
+                    ),
+                )
+        }
+
         test("reports repeated returning into clauses exactly") {
             ValidReturningClauseRule()
                 .diagnostics(
@@ -46,7 +68,7 @@ class ValidReturningClauseRuleTest :
                 )
         }
 
-        test("reports mixed old and new returning expressions exactly") {
+        test("accepts mixed old and new returning expressions") {
             ValidReturningClauseRule()
                 .diagnostics(
                     """
@@ -54,16 +76,7 @@ class ValidReturningClauseRuleTest :
                     SET name = :name
                     RETURNING OLD id, NEW id INTO :id;
                     """,
-                ).summaries() shouldBe
-                listOf(
-                    DiagnosticSummary(
-                        message = "Use a valid Oracle RETURNING clause: OLD/NEW.",
-                        startLine = 3,
-                        startColumn = 11,
-                        endLine = 3,
-                        endColumn = 22,
-                    ),
-                )
+                ).summaries() shouldBe emptyList()
         }
 
         test("accepts one valid returning clause") {
@@ -73,6 +86,17 @@ class ValidReturningClauseRuleTest :
                     INSERT INTO customer (id, name)
                     VALUES (:id, :name)
                     RETURNING id INTO :generated_id;
+                    """,
+                ).summaries() shouldBe emptyList()
+        }
+
+        test("accepts expression returning clauses before a DML returning clause") {
+            ValidReturningClauseRule()
+                .diagnostics(
+                    """
+                    UPDATE customer
+                    SET score = JSON_VALUE(profile, '${'$'}.score' RETURNING NUMBER NULL ON ERROR)
+                    RETURNING id INTO :updated_id;
                     """,
                 ).summaries() shouldBe emptyList()
         }

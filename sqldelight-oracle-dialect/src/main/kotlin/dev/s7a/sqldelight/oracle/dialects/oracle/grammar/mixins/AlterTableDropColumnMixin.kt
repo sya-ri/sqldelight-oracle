@@ -13,7 +13,7 @@ internal abstract class AlterTableDropColumnMixin(
     AlterTableApplier {
     override fun applyTo(lazyQuery: LazyQuery): LazyQuery =
         lazyQuery.withOracleColumns { columns ->
-            val columnName = oracleSingleColumnName()
-            columns.filter { it.element.text != columnName.name }
+            val columnNames = oracleColumnNames()
+            columns.filterNot { column -> columnNames.any(column::matchesOracleNamedElement) }
         }
 }

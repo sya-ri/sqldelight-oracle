@@ -25,6 +25,29 @@ class UnsafeDdlMigrationRuleTest :
                 )
         }
 
+        test("reports required column additions when only a sibling column has a default") {
+            val diagnostics =
+                UnsafeDdlMigrationRule().diagnostics(
+                    """
+                    ALTER TABLE customer ADD (
+                        status VARCHAR2(20) NOT NULL,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+                    );
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 1,
+                        startColumn = 1,
+                        endLine = 1,
+                        endColumn = 12,
+                    ),
+                )
+        }
+
         test("reports required column modifications without default values") {
             val diagnostics =
                 UnsafeDdlMigrationRule().diagnostics(
@@ -50,9 +73,11 @@ class UnsafeDdlMigrationRuleTest :
                 UnsafeDdlMigrationRule().diagnostics(
                     """
                     ALTER TABLE customer DROP COLUMN legacy_code;
+                    ALTER TABLE customer DROP (legacy_code, archived_code);
                     ALTER TABLE customer MOVE;
                     ALTER TABLE customer SHRINK SPACE;
                     ALTER TABLE customer SET UNUSED COLUMN legacy_code;
+                    ALTER TABLE customer SET UNUSED (legacy_code, archived_code);
                     ALTER TABLE customer DROP UNUSED COLUMNS;
                     """,
                 )
@@ -94,6 +119,20 @@ class UnsafeDdlMigrationRuleTest :
                         endLine = 5,
                         endColumn = 12,
                     ),
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 6,
+                        startColumn = 1,
+                        endLine = 6,
+                        endColumn = 12,
+                    ),
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 7,
+                        startColumn = 1,
+                        endLine = 7,
+                        endColumn = 12,
+                    ),
                 )
         }
 
@@ -113,6 +152,106 @@ class UnsafeDdlMigrationRuleTest :
                         startColumn = 1,
                         endLine = 1,
                         endColumn = 15,
+                    ),
+                )
+        }
+
+        test("reports DROP TABLE") {
+            val diagnostics =
+                UnsafeDdlMigrationRule().diagnostics(
+                    """
+                    DROP TABLE customer_event;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 1,
+                        startColumn = 1,
+                        endLine = 1,
+                        endColumn = 11,
+                    ),
+                )
+        }
+
+        test("reports DROP MATERIALIZED VIEW") {
+            val diagnostics =
+                UnsafeDdlMigrationRule().diagnostics(
+                    """
+                    DROP MATERIALIZED VIEW sales_summary;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 1,
+                        startColumn = 1,
+                        endLine = 1,
+                        endColumn = 18,
+                    ),
+                )
+        }
+
+        test("reports TRUNCATE CLUSTER") {
+            val diagnostics =
+                UnsafeDdlMigrationRule().diagnostics(
+                    """
+                    TRUNCATE CLUSTER customer_cluster;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 1,
+                        startColumn = 1,
+                        endLine = 1,
+                        endColumn = 17,
+                    ),
+                )
+        }
+
+        test("reports destructive DROP CLUSTER") {
+            val diagnostics =
+                UnsafeDdlMigrationRule().diagnostics(
+                    """
+                    DROP CLUSTER customer_cluster INCLUDING TABLES CASCADE CONSTRAINTS;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 1,
+                        startColumn = 1,
+                        endLine = 1,
+                        endColumn = 13,
+                    ),
+                )
+        }
+
+        test("reports destructive DROP TABLESPACE") {
+            val diagnostics =
+                UnsafeDdlMigrationRule().diagnostics(
+                    """
+                    DROP TABLESPACE customer_data INCLUDING CONTENTS AND DATAFILES;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 1,
+                        startColumn = 1,
+                        endLine = 1,
+                        endColumn = 16,
                     ),
                 )
         }

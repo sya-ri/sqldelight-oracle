@@ -55,6 +55,7 @@ public class OracleTypeResolver(
                     ?: oracleDatetimeOperatorType(expr)
                     ?: oracleNumericOperatorType(expr)
                     ?: oracleEmptyStringLiteralType(expr)
+                    ?: oracleCaseExpressionType(expr)
                     ?: parentResolver.resolvedType(expr)
             }
         }
@@ -171,6 +172,19 @@ public class OracleTypeResolver(
         IntermediateType(OracleType.TEXT)
             .asNullable()
             .takeIf { expr.text.isOracleEmptyStringLiteral() }
+
+    private fun oracleCaseExpressionType(expr: SqlExpr): IntermediateType? {
+        val text = expr.text.trimStart()
+        if (!text.startsWith("CASE", ignoreCase = true)) return null
+        val branches = expr.oracleCaseReturnExpressions()
+        if (branches.isEmpty()) return null
+        val resultExpressions = branches.map { branch -> branch.expression }
+        return encapsulatingTypePreferringKotlin(resultExpressions, *COMPARABLE_TYPE_ORDER)
+            .nullableIf(
+                branches.none { branch -> branch.isElse } ||
+                    resultExpressions.any { expression -> resolvedType(expression).javaType.isNullable },
+            )
+    }
 
     private fun oracleExtensionConditionType(expr: SqlExpr): IntermediateType? {
         val text =
@@ -1267,6 +1281,25 @@ public class OracleTypeResolver(
                 value[qIndex + 4] == '\''
         }
 
+        private fun SqlExpr.oracleCaseReturnExpressions(): List<OracleCaseReturnExpression> =
+            children
+                .filterIsInstance<SqlExpr>()
+                .mapNotNull { child ->
+                    val localStart = child.textRange.startOffset - textRange.startOffset
+                    val keyword =
+                        text
+                            .take(localStart.coerceAtLeast(0))
+                            .oracleTrailingCaseReturnKeyword()
+                            ?: return@mapNotNull null
+                    OracleCaseReturnExpression(child, keyword.equals("ELSE", ignoreCase = true))
+                }
+
+        private fun String.oracleTrailingCaseReturnKeyword(): String? =
+            Regex("""(?i)\b(THEN|ELSE)\s*$""")
+                .find(this.trimEnd())
+                ?.groupValues
+                ?.get(1)
+
         private fun String.oracleExtractDatetimeField(): String? =
             Regex("""(?i)^\s*EXTRACT\s*\(\s*([A-Z_]+)\s+FROM\b""")
                 .find(this)
@@ -1423,4 +1456,9 @@ public class OracleTypeResolver(
                 DATE,
             )
     }
+
+    private data class OracleCaseReturnExpression(
+        val expression: SqlExpr,
+        val isElse: Boolean,
+    )
 }

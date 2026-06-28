@@ -107,6 +107,8 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT DECODE(name, 'A', id, dept_id) AS c FROM emp") shouldBe "kotlin.Long?"
             typeOf("SELECT GREATEST(id, dept_id) AS c FROM emp") shouldBe "kotlin.Long?"
             typeOf("SELECT EXTRACT(YEAR FROM hire_date) AS c FROM emp") shouldBe "java.math.BigDecimal"
+            typeOf("SELECT CASE WHEN dept_id IS NULL THEN name ELSE nickname END AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT CASE name WHEN 'A' THEN id ELSE dept_id END AS c FROM emp") shouldBe "kotlin.Long?"
         }
 
         test("propagates Oracle function result column nullability exactly") {

@@ -15,7 +15,7 @@ Add this artifact to the SQLDelight project checked by sqldelight-check:
 
 ```kotlin
 dependencies {
-    sqldelightCheckDialects("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-dialect:0.1.1")
+    sqldelightCheckDialects("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-dialect:0.1.2")
 }
 ```
 
@@ -39,7 +39,7 @@ sqldelightCheck {
 
 ## Source Scanner Coverage
 
-The source scanner patterns include Oracle-specific statement starts, clause boundaries, transaction statements, data type names, and common function names.
+The source scanner patterns include Oracle-specific statement starts, clause boundaries, transaction statements, data type names, pseudocolumns, common function names, DML `RETURNING` and `WAIT` forms, row limiting clauses, and quoted or alternative-quoted literal-safe scan metadata.
 They are conservative source-text metadata for sqldelight-check rules; SQLDelight remains responsible for parsing concrete `.sq` and `.sqm` files.
 
 ## ServiceLoader

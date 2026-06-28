@@ -473,6 +473,8 @@ public class OracleTypeResolver(
                     IntermediateType(OracleType.fromSqlTypeName(typeName))
                         .nullableIf(
                             exprList.firstOrNull()?.let { expression -> resolvedType(expression).javaType.isNullable } == true ||
+                                exprList.firstOrNull()?.text.isOracleNullLiteral() ||
+                                functionText.hasOracleNullCastInput() ||
                                 (
                                     functionName.equals("CAST", ignoreCase = true) &&
                                         functionText.hasOracleDefaultNullOnConversionError()
@@ -1234,6 +1236,12 @@ public class OracleTypeResolver(
                 value.equals("N''", ignoreCase = true) ||
                 value.isOracleEmptyAlternativeQuotedString()
         }
+
+        private fun String?.isOracleNullLiteral(): Boolean = this?.trim().equals("NULL", ignoreCase = true)
+
+        private fun String.hasOracleNullCastInput(): Boolean =
+            Regex("""(?i)^\s*(?:XMLCAST|CAST|TREAT)\s*\(\s*NULL\s+AS\b""")
+                .containsMatchIn(this)
 
         private fun String.isOracleEmptyAlternativeQuotedString(): Boolean {
             val value = trim()

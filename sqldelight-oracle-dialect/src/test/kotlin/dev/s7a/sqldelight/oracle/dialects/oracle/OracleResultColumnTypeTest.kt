@@ -105,6 +105,25 @@ class OracleResultColumnTypeTest :
             oracleResultColumnTypes(sql) shouldBe List(6) { "kotlin.String" }
         }
 
+        test("resolves quoted-qualified Oracle result column types exactly") {
+            val sql =
+                """
+                CREATE TABLE quoted_employees (
+                  id NUMBER(10) NOT NULL,
+                  name VARCHAR2(100) NOT NULL,
+                  nickname VARCHAR2(100)
+                );
+
+                quotedQualified:
+                SELECT "e"."name", "e"."nickname"
+                FROM quoted_employees "e"
+                WHERE "e"."id" = 1
+                ORDER BY "e"."name";
+                """.trimIndent()
+
+            oracleResultColumnTypes(sql) shouldBe listOf("kotlin.String", "kotlin.String?")
+        }
+
         test("resolves Oracle scalar function result column types exactly") {
             typeOf("SELECT ABS(salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT float_col AS c FROM emp") shouldBe "java.math.BigDecimal?"

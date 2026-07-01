@@ -9129,6 +9129,103 @@ class OracleParserBackedTest :
             bindExprCount(files, deriveSchemaFromMigrations = true) shouldBe 2
             queryParameterNames(files, deriveSchemaFromMigrations = true) shouldBe listOf("id", "name")
         }
+
+        test("parses representative oracle-samples beaver DDL exactly") {
+            val sql =
+                """
+                CREATE TABLE OTHERS.ALL_INSTANCES (
+                  "CREATED_AT" TIMESTAMP,
+                  "UPDATED_AT" TIMESTAMP,
+                  "DELETED_AT" TIMESTAMP,
+                  "ID" NUMBER NOT NULL,
+                  "INTERNAL_ID" NUMBER,
+                  "USER_ID" VARCHAR2(255),
+                  "PROJECT_ID" VARCHAR2(255),
+                  "IMAGE_REF" VARCHAR2(255),
+                  "KERNEL_ID" VARCHAR2(255),
+                  "RAMDISK_ID" VARCHAR2(255),
+                  "LAUNCH_INDEX" NUMBER,
+                  "KEY_NAME" VARCHAR2(255),
+                  "KEY_DATA" CLOB,
+                  "POWER_STATE" NUMBER,
+                  "VM_STATE" VARCHAR2(255),
+                  "MEMORY_MB" NUMBER,
+                  "VCPUS" NUMBER,
+                  "HOSTNAME" VARCHAR2(255),
+                  "HOST" VARCHAR2(255),
+                  "USER_DATA" CLOB,
+                  "RESERVATION_ID" VARCHAR2(255),
+                  "SCHEDULED_AT" TIMESTAMP,
+                  "LAUNCHED_AT" TIMESTAMP,
+                  "TERMINATED_AT" TIMESTAMP,
+                  "DISPLAY_NAME" VARCHAR2(255),
+                  "DISPLAY_DESCRIPTION" VARCHAR2(255),
+                  "AVAILABILITY_ZONE" VARCHAR2(255),
+                  "LOCKED" NUMBER,
+                  "OS_TYPE" VARCHAR2(255),
+                  "LAUNCHED_ON" CLOB,
+                  "INSTANCE_TYPE_ID" NUMBER,
+                  "VM_MODE" VARCHAR2(255),
+                  "UUID" VARCHAR2(255) NOT NULL,
+                  "ARCHITECTURE" VARCHAR2(255),
+                  "ROOT_DEVICE_NAME" VARCHAR2(255),
+                  "ACCESS_IP_V4" VARCHAR2(255),
+                  "ACCESS_IP_V6" VARCHAR2(255),
+                  "CONFIG_DRIVE" VARCHAR2(255),
+                  "TASK_STATE" VARCHAR2(255),
+                  "DEFAULT_EPHEMERAL_DEVICE" VARCHAR2(255),
+                  "DEFAULT_SWAP_DEVICE" VARCHAR2(255),
+                  "PROGRESS" NUMBER,
+                  "AUTO_DISK_CONFIG" NUMBER,
+                  "SHUTDOWN_TERMINATE" NUMBER,
+                  "DISABLE_TERMINATE" NUMBER,
+                  "ROOT_GB" NUMBER,
+                  "EPHEMERAL_GB" NUMBER,
+                  "CELL_NAME" VARCHAR2(255),
+                  "NODE" VARCHAR2(255),
+                  "DELETED" NUMBER,
+                  "LOCKED_BY" VARCHAR2(255),
+                  "CLEANED" NUMBER,
+                  "EPHEMERAL_KEY_UUID" VARCHAR2(255)
+                );
+
+                CREATE TABLE CSAIL_STATA_CINDER.BACKUPS (
+                  "CREATED_AT" TIMESTAMP,
+                  "UPDATED_AT" TIMESTAMP,
+                  "DELETED_AT" TIMESTAMP,
+                  "DELETED" NUMBER,
+                  "ID" VARCHAR2(255) NOT NULL,
+                  "VOLUME_ID" VARCHAR2(255) NOT NULL,
+                  "USER_ID" VARCHAR2(255),
+                  "PROJECT_ID" VARCHAR2(255),
+                  "HOST" VARCHAR2(255),
+                  "AVAILABILITY_ZONE" VARCHAR2(255),
+                  "DISPLAY_NAME" VARCHAR2(255),
+                  "DISPLAY_DESCRIPTION" VARCHAR2(255),
+                  "CONTAINER" VARCHAR2(255),
+                  "STATUS" VARCHAR2(255),
+                  "FAIL_REASON" VARCHAR2(255),
+                  "SERVICE_METADATA" VARCHAR2(255),
+                  "SERVICE" VARCHAR2(255),
+                  "SIZE" NUMBER,
+                  "OBJECT_COUNT" NUMBER,
+                  "PARENT_ID" VARCHAR2(255),
+                  "TEMP_VOLUME_ID" VARCHAR2(255),
+                  "TEMP_SNAPSHOT_ID" VARCHAR2(255),
+                  "NUM_DEPENDENT_BACKUPS" NUMBER,
+                  "SNAPSHOT_ID" VARCHAR2(255),
+                  "DATA_TIMESTAMP" TIMESTAMP,
+                  "RESTORE_VOLUME_ID" VARCHAR2(255),
+                  CONSTRAINT PK_beaver_1_CINDER_BACKUPS PRIMARY KEY ("ID")
+                );
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
     })
 
 private data class ParseResult(

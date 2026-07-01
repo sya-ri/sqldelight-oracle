@@ -15,7 +15,7 @@ Add this artifact to the SQLDelight project checked by sqldelight-check:
 
 ```kotlin
 dependencies {
-    sqldelightCheckDialects("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-dialect:0.1.2")
+    sqldelightCheckDialects("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-dialect:0.1.3")
 }
 ```
 

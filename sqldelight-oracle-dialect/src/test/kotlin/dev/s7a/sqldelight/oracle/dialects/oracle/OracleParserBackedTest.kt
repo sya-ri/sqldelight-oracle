@@ -9226,6 +9226,342 @@ class OracleParserBackedTest :
                     errors = emptyList(),
                 )
         }
+
+        test("parses standalone Oracle select star migrations exactly") {
+            val sql =
+                """
+                CREATE TABLE select_star_samples (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(64)
+                );
+
+                SELECT *
+                FROM select_star_samples;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses standalone Oracle inline view migrations exactly") {
+            val sql =
+                """
+                CREATE TABLE dual (
+                  dummy VARCHAR2(1)
+                );
+
+                SELECT *
+                FROM (
+                  SELECT 1 AS id
+                  FROM dual
+                );
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses standalone Oracle inline view joins in migrations exactly") {
+            val sql =
+                """
+                CREATE TABLE inline_view_join_samples (
+                  id NUMBER PRIMARY KEY
+                );
+
+                SELECT *
+                FROM (
+                  SELECT id
+                  FROM inline_view_join_samples
+                ) sample_alias
+                JOIN inline_view_join_samples joined_sample
+                  ON joined_sample.id = sample_alias.id;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle analytic count distinct over schema-qualified columns exactly") {
+            val sql =
+                """
+                CREATE TABLE DW.EMPLOYEE_DIRECTORY (
+                  MIT_ID NUMBER,
+                  OFFICE_LOCATION VARCHAR2(64)
+                );
+
+                SELECT COUNT(distinct DW.EMPLOYEE_DIRECTORY.MIT_ID)
+                  OVER (PARTITION BY DW.EMPLOYEE_DIRECTORY.OFFICE_LOCATION) as num_employees
+                FROM DW.EMPLOYEE_DIRECTORY;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses oracle-samples beaver NL2SQL query forms exactly") {
+            val sql =
+                """
+                CREATE TABLE DW.FCLT_BUILDING_HIST (
+                  FCLT_BUILDING_KEY NUMBER,
+                  BUILDING_NAME_LONG VARCHAR2(255),
+                  date_built VARCHAR2(32)
+                );
+
+                CREATE TABLE DW.FCLT_ROOMS (
+                  FCLT_BUILDING_KEY NUMBER,
+                  BUILDING_ROOM VARCHAR2(64)
+                );
+
+                CREATE TABLE DW.EMPLOYEE_DIRECTORY (
+                  MIT_ID NUMBER,
+                  OFFICE_LOCATION VARCHAR2(64)
+                );
+
+                CREATE TABLE DW.FAC_FLOOR (
+                  BUILDING_KEY NUMBER,
+                  FLOOR VARCHAR2(16)
+                );
+
+                CREATE TABLE DW.FAC_BUILDING (
+                  FAC_BUILDING_KEY NUMBER,
+                  BUILDING_NAME VARCHAR2(255)
+                );
+
+                CREATE TABLE DW.IAP_SUBJECT_SESSION (
+                  IAP_SUBJECT_SESSION_KEY NUMBER,
+                  SESSION_START_TIME VARCHAR2(16),
+                  SESSION_END_TIME VARCHAR2(16),
+                  SESSION_LOCATION VARCHAR2(64)
+                );
+
+                CREATE TABLE DW.IAP_SUBJECT_DETAIL (
+                  IAP_SUBJECT_SESSION_KEY NUMBER,
+                  ACTIVITY_TITLE VARCHAR2(255),
+                  FEE NUMBER
+                );
+
+                CREATE TABLE DW.BUILDINGS (
+                  BUILDING_NUMBER VARCHAR2(64),
+                  BUILDING_NAME VARCHAR2(255)
+                );
+
+                SELECT *
+                FROM (
+                  SELECT DISTINCT
+                    a.BUILDING_NAME_LONG,
+                    a.year_built,
+                    COUNT(distinct DW.EMPLOYEE_DIRECTORY.MIT_ID)
+                      OVER (PARTITION BY a.BUILDING_NAME_LONG, a.year_built) as num_employees
+                  FROM (
+                    SELECT *
+                    FROM (
+                      SELECT DISTINCT
+                        FCLT_BUILDING_KEY,
+                        BUILDING_NAME_LONG,
+                        extract(year FROM TO_DATE(date_built, 'MM/DD/YYYY')) as year_built
+                      FROM DW.FCLT_BUILDING_HIST
+                    )
+                    WHERE year_built < 1950
+                  ) a
+                  JOIN DW.FCLT_ROOMS
+                    ON DW.FCLT_ROOMS.FCLT_BUILDING_KEY = a.FCLT_BUILDING_KEY
+                  JOIN DW.EMPLOYEE_DIRECTORY
+                    ON DW.EMPLOYEE_DIRECTORY.OFFICE_LOCATION = DW.FCLT_ROOMS.BUILDING_ROOM
+                )
+                WHERE num_employees > 100;
+
+                SELECT DISTINCT
+                  B.BUILDING_NAME,
+                  A.FLOOR
+                FROM DW.FAC_FLOOR A
+                JOIN DW.FAC_BUILDING B
+                  ON A.BUILDING_KEY = B.FAC_BUILDING_KEY
+                JOIN (
+                  SELECT max(f) as highest_floor
+                  FROM (
+                    SELECT CASE
+                      WHEN REGEXP_LIKE(FLOOR, '^\d+${'$'}') THEN TO_NUMBER(FLOOR)
+                      ELSE NULL
+                    END AS f
+                    FROM DW.FAC_FLOOR
+                  )
+                )
+                  ON (CASE
+                    WHEN REGEXP_LIKE(A.FLOOR, '^\d+${'$'}') THEN TO_NUMBER(FLOOR)
+                    ELSE NULL
+                  END) = highest_floor;
+
+                SELECT
+                  b.BUILDING_NAME,
+                  COUNT(Distinct isd.ACTIVITY_TITLE) AS Total_Subjects,
+                  SUM(isd.FEE) AS Total_Fee,
+                  MIN((CASE
+                    WHEN TO_DATE(iss.SESSION_START_TIME, 'HH12:MIAM') > TO_DATE(iss.SESSION_END_TIME, 'HH12:MIAM')
+                      THEN TO_DATE('12:00PM', 'HH12:MIAM')
+                    ELSE TO_DATE(iss.SESSION_END_TIME, 'HH12:MIAM')
+                  END) - TO_DATE(iss.SESSION_START_TIME, 'HH12:MIAM')) * 24 * 60 AS Min_Sessions,
+                  MAX((CASE
+                    WHEN TO_DATE(iss.SESSION_START_TIME, 'HH12:MIAM') > TO_DATE(iss.SESSION_END_TIME, 'HH12:MIAM')
+                      THEN TO_DATE('12:00PM', 'HH12:MIAM')
+                    ELSE TO_DATE(iss.SESSION_END_TIME, 'HH12:MIAM')
+                  END) - TO_DATE(iss.SESSION_START_TIME, 'HH12:MIAM')) * 24 * 60 AS Max_Sessions
+                FROM DW.IAP_SUBJECT_SESSION iss
+                JOIN DW.IAP_SUBJECT_DETAIL isd
+                  ON iss.IAP_SUBJECT_SESSION_KEY = isd.IAP_SUBJECT_SESSION_KEY
+                JOIN DW.BUILDINGS b
+                  on b.BUILDING_NUMBER = iss.SESSION_LOCATION
+                GROUP BY b.BUILDING_NAME;
+                """.trimIndent()
+
+            parseOracleSql(sql, fileName = "1.sqm") shouldBe
+                ParseResult(
+                    fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses oracle-samples beaver NL2SQL query forms from sq files exactly") {
+            parseOracleSqlFiles(
+                deriveSchemaFromMigrations = true,
+                files =
+                    mapOf(
+                        "1.sqm" to
+                            """
+                            CREATE TABLE DW.FCLT_BUILDING_HIST (
+                              FCLT_BUILDING_KEY NUMBER,
+                              BUILDING_NAME_LONG VARCHAR2(255),
+                              date_built VARCHAR2(32)
+                            );
+
+                            CREATE TABLE DW.FCLT_ROOMS (
+                              FCLT_BUILDING_KEY NUMBER,
+                              BUILDING_ROOM VARCHAR2(64)
+                            );
+
+                            CREATE TABLE DW.EMPLOYEE_DIRECTORY (
+                              MIT_ID NUMBER,
+                              OFFICE_LOCATION VARCHAR2(64)
+                            );
+
+                            CREATE TABLE DW.FAC_FLOOR (
+                              BUILDING_KEY NUMBER,
+                              FLOOR VARCHAR2(16)
+                            );
+
+                            CREATE TABLE DW.FAC_BUILDING (
+                              FAC_BUILDING_KEY NUMBER,
+                              BUILDING_NAME VARCHAR2(255)
+                            );
+
+                            CREATE TABLE DW.IAP_SUBJECT_SESSION (
+                              IAP_SUBJECT_SESSION_KEY NUMBER,
+                              SESSION_START_TIME VARCHAR2(16),
+                              SESSION_END_TIME VARCHAR2(16),
+                              SESSION_LOCATION VARCHAR2(64)
+                            );
+
+                            CREATE TABLE DW.IAP_SUBJECT_DETAIL (
+                              IAP_SUBJECT_SESSION_KEY NUMBER,
+                              ACTIVITY_TITLE VARCHAR2(255),
+                              FEE NUMBER
+                            );
+
+                            CREATE TABLE DW.BUILDINGS (
+                              BUILDING_NUMBER VARCHAR2(64),
+                              BUILDING_NAME VARCHAR2(255)
+                            );
+                            """.trimIndent(),
+                        "Test.sq" to
+                            """
+                            beaverEmployeeCount:
+                            SELECT *
+                            FROM (
+                              SELECT DISTINCT
+                                a.BUILDING_NAME_LONG,
+                                a.year_built,
+                                COUNT(distinct DW.EMPLOYEE_DIRECTORY.MIT_ID)
+                                  OVER (PARTITION BY a.BUILDING_NAME_LONG, a.year_built) as num_employees
+                              FROM (
+                                SELECT *
+                                FROM (
+                                  SELECT DISTINCT
+                                    FCLT_BUILDING_KEY,
+                                    BUILDING_NAME_LONG,
+                                    extract(year FROM TO_DATE(date_built, 'MM/DD/YYYY')) as year_built
+                                  FROM DW.FCLT_BUILDING_HIST
+                                )
+                                WHERE year_built < 1950
+                              ) a
+                              JOIN DW.FCLT_ROOMS
+                                ON DW.FCLT_ROOMS.FCLT_BUILDING_KEY = a.FCLT_BUILDING_KEY
+                              JOIN DW.EMPLOYEE_DIRECTORY
+                                ON DW.EMPLOYEE_DIRECTORY.OFFICE_LOCATION = DW.FCLT_ROOMS.BUILDING_ROOM
+                            )
+                            WHERE num_employees > 100;
+
+                            beaverHighestFloor:
+                            SELECT DISTINCT
+                              B.BUILDING_NAME,
+                              A.FLOOR
+                            FROM DW.FAC_FLOOR A
+                            JOIN DW.FAC_BUILDING B
+                              ON A.BUILDING_KEY = B.FAC_BUILDING_KEY
+                            JOIN (
+                              SELECT max(f) as highest_floor
+                              FROM (
+                                SELECT CASE
+                                  WHEN REGEXP_LIKE(FLOOR, '^\d+${'$'}') THEN TO_NUMBER(FLOOR)
+                                  ELSE NULL
+                                END AS f
+                                FROM DW.FAC_FLOOR
+                              )
+                            )
+                              ON (CASE
+                                WHEN REGEXP_LIKE(A.FLOOR, '^\d+${'$'}') THEN TO_NUMBER(FLOOR)
+                                ELSE NULL
+                              END) = highest_floor;
+
+                            beaverSessionSummary:
+                            SELECT
+                              b.BUILDING_NAME,
+                              COUNT(Distinct isd.ACTIVITY_TITLE) AS Total_Subjects,
+                              SUM(isd.FEE) AS Total_Fee,
+                              MIN((CASE
+                                WHEN TO_DATE(iss.SESSION_START_TIME, 'HH12:MIAM') > TO_DATE(iss.SESSION_END_TIME, 'HH12:MIAM')
+                                  THEN TO_DATE('12:00PM', 'HH12:MIAM')
+                                ELSE TO_DATE(iss.SESSION_END_TIME, 'HH12:MIAM')
+                              END) - TO_DATE(iss.SESSION_START_TIME, 'HH12:MIAM')) * 24 * 60 AS Min_Sessions,
+                              MAX((CASE
+                                WHEN TO_DATE(iss.SESSION_START_TIME, 'HH12:MIAM') > TO_DATE(iss.SESSION_END_TIME, 'HH12:MIAM')
+                                  THEN TO_DATE('12:00PM', 'HH12:MIAM')
+                                ELSE TO_DATE(iss.SESSION_END_TIME, 'HH12:MIAM')
+                              END) - TO_DATE(iss.SESSION_START_TIME, 'HH12:MIAM')) * 24 * 60 AS Max_Sessions
+                            FROM DW.IAP_SUBJECT_SESSION iss
+                            JOIN DW.IAP_SUBJECT_DETAIL isd
+                              ON iss.IAP_SUBJECT_SESSION_KEY = isd.IAP_SUBJECT_SESSION_KEY
+                            JOIN DW.BUILDINGS b
+                              on b.BUILDING_NUMBER = iss.SESSION_LOCATION
+                            GROUP BY b.BUILDING_NAME;
+                            """.trimIndent(),
+                    ),
+            ) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
     })
 
 private data class ParseResult(

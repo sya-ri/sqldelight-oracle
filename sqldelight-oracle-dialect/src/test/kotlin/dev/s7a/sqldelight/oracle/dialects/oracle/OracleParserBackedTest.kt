@@ -86,6 +86,28 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("resolves commented custom-type create table columns exactly") {
+            val sql =
+                """
+                CREATE TABLE probe (
+                  -- leading comment
+                  a NUMBER(1, 0) AS kotlin.Boolean,
+                  b NUMBER(1, 0) AS kotlin.Boolean, -- trailing comment
+                  c NUMBER(1, 0) AS kotlin.Boolean
+                );
+
+                selectAll:
+                SELECT a, b, c
+                FROM probe;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle single-line optimizer hint comments exactly") {
             val sql =
                 """

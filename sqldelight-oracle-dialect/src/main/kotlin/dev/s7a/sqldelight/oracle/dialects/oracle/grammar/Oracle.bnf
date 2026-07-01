@@ -34,7 +34,7 @@
   ]
 }
 
-overrides ::= stmt | type_name | column_constraint | generated_clause | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | drop_index_stmt | create_view_stmt | drop_view_stmt | drop_table_stmt | insert_stmt | update_stmt | update_stmt_limited | delete_stmt | delete_stmt_limited | qualified_table_name | compound_select_stmt | select_stmt | with_clause | table_alias | table_or_subquery | group_by | join_operator | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt | extension_expr | bind_parameter
+overrides ::= stmt | type_name | column_constraint | generated_clause | table_constraint | create_table_stmt | alter_table_stmt | alter_table_rules | create_index_stmt | drop_index_stmt | create_view_stmt | drop_view_stmt | drop_table_stmt | insert_stmt | update_stmt | update_stmt_limited | delete_stmt | delete_stmt_limited | qualified_table_name | compound_select_stmt | select_stmt | with_clause | table_alias | table_or_subquery | group_by | join_clause | join_operator | join_constraint | ordering_term | limit_stmt | compound_operator | drop_trigger_stmt | analyze_stmt | commit_stmt | rollback_stmt | savepoint_stmt | extension_stmt | extension_expr | bind_parameter
 
 stmt ::= explain_plan_stmt | oracle_core_stmt {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlStmtImpl"
@@ -247,7 +247,7 @@ type_name ::= oracle_type_name | core_type_name {
   override = true
 }
 
-extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_boolean_literal_expr | oracle_boolean_not_expr | oracle_boolean_test_expr | oracle_extract_datetime_expr | oracle_character_function_expr | oracle_object_method_expr | oracle_object_attribute_expr | oracle_datetime_conversion_expr | oracle_number_conversion_expr | oracle_interval_conversion_expr | oracle_user_function_expr | oracle_collection_function_expr | oracle_object_reference_function_expr | oracle_oml_function_expr | oracle_ordered_aggregate_expr | oracle_approx_median_expr | oracle_analytic_function_expr | oracle_aggregate_function_expr | oracle_datetime_literal | oracle_interval_literal | oracle_at_time_zone_expr | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_condition_expr | oracle_multiset_expr | oracle_collate_expr | oracle_cursor_expr | oracle_validate_conversion_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_type_constructor_expr {
+extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_boolean_literal_expr | oracle_boolean_not_expr | oracle_boolean_test_expr | oracle_extract_datetime_expr | oracle_character_function_expr | oracle_object_method_expr | oracle_object_attribute_expr | oracle_datetime_conversion_expr | oracle_number_conversion_expr | oracle_interval_conversion_expr | oracle_user_function_expr | oracle_collection_function_expr | oracle_object_reference_function_expr | oracle_oml_function_expr | oracle_ordered_aggregate_expr | oracle_approx_median_expr | oracle_analytic_function_expr | oracle_aggregate_function_expr | oracle_datetime_literal | oracle_interval_literal | oracle_at_time_zone_expr | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_condition_expr | oracle_multiset_expr | oracle_collate_expr | oracle_cursor_expr | oracle_validate_conversion_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_type_constructor_expr | oracle_qualified_column_expr {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionExprImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionExpr"
   override = true
@@ -327,6 +327,8 @@ private oracle_user_function_named_arguments ::= (
 private oracle_user_function_argument ::= oracle_user_function_named_argument | <<expr '-1'>>
 
 private oracle_user_function_named_argument ::= oracle_schema_object_name EQ GT <<expr '-1'>>
+
+private oracle_qualified_column_expr ::= oracle_object_name_part DOT oracle_object_name_part DOT oracle_object_name_part !LP
 
 private oracle_object_method_expr ::= oracle_object_access_method_receiver DOT oracle_object_method_invocation
 
@@ -1164,7 +1166,7 @@ select_stmt ::= oracle_select_query | oracle_values_query {
 }
 
 private oracle_select_query ::= 'SELECT' [ 'DISTINCT' | 'UNIQUE' | 'ALL' ]
-  <<resultColumnExt <<result_column_real>>>> ( COMMA <<resultColumnExt <<result_column_real>>>> ) *
+  oracle_select_result_column ( COMMA oracle_select_result_column ) *
   [ 'FROM' <<joinClauseExt <<join_clause_real>>>> ]
   [ 'WHERE' <<expr '-1'>> ]
   [ oracle_hierarchical_query_clause ]
@@ -1172,6 +1174,26 @@ private oracle_select_query ::= 'SELECT' [ 'DISTINCT' | 'UNIQUE' | 'ALL' ]
   [ oracle_model_clause ]
   [ oracle_window_clause ]
   [ oracle_qualify_clause ]
+
+private oracle_select_result_column ::= oracle_star_result_column | oracle_lowercase_as_result_column | <<resultColumnExt <<result_column_real>>>>
+
+oracle_lowercase_as_result_column ::= <<expr '-1'>> 'as' <<columnAliasExt <<column_alias_real>>>> {
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleResultColumnMixin"
+  implements = [
+    "com.alecstrong.sql.psi.core.psi.SqlResultColumn";
+    "com.alecstrong.sql.psi.core.psi.QueryElement";
+    "com.alecstrong.sql.psi.core.psi.SqlCompositeElement"
+  ]
+}
+
+oracle_star_result_column ::= [ table_name DOT ] MULTIPLY {
+  mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleResultColumnMixin"
+  implements = [
+    "com.alecstrong.sql.psi.core.psi.SqlResultColumn";
+    "com.alecstrong.sql.psi.core.psi.QueryElement";
+    "com.alecstrong.sql.psi.core.psi.SqlCompositeElement"
+  ]
+}
 
 private oracle_model_clause ::= 'MODEL' oracle_model_clause_token +
 
@@ -1605,11 +1627,17 @@ private oracle_parenthesized_table_reference ::= LP (
 
 private oracle_subquery_table_reference ::= [ 'LATERAL' ] LP <<compoundSelectStmtExt <<compound_select_stmt_real>>>> [ oracle_subquery_restriction_clause ] RP [ oracle_table_transform_clause ] [ oracle_table_alias_clause ]
 
+join_clause ::= {table_or_subquery} ( {join_operator} {table_or_subquery} [ {join_constraint} ] ) * {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlJoinClauseImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlJoinClause"
+  override = true
+}
+
 join_operator ::= (
   COMMA |
   'CROSS' 'APPLY' |
   'OUTER' 'APPLY' |
-  [ oracle_join_partition_clause ] [ 'NATURAL' ] oracle_join_type 'JOIN'
+  [ oracle_join_partition_clause ] [ 'NATURAL' ] [ oracle_join_type ] 'JOIN'
 ) {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlJoinOperatorImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlJoinOperator"
@@ -1623,6 +1651,17 @@ private oracle_join_type ::= (
   'INNER' |
   'CROSS'
 )
+
+join_constraint ::= (
+  ( 'ON' | oracle_join_constraint_identifier ) <<expr '-1'>> |
+  'USING' LP {column_name} ( COMMA {column_name} ) * RP
+) {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlJoinConstraintImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlJoinConstraint"
+  override = true
+}
+
+private oracle_join_constraint_identifier ::= <<identifierExt <<identifier_real>>>>
 
 private oracle_for_update_clause ::= 'FOR' 'UPDATE'
   [ 'OF' oracle_for_update_column ( COMMA oracle_for_update_column ) * ]
@@ -1809,14 +1848,23 @@ table_alias ::= !oracle_table_alias_stop_keyword ( <<identifierExt <<identifier_
 
 private oracle_table_alias_stop_keyword ::= (
   'CONNECT' |
+  'CROSS' |
   'FOR' |
+  'FULL' |
   'GROUP' |
   'HAVING' |
   'INDEXED' |
+  'INNER' |
+  'JOIN' |
+  'LEFT' |
   'MINUS' |
+  'NATURAL' |
   'NOT' |
   'ORDER' |
+  'OUTER' |
+  'PARTITION' |
   'QUALIFY' |
+  'RIGHT' |
   'START' |
   'WHERE' |
   'WINDOW'

@@ -74,6 +74,37 @@ class OracleResultColumnTypeTest :
             ) shouldBe "java.math.BigDecimal?"
         }
 
+        test("compiles predicates referencing columns with Kotlin adapters") {
+            val sql =
+                """
+                CREATE TABLE t (
+                  id VARCHAR2(20) NOT NULL PRIMARY KEY,
+                  flg NUMBER(1, 0) AS kotlin.Boolean,
+                  shop_code VARCHAR2(20) AS com.example.ShopCode
+                );
+
+                byBooleanLiteral:
+                SELECT id FROM t WHERE flg = 0;
+
+                byBooleanParameter:
+                SELECT id FROM t WHERE flg = :flag;
+
+                byBooleanNull:
+                SELECT id FROM t WHERE flg IS NULL;
+
+                byCoalescedBoolean:
+                SELECT id FROM t WHERE COALESCE(flg, 0) = 0;
+
+                byValueClassLiteral:
+                SELECT id FROM t WHERE shop_code = '612';
+
+                byValueClassParameter:
+                SELECT id FROM t WHERE shop_code = :shop;
+                """.trimIndent()
+
+            oracleResultColumnTypes(sql) shouldBe List(6) { "kotlin.String" }
+        }
+
         test("resolves Oracle scalar function result column types exactly") {
             typeOf("SELECT ABS(salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT float_col AS c FROM emp") shouldBe "java.math.BigDecimal?"

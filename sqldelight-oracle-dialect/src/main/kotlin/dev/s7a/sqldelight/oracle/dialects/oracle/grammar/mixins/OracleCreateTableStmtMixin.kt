@@ -49,7 +49,6 @@ internal abstract class OracleCreateTableStmtMixin : SqlCreateTableStmtImpl {
         }
 
     private fun oracleCtasColumnAliases(): List<String> {
-        if (text.indexOfKeyword("AS") == null) return emptyList()
         val body = text.oracleCtasAliasListBody() ?: return emptyList()
         return body
             .oracleTopLevelCommaParts()
@@ -110,7 +109,11 @@ private fun String.oracleCtasAliasListBody(): String? {
             while (index < length && this[index].isWhitespace()) index++
         }
     if (getOrNull(index) != '(') return null
-    return oracleParenthesizedBodyAt(index)
+    val body = oracleParenthesizedBodyAt(index)
+    val closeIndex = index + body.length + 1
+    val asIndex = indexOfKeyword("AS", startIndex = closeIndex + 1) ?: return null
+    if (substring(closeIndex + 1, asIndex).isNotBlank()) return null
+    return body
 }
 
 private fun String.oracleObjectTypeBody(typeName: String): String? {

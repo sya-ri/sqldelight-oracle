@@ -10,7 +10,7 @@ Add this artifact to the SQLDelight project checked by sqldelight-check:
 
 ```kotlin
 dependencies {
-    sqldelightCheckRuleSet("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-rule:0.1.2")
+    sqldelightCheckRuleSet("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-rule:0.1.3")
 }
 ```
 
@@ -18,8 +18,8 @@ Oracle rules need Oracle dialect metadata from `sqldelight-check-oracle-dialect`
 
 ```kotlin
 dependencies {
-    sqldelightCheckDialects("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-dialect:0.1.2")
-    sqldelightCheckRuleSet("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-rule:0.1.2")
+    sqldelightCheckDialects("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-dialect:0.1.3")
+    sqldelightCheckRuleSet("dev.s7a.sqldelight.oracle:sqldelight-check-oracle-rule:0.1.3")
 }
 ```
 

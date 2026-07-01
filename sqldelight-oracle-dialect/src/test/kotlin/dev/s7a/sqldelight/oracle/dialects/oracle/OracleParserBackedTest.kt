@@ -108,6 +108,28 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses quoted-qualified Oracle select expressions exactly") {
+            val sql =
+                """
+                CREATE TABLE employees (
+                  id NUMBER(10) NOT NULL,
+                  name VARCHAR2(100) NOT NULL
+                );
+
+                quotedQualified:
+                SELECT "e"."name"
+                FROM employees "e"
+                WHERE "e"."id" = 1
+                ORDER BY "e"."name";
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle single-line optimizer hint comments exactly") {
             val sql =
                 """

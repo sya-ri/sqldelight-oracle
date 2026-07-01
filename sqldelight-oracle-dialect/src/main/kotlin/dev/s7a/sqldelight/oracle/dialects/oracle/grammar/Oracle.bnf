@@ -4423,7 +4423,7 @@ private oracle_directive_using_token ::= (
 )
 
 private oracle_java_create_clause ::= (
-  'NAMED' ( string | {string_literal} ) |
+  'NAMED' ( oracle_object_name_part | {string_literal} ) |
   'SCHEMA' oracle_object_name_part |
   'SHARING' EQ ( 'METADATA' | 'NONE' ) |
   'AUTHID' ( 'CURRENT_USER' | 'DEFINER' ) |

@@ -82,6 +82,14 @@ internal class OracleCommentLexer : LexerBase() {
             return
         }
 
+        val doubleQuotedIdentifierEnd = doubleQuotedIdentifierEnd(offset)
+        if (doubleQuotedIdentifierEnd != null) {
+            tokenStart = offset
+            tokenEnd = doubleQuotedIdentifierEnd
+            tokenType = SqlTypes.ID
+            return
+        }
+
         val vectorDistanceOperatorEnd = vectorDistanceOperatorEnd(offset)
         if (vectorDistanceOperatorEnd != null) {
             tokenStart = offset
@@ -157,6 +165,24 @@ internal class OracleCommentLexer : LexerBase() {
         while (index < endOffset) {
             if (buffer[index] == ']') return index + 1
             index += 1
+        }
+        return null
+    }
+
+    private fun doubleQuotedIdentifierEnd(offset: Int): Int? {
+        if (buffer[offset] != '"') return null
+
+        var index = offset + 1
+        while (index < endOffset) {
+            if (buffer[index] == '"') {
+                if (index + 1 < endOffset && buffer[index + 1] == '"') {
+                    index += 2
+                } else {
+                    return index + 1
+                }
+            } else {
+                index += 1
+            }
         }
         return null
     }

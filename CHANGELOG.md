@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.3
+
+### Fixed
+
+- Fix SQLDelight custom type columns with adjacent comments so commented `AS <KotlinType>` column definitions compile correctly.
+- Fix filtered queries that reference `AS <KotlinType>` columns in predicates, including literal comparisons, bind parameters, `IS NULL`, and `COALESCE`.
+
 ## 0.1.2
 
 ### Added

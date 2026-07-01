@@ -20,7 +20,7 @@ plugins {
 }
 
 group = "dev.s7a.sqldelight.oracle"
-version = "0.1.2"
+version = "0.1.3"
 
 val publishedArtifacts =
     mapOf(

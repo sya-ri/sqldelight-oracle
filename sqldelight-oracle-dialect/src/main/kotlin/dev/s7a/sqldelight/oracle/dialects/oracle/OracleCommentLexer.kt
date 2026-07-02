@@ -175,11 +175,11 @@ internal class OracleCommentLexer : LexerBase() {
         var index = offset + 1
         while (index < endOffset) {
             if (buffer[index] == '"') {
-                if (index + 1 < endOffset && buffer[index + 1] == '"') {
-                    index += 2
-                } else {
+                val escapedQuote = index + 1 < endOffset && buffer[index + 1] == '"'
+                if (!escapedQuote) {
                     return index + 1
                 }
+                index += 2
             } else {
                 index += 1
             }

@@ -91,14 +91,7 @@ internal abstract class OracleTableOrSubqueryMixin(
     override fun queryExposed() = queryExposed.forFile(containingFile)
 
     override fun queryAvailable(child: PsiElement): Collection<QueryResult> {
-        val queryAvailable =
-            if (child == compoundSelectStmt && oracleCanReferenceLeftQuerySources()) {
-                super.queryAvailable(child) + oracleLateralLeftQueryExposed()
-            } else if (oracleTableFunctionCanReferenceLeftQuerySources(child)) {
-                super.queryAvailable(child) + oracleLateralLeftQueryExposed()
-            } else {
-                super.queryAvailable(child)
-            }
+        val queryAvailable = super.queryAvailable(child) + oracleLeftQuerySourcesAvailable(child)
         val pivotAggregateAvailable = oraclePivotAggregateAvailable(child)
         if (pivotAggregateAvailable.isNotEmpty()) {
             return queryAvailable + pivotAggregateAvailable
@@ -108,6 +101,16 @@ internal abstract class OracleTableOrSubqueryMixin(
             return queryAvailable
         }
         return queryAvailable + oracleRowPatternVariableResults(rowPatternClause)
+    }
+
+    private fun oracleLeftQuerySourcesAvailable(child: PsiElement): Collection<QueryResult> {
+        if (child == compoundSelectStmt && oracleCanReferenceLeftQuerySources()) {
+            return oracleLateralLeftQueryExposed()
+        }
+        if (oracleTableFunctionCanReferenceLeftQuerySources(child)) {
+            return oracleLateralLeftQueryExposed()
+        }
+        return emptyList()
     }
 
     override fun getCompoundSelectStmt(): SqlCompoundSelectStmt? = PsiTreeUtil.getChildOfType(this, SqlCompoundSelectStmt::class.java)
@@ -192,12 +195,12 @@ internal abstract class OracleTableOrSubqueryMixin(
         return oracleRowPatternResult()
     }
 
-    private fun SqlTableAlias.oracleQueryTableElement(): PsiNamedElement =
-        if (text.startsWith("\"") && text.endsWith("\"")) {
-            OracleQuotedTableAliasElement(this, name.trimOracleIdentifier())
-        } else {
-            this
+    private fun SqlTableAlias.oracleQueryTableElement(): PsiNamedElement {
+        if (!text.startsWith("\"") || !text.endsWith("\"")) {
+            return this
         }
+        return OracleQuotedTableAliasElement(this, name.trimOracleIdentifier())
+    }
 
     private fun oracleGeneratedSynthesizedColumnResult(
         columnNames: List<String>,

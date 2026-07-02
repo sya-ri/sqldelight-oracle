@@ -262,6 +262,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun merge_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun noaudit_stmt_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun oracle_from_using_clause_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun oracle_insert_stmt_values_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun oracle_json_table_column_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun oracle_json_table_columns_clause_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun oracle_json_table_exists_column_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -277,7 +278,6 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun oracle_star_result_column_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun oracle_synonym_target_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun oracle_type_name_real (Lcom/intellij/lang/PsiBuilder;I)Z
-	public static fun oracle_values_insert_stmt_values_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun oracle_values_table_reference_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun oracle_xmltable_column_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun oracle_xmltable_columns_clause_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -723,6 +723,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getMerge_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getNoaudit_stmt ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOracle_from_using_clause ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getOracle_insert_stmt_values ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOracle_json_table_column ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOracle_json_table_columns_clause ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOracle_json_table_exists_column ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -738,7 +739,6 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getOracle_star_result_column ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOracle_synonym_target ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOracle_type_name ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
-	public final fun getOracle_values_insert_stmt_values ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOracle_values_table_reference ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOracle_xmltable_column ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOracle_xmltable_columns_clause ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -780,6 +780,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun mergeStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun noauditStmtExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun oracleFromUsingClauseExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun oracleInsertStmtValuesExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun oracleJsonTableColumnExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun oracleJsonTableColumnsClauseExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun oracleJsonTableExistsColumnExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -795,7 +796,6 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun oracleStarResultColumnExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun oracleSynonymTargetExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun oracleTypeNameExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
-	public static final fun oracleValuesInsertStmtValuesExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun oracleValuesTableReferenceExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun oracleXmltableColumnExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun oracleXmltableColumnsClauseExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -1024,6 +1024,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setMerge_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setNoaudit_stmt (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOracle_from_using_clause (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setOracle_insert_stmt_values (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOracle_json_table_column (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOracle_json_table_columns_clause (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOracle_json_table_exists_column (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -1039,7 +1040,6 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setOracle_star_result_column (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOracle_synonym_target (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOracle_type_name (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
-	public final fun setOracle_values_insert_stmt_values (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOracle_values_table_reference (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOracle_xmltable_column (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOracle_xmltable_columns_clause (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -1909,7 +1909,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleInsertStmt : com/alecstrong/sql/psi/core/psi/SqlInsertStmt {
-	public abstract fun getOracleValuesInsertStmtValues ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleValuesInsertStmtValues;
+	public abstract fun getOracleInsertStmtValues ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleInsertStmtValues;
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleJoinClause : com/alecstrong/sql/psi/core/psi/SqlJoinClause {
@@ -1934,6 +1934,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleFromUsingClause : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleInsertStmtValues : com/alecstrong/sql/psi/core/psi/SqlInsertStmtValues {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleJsonTableColumn : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -1988,9 +1991,6 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleTypeName : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
-}
-
-public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleValuesInsertStmtValues : com/alecstrong/sql/psi/core/psi/SqlInsertStmtValues {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleValuesTableReference : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -2507,6 +2507,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field MULTIPLY Lcom/intellij/psi/tree/IElementType;
 	public static final field NOAUDIT_STMT Lcom/intellij/psi/tree/IElementType;
 	public static final field ORACLE_FROM_USING_CLAUSE Lcom/intellij/psi/tree/IElementType;
+	public static final field ORACLE_INSERT_STMT_VALUES Lcom/intellij/psi/tree/IElementType;
 	public static final field ORACLE_JSON_TABLE_COLUMN Lcom/intellij/psi/tree/IElementType;
 	public static final field ORACLE_JSON_TABLE_COLUMNS_CLAUSE Lcom/intellij/psi/tree/IElementType;
 	public static final field ORACLE_JSON_TABLE_EXISTS_COLUMN Lcom/intellij/psi/tree/IElementType;
@@ -2522,7 +2523,6 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field ORACLE_STAR_RESULT_COLUMN Lcom/intellij/psi/tree/IElementType;
 	public static final field ORACLE_SYNONYM_TARGET Lcom/intellij/psi/tree/IElementType;
 	public static final field ORACLE_TYPE_NAME Lcom/intellij/psi/tree/IElementType;
-	public static final field ORACLE_VALUES_INSERT_STMT_VALUES Lcom/intellij/psi/tree/IElementType;
 	public static final field ORACLE_VALUES_TABLE_REFERENCE Lcom/intellij/psi/tree/IElementType;
 	public static final field ORACLE_XMLTABLE_COLUMN Lcom/intellij/psi/tree/IElementType;
 	public static final field ORACLE_XMLTABLE_COLUMNS_CLAUSE Lcom/intellij/psi/tree/IElementType;
@@ -2787,6 +2787,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitMergeStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleMergeStmt;)V
 	public fun visitNoauditStmt (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleNoauditStmt;)V
 	public fun visitOracleFromUsingClause (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleFromUsingClause;)V
+	public fun visitOracleInsertStmtValues (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleInsertStmtValues;)V
 	public fun visitOracleJsonTableColumn (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleJsonTableColumn;)V
 	public fun visitOracleJsonTableColumnsClause (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleJsonTableColumnsClause;)V
 	public fun visitOracleJsonTableExistsColumn (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleJsonTableExistsColumn;)V
@@ -2802,7 +2803,6 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitOracleStarResultColumn (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleStarResultColumn;)V
 	public fun visitOracleSynonymTarget (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleSynonymTarget;)V
 	public fun visitOracleTypeName (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleTypeName;)V
-	public fun visitOracleValuesInsertStmtValues (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleValuesInsertStmtValues;)V
 	public fun visitOracleValuesTableReference (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleValuesTableReference;)V
 	public fun visitOracleXmltableColumn (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleXmltableColumn;)V
 	public fun visitOracleXmltableColumnsClause (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleXmltableColumnsClause;)V
@@ -4343,7 +4343,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleIn
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
-	public fun getOracleValuesInsertStmtValues ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleValuesInsertStmtValues;
+	public fun getOracleInsertStmtValues ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleInsertStmtValues;
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleJoinClauseImpl : com/alecstrong/sql/psi/core/psi/impl/SqlJoinClauseImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleJoinClause {
@@ -4389,6 +4389,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleNo
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOracleFromUsingClauseImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleFromUsingClause {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOracleInsertStmtValuesImpl : dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleInsertStmtValues {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
@@ -4488,12 +4494,6 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOr
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOracleTypeNameImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleTypeName {
-	public fun <init> (Lcom/intellij/lang/ASTNode;)V
-	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
-	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
-}
-
-public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOracleValuesInsertStmtValuesImpl : com/alecstrong/sql/psi/core/psi/impl/SqlInsertStmtValuesImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleValuesInsertStmtValues {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V

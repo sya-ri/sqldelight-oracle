@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.4
+
+### Added
+
+- Add parser-backed coverage for representative oracle-samples beaver DDL and NL2SQL query forms.
+- Add SQLDelight code generation coverage for Oracle insert and update bind parameters.
+
+### Fixed
+
+- Fix Oracle parsing for standalone `SELECT *` migrations, inline views, inline view joins, and `INSERT INTO ... SELECT ... FROM DUAL` statements.
+- Fix SQLDelight code generation for Oracle assignment and insert bind parameters, including positional and named parameters.
+- Fix Oracle result column type resolution for quoted-qualified select expressions and quoted table aliases.
+
 ## 0.1.3
 
 ### Fixed

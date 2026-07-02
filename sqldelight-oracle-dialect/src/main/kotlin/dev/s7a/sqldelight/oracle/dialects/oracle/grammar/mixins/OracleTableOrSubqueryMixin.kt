@@ -62,7 +62,7 @@ internal abstract class OracleTableOrSubqueryMixin(
                 tableAlias?.let { alias ->
                     return@lazy listOf(
                         QueryResult(
-                            alias,
+                            alias.oracleQueryTableElement(),
                             result.flatMap { it.columns } + tableFunctionColumns,
                             result.flatMap { it.synthesizedColumns },
                         ),
@@ -76,7 +76,7 @@ internal abstract class OracleTableOrSubqueryMixin(
             compoundSelectStmt?.let {
                 val result = it.queryExposed()
                 tableAlias?.let { alias ->
-                    return@lazy result.map { query -> query.copy(table = alias) }
+                    return@lazy result.map { query -> query.copy(table = alias.oracleQueryTableElement()) }
                 }
                 return@lazy result
             }
@@ -191,6 +191,13 @@ internal abstract class OracleTableOrSubqueryMixin(
 
         return oracleRowPatternResult()
     }
+
+    private fun SqlTableAlias.oracleQueryTableElement(): PsiNamedElement =
+        if (text.startsWith("\"") && text.endsWith("\"")) {
+            OracleQuotedTableAliasElement(this, name.trimOracleIdentifier())
+        } else {
+            this
+        }
 
     private fun oracleGeneratedSynthesizedColumnResult(
         columnNames: List<String>,
@@ -753,6 +760,24 @@ private class OracleGeneratedColumnElement(
     override fun getNameIdentifier(): PsiElement? = null
 
     override fun toString(): String = "Oracle generated column: $columnName"
+}
+
+private class OracleQuotedTableAliasElement(
+    private val alias: SqlTableAlias,
+    private val aliasName: String,
+) : LightElement(alias.manager, alias.language),
+    PsiNamedElement {
+    override fun getName(): String = aliasName
+
+    override fun setName(name: String): PsiElement = alias
+
+    override fun getText(): String = aliasName
+
+    override fun getContainingFile(): PsiFile = alias.containingFile
+
+    override fun getParent(): PsiElement = alias.parent
+
+    override fun toString(): String = "Oracle quoted table alias: $aliasName"
 }
 
 private class OracleRowPatternMeasureTypeElement(

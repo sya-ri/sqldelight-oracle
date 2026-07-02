@@ -19,11 +19,16 @@ internal abstract class OracleInsertStmtMixin(
 ) : SqlCompositeElementImpl(node),
     OracleInsertStmt,
     SqlInsertStmt {
-    override fun getColumnNameList(): List<SqlColumnName> = PsiTreeUtil.getChildrenOfTypeAsList(this, SqlColumnName::class.java)
+    override fun getColumnNameList(): List<SqlColumnName> {
+        val valuesStart = insertStmtValues?.textOffset ?: oracleInsertValuesStartOffset()
+        return PsiTreeUtil
+            .findChildrenOfType(this, SqlColumnName::class.java)
+            .filter { columnName -> valuesStart == null || columnName.textOffset < valuesStart }
+    }
 
     override fun getDatabaseName(): SqlDatabaseName? = PsiTreeUtil.getChildOfType(this, SqlDatabaseName::class.java)
 
-    override fun getInsertStmtValues(): SqlInsertStmtValues? = null
+    override fun getInsertStmtValues(): SqlInsertStmtValues? = PsiTreeUtil.getChildOfType(this, SqlInsertStmtValues::class.java)
 
     override fun queryAvailable(child: PsiElement): Collection<QueryResult> =
         if (child !is SqlWithClause) {
@@ -46,5 +51,14 @@ internal abstract class OracleInsertStmtMixin(
         val alias = tableAlias ?: return target
 
         return listOf(target.oracleQueryResultFor(alias))
+    }
+
+    private fun oracleInsertValuesStartOffset(): Int? {
+        val relativeOffset =
+            listOf("VALUES", "SET", "SELECT", "DEFAULT")
+                .mapNotNull { keyword -> text.indexOfKeyword(keyword) }
+                .minOrNull()
+                ?: return null
+        return textRange.startOffset + relativeOffset
     }
 }

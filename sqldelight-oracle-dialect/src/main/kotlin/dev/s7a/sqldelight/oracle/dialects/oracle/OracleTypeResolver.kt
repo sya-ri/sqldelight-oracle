@@ -1,5 +1,6 @@
 package dev.s7a.sqldelight.oracle.dialects.oracle
 
+import app.cash.sqldelight.core.psi.SqlDelightColumnType
 import app.cash.sqldelight.dialect.api.DialectType
 import app.cash.sqldelight.dialect.api.ExposableType
 import app.cash.sqldelight.dialect.api.IntermediateType
@@ -16,8 +17,11 @@ import com.alecstrong.sql.psi.core.psi.SqlCompositeElement
 import com.alecstrong.sql.psi.core.psi.SqlExpr
 import com.alecstrong.sql.psi.core.psi.SqlExtensionExpr
 import com.alecstrong.sql.psi.core.psi.SqlFunctionExpr
+import com.alecstrong.sql.psi.core.psi.SqlSetterExpression
 import com.alecstrong.sql.psi.core.psi.SqlTypeName
+import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import com.squareup.kotlinpoet.ClassName
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.BINARY
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.BINARY_DOUBLE
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.BINARY_FLOAT
@@ -65,6 +69,16 @@ public class OracleTypeResolver(
         return oracleFunctionType(functionName, functionExpr.text, functionExpr.exprList)
             ?: parentResolver.functionType(functionExpr)
     }
+
+    override fun argumentType(
+        parent: PsiElement,
+        argument: SqlExpr,
+    ): IntermediateType =
+        if (parent is SqlSetterExpression) {
+            parent.oracleSetterTargetType() ?: parentResolver.argumentType(parent, argument)
+        } else {
+            parentResolver.argumentType(parent, argument)
+        }
 
     private fun oracleExtensionFunctionType(expr: SqlExpr): IntermediateType? {
         val extensionExpr = expr.oracleExtensionExpr() ?: return null
@@ -350,13 +364,26 @@ public class OracleTypeResolver(
             ?.get(1)
             ?.trim()
 
-    private fun SqlExtensionExpr.oracleAvailableColumnType(operandText: String): IntermediateType? {
+    private fun SqlSetterExpression.oracleSetterTargetType(): IntermediateType? {
+        val owner = parent ?: return null
+        val setterStart = textRange.startOffset - owner.textRange.startOffset
+        val beforeSetter = owner.text.substring(0, setterStart)
+        val targetText =
+            Regex("""(?is)(?:\bSET\b|,)\s*([A-Za-z_][\w$#]*(?:\s*\.\s*[A-Za-z_][\w$#]*)*)\s*=\s*$""")
+                .find(beforeSetter)
+                ?.groupValues
+                ?.get(1)
+                ?: return null
+        return owner.oracleAvailableColumnType(targetText)
+    }
+
+    private fun PsiElement.oracleAvailableColumnType(operandText: String): IntermediateType? {
         val operandColumnName = operandText.substringAfterLast(".").trimOracleIdentifier()
         if (operandColumnName.isBlank()) return null
 
-        var parent = parent
-        while (parent != null) {
-            val queryElement = parent as? SqlCompositeElement
+        var current: PsiElement? = this
+        while (current != null) {
+            val queryElement = current as? SqlCompositeElement
             val column =
                 queryElement
                     ?.queryAvailable(this)
@@ -369,10 +396,20 @@ public class OracleTypeResolver(
             if (exposedType != null) return exposedType.type()
             val columnDef = column?.element?.parent as? SqlColumnDef
             if (columnDef != null) {
-                return definitionType(columnDef.columnType.typeName)
+                val baseType = definitionType(columnDef.columnType.typeName)
+                val customType = (columnDef.columnType as? SqlDelightColumnType)?.javaTypeName?.text
+                if (!customType.isNullOrBlank() && !customType.equals("VALUE", ignoreCase = true)) {
+                    val customIntermediateType =
+                        baseType.copy(
+                            javaType = ClassName.bestGuess(customType),
+                            column = columnDef,
+                        )
+                    return customIntermediateType.nullableIf(!columnDef.text.contains(Regex("""(?i)\bNOT\s+NULL\b""")))
+                }
+                return baseType
                     .nullableIf(!columnDef.text.contains(Regex("""(?i)\bNOT\s+NULL\b""")))
             }
-            parent = parent.parent
+            current = current.parent
         }
         return null
     }

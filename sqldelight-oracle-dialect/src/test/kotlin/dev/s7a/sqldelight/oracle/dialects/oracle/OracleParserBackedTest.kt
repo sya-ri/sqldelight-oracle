@@ -9130,6 +9130,27 @@ class OracleParserBackedTest :
             queryParameterNames(files, deriveSchemaFromMigrations = true) shouldBe listOf("id", "name")
         }
 
+        test("accepts insert select bind parameters from Oracle dual") {
+            val sql =
+                """
+                CREATE TABLE bind_samples (
+                  id NUMBER PRIMARY KEY,
+                  name VARCHAR2(64)
+                );
+
+                insertFromDual:
+                INSERT INTO bind_samples (id, name)
+                SELECT ?, ? FROM dual;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+            bindExprCount(sql) shouldBe 2
+        }
+
         test("parses representative oracle-samples beaver DDL exactly") {
             val sql =
                 """

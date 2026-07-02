@@ -1253,7 +1253,7 @@ private oracle_group_by_having_clause ::= (
   'HAVING' <<expr '-1'>>
 )
 
-table_or_subquery ::= oracle_graph_table_reference | oracle_graphql_table_reference | oracle_json_table_reference | oracle_xmltable_reference | oracle_inline_external_table_reference | oracle_containers_table_reference | oracle_collection_table_reference | oracle_values_table_reference | oracle_subquery_table_reference | oracle_join_to_one_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
+table_or_subquery ::= oracle_graph_table_reference | oracle_graphql_table_reference | oracle_json_table_reference | oracle_xmltable_reference | oracle_inline_external_table_reference | oracle_containers_table_reference | oracle_collection_table_reference | oracle_values_table_reference | oracle_subquery_table_reference | oracle_join_to_one_table_reference | oracle_dual_table_reference | oracle_table_reference | oracle_parenthesized_table_reference {
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleTableOrSubqueryMixin"
   implements = "com.alecstrong.sql.psi.core.psi.SqlTableOrSubquery"
   override = true
@@ -1447,6 +1447,8 @@ private oracle_table_alias_with_columns_clause ::= oracle_table_alias_clause [ L
 private oracle_table_reference ::= oracle_only_table_reference | oracle_plain_table_reference
 
 private oracle_join_to_one_table_reference ::= oracle_table_reference 'JOIN' 'TO' 'ONE' LP oracle_jto_join_list RP
+
+private oracle_dual_table_reference ::= 'DUAL' [ oracle_table_alias_clause ]
 
 private oracle_jto_join_list ::= oracle_jto_join_entry ( COMMA? oracle_jto_join_entry ) *
 

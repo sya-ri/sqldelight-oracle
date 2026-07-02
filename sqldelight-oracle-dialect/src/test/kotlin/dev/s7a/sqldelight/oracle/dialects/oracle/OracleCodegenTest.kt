@@ -1,0 +1,508 @@
+package dev.s7a.sqldelight.oracle.dialects.oracle
+
+import app.cash.sqldelight.core.SqlDelightCompilationUnit
+import app.cash.sqldelight.core.SqlDelightDatabaseName
+import app.cash.sqldelight.core.SqlDelightDatabaseProperties
+import app.cash.sqldelight.core.SqlDelightEnvironment
+import app.cash.sqldelight.core.SqlDelightSourceFolder
+import app.cash.sqldelight.core.annotators.OptimisticLockCompilerAnnotator
+import app.cash.sqldelight.core.lang.MigrationLanguage
+import app.cash.sqldelight.core.lang.SqlDelightLanguage
+import com.intellij.lang.LanguageParserDefinitions
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.shouldBe
+import java.io.File
+import java.nio.file.Files
+
+class OracleCodegenTest :
+    FunSpec({
+        test("generates Oracle assignment bind parameters in SQLDelight query files exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import com.example.Label;
+
+                    CREATE TABLE sample (
+                      id NUMBER(10, 0) NOT NULL,
+                      label NVARCHAR2(50) AS Label NOT NULL,
+                      note VARCHAR2(100),
+                      PRIMARY KEY (id)
+                    );
+
+                    insertPositional:
+                    INSERT INTO sample (id, label)
+                    VALUES (?, ?);
+
+                    insertNamed:
+                    INSERT INTO sample (id, label, note)
+                    VALUES (:id, :label, :note);
+
+                    updateMixed:
+                    UPDATE sample
+                    SET label = :label,
+                        note = ?
+                    WHERE id = :id;
+
+                    insertFromSelect:
+                    INSERT INTO sample (id, label, note)
+                    SELECT :id, label, :note
+                    FROM sample
+                    WHERE id = :source_id;
+                    """.trimIndent(),
+                )
+
+            generated.fileNames shouldContainAll
+                listOf(
+                    "com/example/Sample.kt",
+                    "com/example/TestQueries.kt",
+                )
+            generated.contentsByFile.getValue("com/example/TestQueries.kt") shouldBe
+                """
+                package com.example
+
+                import app.cash.sqldelight.TransacterImpl
+                import app.cash.sqldelight.db.QueryResult
+                import app.cash.sqldelight.db.SqlDriver
+                import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+                import kotlin.Long
+                import kotlin.String
+
+                public class TestQueries(
+                  driver: SqlDriver,
+                  private val sampleAdapter: Sample.Adapter,
+                ) : TransacterImpl(driver) {
+                  /**
+                   * @return The number of rows updated.
+                   */
+                  public fun insertPositional(id: Long, label: Label): QueryResult<Long> {
+                    val result = driver.execute(1_307_207_658, ""${'"'}
+                        |INSERT INTO sample (id, label)
+                        |VALUES (?, ?)
+                        ""${'"'}.trimMargin(), 2) {
+                          check(this is JdbcPreparedStatement)
+                          var parameterIndex = 0
+                          bindLong(parameterIndex++, id)
+                          bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(label))
+                        }
+                    notifyQueries(1_307_207_658) { emit ->
+                      emit("sample")
+                    }
+                    return result
+                  }
+
+                  /**
+                   * @return The number of rows updated.
+                   */
+                  public fun insertNamed(
+                    id: Long,
+                    label: Label,
+                    note: String?,
+                  ): QueryResult<Long> {
+                    val result = driver.execute(-615_661_405, ""${'"'}
+                        |INSERT INTO sample (id, label, note)
+                        |VALUES (?, ?, ?)
+                        ""${'"'}.trimMargin(), 3) {
+                          check(this is JdbcPreparedStatement)
+                          var parameterIndex = 0
+                          bindLong(parameterIndex++, id)
+                          bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(label))
+                          bindString(parameterIndex++, note)
+                        }
+                    notifyQueries(-615_661_405) { emit ->
+                      emit("sample")
+                    }
+                    return result
+                  }
+
+                  /**
+                   * @return The number of rows updated.
+                   */
+                  public fun updateMixed(
+                    label: Label,
+                    `value`: String?,
+                    id: Long,
+                  ): QueryResult<Long> {
+                    val result = driver.execute(-1_086_633_643, ""${'"'}
+                        |UPDATE sample
+                        |SET label = ?,
+                        |    note = ?
+                        |WHERE id = ?
+                        ""${'"'}.trimMargin(), 3) {
+                          check(this is JdbcPreparedStatement)
+                          var parameterIndex = 0
+                          bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(label))
+                          bindString(parameterIndex++, value)
+                          bindLong(parameterIndex++, id)
+                        }
+                    notifyQueries(-1_086_633_643) { emit ->
+                      emit("sample")
+                    }
+                    return result
+                  }
+
+                  /**
+                   * @return The number of rows updated.
+                   */
+                  public fun insertFromSelect(
+                    id: Long,
+                    note: String?,
+                    source_id: Long,
+                  ): QueryResult<Long> {
+                    val result = driver.execute(2_070_133_276, ""${'"'}
+                        |INSERT INTO sample (id, label, note)
+                        |SELECT ?, label, ?
+                        |FROM sample
+                        |WHERE id = ?
+                        ""${'"'}.trimMargin(), 3) {
+                          check(this is JdbcPreparedStatement)
+                          var parameterIndex = 0
+                          bindLong(parameterIndex++, id)
+                          bindString(parameterIndex++, note)
+                          bindLong(parameterIndex++, source_id)
+                        }
+                    notifyQueries(2_070_133_276) { emit ->
+                      emit("sample")
+                    }
+                    return result
+                  }
+                }
+                """.trimIndent() + "\n"
+        }
+
+        test("generates Oracle predicate bind parameters as regression contrasts exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import com.example.Label;
+
+                    CREATE TABLE sample (
+                      id NUMBER(10, 0) NOT NULL,
+                      label NVARCHAR2(50) AS Label NOT NULL,
+                      note VARCHAR2(100),
+                      PRIMARY KEY (id)
+                    );
+
+                    selectByPredicate:
+                    SELECT id, label, note
+                    FROM sample
+                    WHERE id = ?
+                      AND label = :label;
+
+                    deleteByPredicate:
+                    DELETE FROM sample
+                    WHERE id = ?
+                      AND label = :label;
+                    """.trimIndent(),
+                )
+
+            generated.fileNames shouldContain "com/example/TestQueries.kt"
+            generated.contentsByFile.getValue("com/example/TestQueries.kt") shouldBe
+                """
+                package com.example
+
+                import app.cash.sqldelight.Query
+                import app.cash.sqldelight.TransacterImpl
+                import app.cash.sqldelight.db.QueryResult
+                import app.cash.sqldelight.db.SqlCursor
+                import app.cash.sqldelight.db.SqlDriver
+                import app.cash.sqldelight.driver.jdbc.JdbcCursor
+                import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+                import kotlin.Any
+                import kotlin.Long
+                import kotlin.String
+
+                public class TestQueries(
+                  driver: SqlDriver,
+                  private val sampleAdapter: Sample.Adapter,
+                ) : TransacterImpl(driver) {
+                  public fun <T : Any> selectByPredicate(
+                    id: Long,
+                    label: Label,
+                    mapper: (
+                      id: Long,
+                      label: Label,
+                      note: String?,
+                    ) -> T,
+                  ): Query<T> = SelectByPredicateQuery(id, label) { cursor ->
+                    check(cursor is JdbcCursor)
+                    mapper(
+                      cursor.getLong(0)!!,
+                      sampleAdapter.labelAdapter.decode(cursor.getString(1)!!),
+                      cursor.getString(2)
+                    )
+                  }
+
+                  public fun selectByPredicate(id: Long, label: Label): Query<Sample> = selectByPredicate(id, label, ::Sample)
+
+                  /**
+                   * @return The number of rows updated.
+                   */
+                  public fun deleteByPredicate(id: Long, label: Label): QueryResult<Long> {
+                    val result = driver.execute(-2_011_516_200, ""${'"'}
+                        |DELETE FROM sample
+                        |WHERE id = ?
+                        |  AND label = ?
+                        ""${'"'}.trimMargin(), 2) {
+                          check(this is JdbcPreparedStatement)
+                          var parameterIndex = 0
+                          bindLong(parameterIndex++, id)
+                          bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(label))
+                        }
+                    notifyQueries(-2_011_516_200) { emit ->
+                      emit("sample")
+                    }
+                    return result
+                  }
+
+                  private inner class SelectByPredicateQuery<out T : Any>(
+                    public val id: Long,
+                    public val label: Label,
+                    mapper: (SqlCursor) -> T,
+                  ) : Query<T>(mapper) {
+                    override fun addListener(listener: Query.Listener) {
+                      driver.addListener("sample", listener = listener)
+                    }
+
+                    override fun removeListener(listener: Query.Listener) {
+                      driver.removeListener("sample", listener = listener)
+                    }
+
+                    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> = driver.executeQuery(-557_582_617, ""${'"'}
+                    |SELECT id, label, note
+                    |FROM sample
+                    |WHERE id = ?
+                    |  AND label = ?
+                    ""${'"'}.trimMargin(), mapper, 2) {
+                      check(this is JdbcPreparedStatement)
+                      var parameterIndex = 0
+                      bindLong(parameterIndex++, id)
+                      bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(label))
+                    }
+
+                    override fun toString(): String = "Test.sq:selectByPredicate"
+                  }
+                }
+                """.trimIndent() + "\n"
+        }
+
+        test("generates SQLDelight value type row and variable arguments exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import com.example.Label;
+
+                    CREATE TABLE sample (
+                      id NUMBER(10, 0) AS VALUE NOT NULL,
+                      label NVARCHAR2(50) AS Label NOT NULL,
+                      note VARCHAR2(100),
+                      PRIMARY KEY (id)
+                    );
+
+                    insertRow:
+                    INSERT INTO sample
+                    VALUES ?;
+
+                    selectByIds:
+                    SELECT id, label, note
+                    FROM sample
+                    WHERE id IN ?;
+                    """.trimIndent(),
+                )
+
+            generated.fileNames shouldContainAll
+                listOf(
+                    "com/example/Sample.kt",
+                    "com/example/TestQueries.kt",
+                )
+            generated.contentsByFile.getValue("com/example/Sample.kt") shouldBe
+                """
+                package com.example
+
+                import app.cash.sqldelight.ColumnAdapter
+                import kotlin.Long
+                import kotlin.String
+                import kotlin.jvm.JvmInline
+
+                public data class Sample(
+                  public val id: Id,
+                  public val label: Label,
+                  public val note: String?,
+                ) {
+                  public class Adapter(
+                    public val labelAdapter: ColumnAdapter<Label, String>,
+                  )
+
+                  @JvmInline
+                  public value class Id(
+                    public val id: Long,
+                  )
+                }
+                """.trimIndent() + "\n"
+            generated.contentsByFile.getValue("com/example/TestQueries.kt") shouldBe
+                """
+                package com.example
+
+                import app.cash.sqldelight.Query
+                import app.cash.sqldelight.TransacterImpl
+                import app.cash.sqldelight.db.QueryResult
+                import app.cash.sqldelight.db.SqlCursor
+                import app.cash.sqldelight.db.SqlDriver
+                import app.cash.sqldelight.driver.jdbc.JdbcCursor
+                import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
+                import kotlin.Any
+                import kotlin.Long
+                import kotlin.String
+                import kotlin.collections.Collection
+
+                public class TestQueries(
+                  driver: SqlDriver,
+                  private val sampleAdapter: Sample.Adapter,
+                ) : TransacterImpl(driver) {
+                  public fun <T : Any> selectByIds(id: Collection<Sample.Id>, mapper: (
+                    id: Sample.Id,
+                    label: Label,
+                    note: String?,
+                  ) -> T): Query<T> = SelectByIdsQuery(id) { cursor ->
+                    check(cursor is JdbcCursor)
+                    mapper(
+                      Sample.Id(cursor.getLong(0)!!),
+                      sampleAdapter.labelAdapter.decode(cursor.getString(1)!!),
+                      cursor.getString(2)
+                    )
+                  }
+
+                  public fun selectByIds(id: Collection<Sample.Id>): Query<Sample> = selectByIds(id, ::Sample)
+
+                  /**
+                   * @return The number of rows updated.
+                   */
+                  public fun insertRow(sample: Sample): QueryResult<Long> {
+                    val result = driver.execute(745_731_524, ""${'"'}
+                        |INSERT INTO sample
+                        |VALUES ?
+                        ""${'"'}.trimMargin(), 3) {
+                          check(this is JdbcPreparedStatement)
+                          var parameterIndex = 0
+                          bindLong(parameterIndex++, sample.id.id)
+                          bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(sample.label))
+                          bindString(parameterIndex++, sample.note)
+                        }
+                    notifyQueries(745_731_524) { emit ->
+                      emit("sample")
+                    }
+                    return result
+                  }
+
+                  private inner class SelectByIdsQuery<out T : Any>(
+                    public val id: Collection<Sample.Id>,
+                    mapper: (SqlCursor) -> T,
+                  ) : Query<T>(mapper) {
+                    override fun addListener(listener: Query.Listener) {
+                      driver.addListener("sample", listener = listener)
+                    }
+
+                    override fun removeListener(listener: Query.Listener) {
+                      driver.removeListener("sample", listener = listener)
+                    }
+
+                    override fun <R> execute(mapper: (SqlCursor) -> QueryResult<R>): QueryResult<R> {
+                      val idIndexes = createArguments(count = id.size)
+                      return driver.executeQuery(null, ""${'"'}
+                          |SELECT id, label, note
+                          |FROM sample
+                          |WHERE id IN ${'$'}idIndexes
+                          ""${'"'}.trimMargin(), mapper, id.size) {
+                            check(this is JdbcPreparedStatement)
+                            var parameterIndex = 0
+                            id.forEach { id_ ->
+                              bindLong(parameterIndex++, id_.id)
+                            }
+                          }
+                    }
+
+                    override fun toString(): String = "Test.sq:selectByIds"
+                  }
+                }
+                """.trimIndent() + "\n"
+        }
+    })
+
+private data class CodegenResult(
+    val fileNames: List<String>,
+    val contentsByFile: Map<String, String>,
+)
+
+private fun generateOracleSqlDelight(
+    sql: String,
+    fileName: String = "Test.sq",
+): CodegenResult {
+    val root = Files.createTempDirectory("sqldelight-oracle-codegen-test").toFile()
+    val sourceDirectory = File(root, "com/example").apply { mkdirs() }
+    File(sourceDirectory, fileName).writeText(sql)
+
+    val compilationUnit = OracleCodegenTestCompilationUnit(File(root, "output"))
+    val environment =
+        SqlDelightEnvironment(
+            sourceFolders = listOf(root),
+            dependencyFolders = emptyList(),
+            properties =
+                OracleCodegenTestDatabaseProperties(
+                    rootDirectory = root,
+                    compilationUnit = compilationUnit,
+                ),
+            dialect = OracleDialect(),
+            verifyMigrations = true,
+            moduleName = "oracle-codegen-test",
+            compilationUnit = compilationUnit,
+        )
+
+    LanguageParserDefinitions.INSTANCE.forLanguage(SqlDelightLanguage).createParser(environment.project)
+    LanguageParserDefinitions.INSTANCE.forLanguage(MigrationLanguage).createParser(environment.project)
+
+    val annotationErrors = mutableListOf<String>()
+    environment.annotate(listOf(OptimisticLockCompilerAnnotator())) { element, message ->
+        annotationErrors += "${element.containingFile.name}: $message"
+    }
+    annotationErrors shouldBe emptyList()
+
+    val compilerErrors = mutableListOf<String>()
+    val status = environment.generateSqlDelightFiles { message -> compilerErrors += message }
+    status::class.simpleName shouldBe "Success"
+
+    val generatedFiles =
+        compilationUnit.outputDirectoryFile
+            .walkTopDown()
+            .filter { file -> file.isFile }
+            .associate { file ->
+                file.relativeTo(compilationUnit.outputDirectoryFile).invariantSeparatorsPath to file.readText()
+            }
+    val files = generatedFiles.toSortedMap()
+
+    return CodegenResult(
+        fileNames = files.keys.toList(),
+        contentsByFile = files,
+    )
+}
+
+private data class OracleCodegenTestCompilationUnit(
+    override val outputDirectoryFile: File,
+) : SqlDelightCompilationUnit {
+    override val name: String = "test"
+    override val sourceFolders: Set<SqlDelightSourceFolder> = emptySet()
+}
+
+private data class OracleCodegenTestDatabaseProperties(
+    override val rootDirectory: File,
+    private val compilationUnit: SqlDelightCompilationUnit,
+) : SqlDelightDatabaseProperties {
+    override val packageName: String = "com.example"
+    override val className: String = "TestDatabase"
+    override val dependencies: List<SqlDelightDatabaseName> = emptyList()
+    override val compilationUnits: List<SqlDelightCompilationUnit> = listOf(compilationUnit)
+    override val deriveSchemaFromMigrations: Boolean = false
+    override val generateAsync: Boolean = false
+    override val expandSelectStar: Boolean = true
+    override val treatNullAsUnknownForEquality: Boolean = false
+}

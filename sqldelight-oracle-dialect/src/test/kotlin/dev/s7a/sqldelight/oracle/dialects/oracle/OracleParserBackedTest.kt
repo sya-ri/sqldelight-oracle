@@ -6,6 +6,7 @@ import app.cash.sqldelight.core.SqlDelightDatabaseProperties
 import app.cash.sqldelight.core.SqlDelightEnvironment
 import app.cash.sqldelight.core.SqlDelightSourceFolder
 import app.cash.sqldelight.core.annotators.OptimisticLockCompilerAnnotator
+import app.cash.sqldelight.core.compiler.SqlDelightCompiler
 import app.cash.sqldelight.core.lang.MigrationLanguage
 import app.cash.sqldelight.core.lang.SqlDelightLanguage
 import app.cash.sqldelight.core.lang.SqlDelightQueriesFile
@@ -9151,6 +9152,52 @@ class OracleParserBackedTest :
             bindExprCount(sql) shouldBe 2
         }
 
+        test("generates interfaces for Oracle insert values bind parameters exactly") {
+            val sql =
+                """
+                CREATE TABLE sample (
+                  id NUMBER(10, 0) NOT NULL,
+                  label NVARCHAR2(50) NOT NULL,
+                  PRIMARY KEY (id)
+                );
+
+                insertSample:
+                INSERT INTO sample (id, label) VALUES (?, ?);
+
+                insertSampleNamed:
+                INSERT INTO sample (id, label) VALUES (:id, :label);
+                """.trimIndent()
+
+            val generatedQueries = compileOracleSql(sql).values.joinToString("\n")
+            generatedQueries.contains("insertSample") shouldBe true
+            generatedQueries.contains("insertSampleNamed") shouldBe true
+        }
+
+        test("generates interfaces for Oracle update assignment bind parameters exactly") {
+            val sql =
+                """
+                CREATE TABLE sample (
+                  id NUMBER(10, 0) NOT NULL,
+                  label NVARCHAR2(50) NOT NULL,
+                  PRIMARY KEY (id)
+                );
+
+                updateSample:
+                UPDATE sample
+                SET label = ?
+                WHERE id = :id;
+
+                updateSampleNamed:
+                UPDATE sample
+                SET label = :label
+                WHERE id = :id;
+                """.trimIndent()
+
+            val generatedQueries = compileOracleSql(sql).values.joinToString("\n")
+            generatedQueries.contains("updateSample") shouldBe true
+            generatedQueries.contains("updateSampleNamed") shouldBe true
+        }
+
         test("parses representative oracle-samples beaver DDL exactly") {
             val sql =
                 """
@@ -9920,6 +9967,47 @@ private fun queryParameterNames(
         }
     }
     return names
+}
+
+private fun compileOracleSql(
+    sql: String,
+    fileName: String = "Test.sq",
+): Map<String, String> {
+    val root = Files.createTempDirectory("sqldelight-oracle-codegen-test").toFile()
+    val sourceDirectory = File(root, "com/example").apply { mkdirs() }
+    File(sourceDirectory, fileName).writeText(sql)
+
+    val errors = mutableListOf<String>()
+    val compilationUnit = OracleParserTestCompilationUnit(File(root, "output"))
+    val environment =
+        SqlDelightEnvironment(
+            sourceFolders = listOf(root),
+            dependencyFolders = emptyList(),
+            properties =
+                OracleParserTestDatabaseProperties(
+                    rootDirectory = root,
+                    compilationUnit = compilationUnit,
+                ),
+            dialect = OracleDialect(),
+            verifyMigrations = true,
+            moduleName = "oracle-codegen-test",
+            compilationUnit = compilationUnit,
+        )
+
+    LanguageParserDefinitions.INSTANCE.forLanguage(SqlDelightLanguage).createParser(environment.project)
+    LanguageParserDefinitions.INSTANCE.forLanguage(MigrationLanguage).createParser(environment.project)
+    environment.annotate(listOf(OptimisticLockCompilerAnnotator()), createAnnotationHolder(errors))
+    errors shouldBe emptyList()
+
+    val output = linkedMapOf<String, StringBuilder>()
+    environment.forSourceFiles { psiFile ->
+        if (psiFile is SqlDelightQueriesFile) {
+            SqlDelightCompiler.writeInterfaces(environment.module, OracleDialect(), psiFile) { fileName ->
+                output.getOrPut(fileName) { StringBuilder() }
+            }
+        }
+    }
+    return output.mapValues { (_, contents) -> contents.toString() }
 }
 
 private data class OracleParserTestCompilationUnit(

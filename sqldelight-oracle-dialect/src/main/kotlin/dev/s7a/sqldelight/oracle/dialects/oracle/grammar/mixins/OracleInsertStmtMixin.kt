@@ -23,7 +23,7 @@ internal abstract class OracleInsertStmtMixin(
 
     override fun getDatabaseName(): SqlDatabaseName? = PsiTreeUtil.getChildOfType(this, SqlDatabaseName::class.java)
 
-    override fun getInsertStmtValues(): SqlInsertStmtValues? = null
+    override fun getInsertStmtValues(): SqlInsertStmtValues? = PsiTreeUtil.getChildOfType(this, SqlInsertStmtValues::class.java)
 
     override fun queryAvailable(child: PsiElement): Collection<QueryResult> =
         if (child !is SqlWithClause) {

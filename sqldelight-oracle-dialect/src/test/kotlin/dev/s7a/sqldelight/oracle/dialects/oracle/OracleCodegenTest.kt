@@ -568,6 +568,53 @@ class OracleCodegenTest :
             queries.contains("bindString(parameterIndex++, name_pattern)") shouldBe true
         }
 
+        test("generates Oracle ordered percentile aggregate bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import java.math.BigDecimal;
+
+                    CREATE TABLE sales (
+                      id NUMBER(10, 0) NOT NULL,
+                      region VARCHAR2(20) NOT NULL,
+                      amount NUMBER(10, 2) NOT NULL,
+                      PRIMARY KEY (id)
+                    );
+
+                    selectPercentileMetrics:
+                    SELECT region,
+                           PERCENTILE_CONT(CAST(:continuous_percentile AS NUMBER(3, 2)))
+                             WITHIN GROUP (ORDER BY amount DESC) AS continuous_amount,
+                           APPROX_PERCENTILE(amount DETERMINISTIC, CAST(:approx_percentile AS NUMBER(3, 2)))
+                             WITHIN GROUP (ORDER BY amount DESC) AS approximate_amount,
+                           RANK(CAST(:hypothetical_amount AS NUMBER(10, 2)))
+                             WITHIN GROUP (ORDER BY amount DESC) AS hypothetical_rank
+                    FROM sales
+                    WHERE amount >= :minimum_amount
+                    GROUP BY region;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> selectPercentileMetrics(") shouldBe true
+            queries.contains("continuous_percentile: BigDecimal,") shouldBe true
+            queries.contains("approx_percentile: BigDecimal,") shouldBe true
+            queries.contains("hypothetical_amount: BigDecimal,") shouldBe true
+            queries.contains("minimum_amount: BigDecimal,") shouldBe true
+            queries.contains("region: String,") shouldBe true
+            queries.contains("continuous_amount: BigDecimal?,") shouldBe true
+            queries.contains("approximate_amount: BigDecimal?,") shouldBe true
+            queries.contains("hypothetical_rank: Long,") shouldBe true
+            queries.contains("|       PERCENTILE_CONT(CAST(? AS NUMBER(3, 2)))") shouldBe true
+            queries.contains("|       APPROX_PERCENTILE(amount DETERMINISTIC, CAST(? AS NUMBER(3, 2)))") shouldBe true
+            queries.contains("|       RANK(CAST(? AS NUMBER(10, 2)))") shouldBe true
+            queries.contains("|WHERE amount >= ?") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, continuous_percentile)") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, approx_percentile)") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, hypothetical_amount)") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, minimum_amount)") shouldBe true
+        }
+
         test("generates Oracle SQL JSON passing bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

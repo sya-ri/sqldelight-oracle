@@ -621,6 +621,45 @@ class OracleCodegenTest :
             queries.contains("bindString(parameterIndex++, status)") shouldBe true
         }
 
+        test("generates Oracle hierarchical query bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import com.example.Region;
+
+                    CREATE TABLE employees (
+                      id NUMBER(10, 0) NOT NULL,
+                      manager_id NUMBER(10, 0),
+                      name VARCHAR2(100) NOT NULL,
+                      region NVARCHAR2(16) AS Region NOT NULL,
+                      PRIMARY KEY (id)
+                    );
+
+                    selectOrgTree:
+                    SELECT id, CONNECT_BY_ROOT name AS root_name, LEVEL AS depth
+                    FROM employees
+                    START WITH id = :root_id AND region = :region
+                    CONNECT BY NOCYCLE PRIOR id = manager_id AND LEVEL <= :max_depth
+                    ORDER SIBLINGS BY name;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> selectOrgTree(") shouldBe true
+            queries.contains("root_id: Long,") shouldBe true
+            queries.contains("region: Region,") shouldBe true
+            queries.contains("max_depth: Long,") shouldBe true
+            queries.contains("id: Long,") shouldBe true
+            queries.contains("root_name: String,") shouldBe true
+            queries.contains("depth: Long,") shouldBe true
+            queries.contains("|START WITH id = ? AND region = ?") shouldBe true
+            queries.contains("|CONNECT BY NOCYCLE PRIOR id = manager_id AND LEVEL <= ?") shouldBe true
+            queries.contains("|ORDER SIBLINGS BY name") shouldBe true
+            queries.contains("bindLong(parameterIndex++, root_id)") shouldBe true
+            queries.contains("bindString(parameterIndex++, employeesAdapter.regionAdapter.encode(region))") shouldBe true
+            queries.contains("bindLong(parameterIndex++, max_depth)") shouldBe true
+        }
+
         test("generates Oracle DML returning input bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

@@ -747,6 +747,40 @@ class OracleCodegenTest :
             queries.contains("bindLong(parameterIndex++, rows_per_partition)") shouldBe true
         }
 
+        test("generates Oracle sample clause bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import java.math.BigDecimal;
+
+                    CREATE TABLE sampled_orders (
+                      order_id NUMBER(10, 0) NOT NULL,
+                      order_total NUMBER(10, 2) NOT NULL,
+                      region VARCHAR2(16) NOT NULL,
+                      PRIMARY KEY (order_id)
+                    );
+
+                    selectSampledOrders:
+                    SELECT so.order_id
+                    FROM sampled_orders SAMPLE BLOCK (CAST(:sample_percent AS NUMBER(5, 2)))
+                      SEED (CAST(:sample_seed AS NUMBER(10, 0))) so
+                    WHERE so.order_total >= :min_total;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun selectSampledOrders(") shouldBe true
+            queries.contains("sample_percent: BigDecimal,") shouldBe true
+            queries.contains("sample_seed: Long,") shouldBe true
+            queries.contains("min_total: BigDecimal,") shouldBe true
+            queries.contains("|FROM sampled_orders SAMPLE BLOCK (CAST(? AS NUMBER(5, 2)))") shouldBe true
+            queries.contains("|  SEED (CAST(? AS NUMBER(10, 0))) so") shouldBe true
+            queries.contains("|WHERE so.order_total >= ?") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, sample_percent)") shouldBe true
+            queries.contains("bindLong(parameterIndex++, sample_seed)") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, min_total)") shouldBe true
+        }
+
         test("generates Oracle DML returning input bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

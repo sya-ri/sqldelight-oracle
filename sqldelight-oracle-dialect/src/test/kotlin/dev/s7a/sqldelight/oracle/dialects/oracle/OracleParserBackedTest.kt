@@ -537,6 +537,41 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle DML returning clauses from query files exactly") {
+            val sql =
+                """
+                CREATE TABLE returning_samples (
+                  id NUMBER(10) NOT NULL,
+                  name VARCHAR2(64),
+                  updated_at TIMESTAMP,
+                  PRIMARY KEY (id)
+                );
+
+                insertReturning:
+                INSERT INTO returning_samples (id, name, updated_at)
+                VALUES (:id, :name, CURRENT_TIMESTAMP)
+                RETURNING id, name INTO :returned_id, :returned_name;
+
+                updateReturning:
+                UPDATE returning_samples
+                SET name = :name,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = :id
+                RETURNING OLD name, NEW updated_at INTO :old_name, :new_updated_at;
+
+                deleteReturning:
+                DELETE FROM returning_samples
+                WHERE id = :id
+                RETURNING id, name BULK COLLECT INTO :deleted_ids, :deleted_names;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle datetime and interval literals exactly") {
             val sql =
                 """
@@ -9157,6 +9192,36 @@ class OracleParserBackedTest :
 
             bindExprCount(files, deriveSchemaFromMigrations = true) shouldBe 2
             queryParameterNames(files, deriveSchemaFromMigrations = true) shouldBe listOf("id", "name")
+        }
+
+        test("does not count Oracle returning targets as input bind expressions") {
+            val sql =
+                """
+                CREATE TABLE returning_samples (
+                  id NUMBER(10) NOT NULL,
+                  amount NUMBER(10, 2),
+                  name VARCHAR2(64),
+                  PRIMARY KEY (id)
+                );
+
+                insertReturning:
+                INSERT INTO returning_samples (id, amount, name)
+                VALUES (:id, :amount, :name)
+                RETURNING id, name INTO :returned_id, :returned_name;
+
+                updateReturning:
+                UPDATE returning_samples
+                SET amount = :amount
+                WHERE id = :id
+                RETURNING OLD amount, NEW amount INTO :old_amount, :new_amount;
+
+                deleteReturning:
+                DELETE FROM returning_samples
+                WHERE id = :id
+                RETURNING id, name BULK COLLECT INTO :deleted_ids, :deleted_names;
+                """.trimIndent()
+
+            bindExprCount(sql) shouldBe 6
         }
 
         test("accepts insert select bind parameters from Oracle dual") {

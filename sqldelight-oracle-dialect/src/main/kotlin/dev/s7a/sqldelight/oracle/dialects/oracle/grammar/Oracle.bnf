@@ -1835,7 +1835,9 @@ private oracle_returning_clause ::= ( 'RETURN' | 'RETURNING' ) oracle_returning_
 
 private oracle_returning_expr ::= [ 'OLD' | 'NEW' ] <<expr '-1'>>
 
-private oracle_returning_target ::= {bind_expr} | oracle_schema_object_name
+private oracle_returning_target ::= oracle_returning_bind_target | oracle_schema_object_name
+
+private oracle_returning_bind_target ::= '?' | ':' ( {identifier} | DIGIT )
 
 qualified_table_name ::= (
   'ONLY' LP [ <<databaseNameExt <<database_name_real>>>> DOT ] <<tableNameExt <<table_name_real>>>> [ oracle_dblink_clause ] RP |

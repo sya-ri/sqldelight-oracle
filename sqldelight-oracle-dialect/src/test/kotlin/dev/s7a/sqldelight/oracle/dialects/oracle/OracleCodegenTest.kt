@@ -287,6 +287,57 @@ class OracleCodegenTest :
                 """.trimIndent() + "\n"
         }
 
+        test("generates Oracle DML returning input bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    CREATE TABLE orders (
+                      order_id NUMBER(10, 0) NOT NULL,
+                      order_total NUMBER(10, 2),
+                      order_name VARCHAR2(64),
+                      PRIMARY KEY (order_id)
+                    );
+
+                    insertReturning:
+                    INSERT INTO orders (order_id, order_total, order_name)
+                    VALUES (:order_id, :order_total, :order_name)
+                    RETURNING order_id, order_name INTO :returned_id, :returned_name;
+
+                    updateReturning:
+                    UPDATE orders
+                    SET order_total = :order_total
+                    WHERE order_id = :order_id
+                    RETURNING OLD order_total, NEW order_total INTO :old_total, :new_total;
+
+                    deleteReturning:
+                    DELETE FROM orders
+                    WHERE order_id = :order_id
+                    RETURNING order_id, order_name BULK COLLECT INTO :deleted_ids, :deleted_names;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun insertReturning(") shouldBe true
+            queries.contains("order_id: Long,") shouldBe true
+            queries.contains("order_total: BigDecimal?,") shouldBe true
+            queries.contains("order_name: String?,") shouldBe true
+            queries.contains("): QueryResult<Long> {") shouldBe true
+            queries.contains("|VALUES (?, ?, ?)") shouldBe true
+            queries.contains("|RETURNING order_id, order_name INTO :returned_id, :returned_name") shouldBe true
+            queries.contains(", 3) {") shouldBe true
+            queries.contains("bindLong(parameterIndex++, order_id)") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, order_total)") shouldBe true
+            queries.contains("bindString(parameterIndex++, order_name)") shouldBe true
+            queries.contains("returned_id") shouldBe true
+            queries.contains("bindString(parameterIndex++, returned_id)") shouldBe false
+            queries.contains("public fun updateReturning(order_total: BigDecimal?, order_id: Long): QueryResult<Long>") shouldBe true
+            queries.contains("RETURNING OLD order_total, NEW order_total INTO :old_total, :new_total") shouldBe true
+            queries.contains(", 2) {") shouldBe true
+            queries.contains("public fun deleteReturning(order_id: Long): QueryResult<Long>") shouldBe true
+            queries.contains("RETURNING order_id, order_name BULK COLLECT INTO :deleted_ids, :deleted_names") shouldBe true
+            queries.contains(", 1) {") shouldBe true
+        }
+
         test("generates SQLDelight value type row and variable arguments exactly") {
             val generated =
                 generateOracleSqlDelight(

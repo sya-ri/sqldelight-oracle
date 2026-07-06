@@ -78,6 +78,7 @@ public class OracleTypeResolver(
         parent: PsiElement,
         argument: SqlExpr,
     ): IntermediateType {
+        argument.oracleCastArgumentType()?.let { return it }
         argument.oracleFlashbackArgumentType()?.let { return it }
         argument.oraclePivotArgumentType()?.let { return it }
 
@@ -97,7 +98,8 @@ public class OracleTypeResolver(
             }
 
             PsiTreeUtil.getParentOfType(argument, SqlExtensionExpr::class.java) != null -> {
-                argument.oraclePivotArgumentType()
+                argument.oracleCastArgumentType()
+                    ?: argument.oraclePivotArgumentType()
                     ?: argument.oracleMultiColumnTextArgumentType()
                     ?: argument.oracleExtensionArgumentType()
                     ?: parentResolver.argumentType(parent, argument)
@@ -106,6 +108,7 @@ public class OracleTypeResolver(
             else -> {
                 argument.oracleInsertSetArgumentType()
                     ?: argument.oracleMultiTableInsertArgumentType()
+                    ?: argument.oracleCastArgumentType()
                     ?: argument.oracleFlashbackArgumentType()
                     ?: argument.oraclePivotArgumentType()
                     ?: parentResolver.argumentType(parent, argument)
@@ -560,6 +563,33 @@ public class OracleTypeResolver(
                     .map { match -> match.value.trimOracleIdentifier() }
                     .toList()
             }
+
+    private fun SqlExpr.oracleCastArgumentType(): IntermediateType? {
+        val functionExpr = PsiTreeUtil.getParentOfType(this, SqlFunctionExpr::class.java)
+        if (functionExpr != null && functionExpr.functionName.text.isOracleCastLikeFunctionName()) {
+            val argumentOffset = textRange.startOffset - functionExpr.textRange.startOffset
+            val asOffset = functionExpr.text.indexOfKeyword("AS") ?: return null
+            if (argumentOffset <= asOffset) {
+                return functionExpr.text.oracleCastTargetType()
+            }
+        }
+
+        return oracleCastExtensionArgumentType()
+    }
+
+    private fun SqlExpr.oracleCastExtensionArgumentType(): IntermediateType? {
+        val extensionExpr = PsiTreeUtil.getParentOfType(this, SqlExtensionExpr::class.java) ?: return null
+        val functionName = extensionExpr.text.oracleLeadingIdentifier()
+        if (!functionName.isOracleCastLikeFunctionName()) return null
+
+        val argumentTextRange = textRange ?: return null
+        val extensionTextRange = extensionExpr.textRange ?: return null
+        val argumentOffset = argumentTextRange.startOffset - extensionTextRange.startOffset
+        val asOffset = extensionExpr.text.indexOfKeyword("AS") ?: return null
+        if (argumentOffset > asOffset) return null
+
+        return extensionExpr.text.oracleCastTargetType()
+    }
 
     private fun SqlExpr.oracleFlashbackArgumentType(): IntermediateType? {
         val fileText = containingFile.text
@@ -1703,6 +1733,15 @@ public class OracleTypeResolver(
         private fun String.oracleReturningTypeName(): String? = oracleTypeNameAfterKeyword("RETURNING")
 
         private fun String.oracleCastTypeName(): String? = oracleTypeNameAfterKeyword("AS")
+
+        private fun String.oracleCastTargetType(): IntermediateType? =
+            oracleCastTypeName()
+                ?.let { typeName -> IntermediateType(OracleType.fromSqlTypeName(typeName)) }
+
+        private fun String.isOracleCastLikeFunctionName(): Boolean =
+            equals("CAST", ignoreCase = true) ||
+                equals("XMLCAST", ignoreCase = true) ||
+                equals("TREAT", ignoreCase = true)
 
         private fun String.hasOracleDefaultNullOnConversionError(): Boolean {
             val asOffset = indexOfKeyword("AS") ?: return false

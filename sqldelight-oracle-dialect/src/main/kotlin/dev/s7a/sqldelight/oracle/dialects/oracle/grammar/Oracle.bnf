@@ -631,7 +631,11 @@ private oracle_json_transform_type_clause ::= 'TYPE' LP ( 'STRICT' | 'LAX' ) RP
 
 private oracle_json_passing_clause ::= 'PASSING' oracle_json_passing_binding ( COMMA oracle_json_passing_binding ) *
 
-private oracle_json_passing_binding ::= <<expr '-1'>> 'AS' oracle_json_passing_identifier
+private oracle_json_passing_binding ::= oracle_json_passing_expr 'AS' oracle_json_passing_identifier
+
+oracle_json_passing_expr ::= <<expr '-1'>> {
+  implements = "com.alecstrong.sql.psi.core.psi.SqlExpr"
+}
 
 private oracle_json_transform_operation ::= (
   oracle_json_transform_set_operation |

@@ -443,6 +443,59 @@ class OracleCodegenTest :
             queries.contains("bindObject(parameterIndex++, created_before)") shouldBe true
         }
 
+        test("generates Oracle SQL JSON passing bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import java.math.BigDecimal;
+
+                    CREATE TABLE documents (
+                      id NUMBER(10, 0) NOT NULL,
+                      payload JSON NOT NULL,
+                      PRIMARY KEY (id)
+                    );
+
+                    selectJsonItems:
+                    SELECT d.id, jt.line_number, jt.item_id, jt.item_name
+                    FROM documents d,
+                      JSON_TABLE(
+                        d.payload,
+                        '${'$'}.items[*]?(@.category == ${'$'}category && @.price >= ${'$'}minPrice)'
+                        PASSING
+                          CAST(:category AS VARCHAR2(30)) AS category,
+                          CAST(:min_price AS NUMBER(10, 2)) AS minPrice
+                        COLUMNS (
+                          line_number FOR ORDINALITY,
+                          item_id NUMBER(10, 0) PATH '${'$'}.id',
+                          item_name VARCHAR2(100) PATH '${'$'}.name'
+                        )
+                      ) jt
+                    WHERE JSON_EXISTS(
+                      d.payload,
+                      '${'$'}?(@.tenantId == ${'$'}tenantId)'
+                      PASSING CAST(:tenant_id AS NUMBER(10, 0)) AS tenantId
+                    );
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> selectJsonItems(") shouldBe true
+            queries.contains("category: String,") shouldBe true
+            queries.contains("min_price: BigDecimal,") shouldBe true
+            queries.contains("tenant_id: Long,") shouldBe true
+            queries.contains("id: Long,") shouldBe true
+            queries.contains("line_number: Long,") shouldBe true
+            queries.contains("item_id: Long?,") shouldBe true
+            queries.contains("item_name: String?,") shouldBe true
+            queries.contains("|    PASSING") shouldBe true
+            queries.contains("|      CAST(? AS VARCHAR2(30)) AS category,") shouldBe true
+            queries.contains("|      CAST(? AS NUMBER(10, 2)) AS minPrice") shouldBe true
+            queries.contains("|  PASSING CAST(? AS NUMBER(10, 0)) AS tenantId") shouldBe true
+            queries.contains("bindString(parameterIndex++, category)") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, min_price)") shouldBe true
+            queries.contains("bindLong(parameterIndex++, tenant_id)") shouldBe true
+        }
+
         test("generates Oracle DML returning input bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

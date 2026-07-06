@@ -1,13 +1,21 @@
 package dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins
 
+import com.alecstrong.sql.psi.core.psi.AliasElement
 import com.alecstrong.sql.psi.core.psi.LazyQuery
+import com.alecstrong.sql.psi.core.psi.NamedElement
+import com.alecstrong.sql.psi.core.psi.QueryElement.QueryColumn
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryResult
 import com.alecstrong.sql.psi.core.psi.QueryElement.SynthesizedColumn
 import com.alecstrong.sql.psi.core.psi.SchemaContributorStub
+import com.alecstrong.sql.psi.core.psi.SqlColumnDef
+import com.alecstrong.sql.psi.core.psi.SqlGeneratedClause
 import com.alecstrong.sql.psi.core.psi.impl.SqlCreateTableStmtImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
+import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.stubs.IStubElementType
+import com.intellij.psi.util.PsiTreeUtil
 
 internal abstract class OracleCreateTableStmtMixin : SqlCreateTableStmtImpl {
     constructor(node: ASTNode) : super(node)
@@ -27,7 +35,7 @@ internal abstract class OracleCreateTableStmtMixin : SqlCreateTableStmtImpl {
                     synthesizedColumns = ctasColumnAliases.map { name -> SynthesizedColumn(this, listOf(name)) },
                 )
             } else {
-                super.tableExposed().query
+                super.tableExposed().query.withOracleGeneratedColumnExpressions()
             }
         }
 
@@ -41,12 +49,48 @@ internal abstract class OracleCreateTableStmtMixin : SqlCreateTableStmtImpl {
                 )
             }
 
-            result.copy(
-                synthesizedColumns =
-                    result.synthesizedColumns +
-                        oracleCreateTableExpressionColumns().map { name -> SynthesizedColumn(this, listOf(name)) },
-            )
+            result
+                .withOracleGeneratedColumnExpressions()
+                .copy(
+                    synthesizedColumns =
+                        result.synthesizedColumns +
+                            oracleCreateTableExpressionColumns().map { name -> SynthesizedColumn(this, listOf(name)) },
+                )
         }
+
+    private fun QueryResult.withOracleGeneratedColumnExpressions(): QueryResult {
+        val generatedColumnsByName = oracleGeneratedColumnExpressionsByName()
+        if (generatedColumnsByName.isEmpty()) return this
+
+        return copy(
+            columns =
+                columns.map { column ->
+                    val columnName = (column.element as? NamedElement)?.name ?: return@map column
+                    val generatedColumn = generatedColumnsByName[columnName.lowercase()] ?: return@map column
+                    QueryColumn(
+                        element =
+                            OracleGeneratedColumnExpressionElement(
+                                columnDef = generatedColumn.columnDef,
+                                expression = generatedColumn.expression,
+                            ),
+                        nullable = if (generatedColumn.columnDef.hasOracleNotNullConstraint()) false else null,
+                    )
+                },
+        )
+    }
+
+    private fun oracleGeneratedColumnExpressionsByName(): Map<String, OracleGeneratedColumnExpression> =
+        oracleColumnDefinitions()
+            .mapNotNull { columnDef ->
+                val generatedClause = PsiTreeUtil.findChildOfType(columnDef, SqlGeneratedClause::class.java) ?: return@mapNotNull null
+                OracleGeneratedColumnExpression(
+                    columnDef = columnDef,
+                    expression = generatedClause.expr,
+                )
+            }.associateBy { generatedColumnExpression ->
+                val columnName = generatedColumnExpression.columnDef.columnName.name
+                columnName.lowercase()
+            }
 
     private fun oracleCtasColumnAliases(): List<String> {
         val body = text.oracleCtasAliasListBody() ?: return emptyList()
@@ -93,7 +137,36 @@ internal abstract class OracleCreateTableStmtMixin : SqlCreateTableStmtImpl {
             ?.substringAfterLast(".")
             ?.trimOracleIdentifier()
     }
+
+    private data class OracleGeneratedColumnExpression(
+        val columnDef: SqlColumnDef,
+        val expression: PsiElement,
+    )
+
+    private class OracleGeneratedColumnExpressionElement(
+        private val columnDef: SqlColumnDef,
+        private val expression: PsiElement,
+    ) : LightElement(columnDef.manager, columnDef.language),
+        AliasElement {
+        override fun source(): PsiElement = expression
+
+        override fun getName(): String = columnDef.columnName.name
+
+        override fun setName(name: String): PsiElement = columnDef.columnName.setName(name)
+
+        override fun getText(): String = columnDef.columnName.text
+
+        override fun getContainingFile(): PsiFile = columnDef.containingFile
+
+        override fun getParent(): PsiElement = columnDef
+
+        override fun getNameIdentifier(): PsiElement = columnDef.columnName
+
+        override fun toString(): String = "Oracle generated column expression: $name"
+    }
 }
+
+private fun SqlColumnDef.hasOracleNotNullConstraint(): Boolean = Regex("""(?i)\bNOT\s+NULL\b""").containsMatchIn(text)
 
 private fun String.oracleCtasAliasListBody(): String? {
     val tableMatch =

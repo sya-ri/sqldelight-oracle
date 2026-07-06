@@ -124,6 +124,59 @@ class OracleResultColumnTypeTest :
             oracleResultColumnTypes(sql) shouldBe listOf("kotlin.String", "kotlin.String?")
         }
 
+        test("resolves Oracle generated column result types from expressions exactly") {
+            val sql =
+                """
+                CREATE TABLE generated_accounts (
+                  account_id NUMBER(10) NOT NULL,
+                  first_name VARCHAR2(64) NOT NULL,
+                  last_name VARCHAR2(64),
+                  display_name NUMBER(10) GENERATED ALWAYS AS (first_name || ' ' || last_name) VIRTUAL,
+                  search_name NUMBER(10) AS (UPPER(first_name)) VIRTUAL,
+                  next_account_id VARCHAR2(64) AS (account_id + 1) VIRTUAL,
+                  nullable_account_id VARCHAR2(64) AS (account_id + nullable_bonus) VIRTUAL,
+                  nullable_bonus NUMBER(10)
+                );
+
+                selectGenerated:
+                SELECT display_name, search_name, next_account_id, nullable_account_id
+                FROM generated_accounts;
+                """.trimIndent()
+
+            oracleResultColumnTypes(sql) shouldBe
+                listOf(
+                    "kotlin.String",
+                    "kotlin.String",
+                    "kotlin.Long",
+                    "kotlin.Long?",
+                )
+        }
+
+        test("preserves Oracle normal column result types alongside generated columns exactly") {
+            val sql =
+                """
+                CREATE TABLE generated_accounts (
+                  account_id NUMBER(10) NOT NULL,
+                  first_name VARCHAR2(64) NOT NULL,
+                  last_name VARCHAR2(64),
+                  display_name VARCHAR2(129) GENERATED ALWAYS AS (first_name || ' ' || last_name) VIRTUAL,
+                  next_account_id NUMBER(10) AS (account_id + 1) VIRTUAL NOT NULL
+                );
+
+                selectGenerated:
+                SELECT account_id, last_name, display_name, next_account_id
+                FROM generated_accounts;
+                """.trimIndent()
+
+            oracleResultColumnTypes(sql) shouldBe
+                listOf(
+                    "kotlin.Long",
+                    "kotlin.String?",
+                    "kotlin.String",
+                    "kotlin.Long",
+                )
+        }
+
         test("resolves Oracle scalar function result column types exactly") {
             typeOf("SELECT ABS(salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT float_col AS c FROM emp") shouldBe "java.math.BigDecimal?"

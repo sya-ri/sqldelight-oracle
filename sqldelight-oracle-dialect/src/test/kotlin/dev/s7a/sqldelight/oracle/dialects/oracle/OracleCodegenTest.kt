@@ -381,6 +381,41 @@ class OracleCodegenTest :
             queries.contains("bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(insert_label))") shouldBe true
         }
 
+        test("generates Oracle multi-table insert bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import com.example.Label;
+
+                    CREATE TABLE sample (
+                      id NUMBER(10, 0) NOT NULL,
+                      label NVARCHAR2(50) AS Label NOT NULL,
+                      note VARCHAR2(100)
+                    );
+
+                    insertAll:
+                    INSERT ALL
+                      INTO sample (id, label, note)
+                      VALUES (:sample_id, :sample_label, :sample_note)
+                      INTO sample (id, label, note)
+                      VALUES (:audit_id, :audit_label, :audit_note)
+                    SELECT 1 FROM dual;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun insertAll(") shouldBe true
+            queries.contains("sample_id: Long,") shouldBe true
+            queries.contains("sample_label: Label,") shouldBe true
+            queries.contains("sample_note: String?,") shouldBe true
+            queries.contains("audit_id: Long,") shouldBe true
+            queries.contains("audit_label: Label,") shouldBe true
+            queries.contains("audit_note: String?,") shouldBe true
+            queries.contains("|  VALUES (?, ?, ?)") shouldBe true
+            queries.contains("bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(sample_label))") shouldBe true
+            queries.contains("bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(audit_label))") shouldBe true
+        }
+
         test("generates SQLDelight value type row and variable arguments exactly") {
             val generated =
                 generateOracleSqlDelight(

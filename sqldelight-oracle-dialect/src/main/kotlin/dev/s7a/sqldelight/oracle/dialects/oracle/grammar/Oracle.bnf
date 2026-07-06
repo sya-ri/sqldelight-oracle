@@ -1771,7 +1771,11 @@ private oracle_multi_table_insert_into_clause ::= 'INTO' oracle_insert_target_ta
   [ LP {column_name} ( COMMA {column_name} ) * RP ]
   [ 'VALUES' LP oracle_multi_table_insert_value ( COMMA oracle_multi_table_insert_value ) * RP ]
 
-private oracle_multi_table_insert_value ::= 'DEFAULT' | <<expr '-1'>>
+private oracle_multi_table_insert_value ::= 'DEFAULT' | oracle_multi_table_insert_value_expr
+
+oracle_multi_table_insert_value_expr ::= <<expr '-1'>> {
+  implements = "com.alecstrong.sql.psi.core.psi.SqlExpr"
+}
 
 update_stmt ::= oracle_update_stmt {
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleUpdateStmtMixin"

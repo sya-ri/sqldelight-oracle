@@ -17,6 +17,7 @@ import com.alecstrong.sql.psi.core.psi.SqlCompositeElement
 import com.alecstrong.sql.psi.core.psi.SqlExpr
 import com.alecstrong.sql.psi.core.psi.SqlExtensionExpr
 import com.alecstrong.sql.psi.core.psi.SqlFunctionExpr
+import com.alecstrong.sql.psi.core.psi.SqlInsertStmt
 import com.alecstrong.sql.psi.core.psi.SqlSetterExpression
 import com.alecstrong.sql.psi.core.psi.SqlTypeName
 import com.intellij.psi.PsiElement
@@ -83,7 +84,8 @@ public class OracleTypeResolver(
             }
 
             else -> {
-                parentResolver.argumentType(parent, argument)
+                argument.oracleMultiTableInsertArgumentType()
+                    ?: parentResolver.argumentType(parent, argument)
             }
         }
 
@@ -491,6 +493,51 @@ public class OracleTypeResolver(
                 ?.first
                 ?: return null
         val columnsOpenOffset = text.indexOf('(', startIndex = insertKeywordOffset).takeIf { it in 0..<valuesKeywordOffset } ?: return null
+        val columnName =
+            text
+                .oracleParenthesizedBodyAt(columnsOpenOffset)
+                .oracleTopLevelCommaParts()
+                .getOrNull(valueIndex)
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+                ?: return null
+
+        return oracleAvailableColumnType(columnName)
+    }
+
+    private fun SqlExpr.oracleMultiTableInsertArgumentType(): IntermediateType? {
+        val insertStmt = PsiTreeUtil.getParentOfType(this, SqlInsertStmt::class.java) ?: return null
+        return insertStmt.oracleMultiTableInsertArgumentType(this)
+    }
+
+    private fun SqlInsertStmt.oracleMultiTableInsertArgumentType(argument: SqlExpr): IntermediateType? {
+        val trimmed = text.trimStart()
+        if (!trimmed.startsWith("INSERT ALL", ignoreCase = true) && !trimmed.startsWith("INSERT FIRST", ignoreCase = true)) {
+            return null
+        }
+
+        val argumentStart = argument.textRange.startOffset - textRange.startOffset
+        if (argumentStart !in text.indices) return null
+
+        val valuesKeywordOffset =
+            Regex("""(?i)\bVALUES\b""")
+                .findAll(text.substring(0, argumentStart))
+                .lastOrNull()
+                ?.range
+                ?.first
+                ?: return null
+        val valuesOpenOffset = text.indexOf('(', startIndex = valuesKeywordOffset).takeIf { it != -1 } ?: return null
+        val valueIndex = text.substring(valuesOpenOffset + 1, argumentStart).oracleTopLevelCommaParts().size - 1
+
+        val beforeValues = text.substring(0, valuesKeywordOffset)
+        val intoKeywordOffset =
+            Regex("""(?i)\bINTO\b""")
+                .findAll(beforeValues)
+                .lastOrNull()
+                ?.range
+                ?.first
+                ?: return null
+        val columnsOpenOffset = text.indexOf('(', startIndex = intoKeywordOffset).takeIf { it in 0..<valuesKeywordOffset } ?: return null
         val columnName =
             text
                 .oracleParenthesizedBodyAt(columnsOpenOffset)

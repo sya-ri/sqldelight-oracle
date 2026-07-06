@@ -922,6 +922,50 @@ class OracleCodegenTest :
             queries.contains("bindString(parameterIndex++, departmentsAdapter.department_nameAdapter.encode(filter_department_name))") shouldBe true
         }
 
+        test("generates Oracle join to one bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import java.math.BigDecimal;
+
+                    CREATE TABLE employees (
+                      id NUMBER(10, 0) NOT NULL,
+                      department_id NUMBER(10, 0),
+                      salary NUMBER(10, 2) NOT NULL,
+                      PRIMARY KEY (id)
+                    );
+
+                    CREATE TABLE departments (
+                      id NUMBER(10, 0) NOT NULL,
+                      department_name VARCHAR2(80) NOT NULL,
+                      status VARCHAR2(20),
+                      PRIMARY KEY (id)
+                    );
+
+                    selectJoinToOneDepartment:
+                    SELECT e.id, d.department_name AS dept_name
+                    FROM employees e JOIN TO ONE (
+                      departments d ON d.id = e.department_id
+                        AND d.department_name = :department_name
+                    )
+                    WHERE e.salary >= :min_salary;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> selectJoinToOneDepartment(") shouldBe true
+            queries.contains("department_name: String,") shouldBe true
+            queries.contains("min_salary: BigDecimal,") shouldBe true
+            queries.contains("id: Long,") shouldBe true
+            queries.contains("dept_name: String) -> T,") shouldBe true
+            queries.contains("|FROM employees e JOIN TO ONE (") shouldBe true
+            queries.contains("|  departments d ON d.id = e.department_id") shouldBe true
+            queries.contains("|    AND d.department_name = ?") shouldBe true
+            queries.contains("|WHERE e.salary >= ?") shouldBe true
+            queries.contains("bindString(parameterIndex++, department_name)") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, min_salary)") shouldBe true
+        }
+
         test("generates Oracle qualify bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

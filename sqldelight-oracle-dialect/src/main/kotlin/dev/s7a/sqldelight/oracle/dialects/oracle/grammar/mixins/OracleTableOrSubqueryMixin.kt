@@ -51,6 +51,10 @@ internal abstract class OracleTableOrSubqueryMixin(
                 return@lazy listOf(it)
             }
 
+            oracleJoinToOneQueryExposed()?.let {
+                return@lazy it
+            }
+
             tableName?.let { tableNameElement ->
                 val result =
                     oracleSynonymTargetAvailable(tableNameElement) { target, targetName ->
@@ -101,15 +105,22 @@ internal abstract class OracleTableOrSubqueryMixin(
             } else {
                 super.queryAvailable(child)
             }
+        val joinToOneAvailable =
+            if (text.contains("JOIN TO ONE", ignoreCase = true)) {
+                oracleJoinToOneQueryExposed().orEmpty()
+            } else {
+                emptyList()
+            }
+        val available = queryAvailable + joinToOneAvailable
         val pivotAggregateAvailable = oraclePivotAggregateAvailable(child)
         if (pivotAggregateAvailable.isNotEmpty()) {
-            return queryAvailable + pivotAggregateAvailable
+            return available + pivotAggregateAvailable
         }
         val rowPatternClause = PsiTreeUtil.findChildOfType(this, OracleOracleRowPatternClause::class.java)
         if (rowPatternClause == null || !PsiTreeUtil.isAncestor(rowPatternClause, child, false)) {
-            return queryAvailable
+            return available
         }
-        return queryAvailable + oracleRowPatternVariableResults(rowPatternClause)
+        return available + oracleRowPatternVariableResults(rowPatternClause)
     }
 
     override fun getCompoundSelectStmt(): SqlCompoundSelectStmt? = PsiTreeUtil.getChildOfType(this, SqlCompoundSelectStmt::class.java)
@@ -126,6 +137,27 @@ internal abstract class OracleTableOrSubqueryMixin(
 
     override fun getTableOrSubqueryList(): List<SqlTableOrSubquery> =
         PsiTreeUtil.getChildrenOfTypeAsList(this, SqlTableOrSubquery::class.java)
+
+    private fun oracleJoinToOneQueryExposed(): List<QueryResult>? {
+        if (!text.contains("JOIN TO ONE", ignoreCase = true)) return null
+
+        val aliases = PsiTreeUtil.findChildrenOfType(this, SqlTableAlias::class.java).toList()
+        return PsiTreeUtil
+            .findChildrenOfType(this, SqlTableName::class.java)
+            .filterNot { tableNameElement ->
+                text.getOrNull(tableNameElement.textRange.endOffset - textRange.startOffset) == '.'
+            }
+            .mapIndexed { index, tableNameElement ->
+                val result =
+                    oracleSynonymTargetAvailable(tableNameElement) { target, targetName ->
+                        tableAvailable(target, targetName)
+                    } ?: tableAvailable(tableNameElement, tableNameElement.name)
+                aliases.getOrNull(index)?.let { alias ->
+                    result.map { query -> query.copy(table = alias.oracleQueryTableElement()) }
+                } ?: result
+            }
+            .flatten()
+    }
 
     private fun oracleGeneratedColumnResult(): QueryResult? {
         PsiTreeUtil.findChildOfType(this, OracleOracleJsonTableReference::class.java)?.let { jsonTable ->

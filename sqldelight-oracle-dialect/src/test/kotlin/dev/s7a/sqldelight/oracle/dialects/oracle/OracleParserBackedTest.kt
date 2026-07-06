@@ -572,6 +572,51 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("resolves Oracle migration alter table columns from query files exactly") {
+            parseOracleSqlFiles(
+                deriveSchemaFromMigrations = true,
+                files =
+                    mapOf(
+                        "1.sqm" to
+                            """
+                            CREATE TABLE evolving_accounts (
+                              id NUMBER(10) NOT NULL,
+                              legacy_name VARCHAR2(64),
+                              archived_at TIMESTAMP,
+                              PRIMARY KEY (id)
+                            );
+
+                            ALTER TABLE evolving_accounts ADD (
+                              display_name VARCHAR2(100),
+                              created_at TIMESTAMP
+                            );
+
+                            ALTER TABLE evolving_accounts RENAME COLUMN legacy_name TO account_code;
+
+                            ALTER TABLE evolving_accounts DROP COLUMN archived_at;
+                            """.trimIndent(),
+                        "Test.sq" to
+                            """
+                            selectEvolvingAccounts:
+                            SELECT id, account_code, display_name, created_at
+                            FROM evolving_accounts
+                            WHERE account_code = :account_code
+                              AND display_name IS NOT NULL;
+
+                            updateEvolvingAccount:
+                            UPDATE evolving_accounts
+                            SET display_name = :display_name,
+                                created_at = CURRENT_TIMESTAMP
+                            WHERE id = :id;
+                            """.trimIndent(),
+                    ),
+            ) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle datetime and interval literals exactly") {
             val sql =
                 """

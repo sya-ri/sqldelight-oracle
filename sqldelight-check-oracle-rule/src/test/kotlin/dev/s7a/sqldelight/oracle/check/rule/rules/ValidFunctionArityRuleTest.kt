@@ -1443,6 +1443,188 @@ class ValidFunctionArityRuleTest :
                 )
         }
 
+        test("does not count Oracle JSON clauses as extra function arguments") {
+            ValidFunctionArityRule().diagnostics(
+                """
+                validJsonClauses:
+                SELECT JSON_ARRAY(id, name NULL ON NULL RETURNING CLOB),
+                  JSON_OBJECT('id' VALUE id, 'name' VALUE name RETURNING CLOB),
+                  JSON_ARRAYAGG(payload FORMAT JSON ORDER BY created_at, id RETURNING CLOB),
+                  JSON_OBJECTAGG(KEY name VALUE value RETURNING CLOB),
+                  JSON_VALUE(doc, '${'$'}.id' RETURNING NUMBER DEFAULT 0 ON ERROR),
+                  JSON_QUERY(doc, '${'$'}.items' RETURNING CLOB WITH ARRAY WRAPPER),
+                  JSON_SERIALIZE(doc RETURNING CLOB PRETTY),
+                  JSON_MERGEPATCH(doc, patch RETURNING CLOB PRETTY),
+                  JSON_EXISTS(doc, '${'$'}?(@.id == ${'$'}ID)' PASSING id AS "ID", tenant_id AS "TENANT" TRUE ON ERROR)
+                FROM json_samples;
+                """,
+            ) shouldBe emptyList()
+        }
+
+        test("does not count Oracle XML and ordered aggregate clauses as extra function arguments") {
+            ValidFunctionArityRule().diagnostics(
+                """
+                validXmlClauses:
+                SELECT COLLECT(id ORDER BY created_at, id),
+                  XMLAGG(XMLELEMENT(NAME item, id) ORDER BY created_at, id),
+                  XMLELEMENT(NAME item, XMLATTRIBUTES(id AS "id", name AS "name"), name),
+                  XMLFOREST(id AS "id", name AS "name"),
+                  XMLQUERY('/a' PASSING payload AS "p", extra_payload AS "e" RETURNING CONTENT NULL ON EMPTY),
+                  XMLEXISTS('/a' PASSING payload AS "p", extra_payload AS "e")
+                FROM xml_samples,
+                  XMLTABLE(XMLNAMESPACES('urn:items' AS "i"), '/i:items/i:item'
+                    PASSING payload AS "p", extra_payload AS "e"
+                    COLUMNS id NUMBER PATH '@id') xt;
+                """,
+            ) shouldBe emptyList()
+        }
+
+        test("reports wrong arity for parser-backed complex Oracle functions") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidComplexFunctions:
+                    SELECT JSON_ARRAYAGG(), JSON_OBJECTAGG(name), JSON_EXISTS(doc),
+                      COLLECT(), XMLAGG(), XMLQUERY(), XMLEXISTS(), XMLTABLE(),
+                      EXTRACT(payload_xml), EXTRACT(payload_xml, '/a', ns, extra)
+                    FROM complex_samples;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function JSON_ARRAYAGG expects 1 argument(s), but got 0.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 21,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function JSON_OBJECTAGG expects 2 argument(s), but got 1.",
+                        startLine = 2,
+                        startColumn = 25,
+                        endLine = 2,
+                        endColumn = 39,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function JSON_EXISTS expects 2 argument(s), but got 1.",
+                        startLine = 2,
+                        startColumn = 47,
+                        endLine = 2,
+                        endColumn = 58,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function COLLECT expects 1 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 10,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLAGG expects 1 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 14,
+                        endLine = 3,
+                        endColumn = 20,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLQUERY expects 1 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 24,
+                        endLine = 3,
+                        endColumn = 32,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLEXISTS expects 1 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 36,
+                        endLine = 3,
+                        endColumn = 45,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function XMLTABLE expects 1 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 49,
+                        endLine = 3,
+                        endColumn = 57,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function EXTRACT expects 2..3 argument(s), but got 1.",
+                        startLine = 4,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 10,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function EXTRACT expects 2..3 argument(s), but got 4.",
+                        startLine = 4,
+                        startColumn = 25,
+                        endLine = 4,
+                        endColumn = 32,
+                    ),
+                )
+        }
+
+        test("validates analytic and hypothetical rank arity by following clause") {
+            val diagnostics =
+                ValidFunctionArityRule().diagnostics(
+                    """
+                    invalidRankForms:
+                    SELECT RANK(1) OVER (ORDER BY salary),
+                      DENSE_RANK() WITHIN GROUP (ORDER BY salary),
+                      PERCENT_RANK() WITHIN GROUP (ORDER BY salary),
+                      CUME_DIST(1) OVER (ORDER BY salary)
+                    FROM employees;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Oracle function RANK expects 0 argument(s), but got 1.",
+                        startLine = 2,
+                        startColumn = 8,
+                        endLine = 2,
+                        endColumn = 12,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function DENSE_RANK expects 1..2147483647 argument(s), but got 0.",
+                        startLine = 3,
+                        startColumn = 3,
+                        endLine = 3,
+                        endColumn = 13,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function PERCENT_RANK expects 1..2147483647 argument(s), but got 0.",
+                        startLine = 4,
+                        startColumn = 3,
+                        endLine = 4,
+                        endColumn = 15,
+                    ),
+                    DiagnosticSummary(
+                        message = "Oracle function CUME_DIST expects 0 argument(s), but got 1.",
+                        startLine = 5,
+                        startColumn = 3,
+                        endLine = 5,
+                        endColumn = 12,
+                    ),
+                )
+        }
+
+        test("accepts valid analytic and hypothetical rank forms") {
+            ValidFunctionArityRule().diagnostics(
+                """
+                validRankForms:
+                SELECT RANK() OVER (ORDER BY salary),
+                  DENSE_RANK(1000, 500) WITHIN GROUP (ORDER BY salary, commission_pct),
+                  PERCENT_RANK(1000) WITHIN GROUP (ORDER BY salary),
+                  CUME_DIST() OVER (ORDER BY salary)
+                FROM employees;
+                """,
+            ) shouldBe emptyList()
+        }
+
         test("reports wrong arity for Oracle parser backed utility operators") {
             val diagnostics =
                 ValidFunctionArityRule().diagnostics(

@@ -86,6 +86,10 @@ public class OracleTypeResolver(
                 argument.oracleMergeArgumentType() ?: parentResolver.argumentType(parent, argument)
             }
 
+            PsiTreeUtil.getParentOfType(argument, SqlExtensionExpr::class.java) != null -> {
+                argument.oracleExtensionArgumentType() ?: parentResolver.argumentType(parent, argument)
+            }
+
             else -> {
                 argument.oracleInsertSetArgumentType()
                     ?: argument.oracleMultiTableInsertArgumentType()
@@ -426,6 +430,30 @@ public class OracleTypeResolver(
                 ?.get(1)
                 ?: return null
         return owner.oracleAvailableColumnType(targetText)
+    }
+
+    private fun SqlExpr.oracleExtensionArgumentType(): IntermediateType? {
+        val extensionExpr = PsiTreeUtil.getParentOfType(this, SqlExtensionExpr::class.java) ?: return null
+        val extensionText = extensionExpr.text
+        val argumentOffset = textRange.startOffset - extensionExpr.textRange.startOffset
+        if (argumentOffset !in extensionText.indices) return null
+        val beforeArgument = extensionText.substring(0, argumentOffset)
+
+        if (Regex("""(?is)\bLIKE[234C]?\s*$""").containsMatchIn(beforeArgument)) {
+            return IntermediateType(TEXT)
+        }
+        if (Regex("""(?is)\bESCAPE\s*$""").containsMatchIn(beforeArgument)) {
+            return IntermediateType(TEXT)
+        }
+
+        val regexpLikeStart = Regex("""(?is)\bREGEXP_LIKE\s*\(""").find(extensionText)?.range?.last ?: return null
+        if (argumentOffset <= regexpLikeStart) return null
+        val argumentIndex = extensionText.substring(regexpLikeStart + 1, argumentOffset).oracleTopLevelCommaParts().size - 1
+        return when (argumentIndex) {
+            1 -> IntermediateType(TEXT)
+            2 -> IntermediateType(TEXT).asNullable()
+            else -> null
+        }
     }
 
     private fun SqlExpr.oracleMergeArgumentType(): IntermediateType? {

@@ -287,6 +287,48 @@ class OracleCodegenTest :
                 """.trimIndent() + "\n"
         }
 
+        test("generates Oracle text pattern bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import com.example.DisplayName;
+
+                    CREATE TABLE users (
+                      id NUMBER(10, 0) NOT NULL,
+                      display_name NVARCHAR2(100) AS DisplayName NOT NULL,
+                      nickname NVARCHAR2(100) AS DisplayName,
+                      PRIMARY KEY (id)
+                    );
+
+                    selectByUnicodeLike:
+                    SELECT id, display_name, nickname
+                    FROM users
+                    WHERE display_name LIKEC :pattern ESCAPE :escape_char;
+
+                    selectByRegexp:
+                    SELECT id, display_name, nickname
+                    FROM users
+                    WHERE REGEXP_LIKE(display_name, :regex_pattern, :match_param);
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> selectByUnicodeLike(") shouldBe true
+            queries.contains("pattern: String,") shouldBe true
+            queries.contains("escape_char: String,") shouldBe true
+            queries.contains("public fun <T : Any> selectByRegexp(") shouldBe true
+            queries.contains("regex_pattern: String,") shouldBe true
+            queries.contains("match_param: String?,") shouldBe true
+            queries.contains("usersAdapter.display_nameAdapter.decode(cursor.getString(1)!!)") shouldBe true
+            queries.contains("cursor.getString(2)?.let { usersAdapter.nicknameAdapter.decode(it) }") shouldBe true
+            queries.contains("bindString(parameterIndex++, pattern)") shouldBe true
+            queries.contains("bindString(parameterIndex++, escape_char)") shouldBe true
+            queries.contains("bindString(parameterIndex++, regex_pattern)") shouldBe true
+            queries.contains("bindString(parameterIndex++, match_param)") shouldBe true
+            queries.contains("usersAdapter.display_nameAdapter.encode(pattern)") shouldBe false
+            queries.contains("usersAdapter.display_nameAdapter.encode(regex_pattern)") shouldBe false
+        }
+
         test("generates Oracle DML returning input bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

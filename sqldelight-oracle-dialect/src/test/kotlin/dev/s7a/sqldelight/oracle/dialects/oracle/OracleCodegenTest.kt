@@ -446,6 +446,39 @@ class OracleCodegenTest :
             queries.contains("bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(label))") shouldBe true
         }
 
+        test("generates Oracle CTE column alias custom types exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import com.example.Label;
+
+                    CREATE TABLE sample (
+                      id NUMBER(10, 0) NOT NULL,
+                      label NVARCHAR2(50) AS Label NOT NULL,
+                      note VARCHAR2(100)
+                    );
+
+                    selectFromAliasedCte:
+                    WITH aliased_sample (sample_id, sample_label, sample_note) AS (
+                      SELECT id, label, note
+                      FROM sample
+                    )
+                    SELECT sample_id, sample_label, sample_note
+                    FROM aliased_sample
+                    WHERE sample_label = :label;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> selectFromAliasedCte(") shouldBe true
+            queries.contains("label: Label,") shouldBe true
+            queries.contains("sample_id: Long,") shouldBe true
+            queries.contains("sample_label: Label,") shouldBe true
+            queries.contains("sample_note: String?,") shouldBe true
+            queries.contains("sampleAdapter.labelAdapter.decode(cursor.getString(1)!!)") shouldBe true
+            queries.contains("bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(label))") shouldBe true
+        }
+
         test("generates SQLDelight value type row and variable arguments exactly") {
             val generated =
                 generateOracleSqlDelight(

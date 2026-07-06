@@ -409,6 +409,50 @@ class OracleCodegenTest :
             queries.contains("bindLong(parameterIndex++, year)") shouldBe true
         }
 
+        test("generates Oracle unpivot bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import java.math.BigDecimal;
+                    import com.example.Region;
+
+                    CREATE TABLE order_metrics (
+                      id NUMBER(10, 0) NOT NULL,
+                      region NVARCHAR2(16) AS Region NOT NULL,
+                      booked_total NUMBER(10, 2),
+                      shipped_total NUMBER(10, 2)
+                    );
+
+                    selectUnpivotMetrics:
+                    SELECT u.region, u.metric_name, u.metric_value
+                    FROM order_metrics UNPIVOT INCLUDE NULLS (
+                      metric_value
+                      FOR metric_name IN (booked_total AS 'BOOKED', shipped_total AS 'SHIPPED')
+                    ) u
+                    WHERE u.region = :region
+                      AND u.metric_value >= :min_value;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> selectUnpivotMetrics(") shouldBe true
+            queries.contains("region: Region,") shouldBe true
+            queries.contains("min_value: BigDecimal?,") shouldBe true
+            queries.contains("metric_name: String,") shouldBe true
+            queries.contains("metric_value: BigDecimal?,") shouldBe true
+            queries.contains("order_metricsAdapter.regionAdapter.decode(cursor.getString(0)!!)") shouldBe true
+            queries.contains("cursor.getString(1)!!") shouldBe true
+            queries.contains("cursor.getBigDecimal(2)") shouldBe true
+            queries.contains("|FROM order_metrics UNPIVOT INCLUDE NULLS (") shouldBe true
+            queries.contains("|  metric_value") shouldBe true
+            queries.contains("|  FOR metric_name IN (booked_total AS 'BOOKED', shipped_total AS 'SHIPPED')") shouldBe true
+            queries.contains("|) u") shouldBe true
+            queries.contains("|WHERE u.region = ?") shouldBe true
+            queries.contains("|  AND u.metric_value >= ?") shouldBe true
+            queries.contains("bindString(parameterIndex++, order_metricsAdapter.regionAdapter.encode(region))") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, min_value)") shouldBe true
+        }
+
         test("generates Oracle flashback bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

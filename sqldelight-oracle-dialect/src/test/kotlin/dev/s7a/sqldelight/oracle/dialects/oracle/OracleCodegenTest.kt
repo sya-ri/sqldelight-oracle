@@ -781,6 +781,64 @@ class OracleCodegenTest :
             queries.contains("bindBigDecimal(parameterIndex++, min_total)") shouldBe true
         }
 
+        test("generates Oracle cross apply bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import java.math.BigDecimal;
+                    import com.example.DepartmentName;
+                    import com.example.EmployeeName;
+
+                    CREATE TABLE departments (
+                      id NUMBER(10, 0) NOT NULL,
+                      department_name NVARCHAR2(100) AS DepartmentName NOT NULL,
+                      PRIMARY KEY (id)
+                    );
+
+                    CREATE TABLE employees (
+                      id NUMBER(10, 0) NOT NULL,
+                      department_id NUMBER(10, 0) NOT NULL,
+                      employee_name NVARCHAR2(100) AS EmployeeName NOT NULL,
+                      salary NUMBER(10, 2) NOT NULL,
+                      PRIMARY KEY (id)
+                    );
+
+                    selectDepartmentMatches:
+                    SELECT d.department_name AS dept_name,
+                           employee_matches.employee_name AS match_name,
+                           employee_matches.salary
+                    FROM departments d
+                    CROSS APPLY (
+                      SELECT e.employee_name, e.salary
+                      FROM employees e
+                      WHERE e.department_id = d.id
+                        AND e.employee_name = :filter_employee_name
+                        AND e.salary >= :min_salary
+                    ) employee_matches
+                    WHERE d.department_name = :filter_department_name;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> selectDepartmentMatches(") shouldBe true
+            queries.contains("filter_employee_name: EmployeeName,") shouldBe true
+            queries.contains("min_salary: BigDecimal,") shouldBe true
+            queries.contains("filter_department_name: DepartmentName,") shouldBe true
+            queries.contains("dept_name: DepartmentName,") shouldBe true
+            queries.contains("match_name: EmployeeName,") shouldBe true
+            queries.contains("salary: BigDecimal,") shouldBe true
+            queries.contains("departmentsAdapter.department_nameAdapter.decode(cursor.getString(0)!!)") shouldBe true
+            queries.contains("employeesAdapter.employee_nameAdapter.decode(cursor.getString(1)!!)") shouldBe true
+            queries.contains("|CROSS APPLY (") shouldBe true
+            queries.contains("|  WHERE e.department_id = d.id") shouldBe true
+            queries.contains("|    AND e.employee_name = ?") shouldBe true
+            queries.contains("|    AND e.salary >= ?") shouldBe true
+            queries.contains("|WHERE d.department_name = ?") shouldBe true
+            queries.contains("bindString(parameterIndex++, employeesAdapter.employee_nameAdapter.encode(filter_employee_name))") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, min_salary)") shouldBe true
+            queries.contains("bindString(parameterIndex++, departmentsAdapter.department_nameAdapter.encode(filter_department_name))") shouldBe true
+        }
+
         test("generates Oracle DML returning input bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

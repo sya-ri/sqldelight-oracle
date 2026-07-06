@@ -882,6 +882,63 @@ class OracleCodegenTest :
             queries.contains("bindBigDecimal(parameterIndex++, min_score)") shouldBe true
         }
 
+        test("generates Oracle collection table bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import java.math.BigDecimal;
+
+                    selectNumberCollection:
+                    SELECT numbers.COLUMN_VALUE AS number_value
+                    FROM TABLE(ODCINUMBERLIST(
+                      CAST(:first_number AS NUMBER(10, 2)),
+                      CAST(:second_number AS NUMBER(10, 2))
+                    )) numbers
+                    WHERE numbers.COLUMN_VALUE >= CAST(:minimum_number AS NUMBER(10, 2));
+
+                    selectNameCollection:
+                    SELECT names.COLUMN_VALUE AS name_value
+                    FROM TABLE(SYS.ODCIVARCHAR2LIST(
+                      CAST(:first_name AS VARCHAR2(50)),
+                      CAST(:second_name AS VARCHAR2(50))
+                    )) names
+                    WHERE names.COLUMN_VALUE LIKE CAST(:name_pattern AS VARCHAR2(50))
+                      ESCAPE CAST(:escape_char AS VARCHAR2(1));
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun selectNumberCollection(") shouldBe true
+            queries.contains("first_number: BigDecimal,") shouldBe true
+            queries.contains("second_number: BigDecimal,") shouldBe true
+            queries.contains("minimum_number: BigDecimal,") shouldBe true
+            queries.contains("public fun selectNameCollection(") shouldBe true
+            queries.contains("first_name: String,") shouldBe true
+            queries.contains("second_name: String,") shouldBe true
+            queries.contains("name_pattern: String,") shouldBe true
+            queries.contains("escape_char: String,") shouldBe true
+            queries.contains("Query<BigDecimal>") shouldBe true
+            queries.contains("Query<String>") shouldBe true
+            queries.contains("|FROM TABLE(ODCINUMBERLIST(") shouldBe true
+            queries.contains("|  CAST(? AS NUMBER(10, 2)),") shouldBe true
+            queries.contains("|  CAST(? AS NUMBER(10, 2))") shouldBe true
+            queries.contains("|)) numbers") shouldBe true
+            queries.contains("|WHERE numbers.COLUMN_VALUE >= CAST(? AS NUMBER(10, 2))") shouldBe true
+            queries.contains("|FROM TABLE(SYS.ODCIVARCHAR2LIST(") shouldBe true
+            queries.contains("|  CAST(? AS VARCHAR2(50)),") shouldBe true
+            queries.contains("|  CAST(? AS VARCHAR2(50))") shouldBe true
+            queries.contains("|)) names") shouldBe true
+            queries.contains("|WHERE names.COLUMN_VALUE LIKE CAST(? AS VARCHAR2(50))") shouldBe true
+            queries.contains("|  ESCAPE CAST(? AS VARCHAR2(1))") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, first_number)") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, second_number)") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, minimum_number)") shouldBe true
+            queries.contains("bindString(parameterIndex++, first_name)") shouldBe true
+            queries.contains("bindString(parameterIndex++, second_name)") shouldBe true
+            queries.contains("bindString(parameterIndex++, name_pattern)") shouldBe true
+            queries.contains("bindString(parameterIndex++, escape_char)") shouldBe true
+        }
+
         test("generates Oracle DML returning input bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

@@ -217,16 +217,23 @@ internal abstract class OracleTableOrSubqueryMixin(
             return null
         }
 
+        val collectionTable = tableAlias() ?: tableAlias
+        val collectionColumnAnchor = collectionTable ?: this
         body.oracleCollectionTableType()?.let { type ->
             return QueryResult(
-                table = tableAlias,
-                columns = listOf(QueryColumn(OracleGeneratedColumnElement(this, "COLUMN_VALUE", IntermediateType(type)))),
+                table = collectionTable,
+                columns =
+                    listOf(
+                        QueryColumn(
+                            OracleGeneratedColumnElement(collectionColumnAnchor, "COLUMN_VALUE", IntermediateType(type)),
+                        ),
+                    ),
             )
         }
         return QueryResult(
-            table = tableAlias,
+            table = collectionTable,
             columns = emptyList(),
-            synthesizedColumns = listOf(SynthesizedColumn(tableAlias ?: this, listOf("COLUMN_VALUE"))),
+            synthesizedColumns = listOf(SynthesizedColumn(collectionColumnAnchor, listOf("COLUMN_VALUE"))),
         )
     }
 

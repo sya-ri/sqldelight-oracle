@@ -580,6 +580,47 @@ class OracleCodegenTest :
             queries.contains("bindLong(parameterIndex++, filter_id)") shouldBe true
         }
 
+        test("generates Oracle CALL bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import java.math.BigDecimal;
+                    import java.time.LocalDateTime;
+
+                    callAdjustSalary:
+                    CALL hr.employee_api.adjust_salary(
+                      employee_id => CAST(:employee_id AS NUMBER(10, 0)),
+                      delta => CAST(:delta AS NUMBER(10, 2)),
+                      effective_at => CAST(:effective_at AS TIMESTAMP)
+                    );
+
+                    callRefreshCache:
+                    CALL hr.remote_api.refresh_cache@reporting.us.example(
+                      tenant_id => CAST(:tenant_id AS NUMBER(10, 0)),
+                      status => CAST(:status AS VARCHAR2(20))
+                    );
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun callAdjustSalary(") shouldBe true
+            queries.contains("employee_id: Long,") shouldBe true
+            queries.contains("delta: BigDecimal,") shouldBe true
+            queries.contains("effective_at: LocalDateTime,") shouldBe true
+            queries.contains("|  employee_id => CAST(? AS NUMBER(10, 0)),") shouldBe true
+            queries.contains("|  delta => CAST(? AS NUMBER(10, 2)),") shouldBe true
+            queries.contains("|  effective_at => CAST(? AS TIMESTAMP)") shouldBe true
+            queries.contains("bindLong(parameterIndex++, employee_id)") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, delta)") shouldBe true
+            queries.contains("bindObject(parameterIndex++, effective_at)") shouldBe true
+            queries.contains("public fun callRefreshCache(tenant_id: Long, status: String): QueryResult<Long>") shouldBe true
+            queries.contains("|CALL hr.remote_api.refresh_cache@reporting.us.example(") shouldBe true
+            queries.contains("|  tenant_id => CAST(? AS NUMBER(10, 0)),") shouldBe true
+            queries.contains("|  status => CAST(? AS VARCHAR2(20))") shouldBe true
+            queries.contains("bindLong(parameterIndex++, tenant_id)") shouldBe true
+            queries.contains("bindString(parameterIndex++, status)") shouldBe true
+        }
+
         test("generates Oracle DML returning input bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

@@ -702,7 +702,7 @@ private fun String.functionArgumentCountBeforeTopLevelClause(
     openParenthesisOffset: Int,
     closeParenthesisOffset: Int,
     clause: List<String>,
-): Int? {
+): Int {
     val clauseOffset = firstTopLevelClauseOffset(openParenthesisOffset + 1, closeParenthesisOffset, clause)
     val endOffset = clauseOffset ?: closeParenthesisOffset
     return countTopLevelSqlItems(openParenthesisOffset + 1, endOffset)
@@ -712,7 +712,7 @@ private fun String.functionArgumentCountBeforeFirstTopLevelClause(
     openParenthesisOffset: Int,
     closeParenthesisOffset: Int,
     clauses: List<List<String>>,
-): Int? {
+): Int {
     val clauseOffset =
         clauses
             .mapNotNull { clause -> firstTopLevelClauseOffset(openParenthesisOffset + 1, closeParenthesisOffset, clause) }
@@ -724,7 +724,7 @@ private fun String.functionArgumentCountBeforeFirstTopLevelClause(
 private fun String.xmlTableLogicalArgumentCount(
     openParenthesisOffset: Int,
     closeParenthesisOffset: Int,
-): Int? {
+): Int {
     val contentStart = openParenthesisOffset + 1
     val xmlNamespacesOffset = firstTopLevelClauseOffset(contentStart, closeParenthesisOffset, listOf("XMLNAMESPACES"))
     val passingOffset = firstTopLevelClauseOffset(contentStart, closeParenthesisOffset, listOf("PASSING"))

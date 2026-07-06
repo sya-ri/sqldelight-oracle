@@ -526,6 +526,48 @@ class OracleCodegenTest :
             queries.contains("bindObject(parameterIndex++, created_before)") shouldBe true
         }
 
+        test("generates Oracle listagg within group bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    CREATE TABLE employees (
+                      id NUMBER(10, 0) NOT NULL,
+                      department_id NUMBER(10, 0) NOT NULL,
+                      last_name VARCHAR2(100) NOT NULL,
+                      hire_date DATE NOT NULL,
+                      PRIMARY KEY (id)
+                    );
+
+                    selectDepartmentNames:
+                    SELECT department_id,
+                           LISTAGG(
+                             last_name,
+                             CAST(:separator AS VARCHAR2(10))
+                             ON OVERFLOW TRUNCATE CAST(:overflow_marker AS VARCHAR2(10)) WITH COUNT
+                           ) WITHIN GROUP (ORDER BY hire_date, last_name) AS employee_names
+                    FROM employees
+                    WHERE last_name LIKE :name_pattern
+                    GROUP BY department_id;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> selectDepartmentNames(") shouldBe true
+            queries.contains("separator: String,") shouldBe true
+            queries.contains("overflow_marker: String,") shouldBe true
+            queries.contains("name_pattern: String,") shouldBe true
+            queries.contains("department_id: Long,") shouldBe true
+            queries.contains("employee_names: String?) -> T,") shouldBe true
+            queries.contains("|       LISTAGG(") shouldBe true
+            queries.contains("|         CAST(? AS VARCHAR2(10))") shouldBe true
+            queries.contains("|         ON OVERFLOW TRUNCATE CAST(? AS VARCHAR2(10)) WITH COUNT") shouldBe true
+            queries.contains("|       ) WITHIN GROUP (ORDER BY hire_date, last_name) AS employee_names") shouldBe true
+            queries.contains("|WHERE last_name LIKE ?") shouldBe true
+            queries.contains("bindString(parameterIndex++, separator)") shouldBe true
+            queries.contains("bindString(parameterIndex++, overflow_marker)") shouldBe true
+            queries.contains("bindString(parameterIndex++, name_pattern)") shouldBe true
+        }
+
         test("generates Oracle SQL JSON passing bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

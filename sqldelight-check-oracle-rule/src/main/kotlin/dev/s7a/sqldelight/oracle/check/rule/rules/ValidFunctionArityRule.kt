@@ -39,9 +39,9 @@ public class ValidFunctionArityRule : Rule {
                 )
                 return@forEach
             }
-            val arity = oracleFunctionArities[functionName] ?: return@forEach
             val openParenthesisOffset = masked.indexOf('(', startIndex = match.range.first)
-            val argumentCount = content.functionArgumentCountAt(openParenthesisOffset) ?: return@forEach
+            val arity = content.functionArityAt(functionName, openParenthesisOffset) ?: return@forEach
+            val argumentCount = content.functionArgumentCountAt(openParenthesisOffset, functionName) ?: return@forEach
             if (argumentCount in arity) return@forEach
 
             reporter.report(
@@ -80,6 +80,14 @@ private data class FunctionAritySet(
     override fun display(): String = counts.sorted().joinToString(" or ")
 }
 
+private data class FunctionArityAnyOf(
+    val arities: List<FunctionArity>,
+) : FunctionArity {
+    override operator fun contains(argumentCount: Int): Boolean = arities.any { arity -> argumentCount in arity }
+
+    override fun display(): String = arities.joinToString(" or ") { arity -> arity.display() }
+}
+
 private fun exactArity(count: Int): FunctionArity = FunctionArityRange(count, count)
 
 private fun arityRange(
@@ -88,6 +96,8 @@ private fun arityRange(
 ): FunctionArity = FunctionArityRange(min, max)
 
 private fun oneOfArities(vararg counts: Int): FunctionArity = FunctionAritySet(counts.toSet())
+
+private fun oneOfArityRanges(vararg arities: FunctionArity): FunctionArity = FunctionArityAnyOf(arities.toList())
 
 private val oracleFunctionArities =
     mapOf(
@@ -140,6 +150,7 @@ private val oracleFunctionArities =
         "DUMP" to arityRange(1, 4),
         "EQUALS_PATH" to arityRange(2, Int.MAX_VALUE),
         "EXP" to exactArity(1),
+        "EXTRACT" to arityRange(2, 3),
         "EXISTSNODE" to arityRange(2, 3),
         "EXTRACTVALUE" to arityRange(2, 3),
         "FIRST_VALUE" to exactArity(1),
@@ -284,6 +295,7 @@ private val oracleFunctionArities =
         "CONCAT" to exactArity(2),
         "CONTAINS" to arityRange(2, 3),
         "CONVERT" to arityRange(2, 3),
+        "COLLECT" to exactArity(1),
         "COSINE_DISTANCE" to exactArity(2),
         "CORR" to exactArity(2),
         "COVAR_POP" to exactArity(2),
@@ -297,6 +309,11 @@ private val oracleFunctionArities =
         "INSTR2" to arityRange(2, 4),
         "INSTR4" to arityRange(2, 4),
         "JSON_DATAGUIDE" to arityRange(1, 3),
+        "JSON_ARRAY" to arityRange(0, Int.MAX_VALUE),
+        "JSON_ARRAYAGG" to exactArity(1),
+        "JSON_EXISTS" to exactArity(2),
+        "JSON_OBJECT" to arityRange(0, Int.MAX_VALUE),
+        "JSON_OBJECTAGG" to exactArity(2),
         "JSON_TEXTCONTAINS" to exactArity(3),
         "LEAST" to arityRange(1, Int.MAX_VALUE),
         "LOCALTIMESTAMP" to exactArity(1),
@@ -345,19 +362,29 @@ private val oracleFunctionArities =
         "VECTOR_EMBEDDING" to exactArity(1),
         "VECTOR_NORM" to exactArity(1),
         "VECTOR_SERIALIZE" to exactArity(1),
+        "CUME_DIST" to oneOfArityRanges(exactArity(0), arityRange(1, Int.MAX_VALUE)),
+        "DENSE_RANK" to oneOfArityRanges(exactArity(0), arityRange(1, Int.MAX_VALUE)),
+        "PERCENT_RANK" to oneOfArityRanges(exactArity(0), arityRange(1, Int.MAX_VALUE)),
+        "RANK" to oneOfArityRanges(exactArity(0), arityRange(1, Int.MAX_VALUE)),
+        "XMLAGG" to exactArity(1),
         "XMLCAST" to exactArity(1),
         "XMLCDATA" to exactArity(1),
         "XMLCOLATTVAL" to arityRange(1, Int.MAX_VALUE),
         "XMLCOMMENT" to exactArity(1),
         "XMLCONCAT" to arityRange(1, Int.MAX_VALUE),
         "XMLDIFF" to exactArity(2),
+        "XMLELEMENT" to arityRange(1, Int.MAX_VALUE),
+        "XMLEXISTS" to exactArity(1),
+        "XMLFOREST" to arityRange(1, Int.MAX_VALUE),
         "XMLISVALID" to arityRange(1, 2),
         "XMLPARSE" to exactArity(1),
         "XMLPATCH" to exactArity(2),
         "XMLPI" to arityRange(1, 2),
+        "XMLQUERY" to exactArity(1),
         "XMLROOT" to arityRange(2, 3),
         "XMLSERIALIZE" to exactArity(1),
         "XMLSEQUENCE" to exactArity(1),
+        "XMLTABLE" to exactArity(1),
         "XMLTRANSFORM" to exactArity(2),
     ) + oracleCalendarFunctionArities()
 
@@ -512,8 +539,59 @@ private val oracleNoParenthesesExpressions =
 private val oracleFunctionPattern =
     Regex("""(?i)\b(${(oracleFunctionArities.keys + oracleNoParenthesesExpressions).joinToString("|") { Regex.escape(it) }})\s*\(""")
 
-private fun String.functionArgumentCountAt(openParenthesisOffset: Int): Int? {
+private fun String.functionArityAt(
+    functionName: String,
+    openParenthesisOffset: Int,
+): FunctionArity? {
+    val closeParenthesisOffset = matchingFunctionParenthesis(openParenthesisOffset)
+    if (functionName == "EXTRACT") {
+        closeParenthesisOffset ?: return oracleFunctionArities[functionName]
+        if (firstTopLevelClauseOffset(openParenthesisOffset + 1, closeParenthesisOffset, listOf("FROM")) != null) {
+            return exactArity(1)
+        }
+    }
+    if (functionName in oracleRankFunctionNames && closeParenthesisOffset != null) {
+        return when {
+            nextTopLevelWordsMatch(closeParenthesisOffset + 1, listOf("WITHIN", "GROUP")) -> arityRange(1, Int.MAX_VALUE)
+            nextTopLevelWordsMatch(closeParenthesisOffset + 1, listOf("OVER")) -> exactArity(0)
+            else -> oracleFunctionArities[functionName]
+        }
+    }
+    return oracleFunctionArities[functionName]
+}
+
+private val oracleRankFunctionNames = setOf("CUME_DIST", "DENSE_RANK", "PERCENT_RANK", "RANK")
+
+private fun String.functionArgumentCountAt(
+    openParenthesisOffset: Int,
+    functionName: String,
+): Int? {
     if (openParenthesisOffset !in indices || this[openParenthesisOffset] != '(') return null
+    val closeParenthesisOffset = matchingFunctionParenthesis(openParenthesisOffset) ?: return null
+
+    when (functionName) {
+        "COLLECT",
+        "JSON_ARRAYAGG",
+        "XMLAGG",
+        -> return functionArgumentCountBeforeTopLevelClause(openParenthesisOffset, closeParenthesisOffset, listOf("ORDER", "BY"))
+
+        "JSON_EXISTS",
+        -> return functionArgumentCountBeforeTopLevelClause(openParenthesisOffset, closeParenthesisOffset, listOf("PASSING"))
+
+        "JSON_OBJECTAGG",
+        -> return jsonObjectAggLogicalArgumentCount(openParenthesisOffset, closeParenthesisOffset)
+
+        "XMLQUERY",
+        "XMLEXISTS",
+        -> return functionArgumentCountBeforeFirstTopLevelClause(
+            openParenthesisOffset = openParenthesisOffset,
+            closeParenthesisOffset = closeParenthesisOffset,
+            clauses = listOf(listOf("PASSING"), listOf("RETURNING", "CONTENT")),
+        )
+
+        "XMLTABLE",
+        -> return xmlTableLogicalArgumentCount(openParenthesisOffset, closeParenthesisOffset)
+    }
 
     var argumentStart = openParenthesisOffset + 1
     var argumentCount = 0
@@ -566,10 +644,252 @@ private fun String.functionArgumentCountAt(openParenthesisOffset: Int): Int? {
     return null
 }
 
+private fun String.matchingFunctionParenthesis(openParenthesisOffset: Int): Int? {
+    var depth = 0
+    var index = openParenthesisOffset
+    while (index < length) {
+        index =
+            when {
+                index != openParenthesisOffset && startsWith("--", index) -> {
+                    skipSqlLineComment(index)
+                }
+
+                index != openParenthesisOffset && startsWith("/*", index) -> {
+                    skipSqlBlockComment(index)
+                }
+
+                index != openParenthesisOffset && startsSqlAlternativeQuotedString(index) -> {
+                    skipSqlAlternativeQuotedString(index)
+                }
+
+                index != openParenthesisOffset && this[index] == '\'' -> {
+                    skipSqlQuotedString(index)
+                }
+
+                index != openParenthesisOffset && this[index] == '"' -> {
+                    skipSqlDoubleQuotedIdentifier(index)
+                }
+
+                this[index] == '(' -> {
+                    depth++
+                    index + 1
+                }
+
+                this[index] == ')' -> {
+                    depth--
+                    if (depth == 0) return index
+                    index + 1
+                }
+
+                else -> {
+                    index + 1
+                }
+            }
+    }
+    return null
+}
+
+private fun String.jsonObjectAggLogicalArgumentCount(
+    openParenthesisOffset: Int,
+    closeParenthesisOffset: Int,
+): Int? {
+    val contentStart = openParenthesisOffset + 1
+    if (countTopLevelSqlItems(contentStart, closeParenthesisOffset) == 0) return 0
+    return if (firstTopLevelClauseOffset(contentStart, closeParenthesisOffset, listOf("VALUE")) == null) 1 else 2
+}
+
+private fun String.functionArgumentCountBeforeTopLevelClause(
+    openParenthesisOffset: Int,
+    closeParenthesisOffset: Int,
+    clause: List<String>,
+): Int {
+    val clauseOffset = firstTopLevelClauseOffset(openParenthesisOffset + 1, closeParenthesisOffset, clause)
+    val endOffset = clauseOffset ?: closeParenthesisOffset
+    return countTopLevelSqlItems(openParenthesisOffset + 1, endOffset)
+}
+
+private fun String.functionArgumentCountBeforeFirstTopLevelClause(
+    openParenthesisOffset: Int,
+    closeParenthesisOffset: Int,
+    clauses: List<List<String>>,
+): Int {
+    val clauseOffset =
+        clauses
+            .mapNotNull { clause -> firstTopLevelClauseOffset(openParenthesisOffset + 1, closeParenthesisOffset, clause) }
+            .minOrNull()
+    val endOffset = clauseOffset ?: closeParenthesisOffset
+    return countTopLevelSqlItems(openParenthesisOffset + 1, endOffset)
+}
+
+private fun String.xmlTableLogicalArgumentCount(
+    openParenthesisOffset: Int,
+    closeParenthesisOffset: Int,
+): Int {
+    val contentStart = openParenthesisOffset + 1
+    val xmlNamespacesOffset = firstTopLevelClauseOffset(contentStart, closeParenthesisOffset, listOf("XMLNAMESPACES"))
+    val passingOffset = firstTopLevelClauseOffset(contentStart, closeParenthesisOffset, listOf("PASSING"))
+    val columnsOffset = firstTopLevelClauseOffset(contentStart, closeParenthesisOffset, listOf("COLUMNS"))
+    val clauseOffset = listOfNotNull(passingOffset, columnsOffset).minOrNull() ?: closeParenthesisOffset
+
+    if (xmlNamespacesOffset != null && xmlNamespacesOffset < clauseOffset) {
+        val commaAfterNamespaces = firstTopLevelCharacterOffset(xmlNamespacesOffset, clauseOffset, ',') ?: return 0
+        return countTopLevelSqlItems(commaAfterNamespaces + 1, clauseOffset)
+    }
+    return countTopLevelSqlItems(contentStart, clauseOffset)
+}
+
+private fun String.firstTopLevelClauseOffset(
+    startOffset: Int,
+    endOffset: Int,
+    clause: List<String>,
+): Int? {
+    var depth = 0
+    var index = startOffset
+    while (index < endOffset) {
+        when {
+            startsWith("--", index) -> {
+                index = skipSqlLineComment(index)
+            }
+
+            startsWith("/*", index) -> {
+                index = skipSqlBlockComment(index)
+            }
+
+            else -> {
+                val skipped = skipSqlDelimitedText(index)
+                if (skipped != null) {
+                    index = skipped
+                    continue
+                }
+
+                when (this[index]) {
+                    '(' -> {
+                        depth++
+                        index++
+                    }
+
+                    ')' -> {
+                        if (depth > 0) depth--
+                        index++
+                    }
+
+                    else -> {
+                        if (depth == 0 && topLevelClauseMatches(index, endOffset, clause)) return index
+                        index++
+                    }
+                }
+            }
+        }
+    }
+    return null
+}
+
+private fun String.topLevelClauseMatches(
+    offset: Int,
+    endOffset: Int,
+    clause: List<String>,
+): Boolean {
+    var index = offset
+    clause.forEachIndexed { clauseIndex, word ->
+        while (index < endOffset && this[index].isWhitespace()) index++
+        if (!regionMatches(index, word, 0, word.length, ignoreCase = true)) return false
+
+        val before = getOrNull(index - 1)
+        val after = getOrNull(index + word.length)
+        if (clauseIndex == 0 && before != null && before.isFunctionRuleIdentifierPart()) return false
+        if (after != null && after.isFunctionRuleIdentifierPart()) return false
+        index += word.length
+    }
+    return true
+}
+
+private fun String.nextTopLevelWordsMatch(
+    startOffset: Int,
+    words: List<String>,
+): Boolean {
+    var index = startOffset
+    words.forEach { word ->
+        index = skipWhitespaceAndComments(index)
+        if (!regionMatches(index, word, 0, word.length, ignoreCase = true)) return false
+
+        val before = getOrNull(index - 1)
+        val after = getOrNull(index + word.length)
+        if (before != null && before.isFunctionRuleIdentifierPart()) return false
+        if (after != null && after.isFunctionRuleIdentifierPart()) return false
+        index += word.length
+    }
+    return true
+}
+
+private fun String.skipWhitespaceAndComments(startOffset: Int): Int {
+    var index = startOffset
+    while (index < length) {
+        index =
+            when {
+                this[index].isWhitespace() -> {
+                    index + 1
+                }
+
+                startsWith("--", index) -> {
+                    skipSqlLineComment(index)
+                }
+
+                startsWith("/*", index) -> {
+                    skipSqlBlockComment(index)
+                }
+
+                else -> {
+                    return index
+                }
+            }
+    }
+    return index
+}
+
+private fun String.firstTopLevelCharacterOffset(
+    startOffset: Int,
+    endOffset: Int,
+    character: Char,
+): Int? {
+    var depth = 0
+    var index = startOffset
+    while (index < endOffset) {
+        when {
+            startsWith("--", index) -> {
+                index = skipSqlLineComment(index)
+                continue
+            }
+
+            startsWith("/*", index) -> {
+                index = skipSqlBlockComment(index)
+                continue
+            }
+
+            else -> {
+                val skipped = skipSqlDelimitedText(index)
+                if (skipped != null) {
+                    index = skipped
+                    continue
+                }
+
+                when (this[index]) {
+                    '(' -> depth++
+                    ')' -> if (depth > 0) depth--
+                    character -> if (depth == 0) return index
+                }
+            }
+        }
+        index++
+    }
+    return null
+}
+
 private fun String.hasNonWhitespace(
     startOffset: Int,
     endOffset: Int,
 ): Boolean = substring(startOffset, endOffset).any { character -> !character.isWhitespace() }
+
+private fun Char.isFunctionRuleIdentifierPart(): Boolean = isLetterOrDigit() || this == '_' || this == '$' || this == '#'
 
 private fun String.isVectorTypeContext(vectorOffset: Int): Boolean {
     val previousWord = previousFunctionRuleWord(vectorOffset) ?: return false

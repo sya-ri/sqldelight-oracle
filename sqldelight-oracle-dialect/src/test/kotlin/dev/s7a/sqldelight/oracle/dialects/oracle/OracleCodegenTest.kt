@@ -416,6 +416,36 @@ class OracleCodegenTest :
             queries.contains("bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(audit_label))") shouldBe true
         }
 
+        test("generates Oracle row-value update bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import com.example.Label;
+
+                    CREATE TABLE sample (
+                      id NUMBER(10, 0) NOT NULL,
+                      label NVARCHAR2(50) AS Label NOT NULL,
+                      note VARCHAR2(100)
+                    );
+
+                    updateTuple:
+                    UPDATE sample
+                    SET (id, label, note) = (:id, :label, :note)
+                    WHERE id = :old_id;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun updateTuple(") shouldBe true
+            queries.contains("id: Long,") shouldBe true
+            queries.contains("label: Label,") shouldBe true
+            queries.contains("note: String?,") shouldBe true
+            queries.contains("old_id: Long,") shouldBe true
+            queries.contains("|SET (id, label, note) = (?, ?, ?)") shouldBe true
+            queries.contains("|WHERE id = ?") shouldBe true
+            queries.contains("bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(label))") shouldBe true
+        }
+
         test("generates SQLDelight value type row and variable arguments exactly") {
             val generated =
                 generateOracleSqlDelight(

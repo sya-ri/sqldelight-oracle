@@ -660,6 +660,50 @@ class OracleCodegenTest :
             queries.contains("bindLong(parameterIndex++, max_depth)") shouldBe true
         }
 
+        test("generates Oracle match recognize bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import com.example.Symbol;
+
+                    CREATE TABLE trades (
+                      id NUMBER(10, 0) NOT NULL,
+                      symbol NVARCHAR2(16) AS Symbol NOT NULL,
+                      price NUMBER(12, 2) NOT NULL,
+                      traded_at TIMESTAMP NOT NULL,
+                      PRIMARY KEY (id)
+                    );
+
+                    selectPriceRuns:
+                    SELECT runs.matched_symbol, runs.match_id, runs.match_type, runs.match_row_number
+                    FROM trades MATCH_RECOGNIZE (
+                      PARTITION BY symbol
+                      ORDER BY traded_at
+                      MEASURES
+                        symbol AS matched_symbol,
+                        id AS match_id,
+                        CLASSIFIER() AS match_type,
+                        ROW_NUMBER() AS match_row_number
+                      ONE ROW PER MATCH
+                      PATTERN (rising+)
+                      DEFINE rising AS rising.price >= :min_price AND rising.symbol = :symbol
+                    ) runs;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> selectPriceRuns(") shouldBe true
+            queries.contains("min_price: BigDecimal,") shouldBe true
+            queries.contains("symbol: Symbol,") shouldBe true
+            queries.contains("matched_symbol: Symbol,") shouldBe true
+            queries.contains("match_id: Long,") shouldBe true
+            queries.contains("match_type: String,") shouldBe true
+            queries.contains("match_row_number: Long,") shouldBe true
+            queries.contains("|  DEFINE rising AS rising.price >= ? AND rising.symbol = ?") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, min_price)") shouldBe true
+            queries.contains("bindString(parameterIndex++, tradesAdapter.symbolAdapter.encode(symbol))") shouldBe true
+        }
+
         test("generates Oracle DML returning input bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

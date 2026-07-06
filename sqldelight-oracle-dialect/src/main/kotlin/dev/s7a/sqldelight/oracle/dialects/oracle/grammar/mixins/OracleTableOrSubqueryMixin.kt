@@ -4,7 +4,9 @@ import app.cash.sqldelight.dialect.api.ExposableType
 import app.cash.sqldelight.dialect.api.IntermediateType
 import com.alecstrong.sql.psi.core.ModifiableFileLazy
 import com.alecstrong.sql.psi.core.SqlAnnotationHolder
+import com.alecstrong.sql.psi.core.SqlFileBase
 import com.alecstrong.sql.psi.core.psi.AliasElement
+import com.alecstrong.sql.psi.core.psi.LazyQuery
 import com.alecstrong.sql.psi.core.psi.NamedElement
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryColumn
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryResult
@@ -449,7 +451,12 @@ internal abstract class OracleTableOrSubqueryMixin(
             .let(::oracleRowPatternVariables)
             .map { variable ->
                 QueryResult(
-                    table = OraclePatternVariableElement(rowPatternClause, variable),
+                    table =
+                        OraclePatternVariableElement(
+                            anchor = rowPatternClause,
+                            variableName = variable,
+                            source = sourceResults.firstNotNullOfOrNull { result -> result.table as? PsiElement } ?: this,
+                        ),
                     columns = sourceColumns,
                     synthesizedColumns = sourceSynthesizedColumns,
                 )
@@ -711,17 +718,32 @@ private fun String.oracleCollectionTableType(): OracleType? {
 private class OraclePatternVariableElement(
     private val anchor: PsiElement,
     private val variableName: String,
+    private val source: PsiElement,
 ) : LightElement(anchor.manager, anchor.language),
-    PsiNamedElement {
+    SqlTableAlias {
+    override fun source(): PsiElement = source
+
+    override fun annotate(annotationHolder: SqlAnnotationHolder) = Unit
+
+    override fun queryAvailable(child: PsiElement): Collection<QueryResult> = emptyList()
+
+    override fun tablesAvailable(child: PsiElement): Collection<LazyQuery> = emptyList()
+
     override fun getName(): String = variableName
 
     override fun setName(name: String): PsiElement = this
 
     override fun getText(): String = variableName
 
-    override fun getContainingFile(): PsiFile = anchor.containingFile
+    override fun getContainingFile(): SqlFileBase = anchor.containingFile as SqlFileBase
 
     override fun getParent(): PsiElement = anchor
+
+    override fun getNameIdentifier(): PsiElement? = null
+
+    override fun getId(): PsiElement? = null
+
+    override fun getString(): PsiElement? = null
 
     override fun toString(): String = "Oracle pattern variable: $variableName"
 }

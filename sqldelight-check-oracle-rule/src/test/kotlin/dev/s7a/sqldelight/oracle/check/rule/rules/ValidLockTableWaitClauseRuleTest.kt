@@ -60,6 +60,24 @@ class ValidLockTableWaitClauseRuleTest :
                 )
         }
 
+        test("reports lock table wait forever until Oracle support is established") {
+            ValidLockTableWaitClauseRule()
+                .diagnostics(
+                    """
+                    LOCK TABLE customer IN SHARE MODE WAIT FOREVER;
+                    """,
+                ).summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Use a valid Oracle LOCK TABLE wait clause: WAIT VALUE.",
+                        startLine = 1,
+                        startColumn = 35,
+                        endLine = 1,
+                        endColumn = 47,
+                    ),
+                )
+        }
+
         test("ignores lock table text that does not start a statement or labeled statement") {
             ValidLockTableWaitClauseRule()
                 .diagnostics(

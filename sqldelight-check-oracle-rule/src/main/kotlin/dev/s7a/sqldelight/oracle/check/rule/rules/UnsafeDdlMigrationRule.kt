@@ -7,10 +7,7 @@ import dev.s7a.sqldelight.check.api.Severity
 import dev.s7a.sqldelight.check.rule.api.DiagnosticReporter
 import dev.s7a.sqldelight.check.rule.api.Rule
 import dev.s7a.sqldelight.check.rule.api.RuleContext
-import dev.s7a.sqldelight.check.rule.api.SqlToken
 import dev.s7a.sqldelight.check.rule.api.rangeAtOffsets
-import dev.s7a.sqldelight.check.rule.api.sqlStatements
-import dev.s7a.sqldelight.check.rule.api.sqlTokens
 import dev.s7a.sqldelight.oracle.check.dialect.OracleDialectId
 
 /**
@@ -27,18 +24,18 @@ public class UnsafeDdlMigrationRule : Rule {
     ) {
         val content = context.file.content
         val maskedContent = content.maskSqlCommentsAndQuotedTextPreservingOffsets()
-        content
-            .sqlTokens()
-            .toList()
-            .sqlStatements()
+        maskedContent
+            .unsafeDdlTokens()
+            .unsafeDdlStatements()
             .filter { statement -> statement.isUnsafeMigrationDdl(maskedContent) }
             .forEach { statement ->
+                val startIndex = statement.statementStartIndex()
                 reporter.report(
                     RuleDiagnostic(
                         severity = defaultSeverity,
                         message = "Review Oracle migration DDL that can rewrite, lock, or destructively change large tables.",
                         file = context.file,
-                        range = content.rangeAtOffsets(statement[0].startOffset, statement[1].endOffset),
+                        range = content.rangeAtOffsets(statement[startIndex].startOffset, statement[startIndex + 1].endOffset),
                         database = context.database,
                     ),
                 )
@@ -46,7 +43,37 @@ public class UnsafeDdlMigrationRule : Rule {
     }
 }
 
-private fun List<SqlToken>.isUnsafeMigrationDdl(maskedContent: String): Boolean =
+private data class UnsafeDdlToken(
+    val text: String,
+    val startOffset: Int,
+    val endOffset: Int,
+)
+
+private fun String.unsafeDdlTokens(): List<UnsafeDdlToken> =
+    Regex("""[A-Za-z_][A-Za-z0-9_$#]*|:|;""")
+        .findAll(this)
+        .map { match ->
+            UnsafeDdlToken(
+                text = match.value,
+                startOffset = match.range.first,
+                endOffset = match.range.last + 1,
+            )
+        }.toList()
+
+private fun List<UnsafeDdlToken>.unsafeDdlStatements(): List<List<UnsafeDdlToken>> {
+    val statements = mutableListOf<List<UnsafeDdlToken>>()
+    var start = 0
+    forEachIndexed { index, token ->
+        if (token.hasText(";")) {
+            if (index > start) statements += subList(start, index)
+            start = index + 1
+        }
+    }
+    if (start < size) statements += subList(start, size)
+    return statements
+}
+
+private fun List<UnsafeDdlToken>.isUnsafeMigrationDdl(maskedContent: String): Boolean =
     when {
         startsWithStatement("DROP", "TABLE") -> true
         startsWithStatement("DROP", "CLUSTER") && containsSequence("INCLUDING", "TABLES") -> true
@@ -58,7 +85,9 @@ private fun List<SqlToken>.isUnsafeMigrationDdl(maskedContent: String): Boolean 
         else -> false
     }
 
-private fun List<SqlToken>.hasUnsafeAlterTableOperation(maskedContent: String): Boolean =
+private fun List<UnsafeDdlToken>.statementStartIndex(): Int = if (getOrNull(1).hasText(":")) 2 else 0
+
+private fun List<UnsafeDdlToken>.hasUnsafeAlterTableOperation(maskedContent: String): Boolean =
     containsSequence("DROP", "COLUMN") ||
         containsSequence("DROP", "COLUMNS") ||
         hasSequenceFollowedByChar(maskedContent, '(', "DROP") ||
@@ -71,7 +100,7 @@ private fun List<SqlToken>.hasUnsafeAlterTableOperation(maskedContent: String): 
         any { token -> token.hasText("MOVE") } ||
         changesRequiredColumnWithoutDefault(maskedContent)
 
-private fun List<SqlToken>.hasUnsafePartitionMaintenanceOperation(): Boolean =
+private fun List<UnsafeDdlToken>.hasUnsafePartitionMaintenanceOperation(): Boolean =
     partitionMaintenanceOperations.any { operation ->
         containsSequence(operation, "PARTITION") ||
             containsSequence(operation, "PARTITIONS") ||
@@ -79,7 +108,7 @@ private fun List<SqlToken>.hasUnsafePartitionMaintenanceOperation(): Boolean =
             containsSequence(operation, "SUBPARTITIONS")
     }
 
-private fun List<SqlToken>.changesRequiredColumnWithoutDefault(maskedContent: String): Boolean {
+private fun List<UnsafeDdlToken>.changesRequiredColumnWithoutDefault(maskedContent: String): Boolean {
     val statementEndOffset = last().endOffset
     return filter { token -> token.hasText("ADD") || token.hasText("MODIFY") }
         .any { operation ->
@@ -89,15 +118,15 @@ private fun List<SqlToken>.changesRequiredColumnWithoutDefault(maskedContent: St
         }
 }
 
-private fun List<SqlToken>.startsWithStatement(vararg terms: String): Boolean =
-    take(terms.size).map { token -> token.text.lowercase() } == terms.map { term -> term.lowercase() }
+private fun List<UnsafeDdlToken>.startsWithStatement(vararg terms: String): Boolean =
+    drop(statementStartIndex()).take(terms.size).map { token -> token.text.lowercase() } == terms.map { term -> term.lowercase() }
 
-private fun List<SqlToken>.containsSequence(vararg terms: String): Boolean =
+private fun List<UnsafeDdlToken>.containsSequence(vararg terms: String): Boolean =
     windowed(size = terms.size).any { tokens ->
         tokens.map { token -> token.text.lowercase() } == terms.map { term -> term.lowercase() }
     }
 
-private fun List<SqlToken>.hasSequenceFollowedByChar(
+private fun List<UnsafeDdlToken>.hasSequenceFollowedByChar(
     maskedContent: String,
     char: Char,
     vararg terms: String,
@@ -192,7 +221,7 @@ private fun String.nextUnsafeDdlNonWhitespaceCharAfter(startOffset: Int): Char? 
     return getOrNull(index)
 }
 
-private fun SqlToken?.hasText(text: String): Boolean = this?.text.equals(text, ignoreCase = true)
+private fun UnsafeDdlToken?.hasText(text: String): Boolean = this?.text.equals(text, ignoreCase = true)
 
 private val partitionMaintenanceOperations = setOf("DROP", "TRUNCATE", "MOVE", "MERGE", "SPLIT", "EXCHANGE")
 

@@ -25,6 +25,26 @@ class UnsafeDdlMigrationRuleTest :
                 )
         }
 
+        test("reports required column additions after a SQLDelight migration label") {
+            val diagnostics =
+                UnsafeDdlMigrationRule().diagnostics(
+                    """
+                    addCustomerStatus: ALTER TABLE customer ADD status VARCHAR2(20) NOT NULL;
+                    """,
+                )
+
+            diagnostics.summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = UNSAFE_DDL_MESSAGE,
+                        startLine = 1,
+                        startColumn = 20,
+                        endLine = 1,
+                        endColumn = 31,
+                    ),
+                )
+        }
+
         test("reports required column additions when only a sibling column has a default") {
             val diagnostics =
                 UnsafeDdlMigrationRule().diagnostics(

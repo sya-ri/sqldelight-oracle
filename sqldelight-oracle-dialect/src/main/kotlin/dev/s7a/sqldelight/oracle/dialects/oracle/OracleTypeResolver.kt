@@ -34,6 +34,7 @@ import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.TIMESTAMP
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.TIMESTAMP_TIME_ZONE
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.indexOfKeyword
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.trimOracleIdentifier
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleVectorDistanceOperand
 
 public class OracleTypeResolver(
     private val parentResolver: TypeResolver,
@@ -41,12 +42,8 @@ public class OracleTypeResolver(
     override fun definitionType(typeName: SqlTypeName): IntermediateType = IntermediateType(OracleType.fromSqlTypeName(typeName.text))
 
     override fun resolvedType(expr: SqlExpr): IntermediateType =
-        when {
-            expr.text.hasOracleVectorDistanceShorthand() -> {
-                IntermediateType(BINARY_DOUBLE)
-            }
-
-            else -> {
+        oracleVectorDistanceShorthandType(expr)
+            ?: run {
                 oracleExtensionConditionType(expr)
                     ?: oracleExtensionFunctionType(expr)
                     ?: oracleExtensionOperatorType(expr)
@@ -62,7 +59,6 @@ public class OracleTypeResolver(
                     ?: oracleCaseExpressionType(expr)
                     ?: parentResolver.resolvedType(expr)
             }
-        }
 
     override fun functionType(functionExpr: SqlFunctionExpr): IntermediateType? {
         val functionName = functionExpr.functionName.text
@@ -211,6 +207,41 @@ public class OracleTypeResolver(
                 ?: return null
         return IntermediateType(BOOLEAN_TYPE).takeIf { text.isOracleBooleanConditionExpression() }
     }
+
+    private fun oracleVectorDistanceShorthandType(expr: SqlExpr): IntermediateType? {
+        val extensionExpr =
+            expr.oracleExtensionExpr()
+                ?: return IntermediateType(BINARY_DOUBLE).takeIf { expr.text.hasOracleVectorDistanceShorthand() }
+        if (!extensionExpr.text.hasOracleVectorDistanceShorthand()) return null
+        val operandTypes =
+            PsiTreeUtil
+                .findChildrenOfType(extensionExpr, OracleOracleVectorDistanceOperand::class.java)
+                .toList()
+                .takeIf { operands -> operands.size == 2 }
+                ?.map { operand -> operand.oracleVectorDistanceOperandType() }
+                ?: return IntermediateType(BINARY_DOUBLE)
+        return IntermediateType(BINARY_DOUBLE)
+            .nullableIf(operandTypes.any { type -> type.javaType.isNullable })
+    }
+
+    private fun OracleOracleVectorDistanceOperand.oracleVectorDistanceOperandType(): IntermediateType =
+        PsiTreeUtil
+            .findChildrenOfType(this, SqlExpr::class.java)
+            .toList()
+            .takeIf { expressions -> expressions.isNotEmpty() }
+            ?.let { expressions ->
+                oracleFunctionType(text.oracleFunctionName().orEmpty(), text, expressions)
+                    ?: expressions.singleOrNull()?.let(::resolvedType)
+                    ?: IntermediateType(BINARY_DOUBLE)
+                        .nullableIf(
+                            expressions.any { expression ->
+                                resolvedType(expression).javaType.isNullable
+                            },
+                        )
+            }
+            ?: oracleAvailableColumnType(this)
+            ?: oracleAvailableColumnType(text)
+            ?: IntermediateType(OracleType.TEXT)
 
     private fun oracleHierarchicalOperatorType(expr: SqlExpr): IntermediateType? {
         val text = expr.text.trimStart().uppercase()
@@ -380,7 +411,22 @@ public class OracleTypeResolver(
     private fun PsiElement.oracleAvailableColumnType(operandText: String): IntermediateType? {
         val operandColumnName = operandText.substringAfterLast(".").trimOracleIdentifier()
         if (operandColumnName.isBlank()) return null
+        return oracleAvailableColumnTypeForColumn(operandColumnName)
+    }
 
+    private fun PsiElement.oracleAvailableColumnType(operand: PsiElement): IntermediateType? {
+        val operandColumnName =
+            PsiTreeUtil
+                .findChildrenOfType(operand, NamedElement::class.java)
+                .lastOrNull()
+                ?.name
+                ?.trimOracleIdentifier()
+                ?: return null
+        if (operandColumnName.isBlank()) return null
+        return oracleAvailableColumnTypeForColumn(operandColumnName)
+    }
+
+    private fun PsiElement.oracleAvailableColumnTypeForColumn(operandColumnName: String): IntermediateType? {
         var current: PsiElement? = this
         while (current != null) {
             val queryElement = current as? SqlCompositeElement

@@ -802,6 +802,15 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT VECTOR_EMBEDDING(all_minilm_l12 USING nickname AS DATA) AS c FROM emp") shouldBe "kotlin.String?"
         }
 
+        test("propagates Oracle vector distance shorthand nullability exactly") {
+            typeOf("SELECT target_embedding <-> target_embedding AS c FROM emp") shouldBe "kotlin.Double"
+            typeOf("SELECT target_embedding <=> target_embedding AS c FROM emp") shouldBe "kotlin.Double"
+            typeOf("SELECT target_embedding <#> target_embedding AS c FROM emp") shouldBe "kotlin.Double"
+            typeOf("SELECT embedding <-> target_embedding AS c FROM emp") shouldBe "kotlin.Double?"
+            typeOf("SELECT target_embedding <=> embedding AS c FROM emp") shouldBe "kotlin.Double?"
+            typeOf("SELECT embedding <#> embedding AS c FROM emp") shouldBe "kotlin.Double?"
+        }
+
         test("resolves Oracle grouping function result column types exactly") {
             typeOf("SELECT GROUPING(dept_id) AS c FROM emp GROUP BY ROLLUP(dept_id)") shouldBe "kotlin.Long"
             typeOf("SELECT GROUPING_ID(dept_id) AS c FROM emp GROUP BY ROLLUP(dept_id)") shouldBe "kotlin.Long"

@@ -547,9 +547,9 @@ private oracle_vector_distance_expr ::= oracle_vector_distance_function_expr | o
 
 private oracle_vector_distance_function_expr ::= 'VECTOR_DISTANCE' LP <<expr '-1'>> COMMA <<expr '-1'>> [ COMMA oracle_vector_distance_metric ] RP
 
-private oracle_vector_distance_shorthand_expr ::= oracle_vector_distance_operand oracle_vector_distance_operator oracle_vector_distance_operand
+oracle_vector_distance_shorthand_expr ::= oracle_vector_distance_operand oracle_vector_distance_operator oracle_vector_distance_operand
 
-private oracle_vector_distance_operand ::= oracle_to_vector_expr | oracle_condition_operand
+oracle_vector_distance_operand ::= oracle_to_vector_expr | oracle_condition_operand
 
 private oracle_vector_distance_operator ::= '<->' | '<=>' | '<#>'
 

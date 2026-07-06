@@ -279,6 +279,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun oracle_synonym_target_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun oracle_type_name_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun oracle_values_table_reference_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun oracle_vector_distance_operand_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun oracle_vector_distance_shorthand_expr_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun oracle_xmltable_column_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun oracle_xmltable_columns_clause_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun oracle_xmltable_reference_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -740,6 +742,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getOracle_synonym_target ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOracle_type_name ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOracle_values_table_reference ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getOracle_vector_distance_operand ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getOracle_vector_distance_shorthand_expr ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOracle_xmltable_column ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOracle_xmltable_columns_clause ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOracle_xmltable_reference ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -797,6 +801,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun oracleSynonymTargetExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun oracleTypeNameExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun oracleValuesTableReferenceExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun oracleVectorDistanceOperandExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun oracleVectorDistanceShorthandExprExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun oracleXmltableColumnExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun oracleXmltableColumnsClauseExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun oracleXmltableReferenceExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -1041,6 +1047,8 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setOracle_synonym_target (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOracle_type_name (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOracle_values_table_reference (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setOracle_vector_distance_operand (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setOracle_vector_distance_shorthand_expr (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOracle_xmltable_column (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOracle_xmltable_columns_clause (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOracle_xmltable_reference (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -1696,6 +1704,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionExpr : com/alecstrong/sql/psi/core/psi/SqlExtensionExpr {
 	public abstract fun getOracleTypeNameList ()Ljava/util/List;
+	public abstract fun getOracleVectorDistanceShorthandExpr ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleVectorDistanceShorthandExpr;
 	public abstract fun getTypeName ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTypeName;
 }
 
@@ -1994,6 +2003,13 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleValuesTableReference : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleVectorDistanceOperand : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleVectorDistanceShorthandExpr : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
+	public abstract fun getOracleVectorDistanceOperandList ()Ljava/util/List;
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleXmltableColumn : com/alecstrong/sql/psi/core/psi/SqlCompositeElement {
@@ -2524,6 +2540,8 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field ORACLE_SYNONYM_TARGET Lcom/intellij/psi/tree/IElementType;
 	public static final field ORACLE_TYPE_NAME Lcom/intellij/psi/tree/IElementType;
 	public static final field ORACLE_VALUES_TABLE_REFERENCE Lcom/intellij/psi/tree/IElementType;
+	public static final field ORACLE_VECTOR_DISTANCE_OPERAND Lcom/intellij/psi/tree/IElementType;
+	public static final field ORACLE_VECTOR_DISTANCE_SHORTHAND_EXPR Lcom/intellij/psi/tree/IElementType;
 	public static final field ORACLE_XMLTABLE_COLUMN Lcom/intellij/psi/tree/IElementType;
 	public static final field ORACLE_XMLTABLE_COLUMNS_CLAUSE Lcom/intellij/psi/tree/IElementType;
 	public static final field ORACLE_XMLTABLE_REFERENCE Lcom/intellij/psi/tree/IElementType;
@@ -2804,6 +2822,8 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitOracleSynonymTarget (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleSynonymTarget;)V
 	public fun visitOracleTypeName (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleTypeName;)V
 	public fun visitOracleValuesTableReference (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleValuesTableReference;)V
+	public fun visitOracleVectorDistanceOperand (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleVectorDistanceOperand;)V
+	public fun visitOracleVectorDistanceShorthandExpr (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleVectorDistanceShorthandExpr;)V
 	public fun visitOracleXmltableColumn (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleXmltableColumn;)V
 	public fun visitOracleXmltableColumnsClause (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleXmltableColumnsClause;)V
 	public fun visitOracleXmltableReference (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleXmltableReference;)V
@@ -4103,6 +4123,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 	public fun getOracleTypeNameList ()Ljava/util/List;
+	public fun getOracleVectorDistanceShorthandExpr ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleVectorDistanceShorthandExpr;
 	public fun getTypeName ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTypeName;
 }
 
@@ -4503,6 +4524,19 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOr
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOracleVectorDistanceOperandImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleVectorDistanceOperand {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOracleVectorDistanceShorthandExprImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleVectorDistanceShorthandExpr {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+	public fun getOracleVectorDistanceOperandList ()Ljava/util/List;
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOracleXmltableColumnImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleXmltableColumn {

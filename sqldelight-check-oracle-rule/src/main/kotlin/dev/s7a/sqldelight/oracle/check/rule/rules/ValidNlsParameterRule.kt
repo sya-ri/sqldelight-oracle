@@ -302,24 +302,22 @@ private fun String.oracleColumnNlsExpressionKinds(masked: String): Map<String, N
 private fun String.oracleTypeNlsExpressionKind(): NlsExpressionKind? {
     val normalized = trimStart().uppercase()
     val leadingType = normalized.takeWhile { character -> character.isLetter() || character == '_' }
-    return when {
-        leadingType in setOf("DATE", "TIMESTAMP") -> NlsExpressionKind.Datetime
+    return when (leadingType) {
+        "DATE", "TIMESTAMP" -> NlsExpressionKind.Datetime
 
-        leadingType in
-            setOf(
-                "BINARY_DOUBLE",
-                "BINARY_FLOAT",
-                "DEC",
-                "DECIMAL",
-                "DOUBLE",
-                "FLOAT",
-                "INT",
-                "INTEGER",
-                "NUMBER",
-                "NUMERIC",
-                "REAL",
-                "SMALLINT",
-            ) -> NlsExpressionKind.Number
+        "BINARY_DOUBLE",
+        "BINARY_FLOAT",
+        "DEC",
+        "DECIMAL",
+        "DOUBLE",
+        "FLOAT",
+        "INT",
+        "INTEGER",
+        "NUMBER",
+        "NUMERIC",
+        "REAL",
+        "SMALLINT",
+        -> NlsExpressionKind.Number
 
         else -> null
     }

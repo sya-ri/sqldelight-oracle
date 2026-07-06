@@ -41,6 +41,25 @@ class NoConflictingSetTransactionClausesRuleTest :
                 )
         }
 
+        test("reports conflicting set transaction clauses after a SQLDelight transaction label") {
+            NoConflictingSetTransactionClausesRule()
+                .diagnostics(
+                    """
+                    configureTransaction:
+                    SET TRANSACTION READ ONLY READ WRITE;
+                    """,
+                ).summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = "Avoid conflicting Oracle SET TRANSACTION clauses: READ MODE.",
+                        startLine = 2,
+                        startColumn = 17,
+                        endLine = 2,
+                        endColumn = 37,
+                    ),
+                )
+        }
+
         test("accepts one set transaction clause per group") {
             NoConflictingSetTransactionClausesRule()
                 .diagnostics(

@@ -71,7 +71,7 @@ private fun String.setTransactionStatements(): List<List<SetTransactionToken>> {
 }
 
 private fun List<SetTransactionToken>.conflictingSetTransactionClauses(): List<SetTransactionConflict> {
-    if (!getOrNull(0).setTransactionHasText("SET") || !getOrNull(1).setTransactionHasText("TRANSACTION")) return emptyList()
+    if (!isSetTransactionStatement()) return emptyList()
     val firstByGroup = linkedMapOf<String, SetTransactionOccurrence>()
     return setTransactionOccurrences().mapNotNull { occurrence ->
         val first = firstByGroup.putIfAbsent(occurrence.group, occurrence)
@@ -84,6 +84,14 @@ private fun List<SetTransactionToken>.conflictingSetTransactionClauses(): List<S
         }
     }
 }
+
+private fun List<SetTransactionToken>.isSetTransactionStatement(): Boolean =
+    (getOrNull(0).setTransactionHasText("SET") && getOrNull(1).setTransactionHasText("TRANSACTION")) ||
+        (
+            getOrNull(1).setTransactionHasText(":") &&
+                getOrNull(2).setTransactionHasText("SET") &&
+                getOrNull(3).setTransactionHasText("TRANSACTION")
+        )
 
 private fun List<SetTransactionToken>.setTransactionOccurrences(): List<SetTransactionOccurrence> =
     buildList {
@@ -132,7 +140,7 @@ private fun List<SetTransactionToken>.setTransactionOccurrences(): List<SetTrans
         }
     }
 
-private val setTransactionTokenPattern = Regex("""[A-Za-z_][A-Za-z0-9_$#]*|;""")
+private val setTransactionTokenPattern = Regex("""[A-Za-z_][A-Za-z0-9_$#]*|:|;""")
 
 private fun String.setTransactionTokens(offset: Int): List<SetTransactionToken> =
     setTransactionTokenPattern

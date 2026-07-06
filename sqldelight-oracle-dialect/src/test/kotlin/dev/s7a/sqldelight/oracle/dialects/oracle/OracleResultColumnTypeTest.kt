@@ -243,6 +243,10 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT JSON_ID('OID') AS c FROM emp") shouldBe "kotlin.ByteArray"
         }
 
+        test("resolves Oracle shard chunk id operator result column types exactly") {
+            typeOf("SELECT SHARD_CHUNK_ID(NULL, name, id) AS c FROM emp") shouldBe "java.math.BigDecimal"
+        }
+
         test("resolves Oracle hierarchical operator result column types exactly") {
             typeOf("SELECT CONNECT_BY_ROOT name AS c FROM emp CONNECT BY PRIOR id = dept_id") shouldBe "kotlin.String"
             typeOf("SELECT CONNECT_BY_ROOT nickname AS c FROM emp CONNECT BY PRIOR id = dept_id") shouldBe "kotlin.String?"
@@ -719,6 +723,15 @@ class OracleResultColumnTypeTest :
 
         test("resolves Oracle current environment result column types exactly") {
             typeOf("SELECT CURRENT_USER AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT CURRENT_SCHEMA AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT SESSION_USER AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT SYS_CONTEXT('USERENV', 'SESSION_USER') AS c FROM emp") shouldBe "kotlin.String"
+        }
+
+        test("resolves Oracle domain function result column types exactly") {
+            typeOf("SELECT DOMAIN_DISPLAY(name) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT DOMAIN_ORDER(id) AS c FROM emp") shouldBe "java.math.BigDecimal?"
         }
 
         test("resolves Oracle collate expression result column types exactly") {

@@ -871,6 +871,7 @@ private oracle_simple_pseudocolumn ::= (
   'CONNECT_BY_ISCYCLE' |
   'CONNECT_BY_ISLEAF' |
   'CURRENT_DATE' |
+  'CURRENT_SCHEMA' |
   'CURRENT_TIMESTAMP' |
   'CURRENT_USER' |
   'DBTIMEZONE' |
@@ -884,6 +885,7 @@ private oracle_simple_pseudocolumn ::= (
   'ORA_SHARDSPACE_NAME' |
   'ROWID' |
   'ROWNUM' |
+  'SESSION_USER' |
   'SESSIONTIMEZONE' |
   'SYSDATE' |
   'SYSTIMESTAMP' |

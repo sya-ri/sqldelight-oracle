@@ -496,6 +496,51 @@ class OracleCodegenTest :
             queries.contains("bindLong(parameterIndex++, tenant_id)") shouldBe true
         }
 
+        test("generates Oracle SQL XML passing bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import java.math.BigDecimal;
+
+                    CREATE TABLE departments (
+                      id NUMBER(10, 0) NOT NULL,
+                      warehouse_spec XMLTYPE,
+                      PRIMARY KEY (id)
+                    );
+
+                    selectWarehouse:
+                    SELECT d.id, x.line_number, x.area
+                    FROM departments d,
+                      XMLTABLE(
+                        '/Warehouse'
+                        PASSING BY VALUE XMLTYPE(CAST(:warehouse_xml AS CLOB)) AS "doc"
+                        COLUMNS
+                          line_number FOR ORDINALITY,
+                          area NUMBER(10, 2) PATH 'Area'
+                      ) x
+                    WHERE d.id = :department_id
+                      AND XMLEXISTS(
+                        '/Warehouse[Area >= ${'$'}minArea]'
+                        PASSING d.warehouse_spec, CAST(:min_area AS NUMBER(10, 2)) AS minArea
+                      );
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> selectWarehouse(") shouldBe true
+            queries.contains("warehouse_xml: String,") shouldBe true
+            queries.contains("department_id: Long,") shouldBe true
+            queries.contains("min_area: BigDecimal,") shouldBe true
+            queries.contains("id: Long,") shouldBe true
+            queries.contains("line_number: Long,") shouldBe true
+            queries.contains("area: BigDecimal?,") shouldBe true
+            queries.contains("|    PASSING BY VALUE XMLTYPE(CAST(? AS CLOB)) AS \"doc\"") shouldBe true
+            queries.contains("|    PASSING d.warehouse_spec, CAST(? AS NUMBER(10, 2)) AS minArea") shouldBe true
+            queries.contains("bindString(parameterIndex++, warehouse_xml)") shouldBe true
+            queries.contains("bindLong(parameterIndex++, department_id)") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, min_area)") shouldBe true
+        }
+
         test("generates Oracle DML returning input bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

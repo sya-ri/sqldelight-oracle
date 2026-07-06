@@ -62,6 +62,54 @@ class ValidNlsParameterRuleTest :
                 )
         }
 
+        test("reports TO_CHAR NLS parameter literals that do not match the first argument type") {
+            ValidNlsParameterRule()
+                .diagnostics(
+                    """
+                    CREATE TABLE invoices (
+                      amount NUMBER(10, 2),
+                      created_at DATE
+                    );
+
+                    SELECT TO_CHAR(amount, '999G999D99', 'NLS_DATE_LANGUAGE = American') AS amount_label,
+                      TO_CHAR(created_at, 'Month DD, YYYY', 'NLS_NUMERIC_CHARACTERS = ''.,''') AS created_label
+                    FROM invoices;
+                    """,
+                ).summaries() shouldBe
+                listOf(
+                    DiagnosticSummary(
+                        message = NUMBER_NLS_PARAMETER_MESSAGE,
+                        startLine = 6,
+                        startColumn = 38,
+                        endLine = 6,
+                        endColumn = 68,
+                    ),
+                    DiagnosticSummary(
+                        message = DATETIME_NLS_PARAMETER_MESSAGE,
+                        startLine = 7,
+                        startColumn = 41,
+                        endLine = 7,
+                        endColumn = 74,
+                    ),
+                )
+        }
+
+        test("accepts TO_CHAR NLS parameter literals that match the first argument type") {
+            ValidNlsParameterRule()
+                .diagnostics(
+                    """
+                    CREATE TABLE invoices (
+                      amount NUMBER(10, 2),
+                      created_at DATE
+                    );
+
+                    SELECT TO_CHAR(amount, '999G999D99', 'NLS_NUMERIC_CHARACTERS = '',.''') AS amount_label,
+                      TO_CHAR(created_at, 'Month DD, YYYY', 'NLS_DATE_LANGUAGE = American') AS created_label
+                    FROM invoices;
+                    """,
+                ).summaries() shouldBe emptyList()
+        }
+
         test("reports invalid alternative quoted NLS parameter literals") {
             ValidNlsParameterRule()
                 .diagnostics(

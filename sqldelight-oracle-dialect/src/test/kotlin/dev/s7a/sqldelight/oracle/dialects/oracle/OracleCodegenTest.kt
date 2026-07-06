@@ -329,6 +329,46 @@ class OracleCodegenTest :
             queries.contains("usersAdapter.display_nameAdapter.encode(regex_pattern)") shouldBe false
         }
 
+        test("generates Oracle row-value predicate bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import com.example.Label;
+
+                    CREATE TABLE sample (
+                      id NUMBER(10, 0) NOT NULL,
+                      label NVARCHAR2(50) AS Label NOT NULL,
+                      note VARCHAR2(100),
+                      PRIMARY KEY (id)
+                    );
+
+                    selectByTuple:
+                    SELECT id, label, note
+                    FROM sample
+                    WHERE (id, label) = (:id, :label);
+
+                    selectByTupleIn:
+                    SELECT id, label, note
+                    FROM sample
+                    WHERE (id, label) IN ((:tuple_id, :tuple_label));
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> selectByTuple(") shouldBe true
+            queries.contains("id: Long,") shouldBe true
+            queries.contains("label: Label,") shouldBe true
+            queries.contains("public fun <T : Any> selectByTupleIn(") shouldBe true
+            queries.contains("tuple_id: Long,") shouldBe true
+            queries.contains("tuple_label: Label,") shouldBe true
+            queries.contains("|WHERE (id, label) = (?, ?)") shouldBe true
+            queries.contains("|WHERE (id, label) IN ((?, ?))") shouldBe true
+            queries.contains("bindLong(parameterIndex++, id)") shouldBe true
+            queries.contains("bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(label))") shouldBe true
+            queries.contains("bindLong(parameterIndex++, tuple_id)") shouldBe true
+            queries.contains("bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(tuple_label))") shouldBe true
+        }
+
         test("generates Oracle DML returning input bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

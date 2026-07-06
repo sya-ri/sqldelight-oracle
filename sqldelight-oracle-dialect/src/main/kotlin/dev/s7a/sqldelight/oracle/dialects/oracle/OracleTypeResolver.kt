@@ -19,6 +19,8 @@ import com.alecstrong.sql.psi.core.psi.SqlExtensionExpr
 import com.alecstrong.sql.psi.core.psi.SqlFunctionExpr
 import com.alecstrong.sql.psi.core.psi.SqlInsertStmt
 import com.alecstrong.sql.psi.core.psi.SqlInsertStmtValues
+import com.alecstrong.sql.psi.core.psi.SqlMultiColumnExpr
+import com.alecstrong.sql.psi.core.psi.SqlMultiColumnExpression
 import com.alecstrong.sql.psi.core.psi.SqlSetterExpression
 import com.alecstrong.sql.psi.core.psi.SqlTypeName
 import com.intellij.psi.PsiElement
@@ -86,8 +88,14 @@ public class OracleTypeResolver(
                 argument.oracleMergeArgumentType() ?: parentResolver.argumentType(parent, argument)
             }
 
+            PsiTreeUtil.getParentOfType(argument, SqlMultiColumnExpr::class.java) != null -> {
+                argument.oracleMultiColumnArgumentType() ?: parentResolver.argumentType(parent, argument)
+            }
+
             PsiTreeUtil.getParentOfType(argument, SqlExtensionExpr::class.java) != null -> {
-                argument.oracleExtensionArgumentType() ?: parentResolver.argumentType(parent, argument)
+                argument.oracleMultiColumnTextArgumentType()
+                    ?: argument.oracleExtensionArgumentType()
+                    ?: parentResolver.argumentType(parent, argument)
             }
 
             else -> {
@@ -432,6 +440,22 @@ public class OracleTypeResolver(
         return owner.oracleAvailableColumnType(targetText)
     }
 
+    private fun SqlExpr.oracleMultiColumnArgumentType(): IntermediateType? {
+        val expression = PsiTreeUtil.getParentOfType(this, SqlMultiColumnExpression::class.java) ?: return null
+        val multiColumnExpr = expression.parent as? SqlMultiColumnExpr ?: return null
+        val expressionIndex = multiColumnExpr.multiColumnExpressionList.indexOf(expression)
+        if (expressionIndex <= 0) return null
+        val argumentIndex = expression.exprList.indexOf(this)
+        if (argumentIndex == -1) return null
+
+        return multiColumnExpr
+            .multiColumnExpressionList
+            .firstOrNull()
+            ?.exprList
+            ?.getOrNull(argumentIndex)
+            ?.let(::resolvedType)
+    }
+
     private fun SqlExpr.oracleExtensionArgumentType(): IntermediateType? {
         val extensionExpr = PsiTreeUtil.getParentOfType(this, SqlExtensionExpr::class.java) ?: return null
         val extensionText = extensionExpr.text
@@ -454,6 +478,35 @@ public class OracleTypeResolver(
             2 -> IntermediateType(TEXT).asNullable()
             else -> null
         }
+    }
+
+    private fun SqlExpr.oracleMultiColumnTextArgumentType(): IntermediateType? {
+        val extensionExpr = PsiTreeUtil.getParentOfType(this, SqlExtensionExpr::class.java) ?: return null
+        val expressionText = extensionExpr.text
+        val argumentOffset = textRange.startOffset - extensionExpr.textRange.startOffset
+        if (argumentOffset !in expressionText.indices) return null
+
+        val leftTuple =
+            Regex("""(?is)\(([^()]+)\)\s*(?:=|IN)\s*\(""")
+                .find(expressionText)
+                ?.groupValues
+                ?.get(1)
+                ?: return null
+        val argumentIndex =
+            expressionText
+                .substring(0, argumentOffset)
+                .substringAfterLast("(")
+                .oracleTopLevelCommaParts()
+                .size - 1
+
+        val columnName =
+            leftTuple
+                .oracleTopLevelCommaParts()
+                .getOrNull(argumentIndex)
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+                ?: return null
+        return extensionExpr.oracleAvailableColumnType(columnName)
     }
 
     private fun SqlExpr.oracleMergeArgumentType(): IntermediateType? {

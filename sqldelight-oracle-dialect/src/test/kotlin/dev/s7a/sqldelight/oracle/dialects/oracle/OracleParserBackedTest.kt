@@ -616,8 +616,11 @@ class OracleParserBackedTest :
                 FROM employees;
 
                 SELECT DBTIMEZONE,
+                  CURRENT_SCHEMA,
+                  CURRENT_USER,
                   ORA_INVOKING_USER,
                   ORA_INVOKING_USERID,
+                  SESSION_USER,
                   SESSIONTIMEZONE,
                   UID,
                   USER

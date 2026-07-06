@@ -102,6 +102,7 @@ public class OracleTypeResolver(
         val extensionExpr = expr.oracleExtensionExpr() ?: return null
         return when (val operatorName = extensionExpr.text.oracleLeadingIdentifier()) {
             "JSON_ID" -> OracleType.fromFunctionName(operatorName)?.let { type -> IntermediateType(type) }
+            "SHARD_CHUNK_ID" -> OracleType.fromFunctionName(operatorName)?.let { type -> IntermediateType(type) }
             else -> null
         }
     }
@@ -147,11 +148,13 @@ public class OracleTypeResolver(
             -> IntermediateType(BINARY).asNullable()
 
             "DBTIMEZONE",
+            "CURRENT_SCHEMA",
             "CURRENT_USER",
             "OBJECT_VALUE",
             "ORA_INVOKING_USER",
             "ORA_SHARDSPACE_NAME",
             "ROWID",
+            "SESSION_USER",
             "SESSIONTIMEZONE",
             "USER",
             "XMLDATA",
@@ -439,6 +442,7 @@ public class OracleTypeResolver(
                 val propagatesNull = functionName.isOracleNullPropagatingFixedReturnFunction()
                 val hasNullableInput =
                     functionName.isOracleDefaultNullableSqlJsonFunction() ||
+                        functionName.isOracleNullableDomainFunction() ||
                         (propagatesNull && exprList.any { expression -> resolvedType(expression).javaType.isNullable })
                 IntermediateType(type)
                     .nullableIf(hasNullableInput)
@@ -1158,6 +1162,8 @@ public class OracleTypeResolver(
                 )
 
         private fun String.isOracleDefaultNullableSqlJsonFunction(): Boolean = trim().uppercase() in setOf("JSON_QUERY", "JSON_VALUE")
+
+        private fun String.isOracleNullableDomainFunction(): Boolean = trim().uppercase() in setOf("DOMAIN_DISPLAY", "DOMAIN_ORDER")
 
         private fun String.oracleFunctionName(): String? =
             Regex("""(?i)^\s*(?:[A-Z_][A-Z0-9_$#]*\s*\.\s*)*([A-Z_][A-Z0-9_$#]*)\s*\(""")

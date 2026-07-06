@@ -704,6 +704,49 @@ class OracleCodegenTest :
             queries.contains("bindString(parameterIndex++, tradesAdapter.symbolAdapter.encode(symbol))") shouldBe true
         }
 
+        test("generates Oracle row limiting bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    CREATE TABLE ranked_accounts (
+                      id NUMBER(10, 0) NOT NULL,
+                      status VARCHAR2(32) NOT NULL,
+                      score NUMBER(10, 2),
+                      PRIMARY KEY (id)
+                    );
+
+                    selectPage:
+                    SELECT id, status
+                    FROM ranked_accounts
+                    WHERE status = :status
+                    ORDER BY score DESC
+                    OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY;
+
+                    selectPartitions:
+                    SELECT id, status
+                    FROM ranked_accounts
+                    ORDER BY status, score DESC
+                    FETCH FIRST :partition_count PARTITIONS BY status, :rows_per_partition ROWS ONLY;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> selectPage(") shouldBe true
+            queries.contains("status: String,") shouldBe true
+            queries.contains("offset: Long,") shouldBe true
+            queries.contains("limit: Long,") shouldBe true
+            queries.contains("|OFFSET ? ROWS FETCH NEXT ? ROWS ONLY") shouldBe true
+            queries.contains("bindString(parameterIndex++, status)") shouldBe true
+            queries.contains("bindLong(parameterIndex++, offset)") shouldBe true
+            queries.contains("bindLong(parameterIndex++, limit)") shouldBe true
+            queries.contains("public fun <T : Any> selectPartitions(") shouldBe true
+            queries.contains("partition_count: Long,") shouldBe true
+            queries.contains("rows_per_partition: Long,") shouldBe true
+            queries.contains("|FETCH FIRST ? PARTITIONS BY status, ? ROWS ONLY") shouldBe true
+            queries.contains("bindLong(parameterIndex++, partition_count)") shouldBe true
+            queries.contains("bindLong(parameterIndex++, rows_per_partition)") shouldBe true
+        }
+
         test("generates Oracle DML returning input bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

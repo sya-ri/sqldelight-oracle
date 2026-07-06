@@ -169,8 +169,8 @@ internal abstract class OracleTableOrSubqueryMixin(
             return oracleGeneratedSynthesizedColumnResult(result.synthesizedColumnNames, result.columns)
         }
 
-        oracleGraphTableColumns().ifEmpty { null }?.let { columns ->
-            return oracleGeneratedSynthesizedColumnResult(columns)
+        oracleGraphTableColumnResults()?.let { result ->
+            return oracleGeneratedSynthesizedColumnResult(result.synthesizedColumnNames, result.columns)
         }
 
         oraclePivotColumnResults()?.let { result ->
@@ -383,12 +383,27 @@ internal abstract class OracleTableOrSubqueryMixin(
             emptyList()
         }
 
-    private fun oracleGraphTableColumns(): List<String> {
-        if (!text.trimStart().startsWith("GRAPH_TABLE", ignoreCase = true)) return emptyList()
-        return text
-            .oracleParenthesizedBodyAfter("COLUMNS")
-            ?.oracleAliasesAfterAs()
-            ?: emptyList()
+    private fun oracleGraphTableColumnResults(): OracleGeneratedColumns? {
+        if (!text.trimStart().startsWith("GRAPH_TABLE", ignoreCase = true)) return null
+        val columnParts =
+            text
+                .oracleParenthesizedBodyAfter("COLUMNS")
+                ?.oracleTopLevelCommaParts()
+                ?: return null
+        val columns = mutableListOf<QueryColumn>()
+        val synthesizedColumnNames = mutableListOf<String>()
+        columnParts.forEach { column ->
+            val alias = column.oracleExplicitAsAlias() ?: return@forEach
+            val type = column.oracleGraphTableColumnType()
+            if (type == null) {
+                synthesizedColumnNames += alias
+            } else {
+                columns += QueryColumn(OracleGeneratedColumnElement(this, alias, type))
+            }
+        }
+        return OracleGeneratedColumns(columns, synthesizedColumnNames).takeIf {
+            it.columns.isNotEmpty() || it.synthesizedColumnNames.isNotEmpty()
+        }
     }
 
     private fun oracleRowPatternResult(): QueryResult? {
@@ -814,11 +829,53 @@ private fun String.substringBeforeKeyword(keyword: String): String =
 private fun String.substringAfterKeyword(keyword: String): String =
     indexOfKeyword(keyword)?.let { keywordOffset -> substring(keywordOffset + keyword.length) } ?: ""
 
-private fun String.oracleAliasesAfterAs(): List<String> =
-    Regex("""(?i)\bAS\s+("[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*)""")
-        .findAll(this)
-        .map { match -> match.groupValues[1].trimOracleIdentifier() }
-        .toList()
+private fun String.oracleExplicitAsAlias(): String? =
+    Regex("""(?is)\bAS\s+("[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*)\s*$""")
+        .find(trim())
+        ?.groupValues
+        ?.get(1)
+        ?.trimOracleIdentifier()
+
+private fun String.oracleGraphTableColumnType(): IntermediateType? {
+    val source = substringBeforeOracleTrailingAsAlias().trim()
+    return when {
+        source.matches(Regex("""(?is)MATCHNUM\s*\(\s*\)""")) -> {
+            IntermediateType(OracleType.LONG_NUMBER)
+        }
+
+        source.matches(Regex("""(?is)ELEMENT_NUMBER\s*\([^()]*\)""")) -> {
+            IntermediateType(OracleType.LONG_NUMBER).asNullable()
+        }
+
+        source.matches(Regex("""(?is)(?:VERTEX_ID|EDGE_ID)\s*\([^()]*\)""")) -> {
+            IntermediateType(OracleType.TEXT).asNullable()
+        }
+
+        source.matches(Regex("""(?is)PATH_NAME\s*\(\s*\)""")) -> {
+            IntermediateType(OracleType.TEXT).asNullable()
+        }
+
+        source.matches(Regex("""(?is)COUNT\s*\(.*\)""")) -> {
+            IntermediateType(OracleType.LONG_NUMBER)
+        }
+
+        source.matches(Regex("""(?is)PROPERTY_EXISTS\s*\([^()]*\)""")) ||
+            source.matches(Regex("""(?is).+\s+IS\s+(?:NOT\s+)?LABELED\s+.+""")) ||
+            source.matches(Regex("""(?is).+\s+IS\s+(?:NOT\s+)?(?:SOURCE|DESTINATION)\s+OF\s+.+""")) -> {
+            IntermediateType(OracleType.BOOLEAN_TYPE).asNullable()
+        }
+
+        else -> {
+            null
+        }
+    }
+}
+
+private fun String.substringBeforeOracleTrailingAsAlias(): String =
+    Regex("""(?is)\bAS\s+("[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*)\s*$""")
+        .find(trim())
+        ?.let { match -> trim().substring(0, match.range.first) }
+        ?: this
 
 private fun String.oracleJsonTableColumnType(aliasText: String): String? {
     val afterAlias = trim().removePrefix(aliasText).trimStart()

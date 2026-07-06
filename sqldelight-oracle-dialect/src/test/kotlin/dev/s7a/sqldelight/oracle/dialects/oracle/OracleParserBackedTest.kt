@@ -4767,9 +4767,12 @@ class OracleParserBackedTest :
                   ONE ROW PER STEP (employee, works_at, department)
                   COLUMNS (
                     MATCHNUM() AS match_number,
+                    PATH_NAME() AS path_name,
                     ELEMENT_NUMBER(works_at) AS edge_number,
                     VERTEX_ID(employee) AS employee_vertex_id,
-                    EDGE_ID(works_at) AS works_at_edge_id
+                    EDGE_ID(works_at) AS works_at_edge_id,
+                    employee IS SOURCE OF works_at AS employee_is_source,
+                    PROPERTY_EXISTS(employee, name) AS employee_has_name
                   )
                 ) graph_employee_department_steps;
 

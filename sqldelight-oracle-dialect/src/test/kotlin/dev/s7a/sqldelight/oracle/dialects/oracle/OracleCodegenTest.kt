@@ -983,6 +983,56 @@ class OracleCodegenTest :
             queries.contains("bindString(parameterIndex++, escape_char)") shouldBe true
         }
 
+        test("generates Oracle partition extension DML bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import java.math.BigDecimal;
+                    import com.example.Region;
+
+                    CREATE TABLE partitioned_orders (
+                      order_id NUMBER(10, 0) NOT NULL,
+                      region_code NVARCHAR2(16) AS Region NOT NULL,
+                      order_total NUMBER(10, 2),
+                      PRIMARY KEY (order_id)
+                    );
+
+                    insertPartitionByName:
+                    INSERT INTO partitioned_orders PARTITION (orders_2026_q1) (order_id, region_code, order_total)
+                    VALUES (:order_id, :region_code, :order_total);
+
+                    updateSubpartitionForKey:
+                    UPDATE partitioned_orders SUBPARTITION FOR ('US')
+                    SET order_total = order_total + :delta
+                    WHERE region_code = :region_code;
+
+                    deletePartitionForKey:
+                    DELETE FROM partitioned_orders PARTITION FOR (2026, 1)
+                    WHERE region_code = :region_code AND order_total < :max_total;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun insertPartitionByName(") shouldBe true
+            queries.contains("order_id: Long,") shouldBe true
+            queries.contains("region_code: Region,") shouldBe true
+            queries.contains("order_total: BigDecimal?,") shouldBe true
+            queries.contains("|INSERT INTO partitioned_orders PARTITION (orders_2026_q1) (order_id, region_code, order_total)") shouldBe true
+            queries.contains("|VALUES (?, ?, ?)") shouldBe true
+            queries.contains("bindLong(parameterIndex++, order_id)") shouldBe true
+            queries.contains("bindString(parameterIndex++, partitioned_ordersAdapter.region_codeAdapter.encode(region_code))") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, order_total)") shouldBe true
+            queries.contains("public fun updateSubpartitionForKey(delta: BigDecimal?, region_code: Region): QueryResult<Long>") shouldBe true
+            queries.contains("|UPDATE partitioned_orders SUBPARTITION FOR ('US')") shouldBe true
+            queries.contains("|SET order_total = order_total + ?") shouldBe true
+            queries.contains("|WHERE region_code = ?") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, delta)") shouldBe true
+            queries.contains("public fun deletePartitionForKey(region_code: Region, max_total: BigDecimal?): QueryResult<Long>") shouldBe true
+            queries.contains("|DELETE FROM partitioned_orders PARTITION FOR (2026, 1)") shouldBe true
+            queries.contains("|WHERE region_code = ? AND order_total < ?") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, max_total)") shouldBe true
+        }
+
         test("generates Oracle DML returning input bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

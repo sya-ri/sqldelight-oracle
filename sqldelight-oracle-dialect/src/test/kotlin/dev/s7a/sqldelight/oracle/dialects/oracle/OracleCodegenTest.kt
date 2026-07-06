@@ -839,6 +839,49 @@ class OracleCodegenTest :
             queries.contains("bindString(parameterIndex++, departmentsAdapter.department_nameAdapter.encode(filter_department_name))") shouldBe true
         }
 
+        test("generates Oracle qualify bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import java.math.BigDecimal;
+                    import com.example.Region;
+
+                    CREATE TABLE ranked_orders (
+                      id NUMBER(10, 0) NOT NULL,
+                      region NVARCHAR2(16) AS Region NOT NULL,
+                      score NUMBER(10, 2) NOT NULL,
+                      PRIMARY KEY (id)
+                    );
+
+                    selectRankedOrders:
+                    SELECT id,
+                           region,
+                           score,
+                           RANK() OVER (PARTITION BY region ORDER BY score DESC) AS ranking
+                    FROM ranked_orders
+                    WHERE region = :region
+                    QUALIFY RANK() OVER (PARTITION BY region ORDER BY score DESC) <= :max_rank
+                      AND score >= :min_score;
+                    """.trimIndent(),
+            )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> selectRankedOrders(") shouldBe true
+            queries.contains("region: Region,") shouldBe true
+            queries.contains("max_rank: Long,") shouldBe true
+            queries.contains("min_score: BigDecimal,") shouldBe true
+            queries.contains("id: Long,") shouldBe true
+            queries.contains("score: BigDecimal,") shouldBe true
+            queries.contains("ranking: Long,") shouldBe true
+            queries.contains("ranked_ordersAdapter.regionAdapter.decode(cursor.getString(1)!!)") shouldBe true
+            queries.contains("|WHERE region = ?") shouldBe true
+            queries.contains("|QUALIFY RANK() OVER (PARTITION BY region ORDER BY score DESC) <= ?") shouldBe true
+            queries.contains("|  AND score >= ?") shouldBe true
+            queries.contains("bindString(parameterIndex++, ranked_ordersAdapter.regionAdapter.encode(region))") shouldBe true
+            queries.contains("bindLong(parameterIndex++, max_rank)") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, min_score)") shouldBe true
+        }
+
         test("generates Oracle DML returning input bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

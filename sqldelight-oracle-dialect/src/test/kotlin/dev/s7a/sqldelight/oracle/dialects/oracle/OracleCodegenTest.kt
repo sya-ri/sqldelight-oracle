@@ -329,6 +329,45 @@ class OracleCodegenTest :
             queries.contains("usersAdapter.display_nameAdapter.encode(regex_pattern)") shouldBe false
         }
 
+        test("generates Oracle collate bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import com.example.DisplayName;
+
+                    CREATE TABLE contacts (
+                      id NUMBER(10, 0) NOT NULL,
+                      display_name NVARCHAR2(80) AS DisplayName NOT NULL,
+                      nickname VARCHAR2(80),
+                      PRIMARY KEY (id)
+                    );
+
+                    selectCaseInsensitiveContacts:
+                    SELECT display_name COLLATE BINARY_CI AS normalized_name,
+                           nickname COLLATE BINARY_CI AS normalized_nickname
+                    FROM contacts
+                    WHERE display_name COLLATE BINARY_CI = :display_name
+                      AND nickname COLLATE USING_NLS_COMP LIKE :nickname_pattern
+                    ORDER BY display_name COLLATE GENERIC_M;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> selectCaseInsensitiveContacts(") shouldBe true
+            queries.contains("display_name: DisplayName,") shouldBe true
+            queries.contains("nickname_pattern: String,") shouldBe true
+            queries.contains("normalized_name: DisplayName,") shouldBe true
+            queries.contains("normalized_nickname: String?) -> T,") shouldBe true
+            queries.contains("contactsAdapter.display_nameAdapter.decode(cursor.getString(0)!!)") shouldBe true
+            queries.contains("|SELECT display_name COLLATE BINARY_CI AS normalized_name,") shouldBe true
+            queries.contains("|       nickname COLLATE BINARY_CI AS normalized_nickname") shouldBe true
+            queries.contains("|WHERE display_name COLLATE BINARY_CI = ?") shouldBe true
+            queries.contains("|  AND nickname COLLATE USING_NLS_COMP LIKE ?") shouldBe true
+            queries.contains("|ORDER BY display_name COLLATE GENERIC_M") shouldBe true
+            queries.contains("bindString(parameterIndex++, contactsAdapter.display_nameAdapter.encode(display_name))") shouldBe true
+            queries.contains("bindString(parameterIndex++, nickname_pattern)") shouldBe true
+        }
+
         test("generates Oracle row-value predicate bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

@@ -38,6 +38,7 @@ import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.TIMESTAMP
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.TIMESTAMP_TIME_ZONE
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.indexOfKeyword
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.oracleParenthesizedBodyAt
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.oracleParenthesizedBodyAfter
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.oracleTopLevelCommaParts
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.trimOracleIdentifier
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleMergeStmt
@@ -76,8 +77,10 @@ public class OracleTypeResolver(
     override fun argumentType(
         parent: PsiElement,
         argument: SqlExpr,
-    ): IntermediateType =
-        when {
+    ): IntermediateType {
+        argument.oraclePivotArgumentType()?.let { return it }
+
+        return when {
             parent is SqlSetterExpression -> {
                 parent.oracleSetterTargetType()
                     ?: argument.oracleInsertSetArgumentType()
@@ -93,7 +96,8 @@ public class OracleTypeResolver(
             }
 
             PsiTreeUtil.getParentOfType(argument, SqlExtensionExpr::class.java) != null -> {
-                argument.oracleMultiColumnTextArgumentType()
+                argument.oraclePivotArgumentType()
+                    ?: argument.oracleMultiColumnTextArgumentType()
                     ?: argument.oracleExtensionArgumentType()
                     ?: parentResolver.argumentType(parent, argument)
             }
@@ -101,9 +105,11 @@ public class OracleTypeResolver(
             else -> {
                 argument.oracleInsertSetArgumentType()
                     ?: argument.oracleMultiTableInsertArgumentType()
+                    ?: argument.oraclePivotArgumentType()
                     ?: parentResolver.argumentType(parent, argument)
             }
         }
+    }
 
     private fun oracleExtensionFunctionType(expr: SqlExpr): IntermediateType? {
         val extensionExpr = expr.oracleExtensionExpr() ?: return null
@@ -509,6 +515,50 @@ public class OracleTypeResolver(
         return extensionExpr.oracleAvailableColumnType(columnName)
     }
 
+    private fun SqlExpr.oraclePivotArgumentType(): IntermediateType? {
+        var current: PsiElement? = parent
+        while (current != null) {
+            val pivotType = current.oraclePivotArgumentType(this)
+            if (pivotType != null) return pivotType
+            current = current.parent
+        }
+        return null
+    }
+
+    private fun PsiElement.oraclePivotArgumentType(argument: SqlExpr): IntermediateType? {
+        val pivotBody = text.oracleParenthesizedBodyAfter("PIVOT") ?: return null
+        val pivotBodyOffset = text.indexOf(pivotBody).takeIf { it >= 0 } ?: return null
+        val argumentOffset = argument.textRange.startOffset - textRange.startOffset
+        if (argumentOffset !in pivotBodyOffset..<(pivotBodyOffset + pivotBody.length)) return null
+
+        val forOffset = pivotBody.indexOfKeyword("FOR") ?: return null
+        val inOffset = pivotBody.indexOfKeyword("IN", startIndex = forOffset + "FOR".length) ?: return null
+        val pivotColumns =
+            pivotBody
+                .substring(forOffset + "FOR".length, inOffset)
+                .oracleIdentifierList()
+        if (pivotColumns.isEmpty()) return null
+
+        val relativeArgumentOffset = argumentOffset - pivotBodyOffset
+        val inBodyStart = pivotBody.indexOf('(', startIndex = inOffset).takeIf { it >= 0 } ?: return null
+        if (relativeArgumentOffset <= inBodyStart) return null
+        val entryPrefix = pivotBody.substring(inBodyStart + 1, relativeArgumentOffset).substringAfterLast("(")
+        val argumentIndex = entryPrefix.oracleTopLevelCommaParts().size - 1
+        val columnName = pivotColumns.getOrNull(argumentIndex) ?: return null
+        return oracleAvailableTableColumnType(columnName)
+            ?: argument.oracleAvailableColumnType(columnName)
+    }
+
+    private fun String.oracleIdentifierList(): List<String> =
+        trim()
+            .removeSurrounding("(", ")")
+            .let { body ->
+                Regex(""""[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*""")
+                    .findAll(body)
+                    .map { match -> match.value.trimOracleIdentifier() }
+                    .toList()
+            }
+
     private fun SqlExpr.oracleMergeArgumentType(): IntermediateType? {
         val mergeStmt = PsiTreeUtil.getParentOfType(this, OracleMergeStmt::class.java) ?: return null
         return mergeStmt.oracleMergeAssignmentArgumentType(this)
@@ -689,23 +739,48 @@ public class OracleTypeResolver(
             val exposedType = column?.element as? ExposableType
             if (exposedType != null) return exposedType.type()
             val columnDef = column?.element?.parent as? SqlColumnDef
-            if (columnDef != null) {
-                val baseType = definitionType(columnDef.columnType.typeName)
-                val customType = (columnDef.columnType as? SqlDelightColumnType)?.javaTypeName?.text
-                if (!customType.isNullOrBlank() && !customType.equals("VALUE", ignoreCase = true)) {
-                    val customIntermediateType =
-                        baseType.copy(
-                            javaType = ClassName.bestGuess(customType),
-                            column = columnDef,
-                        )
-                    return customIntermediateType.nullableIf(!columnDef.text.contains(Regex("""(?i)\bNOT\s+NULL\b""")))
-                }
-                return baseType
-                    .nullableIf(!columnDef.text.contains(Regex("""(?i)\bNOT\s+NULL\b""")))
-            }
+            if (columnDef != null) return columnDef.oracleColumnDefinitionType()
             current = current.parent
         }
         return null
+    }
+
+    private fun PsiElement.oracleAvailableTableColumnType(operandText: String): IntermediateType? {
+        val operandColumnName = operandText.substringAfterLast(".").trimOracleIdentifier()
+        if (operandColumnName.isBlank()) return null
+
+        var current: PsiElement? = this
+        while (current != null) {
+            val queryElement = current as? SqlCompositeElement
+            val column =
+                queryElement
+                    ?.tablesAvailable(this)
+                    ?.asSequence()
+                    ?.flatMap { table -> table.query.columns.asSequence() }
+                    ?.firstOrNull { column ->
+                        (column.element as? NamedElement)?.name.equals(operandColumnName, ignoreCase = true)
+                    }
+            val exposedType = column?.element as? ExposableType
+            if (exposedType != null) return exposedType.type()
+            val columnDef = column?.element?.parent as? SqlColumnDef
+            if (columnDef != null) return columnDef.oracleColumnDefinitionType()
+            current = current.parent
+        }
+        return null
+    }
+
+    private fun SqlColumnDef.oracleColumnDefinitionType(): IntermediateType {
+        val baseType = definitionType(columnType.typeName)
+        val customType = (columnType as? SqlDelightColumnType)?.javaTypeName?.text
+        if (!customType.isNullOrBlank() && !customType.equals("VALUE", ignoreCase = true)) {
+            val customIntermediateType =
+                baseType.copy(
+                    javaType = ClassName.bestGuess(customType),
+                    column = this,
+                )
+            return customIntermediateType.nullableIf(!text.contains(Regex("""(?i)\bNOT\s+NULL\b""")))
+        }
+        return baseType.nullableIf(!text.contains(Regex("""(?i)\bNOT\s+NULL\b""")))
     }
 
     private fun SqlExpr.oracleBinaryOperatorBetween(operands: List<SqlExpr>): String? {

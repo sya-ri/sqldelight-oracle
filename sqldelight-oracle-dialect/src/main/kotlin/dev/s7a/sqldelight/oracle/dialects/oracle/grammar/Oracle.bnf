@@ -1527,7 +1527,11 @@ private oracle_pivot_in_clause ::= 'IN' LP (
   oracle_pivot_in_entry ( COMMA oracle_pivot_in_entry ) *
 ) RP
 
-private oracle_pivot_in_entry ::= ( LP <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP | <<expr '-1'>> ) [ [ 'AS' ] oracle_object_name_part ]
+private oracle_pivot_in_entry ::= ( LP oracle_pivot_in_value ( COMMA oracle_pivot_in_value ) * RP | oracle_pivot_in_value ) [ [ 'AS' ] oracle_object_name_part ]
+
+oracle_pivot_in_value ::= <<expr '-1'>> {
+  implements = "com.alecstrong.sql.psi.core.psi.SqlExpr"
+}
 
 private oracle_unpivot_clause ::= 'UNPIVOT' [ ( 'INCLUDE' | 'EXCLUDE' ) 'NULLS' ] LP
   oracle_pivot_column_group

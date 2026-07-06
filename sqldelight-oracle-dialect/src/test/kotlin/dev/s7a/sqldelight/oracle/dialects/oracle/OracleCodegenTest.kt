@@ -369,6 +369,46 @@ class OracleCodegenTest :
             queries.contains("bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(tuple_label))") shouldBe true
         }
 
+        test("generates Oracle pivot bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import com.example.Region;
+
+                    CREATE TABLE orders (
+                      order_id NUMBER(10, 0) NOT NULL,
+                      region NVARCHAR2(16) AS Region NOT NULL,
+                      fiscal_year NUMBER(10, 0) NOT NULL,
+                      amount NUMBER(10, 2)
+                    );
+
+                    selectPivotByRegion:
+                    SELECT pivoted.west_order_count
+                    FROM orders PIVOT (
+                      COUNT(*) AS order_count
+                      FOR region IN (:region AS west)
+                    ) pivoted;
+
+                    selectCompositePivot:
+                    SELECT pivoted.selected_order_count
+                    FROM orders PIVOT (
+                      COUNT(*) AS order_count
+                      FOR (region, fiscal_year) IN ((:region, :year) AS selected)
+                    ) pivoted;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun selectPivotByRegion(region: Region): Query<Long>") shouldBe true
+            queries.contains("region: Region,") shouldBe true
+            queries.contains("public fun selectCompositePivot(region: Region, year: Long): Query<Long>") shouldBe true
+            queries.contains("year: Long,") shouldBe true
+            queries.contains("|  FOR region IN (? AS west)") shouldBe true
+            queries.contains("|  FOR (region, fiscal_year) IN ((?, ?) AS selected)") shouldBe true
+            queries.contains("bindString(parameterIndex++, ordersAdapter.regionAdapter.encode(region))") shouldBe true
+            queries.contains("bindLong(parameterIndex++, year)") shouldBe true
+        }
+
         test("generates Oracle DML returning input bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

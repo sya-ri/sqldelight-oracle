@@ -1022,6 +1022,53 @@ class OracleCodegenTest :
             queries.contains("bindString(parameterIndex++, escape_char)") shouldBe true
         }
 
+        test("generates Oracle containers and shards bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    CREATE TABLE accounts (
+                      id NUMBER(10, 0) NOT NULL,
+                      region VARCHAR2(30) NOT NULL,
+                      status VARCHAR2(20),
+                      PRIMARY KEY (id)
+                    );
+
+                    selectContainerAccounts:
+                    SELECT c.id, c.region, c.CON_ID
+                    FROM CONTAINERS(accounts) c
+                    WHERE c.CON_ID = :container_id
+                      AND c.region = :region;
+
+                    selectShardAccounts:
+                    SELECT s.id, s.status, s.ORA_SHARDSPACE_NAME
+                    FROM SHARDS(accounts) s
+                    WHERE s.ORA_SHARDSPACE_NAME LIKE :shard_pattern
+                      AND s.id > :minimum_id;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> selectContainerAccounts(") shouldBe true
+            queries.contains("container_id: Long,") shouldBe true
+            queries.contains("region: String,") shouldBe true
+            queries.contains("id: Long,") shouldBe true
+            queries.contains("CON_ID: Long,") shouldBe true
+            queries.contains("|FROM CONTAINERS(accounts) c") shouldBe true
+            queries.contains("|WHERE c.CON_ID = ?") shouldBe true
+            queries.contains("|  AND c.region = ?") shouldBe true
+            queries.contains("bindLong(parameterIndex++, container_id)") shouldBe true
+            queries.contains("bindString(parameterIndex++, region)") shouldBe true
+            queries.contains("public fun <T : Any> selectShardAccounts(") shouldBe true
+            queries.contains("shard_pattern: String,") shouldBe true
+            queries.contains("minimum_id: Long,") shouldBe true
+            queries.contains("ORA_SHARDSPACE_NAME: String,") shouldBe true
+            queries.contains("|FROM SHARDS(accounts) s") shouldBe true
+            queries.contains("|WHERE s.ORA_SHARDSPACE_NAME LIKE ?") shouldBe true
+            queries.contains("|  AND s.id > ?") shouldBe true
+            queries.contains("bindString(parameterIndex++, shard_pattern)") shouldBe true
+            queries.contains("bindLong(parameterIndex++, minimum_id)") shouldBe true
+        }
+
         test("generates Oracle partition extension DML bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

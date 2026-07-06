@@ -541,6 +541,45 @@ class OracleCodegenTest :
             queries.contains("bindBigDecimal(parameterIndex++, min_area)") shouldBe true
         }
 
+        test("generates Oracle GraphQL passing bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    CREATE TABLE departments (
+                      id NUMBER(10, 0) NOT NULL,
+                      status VARCHAR2(20) NOT NULL,
+                      PRIMARY KEY (id)
+                    );
+
+                    selectGraphqlDepartments:
+                    SELECT d.id
+                    FROM departments d,
+                      GRAPHQL('
+                        departments(department_id: ${'$'}department_id, status: ${'$'}status) {
+                          _id: department_id
+                        }
+                      ' PASSING
+                        CAST(:department_id AS NUMBER(10, 0)) AS department_id,
+                        CAST(:status AS VARCHAR2(20)) AS status
+                      ) department_documents
+                    WHERE d.id = :filter_id;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun selectGraphqlDepartments(") shouldBe true
+            queries.contains("department_id: Long,") shouldBe true
+            queries.contains("status: String,") shouldBe true
+            queries.contains("filter_id: Long,") shouldBe true
+            queries.contains("|  ' PASSING") shouldBe true
+            queries.contains("|    CAST(? AS NUMBER(10, 0)) AS department_id,") shouldBe true
+            queries.contains("|    CAST(? AS VARCHAR2(20)) AS status") shouldBe true
+            queries.contains("|WHERE d.id = ?") shouldBe true
+            queries.contains("bindLong(parameterIndex++, department_id)") shouldBe true
+            queries.contains("bindString(parameterIndex++, status)") shouldBe true
+            queries.contains("bindLong(parameterIndex++, filter_id)") shouldBe true
+        }
+
         test("generates Oracle DML returning input bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

@@ -409,6 +409,40 @@ class OracleCodegenTest :
             queries.contains("bindLong(parameterIndex++, year)") shouldBe true
         }
 
+        test("generates Oracle flashback bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    CREATE TABLE orders (
+                      order_id NUMBER(10, 0) NOT NULL,
+                      order_total NUMBER(10, 2),
+                      created_at TIMESTAMP NOT NULL,
+                      PRIMARY KEY (order_id)
+                    );
+
+                    selectAsOfScn:
+                    SELECT order_id
+                    FROM orders AS OF SCN :scn
+                    WHERE order_id = :order_id;
+
+                    selectAsOfTimestamp:
+                    SELECT order_id
+                    FROM orders AS OF TIMESTAMP :as_of_timestamp
+                    WHERE created_at <= :created_before;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun selectAsOfScn(scn: Long, order_id: Long): Query<Long>") shouldBe true
+            queries.contains("public fun selectAsOfTimestamp(as_of_timestamp: LocalDateTime, created_before: LocalDateTime): Query<Long>") shouldBe true
+            queries.contains("|FROM orders AS OF SCN ?") shouldBe true
+            queries.contains("|FROM orders AS OF TIMESTAMP ?") shouldBe true
+            queries.contains("bindLong(parameterIndex++, scn)") shouldBe true
+            queries.contains("bindLong(parameterIndex++, order_id)") shouldBe true
+            queries.contains("bindObject(parameterIndex++, as_of_timestamp)") shouldBe true
+            queries.contains("bindObject(parameterIndex++, created_before)") shouldBe true
+        }
+
         test("generates Oracle DML returning input bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

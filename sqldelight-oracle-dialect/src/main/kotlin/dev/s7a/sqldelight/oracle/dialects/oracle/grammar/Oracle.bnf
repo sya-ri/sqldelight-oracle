@@ -1498,14 +1498,18 @@ private oracle_flashback_query_clause ::= (
 private oracle_flashback_versions_clause ::= 'VERSIONS' 'BETWEEN' ( 'SCN' | 'TIMESTAMP' )
   oracle_flashback_boundary 'AND' oracle_flashback_boundary [ oracle_flashback_as_of_clause ]
 
-private oracle_flashback_as_of_clause ::= 'AS' 'OF' ( 'SCN' | 'TIMESTAMP' ) <<expr '-1'>>
+private oracle_flashback_as_of_clause ::= 'AS' 'OF' ( 'SCN' | 'TIMESTAMP' ) oracle_flashback_expr
 
 private oracle_flashback_versions_period_clause ::= 'VERSIONS' 'PERIOD' 'FOR' oracle_object_name_part
   'BETWEEN' oracle_flashback_boundary 'AND' oracle_flashback_boundary
 
-private oracle_flashback_as_of_period_clause ::= 'AS' 'OF' 'PERIOD' 'FOR' oracle_object_name_part <<expr '-1'>>
+private oracle_flashback_as_of_period_clause ::= 'AS' 'OF' 'PERIOD' 'FOR' oracle_object_name_part oracle_flashback_expr
 
-private oracle_flashback_boundary ::= 'MINVALUE' | 'MAXVALUE' | <<expr '-1'>>
+private oracle_flashback_boundary ::= 'MINVALUE' | 'MAXVALUE' | oracle_flashback_expr
+
+oracle_flashback_expr ::= <<expr '-1'>> {
+  implements = "com.alecstrong.sql.psi.core.psi.SqlExpr"
+}
 
 private oracle_table_transform_clause ::= oracle_pivot_clause | oracle_unpivot_clause | oracle_row_pattern_clause
 

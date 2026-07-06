@@ -78,6 +78,7 @@ public class OracleTypeResolver(
         parent: PsiElement,
         argument: SqlExpr,
     ): IntermediateType {
+        argument.oracleFlashbackArgumentType()?.let { return it }
         argument.oraclePivotArgumentType()?.let { return it }
 
         return when {
@@ -105,6 +106,7 @@ public class OracleTypeResolver(
             else -> {
                 argument.oracleInsertSetArgumentType()
                     ?: argument.oracleMultiTableInsertArgumentType()
+                    ?: argument.oracleFlashbackArgumentType()
                     ?: argument.oraclePivotArgumentType()
                     ?: parentResolver.argumentType(parent, argument)
             }
@@ -558,6 +560,50 @@ public class OracleTypeResolver(
                     .map { match -> match.value.trimOracleIdentifier() }
                     .toList()
             }
+
+    private fun SqlExpr.oracleFlashbackArgumentType(): IntermediateType? {
+        val fileText = containingFile.text
+        val argumentTextRange = textRange
+        if (argumentTextRange != null && argumentTextRange.startOffset in fileText.indices) {
+            val beforeArgument = fileText.substring(0, argumentTextRange.startOffset)
+            when {
+                beforeArgument.hasOracleScnFlashbackBoundary() -> return IntermediateType(LONG_NUMBER)
+                beforeArgument.hasOracleTimestampFlashbackBoundary() -> return IntermediateType(TIMESTAMP)
+            }
+        }
+
+        var current: PsiElement? = parent
+        while (current != null) {
+            val flashbackType = current.oracleFlashbackArgumentType(this)
+            if (flashbackType != null) return flashbackType
+            current = current.parent
+        }
+        return null
+    }
+
+    private fun PsiElement.oracleFlashbackArgumentType(argument: SqlExpr): IntermediateType? {
+        val parentTextRange = textRange ?: return null
+        val argumentTextRange = argument.textRange ?: return null
+        val argumentOffset = argumentTextRange.startOffset - parentTextRange.startOffset
+        if (argumentOffset !in text.indices) return null
+
+        val beforeArgument = text.substring(0, argumentOffset)
+        return when {
+            beforeArgument.hasOracleScnFlashbackBoundary() -> IntermediateType(LONG_NUMBER)
+            beforeArgument.hasOracleTimestampFlashbackBoundary() -> IntermediateType(TIMESTAMP)
+            else -> null
+        }
+    }
+
+    private fun String.hasOracleScnFlashbackBoundary(): Boolean =
+        contains(Regex("""(?is)\bAS\s+OF\s+SCN\s*$""")) ||
+            contains(Regex("""(?is)\bVERSIONS\s+BETWEEN\s+SCN\s+(?:.*\bAND\s+)?$"""))
+
+    private fun String.hasOracleTimestampFlashbackBoundary(): Boolean =
+        contains(Regex("""(?is)\bAS\s+OF\s+TIMESTAMP\s*$""")) ||
+            contains(Regex("""(?is)\bAS\s+OF\s+PERIOD\s+FOR\s+[A-Za-z_][A-Za-z0-9_$#]*\s*$""")) ||
+            contains(Regex("""(?is)\bVERSIONS\s+BETWEEN\s+TIMESTAMP\s+(?:.*\bAND\s+)?$""")) ||
+            contains(Regex("""(?is)\bVERSIONS\s+PERIOD\s+FOR\s+[A-Za-z_][A-Za-z0-9_$#]*\s+BETWEEN\s+(?:.*\bAND\s+)?$"""))
 
     private fun SqlExpr.oracleMergeArgumentType(): IntermediateType? {
         val mergeStmt = PsiTreeUtil.getParentOfType(this, OracleMergeStmt::class.java) ?: return null

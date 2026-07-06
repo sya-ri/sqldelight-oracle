@@ -18,6 +18,7 @@ import com.alecstrong.sql.psi.core.psi.SqlExpr
 import com.alecstrong.sql.psi.core.psi.SqlExtensionExpr
 import com.alecstrong.sql.psi.core.psi.SqlFunctionExpr
 import com.alecstrong.sql.psi.core.psi.SqlInsertStmt
+import com.alecstrong.sql.psi.core.psi.SqlInsertStmtValues
 import com.alecstrong.sql.psi.core.psi.SqlSetterExpression
 import com.alecstrong.sql.psi.core.psi.SqlTypeName
 import com.intellij.psi.PsiElement
@@ -76,7 +77,9 @@ public class OracleTypeResolver(
     ): IntermediateType =
         when {
             parent is SqlSetterExpression -> {
-                parent.oracleSetterTargetType() ?: parentResolver.argumentType(parent, argument)
+                parent.oracleSetterTargetType()
+                    ?: argument.oracleInsertSetArgumentType()
+                    ?: parentResolver.argumentType(parent, argument)
             }
 
             PsiTreeUtil.getParentOfType(argument, OracleMergeStmt::class.java) != null -> {
@@ -84,7 +87,8 @@ public class OracleTypeResolver(
             }
 
             else -> {
-                argument.oracleMultiTableInsertArgumentType()
+                argument.oracleInsertSetArgumentType()
+                    ?: argument.oracleMultiTableInsertArgumentType()
                     ?: parentResolver.argumentType(parent, argument)
             }
         }
@@ -508,6 +512,27 @@ public class OracleTypeResolver(
     private fun SqlExpr.oracleMultiTableInsertArgumentType(): IntermediateType? {
         val insertStmt = PsiTreeUtil.getParentOfType(this, SqlInsertStmt::class.java) ?: return null
         return insertStmt.oracleMultiTableInsertArgumentType(this)
+    }
+
+    private fun SqlExpr.oracleInsertSetArgumentType(): IntermediateType? {
+        val insertStmt = PsiTreeUtil.getParentOfType(this, SqlInsertStmt::class.java) ?: return null
+        return insertStmt.oracleInsertSetArgumentType(this)
+    }
+
+    private fun SqlInsertStmt.oracleInsertSetArgumentType(argument: SqlExpr): IntermediateType? {
+        val valuesText = PsiTreeUtil.getChildOfType(this, SqlInsertStmtValues::class.java)?.text ?: return null
+        if (!valuesText.trimStart().startsWith("SET ", ignoreCase = true)) return null
+
+        val argumentStart = argument.textRange.startOffset - textRange.startOffset
+        if (argumentStart !in text.indices) return null
+        val beforeArgument = text.substring(0, argumentStart)
+        val targetText =
+            Regex("""(?is)(?:\bSET\b|,)\s*([A-Za-z_][\w$#]*(?:\s*\.\s*[A-Za-z_][\w$#]*)*)\s*=\s*$""")
+                .find(beforeArgument)
+                ?.groupValues
+                ?.get(1)
+                ?: return null
+        return oracleAvailableColumnType(targetText)
     }
 
     private fun SqlInsertStmt.oracleMultiTableInsertArgumentType(argument: SqlExpr): IntermediateType? {

@@ -1754,7 +1754,7 @@ private oracle_insert_set_row ::= LP oracle_insert_set_assignment_list RP
 
 private oracle_insert_set_assignment_list ::= oracle_insert_set_assignment ( COMMA oracle_insert_set_assignment ) *
 
-private oracle_insert_set_assignment ::= {column_name} EQ ( 'DEFAULT' | <<expr '-1'>> )
+private oracle_insert_set_assignment ::= {column_name} EQ ( 'DEFAULT' | {setter_expression} )
 
 private oracle_by_name_position_clause ::= 'BY' ( 'NAME' | 'POSITION' )
 

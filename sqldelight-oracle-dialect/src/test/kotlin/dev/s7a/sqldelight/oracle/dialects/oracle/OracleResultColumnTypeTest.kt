@@ -11,6 +11,7 @@ import app.cash.sqldelight.core.lang.SqlDelightLanguage
 import app.cash.sqldelight.core.lang.SqlDelightQueriesFile
 import com.intellij.lang.LanguageParserDefinitions
 import com.intellij.psi.PsiDocumentManager
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.io.File
@@ -587,6 +588,56 @@ class OracleResultColumnTypeTest :
                   ) item
                 """.trimIndent(),
             ) shouldBe "kotlin.String?"
+        }
+
+        test("resolves Oracle GRAPH_TABLE documented result column types exactly") {
+            val graphTable =
+                """
+                FROM GRAPH_TABLE (
+                  employees_graph
+                  MATCH path1 = (employee IS employee_node) -[works_at IS works_at_edge]-> (department IS department_node)
+                  ONE ROW PER STEP (employee, works_at, department)
+                  COLUMNS (
+                    MATCHNUM() AS match_number,
+                    PATH_NAME() AS path_name,
+                    ELEMENT_NUMBER(works_at) AS edge_number,
+                    VERTEX_ID(employee) AS employee_vertex_id,
+                    EDGE_ID(works_at) AS works_at_edge_id,
+                    COUNT(EDGE_ID(works_at)) AS edge_count,
+                    employee IS SOURCE OF works_at AS employee_is_source,
+                    department IS DESTINATION OF works_at AS department_is_destination,
+                    PROPERTY_EXISTS(employee, name) AS employee_has_name
+                  )
+                ) graph_steps
+                """.trimIndent()
+
+            typeOf("SELECT graph_steps.match_number AS c $graphTable") shouldBe "kotlin.Long"
+            typeOf("SELECT graph_steps.path_name AS c $graphTable") shouldBe "kotlin.String?"
+            typeOf("SELECT graph_steps.edge_number AS c $graphTable") shouldBe "kotlin.Long?"
+            typeOf("SELECT graph_steps.employee_vertex_id AS c $graphTable") shouldBe "kotlin.String?"
+            typeOf("SELECT graph_steps.works_at_edge_id AS c $graphTable") shouldBe "kotlin.String?"
+            typeOf("SELECT graph_steps.edge_count AS c $graphTable") shouldBe "kotlin.Long"
+            typeOf("SELECT graph_steps.employee_is_source AS c $graphTable") shouldBe "kotlin.Boolean?"
+            typeOf("SELECT graph_steps.department_is_destination AS c $graphTable") shouldBe "kotlin.Boolean?"
+            typeOf("SELECT graph_steps.employee_has_name AS c $graphTable") shouldBe "kotlin.Boolean?"
+        }
+
+        test("leaves Oracle GRAPH_TABLE metadata-dependent result columns untyped") {
+            val sql =
+                """
+                $schema
+
+                result:
+                SELECT graph_employees.employee_name AS c
+                FROM GRAPH_TABLE (
+                  employees_graph
+                  MATCH (employee IS employee_node)
+                  COLUMNS (employee.name AS employee_name)
+                ) graph_employees;
+                """.trimIndent()
+            shouldThrow<IllegalStateException> {
+                oracleResultColumnTypes(sql)
+            }
         }
 
         test("resolves Oracle XML root result column types exactly") {

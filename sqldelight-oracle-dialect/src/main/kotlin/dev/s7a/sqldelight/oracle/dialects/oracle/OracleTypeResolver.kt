@@ -33,7 +33,10 @@ import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.LONG_NUMBER
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.TIMESTAMP
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.TIMESTAMP_TIME_ZONE
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.indexOfKeyword
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.oracleParenthesizedBodyAt
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.oracleTopLevelCommaParts
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.trimOracleIdentifier
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleMergeStmt
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleVectorDistanceOperand
 
 public class OracleTypeResolver(
@@ -70,10 +73,18 @@ public class OracleTypeResolver(
         parent: PsiElement,
         argument: SqlExpr,
     ): IntermediateType =
-        if (parent is SqlSetterExpression) {
-            parent.oracleSetterTargetType() ?: parentResolver.argumentType(parent, argument)
-        } else {
-            parentResolver.argumentType(parent, argument)
+        when {
+            parent is SqlSetterExpression -> {
+                parent.oracleSetterTargetType() ?: parentResolver.argumentType(parent, argument)
+            }
+
+            PsiTreeUtil.getParentOfType(argument, OracleMergeStmt::class.java) != null -> {
+                argument.oracleMergeArgumentType() ?: parentResolver.argumentType(parent, argument)
+            }
+
+            else -> {
+                parentResolver.argumentType(parent, argument)
+            }
         }
 
     private fun oracleExtensionFunctionType(expr: SqlExpr): IntermediateType? {
@@ -409,6 +420,87 @@ public class OracleTypeResolver(
                 ?.get(1)
                 ?: return null
         return owner.oracleAvailableColumnType(targetText)
+    }
+
+    private fun SqlExpr.oracleMergeArgumentType(): IntermediateType? {
+        val mergeStmt = PsiTreeUtil.getParentOfType(this, OracleMergeStmt::class.java) ?: return null
+        return mergeStmt.oracleMergeAssignmentArgumentType(this)
+            ?: mergeStmt.oracleMergeComparisonArgumentType(this)
+            ?: mergeStmt.oracleMergeInsertArgumentType(this)
+    }
+
+    private fun OracleMergeStmt.oracleMergeAssignmentArgumentType(argument: SqlExpr): IntermediateType? {
+        val argumentStart = argument.textRange.startOffset - textRange.startOffset
+        if (argumentStart !in text.indices) return null
+        val beforeArgument = text.substring(0, argumentStart)
+        val targetText =
+            Regex("""(?is)(?:\bSET\b|,)\s*([A-Za-z_][\w$#]*(?:\s*\.\s*[A-Za-z_][\w$#]*)*)\s*=\s*$""")
+                .find(beforeArgument)
+                ?.groupValues
+                ?.get(1)
+                ?: return null
+        return oracleAvailableColumnType(targetText)
+    }
+
+    private fun OracleMergeStmt.oracleMergeComparisonArgumentType(argument: SqlExpr): IntermediateType? {
+        val argumentStart = argument.textRange.startOffset - textRange.startOffset
+        if (argumentStart !in text.indices) return null
+        val argumentEnd = argument.textRange.endOffset - textRange.startOffset
+        if (argumentEnd !in 0..text.length) return null
+
+        val beforeArgument = text.substring(0, argumentStart)
+        val leftOperandText =
+            Regex("""(?is)([A-Za-z_][\w$#]*(?:\s*\.\s*[A-Za-z_][\w$#]*)*)\s*(?:=|<>|!=|<=|>=|<|>)\s*$""")
+                .find(beforeArgument)
+                ?.groupValues
+                ?.get(1)
+        if (leftOperandText != null) {
+            return oracleAvailableColumnType(leftOperandText)
+        }
+
+        val afterArgument = text.substring(argumentEnd)
+        val rightOperandText =
+            Regex("""(?is)^\s*(?:=|<>|!=|<=|>=|<|>)\s*([A-Za-z_][\w$#]*(?:\s*\.\s*[A-Za-z_][\w$#]*)*)""")
+                .find(afterArgument)
+                ?.groupValues
+                ?.get(1)
+                ?: return null
+        return oracleAvailableColumnType(rightOperandText)
+    }
+
+    private fun OracleMergeStmt.oracleMergeInsertArgumentType(argument: SqlExpr): IntermediateType? {
+        val argumentStart = argument.textRange.startOffset - textRange.startOffset
+        if (argumentStart !in text.indices) return null
+
+        val valuesKeywordOffset =
+            Regex("""(?i)\bVALUES\b""")
+                .findAll(text.substring(0, argumentStart))
+                .lastOrNull()
+                ?.range
+                ?.first
+                ?: return null
+        val valuesOpenOffset = text.indexOf('(', startIndex = valuesKeywordOffset).takeIf { it != -1 } ?: return null
+        val valueIndex = text.substring(valuesOpenOffset + 1, argumentStart).oracleTopLevelCommaParts().size - 1
+
+        val beforeValues = text.substring(0, valuesKeywordOffset)
+        val insertKeywordOffset =
+            Regex("""(?i)\bINSERT\b""")
+                .findAll(beforeValues)
+                .lastOrNull()
+                ?.range
+                ?.first
+                ?: return null
+        val columnsOpenOffset = text.indexOf('(', startIndex = insertKeywordOffset).takeIf { it in 0..<valuesKeywordOffset } ?: return null
+        val columnName =
+            text
+                .oracleParenthesizedBodyAt(columnsOpenOffset)
+                .oracleTopLevelCommaParts()
+                .getOrNull(valueIndex)
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+                ?: return null
+
+        return oracleAvailableColumnType(columnName)
     }
 
     private fun PsiElement.oracleAvailableColumnType(operandText: String): IntermediateType? {

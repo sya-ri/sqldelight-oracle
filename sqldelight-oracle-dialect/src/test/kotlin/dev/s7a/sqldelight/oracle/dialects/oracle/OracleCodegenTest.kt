@@ -338,6 +338,49 @@ class OracleCodegenTest :
             queries.contains(", 1) {") shouldBe true
         }
 
+        test("generates Oracle merge bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import com.example.Label;
+
+                    CREATE TABLE sample (
+                      id NUMBER(10, 0) NOT NULL,
+                      label NVARCHAR2(50) AS Label NOT NULL,
+                      note VARCHAR2(100),
+                      PRIMARY KEY (id)
+                    );
+
+                    mergeUpsert:
+                    MERGE INTO sample target
+                    USING sample source
+                    ON (target.id = :id AND source.id = :source_id)
+                    WHEN MATCHED THEN
+                      UPDATE SET target.label = :label,
+                                 target.note = :note
+                    WHEN NOT MATCHED THEN
+                      INSERT (id, label, note)
+                      VALUES (:insert_id, :insert_label, :insert_note);
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun mergeUpsert(") shouldBe true
+            queries.contains("id: Long,") shouldBe true
+            queries.contains("source_id: Long,") shouldBe true
+            queries.contains("label: Label,") shouldBe true
+            queries.contains("note: String?,") shouldBe true
+            queries.contains("insert_id: Long,") shouldBe true
+            queries.contains("insert_label: Label,") shouldBe true
+            queries.contains("insert_note: String?,") shouldBe true
+            queries.contains("|ON (target.id = ? AND source.id = ?)") shouldBe true
+            queries.contains("|  UPDATE SET target.label = ?,") shouldBe true
+            queries.contains("|             target.note = ?") shouldBe true
+            queries.contains("|  VALUES (?, ?, ?)") shouldBe true
+            queries.contains("bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(label))") shouldBe true
+            queries.contains("bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(insert_label))") shouldBe true
+        }
+
         test("generates SQLDelight value type row and variable arguments exactly") {
             val generated =
                 generateOracleSqlDelight(

@@ -6146,7 +6146,11 @@ private oracle_merge_insert_clause ::= 'WHEN' 'NOT' 'MATCHED' 'THEN' 'INSERT' (
 
 private oracle_merge_assignment ::= oracle_schema_object_name EQ oracle_merge_value
 
-private oracle_merge_value ::= 'DEFAULT' | <<expr '-1'>>
+private oracle_merge_value ::= 'DEFAULT' | oracle_merge_value_expr
+
+oracle_merge_value_expr ::= <<expr '-1'>> {
+  implements = "com.alecstrong.sql.psi.core.psi.SqlExpr"
+}
 
 private oracle_where_clause ::= 'WHERE' <<expr '-1'>>
 

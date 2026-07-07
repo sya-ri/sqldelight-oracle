@@ -771,6 +771,18 @@ class OracleCodegenTest :
                       tenant_id => CAST(:tenant_id AS NUMBER(10, 0)),
                       status => CAST(:status AS VARCHAR2(20))
                     );
+
+                    callCurrentSalaryInto:
+                    CALL hr.employee_api.current_salary(
+                      employee_id => CAST(:employee_id AS NUMBER(10, 0))
+                    ) INTO :salary_out;
+
+                    callObjectMethodInto:
+                    CALL warehouse_typ(
+                      CAST(:warehouse_id AS NUMBER(10, 0)),
+                      CAST(:warehouse_name AS VARCHAR2(128)),
+                      CAST(:warehouse_area AS NUMBER(10, 0))
+                    ).ret_name() INTO :warehouse_name_out;
                     """.trimIndent(),
                 )
 
@@ -791,6 +803,22 @@ class OracleCodegenTest :
             queries.contains("|  status => CAST(? AS VARCHAR2(20))") shouldBe true
             queries.contains("bindLong(parameterIndex++, tenant_id)") shouldBe true
             queries.contains("bindString(parameterIndex++, status)") shouldBe true
+            queries.contains("public fun callCurrentSalaryInto(employee_id: Long): QueryResult<Long>") shouldBe true
+            queries.contains("|CALL hr.employee_api.current_salary(") shouldBe true
+            queries.contains("|  employee_id => CAST(? AS NUMBER(10, 0))") shouldBe true
+            queries.contains("|) INTO :salary_out") shouldBe true
+            queries.contains("salary_out") shouldBe true
+            queries.contains("bindString(parameterIndex++, salary_out)") shouldBe false
+            queries.contains("public fun callObjectMethodInto(") shouldBe true
+            queries.contains("warehouse_id: Long,") shouldBe true
+            queries.contains("warehouse_name: String,") shouldBe true
+            queries.contains("warehouse_area: Long,") shouldBe true
+            queries.contains("|CALL warehouse_typ(") shouldBe true
+            queries.contains("|  CAST(? AS NUMBER(10, 0)),") shouldBe true
+            queries.contains("|  CAST(? AS VARCHAR2(128)),") shouldBe true
+            queries.contains("|  CAST(? AS NUMBER(10, 0))") shouldBe true
+            queries.contains("|).ret_name() INTO :warehouse_name_out") shouldBe true
+            queries.contains("bindString(parameterIndex++, warehouse_name_out)") shouldBe false
         }
 
         test("generates Oracle hierarchical query bind parameters exactly") {

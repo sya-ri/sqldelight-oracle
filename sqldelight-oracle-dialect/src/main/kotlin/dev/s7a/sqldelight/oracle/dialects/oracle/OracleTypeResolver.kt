@@ -73,6 +73,16 @@ public class OracleTypeResolver(
                     ?: parentResolver.resolvedType(expr)
             }
 
+    private fun oracleVectorDistanceShorthandType(expr: SqlExpr): IntermediateType? {
+        if (!expr.text.hasOracleVectorDistanceShorthand()) return null
+        val operands =
+            runCatching { expr.children.filterIsInstance<SqlExpr>() }
+                .getOrNull()
+                ?.takeIf { children -> children.size == 2 }
+        return IntermediateType(BINARY_DOUBLE)
+            .nullableIf(operands == null || operands.any { operand -> resolvedType(operand).javaType.isNullable })
+    }
+
     override fun functionType(functionExpr: SqlFunctionExpr): IntermediateType? {
         val functionName = functionExpr.functionName.text
         return oracleFunctionType(functionName, functionExpr.text, functionExpr.exprList)
@@ -487,6 +497,7 @@ public class OracleTypeResolver(
         if (Regex("""(?is)\bESCAPE\s*$""").containsMatchIn(beforeArgument)) {
             return IntermediateType(TEXT)
         }
+        oracleVectorArgumentType(extensionExpr)?.let { return it }
 
         val regexpLikeStart = Regex("""(?is)\bREGEXP_LIKE\s*\(""").find(extensionText)?.range?.last ?: return null
         if (argumentOffset <= regexpLikeStart) return null
@@ -494,6 +505,29 @@ public class OracleTypeResolver(
         return when (argumentIndex) {
             1 -> IntermediateType(TEXT)
             2 -> IntermediateType(TEXT).asNullable()
+            else -> null
+        }
+    }
+
+    private fun SqlExpr.oracleVectorArgumentType(extensionExpr: SqlExtensionExpr): IntermediateType? {
+        val argumentOffset = textRange.startOffset - extensionExpr.textRange.startOffset
+        if (argumentOffset !in extensionExpr.text.indices) return null
+        val beforeArgument = extensionExpr.text.substring(0, argumentOffset)
+        val invocation =
+            Regex("""(?is)\b(?:VECTOR|TO_VECTOR)\s*\(""")
+                .findAll(beforeArgument)
+                .lastOrNull()
+                ?: return null
+        val functionOpenOffset = invocation.range.last
+        val argumentIndex =
+            extensionExpr
+                .text
+                .substring(functionOpenOffset + 1, argumentOffset)
+                .oracleTopLevelCommaParts()
+                .size - 1
+        return when (argumentIndex) {
+            0 -> IntermediateType(TEXT)
+            1 -> IntermediateType(LONG_NUMBER)
             else -> null
         }
     }

@@ -180,9 +180,9 @@ class OracleDialectTest :
                 "embedding <#> TO_VECTOR('[1,2,3]', 3, FLOAT32)",
             ).map { expression -> resolver.resolvedType(sqlExpr(expression)) } shouldBe
                 listOf(
-                    IntermediateType(OracleType.BINARY_DOUBLE),
-                    IntermediateType(OracleType.BINARY_DOUBLE),
-                    IntermediateType(OracleType.BINARY_DOUBLE),
+                    IntermediateType(OracleType.BINARY_DOUBLE).asNullable(),
+                    IntermediateType(OracleType.BINARY_DOUBLE).asNullable(),
+                    IntermediateType(OracleType.BINARY_DOUBLE).asNullable(),
                 )
         }
 

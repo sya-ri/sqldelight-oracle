@@ -517,7 +517,10 @@ class OracleCodegenTest :
 
             val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
             queries.contains("public fun selectAsOfScn(scn: Long, order_id: Long): Query<Long>") shouldBe true
-            queries.contains("public fun selectAsOfTimestamp(as_of_timestamp: LocalDateTime, created_before: LocalDateTime): Query<Long>") shouldBe true
+            queries.contains(
+                "public fun selectAsOfTimestamp(as_of_timestamp: LocalDateTime, created_before: LocalDateTime): Query<Long>",
+            ) shouldBe
+                true
             queries.contains("|FROM orders AS OF SCN ?") shouldBe true
             queries.contains("|FROM orders AS OF TIMESTAMP ?") shouldBe true
             queries.contains("bindLong(parameterIndex++, scn)") shouldBe true
@@ -1120,9 +1123,13 @@ class OracleCodegenTest :
             queries.contains("|    AND e.employee_name = ?") shouldBe true
             queries.contains("|    AND e.salary >= ?") shouldBe true
             queries.contains("|WHERE d.department_name = ?") shouldBe true
-            queries.contains("bindString(parameterIndex++, employeesAdapter.employee_nameAdapter.encode(filter_employee_name))") shouldBe true
+            queries.contains("bindString(parameterIndex++, employeesAdapter.employee_nameAdapter.encode(filter_employee_name))") shouldBe
+                true
             queries.contains("bindBigDecimal(parameterIndex++, min_salary)") shouldBe true
-            queries.contains("bindString(parameterIndex++, departmentsAdapter.department_nameAdapter.encode(filter_department_name))") shouldBe true
+            queries.contains(
+                "bindString(parameterIndex++, departmentsAdapter.department_nameAdapter.encode(filter_department_name))",
+            ) shouldBe
+                true
         }
 
         test("generates Oracle join to one bind parameters exactly") {
@@ -1193,7 +1200,7 @@ class OracleCodegenTest :
                     QUALIFY RANK() OVER (PARTITION BY region ORDER BY score DESC) <= :max_rank
                       AND score >= :min_score;
                     """.trimIndent(),
-            )
+                )
 
             val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
             queries.contains("public fun <T : Any> selectRankedOrders(") shouldBe true
@@ -1350,17 +1357,20 @@ class OracleCodegenTest :
             queries.contains("order_id: Long,") shouldBe true
             queries.contains("region_code: Region,") shouldBe true
             queries.contains("order_total: BigDecimal?,") shouldBe true
-            queries.contains("|INSERT INTO partitioned_orders PARTITION (orders_2026_q1) (order_id, region_code, order_total)") shouldBe true
+            queries.contains("|INSERT INTO partitioned_orders PARTITION (orders_2026_q1) (order_id, region_code, order_total)") shouldBe
+                true
             queries.contains("|VALUES (?, ?, ?)") shouldBe true
             queries.contains("bindLong(parameterIndex++, order_id)") shouldBe true
             queries.contains("bindString(parameterIndex++, partitioned_ordersAdapter.region_codeAdapter.encode(region_code))") shouldBe true
             queries.contains("bindBigDecimal(parameterIndex++, order_total)") shouldBe true
-            queries.contains("public fun updateSubpartitionForKey(delta: BigDecimal?, region_code: Region): QueryResult<Long>") shouldBe true
+            queries.contains("public fun updateSubpartitionForKey(delta: BigDecimal?, region_code: Region): QueryResult<Long>") shouldBe
+                true
             queries.contains("|UPDATE partitioned_orders SUBPARTITION FOR ('US')") shouldBe true
             queries.contains("|SET order_total = order_total + ?") shouldBe true
             queries.contains("|WHERE region_code = ?") shouldBe true
             queries.contains("bindBigDecimal(parameterIndex++, delta)") shouldBe true
-            queries.contains("public fun deletePartitionForKey(region_code: Region, max_total: BigDecimal?): QueryResult<Long>") shouldBe true
+            queries.contains("public fun deletePartitionForKey(region_code: Region, max_total: BigDecimal?): QueryResult<Long>") shouldBe
+                true
             queries.contains("|DELETE FROM partitioned_orders PARTITION FOR (2026, 1)") shouldBe true
             queries.contains("|WHERE region_code = ? AND order_total < ?") shouldBe true
             queries.contains("bindBigDecimal(parameterIndex++, max_total)") shouldBe true

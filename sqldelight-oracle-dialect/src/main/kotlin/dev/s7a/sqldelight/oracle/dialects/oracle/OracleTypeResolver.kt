@@ -42,8 +42,8 @@ import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.LONG_NUMBER
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.TIMESTAMP
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.TIMESTAMP_TIME_ZONE
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.indexOfKeyword
-import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.oracleParenthesizedBodyAt
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.oracleParenthesizedBodyAfter
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.oracleParenthesizedBodyAt
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.oracleTopLevelCommaParts
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.trimOracleIdentifier
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleMergeStmt
@@ -270,7 +270,7 @@ public class OracleTypeResolver(
                 .toList()
                 .takeIf { operands -> operands.size == 2 }
                 ?.map { operand -> operand.oracleVectorDistanceOperandType() }
-            ?: return IntermediateType(BINARY_DOUBLE).asNullable()
+                ?: return IntermediateType(BINARY_DOUBLE).asNullable()
         return IntermediateType(BINARY_DOUBLE)
             .nullableIf(operandTypes.any { type -> type.javaType.isNullable || type.dialectType == TEXT })
     }

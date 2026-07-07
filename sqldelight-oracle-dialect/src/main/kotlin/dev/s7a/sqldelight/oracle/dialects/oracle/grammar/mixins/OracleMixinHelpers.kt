@@ -16,8 +16,8 @@ import com.alecstrong.sql.psi.core.psi.SqlColumnName
 import com.alecstrong.sql.psi.core.psi.SqlQualifiedTableName
 import com.alecstrong.sql.psi.core.psi.SqlTableAlias
 import com.alecstrong.sql.psi.core.psi.SqlTableName
-import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.util.PsiTreeUtil

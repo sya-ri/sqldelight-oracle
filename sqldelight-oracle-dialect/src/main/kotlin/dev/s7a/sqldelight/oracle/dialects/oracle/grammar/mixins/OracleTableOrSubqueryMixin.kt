@@ -146,8 +146,7 @@ internal abstract class OracleTableOrSubqueryMixin(
             .findChildrenOfType(this, SqlTableName::class.java)
             .filterNot { tableNameElement ->
                 text.getOrNull(tableNameElement.textRange.endOffset - textRange.startOffset) == '.'
-            }
-            .mapIndexed { index, tableNameElement ->
+            }.mapIndexed { index, tableNameElement ->
                 val result =
                     oracleSynonymTargetAvailable(tableNameElement) { target, targetName ->
                         tableAvailable(target, targetName)
@@ -155,8 +154,7 @@ internal abstract class OracleTableOrSubqueryMixin(
                 aliases.getOrNull(index)?.let { alias ->
                     result.map { query -> query.copy(table = alias.oracleQueryTableElement()) }
                 } ?: result
-            }
-            .flatten()
+            }.flatten()
     }
 
     private fun oracleGeneratedColumnResult(): QueryResult? {

@@ -2,9 +2,9 @@ package dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins
 
 import app.cash.sqldelight.dialect.api.ExposableType
 import app.cash.sqldelight.dialect.api.IntermediateType
-import com.alecstrong.sql.psi.core.psi.LazyQuery
 import com.alecstrong.sql.psi.core.SqlAnnotationHolder
 import com.alecstrong.sql.psi.core.psi.AliasElement
+import com.alecstrong.sql.psi.core.psi.LazyQuery
 import com.alecstrong.sql.psi.core.psi.QueryElement
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryColumn
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryResult

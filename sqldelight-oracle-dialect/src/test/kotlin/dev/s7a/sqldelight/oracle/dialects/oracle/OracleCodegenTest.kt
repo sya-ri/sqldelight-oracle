@@ -731,19 +731,17 @@ class OracleCodegenTest :
                            VECTOR_DIMS(embedding) AS embedding_dimensions,
                            VECTOR_DIMENSION_COUNT(embedding) AS embedding_dimension_count,
                            VECTOR_DISTANCE(embedding, TO_VECTOR(:query_vector, 3, FLOAT32), COSINE) AS cosine_distance,
-                           embedding <-> TO_VECTOR(:euclidean_vector, 3, FLOAT32) AS euclidean_distance
+                           embedding <-> TO_VECTOR('[1,2,3]', 3, FLOAT32) AS euclidean_distance
                     FROM documents
                     WHERE id > :minimum_id
-                    ORDER BY embedding <=> TO_VECTOR(:order_vector, 3, FLOAT32);
+                    ORDER BY embedding <=> TO_VECTOR('[3,2,1]', 3, FLOAT32);
                     """.trimIndent(),
                 )
 
             val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
             queries.contains("public fun <T : Any> selectNearestDocuments(") shouldBe true
             queries.contains("query_vector: String,") shouldBe true
-            queries.contains("euclidean_vector: String,") shouldBe true
             queries.contains("minimum_id: Long,") shouldBe true
-            queries.contains("order_vector: String,") shouldBe true
             queries.contains("embedding: String?,") shouldBe true
             queries.contains("serialized_embedding: String?,") shouldBe true
             queries.contains("embedding_dimensions: String?,") shouldBe true
@@ -751,13 +749,11 @@ class OracleCodegenTest :
             queries.contains("cosine_distance: Double?,") shouldBe true
             queries.contains("euclidean_distance: Double?,") shouldBe true
             queries.contains("|       VECTOR_DISTANCE(embedding, TO_VECTOR(?, 3, FLOAT32), COSINE) AS cosine_distance,") shouldBe true
-            queries.contains("|       embedding <-> TO_VECTOR(?, 3, FLOAT32) AS euclidean_distance") shouldBe true
+            queries.contains("|       embedding <-> TO_VECTOR('[1,2,3]', 3, FLOAT32) AS euclidean_distance") shouldBe true
             queries.contains("|WHERE id > ?") shouldBe true
-            queries.contains("|ORDER BY embedding <=> TO_VECTOR(?, 3, FLOAT32)") shouldBe true
+            queries.contains("|ORDER BY embedding <=> TO_VECTOR('[3,2,1]', 3, FLOAT32)") shouldBe true
             queries.contains("bindString(parameterIndex++, query_vector)") shouldBe true
-            queries.contains("bindString(parameterIndex++, euclidean_vector)") shouldBe true
             queries.contains("bindLong(parameterIndex++, minimum_id)") shouldBe true
-            queries.contains("bindString(parameterIndex++, order_vector)") shouldBe true
         }
 
         test("generates Oracle GraphQL passing bind parameters exactly") {

@@ -73,16 +73,6 @@ public class OracleTypeResolver(
                     ?: parentResolver.resolvedType(expr)
             }
 
-    private fun oracleVectorDistanceShorthandType(expr: SqlExpr): IntermediateType? {
-        if (!expr.text.hasOracleVectorDistanceShorthand()) return null
-        val operands =
-            runCatching { expr.children.filterIsInstance<SqlExpr>() }
-                .getOrNull()
-                ?.takeIf { children -> children.size == 2 }
-        return IntermediateType(BINARY_DOUBLE)
-            .nullableIf(operands == null || operands.any { operand -> resolvedType(operand).javaType.isNullable })
-    }
-
     override fun functionType(functionExpr: SqlFunctionExpr): IntermediateType? {
         val functionName = functionExpr.functionName.text
         return oracleFunctionType(functionName, functionExpr.text, functionExpr.exprList)
@@ -97,6 +87,7 @@ public class OracleTypeResolver(
         argument.oracleFlashbackArgumentType()?.let { return it }
         argument.oraclePivotArgumentType()?.let { return it }
         argument.oracleErrorLoggingTagArgumentType()?.let { return it }
+        argument.oracleVectorFunctionArgumentType()?.let { return it }
 
         return when {
             parent is SqlSetterExpression -> {
@@ -271,7 +262,7 @@ public class OracleTypeResolver(
     private fun oracleVectorDistanceShorthandType(expr: SqlExpr): IntermediateType? {
         val extensionExpr =
             expr.oracleExtensionExpr()
-                ?: return IntermediateType(BINARY_DOUBLE).takeIf { expr.text.hasOracleVectorDistanceShorthand() }
+                ?: return IntermediateType(BINARY_DOUBLE).asNullable().takeIf { expr.text.hasOracleVectorDistanceShorthand() }
         if (!extensionExpr.text.hasOracleVectorDistanceShorthand()) return null
         val operandTypes =
             PsiTreeUtil
@@ -279,9 +270,9 @@ public class OracleTypeResolver(
                 .toList()
                 .takeIf { operands -> operands.size == 2 }
                 ?.map { operand -> operand.oracleVectorDistanceOperandType() }
-                ?: return IntermediateType(BINARY_DOUBLE)
+            ?: return IntermediateType(BINARY_DOUBLE).asNullable()
         return IntermediateType(BINARY_DOUBLE)
-            .nullableIf(operandTypes.any { type -> type.javaType.isNullable })
+            .nullableIf(operandTypes.any { type -> type.javaType.isNullable || type.dialectType == TEXT })
     }
 
     private fun OracleOracleVectorDistanceOperand.oracleVectorDistanceOperandType(): IntermediateType =
@@ -519,13 +510,31 @@ public class OracleTypeResolver(
                 .lastOrNull()
                 ?: return null
         val functionOpenOffset = invocation.range.last
-        val argumentIndex =
+        val invocationPrefix =
             extensionExpr
                 .text
                 .substring(functionOpenOffset + 1, argumentOffset)
-                .oracleTopLevelCommaParts()
-                .size - 1
+        val argumentIndex =
+            if (invocationPrefix.isBlank()) {
+                0
+            } else {
+                invocationPrefix.oracleTopLevelCommaParts().size - 1
+            }
         return when (argumentIndex) {
+            0 -> IntermediateType(TEXT)
+            1 -> IntermediateType(LONG_NUMBER)
+            else -> null
+        }
+    }
+
+    private fun SqlExpr.oracleVectorFunctionArgumentType(): IntermediateType? {
+        val functionExpr = PsiTreeUtil.getParentOfType(this, SqlFunctionExpr::class.java) ?: return null
+        if (!functionExpr.functionName.text.equals("VECTOR", ignoreCase = true) &&
+            !functionExpr.functionName.text.equals("TO_VECTOR", ignoreCase = true)
+        ) {
+            return null
+        }
+        return when (functionExpr.exprList.indexOf(this)) {
             0 -> IntermediateType(TEXT)
             1 -> IntermediateType(LONG_NUMBER)
             else -> null

@@ -1665,6 +1665,53 @@ class OracleCodegenTest :
             queries.contains("bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(label))") shouldBe true
         }
 
+        test("generates Oracle recursive CTE search cycle columns exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    CREATE TABLE org_units (
+                      id NUMBER(10, 0) NOT NULL,
+                      parent_id NUMBER(10, 0),
+                      unit_name VARCHAR2(128) NOT NULL
+                    );
+
+                    selectOrgTree:
+                    WITH unit_tree (id, parent_id, unit_name) AS (
+                      SELECT id, parent_id, unit_name
+                      FROM org_units
+                      WHERE parent_id IS NULL
+                      UNION ALL
+                      SELECT child.id, child.parent_id, child.unit_name
+                      FROM org_units child
+                      JOIN unit_tree parent ON child.parent_id = parent.id
+                      WHERE child.unit_name LIKE :name_pattern
+                    )
+                    SEARCH DEPTH FIRST BY unit_name ASC NULLS LAST SET traversal_order
+                    CYCLE id SET is_cycle TO 'Y' DEFAULT 'N'
+                    SELECT id, parent_id, unit_name, traversal_order, is_cycle
+                    FROM unit_tree
+                    WHERE is_cycle = :cycle_marker
+                    ORDER BY traversal_order;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> selectOrgTree(") shouldBe true
+            queries.contains("name_pattern: String,") shouldBe true
+            queries.contains("cycle_marker: String,") shouldBe true
+            queries.contains("id: Long,") shouldBe true
+            queries.contains("parent_id: Long?,") shouldBe true
+            queries.contains("unit_name: String,") shouldBe true
+            queries.contains("traversal_order: Long,") shouldBe true
+            queries.contains("is_cycle: String,") shouldBe true
+            queries.contains("|SEARCH DEPTH FIRST BY unit_name ASC NULLS LAST SET traversal_order") shouldBe true
+            queries.contains("|CYCLE id SET is_cycle TO 'Y' DEFAULT 'N'") shouldBe true
+            queries.contains("|WHERE is_cycle = ?") shouldBe true
+            queries.contains("|ORDER BY traversal_order") shouldBe true
+            queries.contains("bindString(parameterIndex++, name_pattern)") shouldBe true
+            queries.contains("bindString(parameterIndex++, cycle_marker)") shouldBe true
+        }
+
         test("generates SQLDelight value type row and variable arguments exactly") {
             val generated =
                 generateOracleSqlDelight(

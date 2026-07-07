@@ -4,7 +4,9 @@ import app.cash.sqldelight.dialect.api.ExposableType
 import app.cash.sqldelight.dialect.api.IntermediateType
 import com.alecstrong.sql.psi.core.ModifiableFileLazy
 import com.alecstrong.sql.psi.core.SqlAnnotationHolder
+import com.alecstrong.sql.psi.core.SqlFileBase
 import com.alecstrong.sql.psi.core.psi.AliasElement
+import com.alecstrong.sql.psi.core.psi.LazyQuery
 import com.alecstrong.sql.psi.core.psi.NamedElement
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryColumn
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryResult
@@ -47,6 +49,10 @@ internal abstract class OracleTableOrSubqueryMixin(
         ModifiableFileLazy lazy@{
             oracleGeneratedColumnResult()?.let {
                 return@lazy listOf(it)
+            }
+
+            oracleJoinToOneQueryExposed()?.let {
+                return@lazy it
             }
 
             tableName?.let { tableNameElement ->
@@ -99,15 +105,22 @@ internal abstract class OracleTableOrSubqueryMixin(
             } else {
                 super.queryAvailable(child)
             }
+        val joinToOneAvailable =
+            if (text.contains("JOIN TO ONE", ignoreCase = true)) {
+                oracleJoinToOneQueryExposed().orEmpty()
+            } else {
+                emptyList()
+            }
+        val available = queryAvailable + joinToOneAvailable
         val pivotAggregateAvailable = oraclePivotAggregateAvailable(child)
         if (pivotAggregateAvailable.isNotEmpty()) {
-            return queryAvailable + pivotAggregateAvailable
+            return available + pivotAggregateAvailable
         }
         val rowPatternClause = PsiTreeUtil.findChildOfType(this, OracleOracleRowPatternClause::class.java)
         if (rowPatternClause == null || !PsiTreeUtil.isAncestor(rowPatternClause, child, false)) {
-            return queryAvailable
+            return available
         }
-        return queryAvailable + oracleRowPatternVariableResults(rowPatternClause)
+        return available + oracleRowPatternVariableResults(rowPatternClause)
     }
 
     override fun getCompoundSelectStmt(): SqlCompoundSelectStmt? = PsiTreeUtil.getChildOfType(this, SqlCompoundSelectStmt::class.java)
@@ -124,6 +137,25 @@ internal abstract class OracleTableOrSubqueryMixin(
 
     override fun getTableOrSubqueryList(): List<SqlTableOrSubquery> =
         PsiTreeUtil.getChildrenOfTypeAsList(this, SqlTableOrSubquery::class.java)
+
+    private fun oracleJoinToOneQueryExposed(): List<QueryResult>? {
+        if (!text.contains("JOIN TO ONE", ignoreCase = true)) return null
+
+        val aliases = PsiTreeUtil.findChildrenOfType(this, SqlTableAlias::class.java).toList()
+        return PsiTreeUtil
+            .findChildrenOfType(this, SqlTableName::class.java)
+            .filterNot { tableNameElement ->
+                text.getOrNull(tableNameElement.textRange.endOffset - textRange.startOffset) == '.'
+            }.flatMapIndexed { index, tableNameElement ->
+                val result =
+                    oracleSynonymTargetAvailable(tableNameElement) { target, targetName ->
+                        tableAvailable(target, targetName)
+                    } ?: tableAvailable(tableNameElement, tableNameElement.name)
+                aliases.getOrNull(index)?.let { alias ->
+                    result.map { query -> query.copy(table = alias.oracleQueryTableElement()) }
+                } ?: result
+            }
+    }
 
     private fun oracleGeneratedColumnResult(): QueryResult? {
         PsiTreeUtil.findChildOfType(this, OracleOracleJsonTableReference::class.java)?.let { jsonTable ->
@@ -215,16 +247,23 @@ internal abstract class OracleTableOrSubqueryMixin(
             return null
         }
 
+        val collectionTable = tableAlias() ?: tableAlias
+        val collectionColumnAnchor = collectionTable ?: this
         body.oracleCollectionTableType()?.let { type ->
             return QueryResult(
-                table = tableAlias,
-                columns = listOf(QueryColumn(OracleGeneratedColumnElement(this, "COLUMN_VALUE", IntermediateType(type)))),
+                table = collectionTable,
+                columns =
+                    listOf(
+                        QueryColumn(
+                            OracleGeneratedColumnElement(collectionColumnAnchor, "COLUMN_VALUE", IntermediateType(type)),
+                        ),
+                    ),
             )
         }
         return QueryResult(
-            table = tableAlias,
+            table = collectionTable,
             columns = emptyList(),
-            synthesizedColumns = listOf(SynthesizedColumn(tableAlias ?: this, listOf("COLUMN_VALUE"))),
+            synthesizedColumns = listOf(SynthesizedColumn(collectionColumnAnchor, listOf("COLUMN_VALUE"))),
         )
     }
 
@@ -449,7 +488,12 @@ internal abstract class OracleTableOrSubqueryMixin(
             .let(::oracleRowPatternVariables)
             .map { variable ->
                 QueryResult(
-                    table = OraclePatternVariableElement(rowPatternClause, variable),
+                    table =
+                        OraclePatternVariableElement(
+                            anchor = rowPatternClause,
+                            variableName = variable,
+                            source = sourceResults.firstNotNullOfOrNull { result -> result.table as? PsiElement } ?: this,
+                        ),
                     columns = sourceColumns,
                     synthesizedColumns = sourceSynthesizedColumns,
                 )
@@ -711,17 +755,32 @@ private fun String.oracleCollectionTableType(): OracleType? {
 private class OraclePatternVariableElement(
     private val anchor: PsiElement,
     private val variableName: String,
+    private val source: PsiElement,
 ) : LightElement(anchor.manager, anchor.language),
-    PsiNamedElement {
+    SqlTableAlias {
+    override fun source(): PsiElement = source
+
+    override fun annotate(annotationHolder: SqlAnnotationHolder) = Unit
+
+    override fun queryAvailable(child: PsiElement): Collection<QueryResult> = emptyList()
+
+    override fun tablesAvailable(child: PsiElement): Collection<LazyQuery> = emptyList()
+
     override fun getName(): String = variableName
 
     override fun setName(name: String): PsiElement = this
 
     override fun getText(): String = variableName
 
-    override fun getContainingFile(): PsiFile = anchor.containingFile
+    override fun getContainingFile(): SqlFileBase = anchor.containingFile as SqlFileBase
 
     override fun getParent(): PsiElement = anchor
+
+    override fun getNameIdentifier(): PsiElement? = null
+
+    override fun getId(): PsiElement? = null
+
+    override fun getString(): PsiElement? = null
 
     override fun toString(): String = "Oracle pattern variable: $variableName"
 }

@@ -631,7 +631,11 @@ private oracle_json_transform_type_clause ::= 'TYPE' LP ( 'STRICT' | 'LAX' ) RP
 
 private oracle_json_passing_clause ::= 'PASSING' oracle_json_passing_binding ( COMMA oracle_json_passing_binding ) *
 
-private oracle_json_passing_binding ::= <<expr '-1'>> 'AS' oracle_json_passing_identifier
+private oracle_json_passing_binding ::= oracle_json_passing_expr 'AS' oracle_json_passing_identifier
+
+oracle_json_passing_expr ::= <<expr '-1'>> {
+  implements = "com.alecstrong.sql.psi.core.psi.SqlExpr"
+}
 
 private oracle_json_transform_operation ::= (
   oracle_json_transform_set_operation |
@@ -1136,7 +1140,8 @@ private oracle_row_limiting_fetch_token ::= (
   'TARGET' |
   'TIES' |
   'TO' |
-  'WITH'
+  'WITH' |
+  {limiting_term}
 )
 
 compound_operator ::= (
@@ -1498,14 +1503,18 @@ private oracle_flashback_query_clause ::= (
 private oracle_flashback_versions_clause ::= 'VERSIONS' 'BETWEEN' ( 'SCN' | 'TIMESTAMP' )
   oracle_flashback_boundary 'AND' oracle_flashback_boundary [ oracle_flashback_as_of_clause ]
 
-private oracle_flashback_as_of_clause ::= 'AS' 'OF' ( 'SCN' | 'TIMESTAMP' ) <<expr '-1'>>
+private oracle_flashback_as_of_clause ::= 'AS' 'OF' ( 'SCN' | 'TIMESTAMP' ) oracle_flashback_expr
 
 private oracle_flashback_versions_period_clause ::= 'VERSIONS' 'PERIOD' 'FOR' oracle_object_name_part
   'BETWEEN' oracle_flashback_boundary 'AND' oracle_flashback_boundary
 
-private oracle_flashback_as_of_period_clause ::= 'AS' 'OF' 'PERIOD' 'FOR' oracle_object_name_part <<expr '-1'>>
+private oracle_flashback_as_of_period_clause ::= 'AS' 'OF' 'PERIOD' 'FOR' oracle_object_name_part oracle_flashback_expr
 
-private oracle_flashback_boundary ::= 'MINVALUE' | 'MAXVALUE' | <<expr '-1'>>
+private oracle_flashback_boundary ::= 'MINVALUE' | 'MAXVALUE' | oracle_flashback_expr
+
+oracle_flashback_expr ::= <<expr '-1'>> {
+  implements = "com.alecstrong.sql.psi.core.psi.SqlExpr"
+}
 
 private oracle_table_transform_clause ::= oracle_pivot_clause | oracle_unpivot_clause | oracle_row_pattern_clause
 
@@ -1527,7 +1536,11 @@ private oracle_pivot_in_clause ::= 'IN' LP (
   oracle_pivot_in_entry ( COMMA oracle_pivot_in_entry ) *
 ) RP
 
-private oracle_pivot_in_entry ::= ( LP <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP | <<expr '-1'>> ) [ [ 'AS' ] oracle_object_name_part ]
+private oracle_pivot_in_entry ::= ( LP oracle_pivot_in_value ( COMMA oracle_pivot_in_value ) * RP | oracle_pivot_in_value ) [ [ 'AS' ] oracle_object_name_part ]
+
+oracle_pivot_in_value ::= <<expr '-1'>> {
+  implements = "com.alecstrong.sql.psi.core.psi.SqlExpr"
+}
 
 private oracle_unpivot_clause ::= 'UNPIVOT' [ ( 'INCLUDE' | 'EXCLUDE' ) 'NULLS' ] LP
   oracle_pivot_column_group
@@ -1754,7 +1767,7 @@ private oracle_insert_set_row ::= LP oracle_insert_set_assignment_list RP
 
 private oracle_insert_set_assignment_list ::= oracle_insert_set_assignment ( COMMA oracle_insert_set_assignment ) *
 
-private oracle_insert_set_assignment ::= {column_name} EQ ( 'DEFAULT' | <<expr '-1'>> )
+private oracle_insert_set_assignment ::= {column_name} EQ ( 'DEFAULT' | {setter_expression} )
 
 private oracle_by_name_position_clause ::= 'BY' ( 'NAME' | 'POSITION' )
 
@@ -1771,7 +1784,11 @@ private oracle_multi_table_insert_into_clause ::= 'INTO' oracle_insert_target_ta
   [ LP {column_name} ( COMMA {column_name} ) * RP ]
   [ 'VALUES' LP oracle_multi_table_insert_value ( COMMA oracle_multi_table_insert_value ) * RP ]
 
-private oracle_multi_table_insert_value ::= 'DEFAULT' | <<expr '-1'>>
+private oracle_multi_table_insert_value ::= 'DEFAULT' | oracle_multi_table_insert_value_expr
+
+oracle_multi_table_insert_value_expr ::= <<expr '-1'>> {
+  implements = "com.alecstrong.sql.psi.core.psi.SqlExpr"
+}
 
 update_stmt ::= oracle_update_stmt {
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleUpdateStmtMixin"
@@ -1835,7 +1852,9 @@ private oracle_returning_clause ::= ( 'RETURN' | 'RETURNING' ) oracle_returning_
 
 private oracle_returning_expr ::= [ 'OLD' | 'NEW' ] <<expr '-1'>>
 
-private oracle_returning_target ::= {bind_expr} | oracle_schema_object_name
+private oracle_returning_target ::= oracle_returning_bind_target | oracle_schema_object_name
+
+private oracle_returning_bind_target ::= '?' | ':' ( {identifier} | DIGIT )
 
 qualified_table_name ::= (
   'ONLY' LP [ <<databaseNameExt <<database_name_real>>>> DOT ] <<tableNameExt <<table_name_real>>>> [ oracle_dblink_clause ] RP |
@@ -6144,12 +6163,20 @@ private oracle_merge_insert_clause ::= 'WHEN' 'NOT' 'MATCHED' 'THEN' 'INSERT' (
 
 private oracle_merge_assignment ::= oracle_schema_object_name EQ oracle_merge_value
 
-private oracle_merge_value ::= 'DEFAULT' | <<expr '-1'>>
+private oracle_merge_value ::= 'DEFAULT' | oracle_merge_value_expr
+
+oracle_merge_value_expr ::= <<expr '-1'>> {
+  implements = "com.alecstrong.sql.psi.core.psi.SqlExpr"
+}
 
 private oracle_where_clause ::= 'WHERE' <<expr '-1'>>
 
-private oracle_error_logging_clause ::= 'LOG' 'ERRORS' [ 'INTO' oracle_schema_object_name ] [ LP <<expr '-1'>> RP ]
+private oracle_error_logging_clause ::= 'LOG' 'ERRORS' [ 'INTO' oracle_schema_object_name ] [ LP oracle_error_logging_tag_expr RP ]
   [ 'REJECT' 'LIMIT' ( {signed_number} | 'UNLIMITED' ) ]
+
+oracle_error_logging_tag_expr ::= <<expr '-1'>> {
+  implements = "com.alecstrong.sql.psi.core.psi.SqlExpr"
+}
 
 call_stmt ::= 'CALL' ( oracle_call_object_access_expression | oracle_call_routine_clause )
   [ oracle_call_into_clause ] {

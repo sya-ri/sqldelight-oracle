@@ -17,7 +17,12 @@ internal abstract class AlterTableRenameColumnMixin(
         lazyQuery.withOracleColumns { columns ->
             val sourceColumn = oracleFirstColumnName()
             val targetColumn = oracleSingleColumnAlias()
-            columns.replaceOracleColumn(sourceColumn, targetColumn.oracleQueryColumn())
+            val originalColumn = columns.firstOrNull { column -> column.matchesOracleNamedElement(sourceColumn) }
+            if (originalColumn == null) {
+                columns
+            } else {
+                columns.replaceOracleColumn(sourceColumn, originalColumn.renamedOracleColumn(targetColumn))
+            }
         }
 
     override fun annotate(annotationHolder: SqlAnnotationHolder) {

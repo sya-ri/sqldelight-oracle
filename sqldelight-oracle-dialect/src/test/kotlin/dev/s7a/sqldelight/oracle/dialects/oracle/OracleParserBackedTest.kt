@@ -537,6 +537,86 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle DML returning clauses from query files exactly") {
+            val sql =
+                """
+                CREATE TABLE returning_samples (
+                  id NUMBER(10) NOT NULL,
+                  name VARCHAR2(64),
+                  updated_at TIMESTAMP,
+                  PRIMARY KEY (id)
+                );
+
+                insertReturning:
+                INSERT INTO returning_samples (id, name, updated_at)
+                VALUES (:id, :name, CURRENT_TIMESTAMP)
+                RETURNING id, name INTO :returned_id, :returned_name;
+
+                updateReturning:
+                UPDATE returning_samples
+                SET name = :name,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = :id
+                RETURNING OLD name, NEW updated_at INTO :old_name, :new_updated_at;
+
+                deleteReturning:
+                DELETE FROM returning_samples
+                WHERE id = :id
+                RETURNING id, name BULK COLLECT INTO :deleted_ids, :deleted_names;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
+        test("resolves Oracle migration alter table columns from query files exactly") {
+            parseOracleSqlFiles(
+                deriveSchemaFromMigrations = true,
+                files =
+                    mapOf(
+                        "1.sqm" to
+                            """
+                            CREATE TABLE evolving_accounts (
+                              id NUMBER(10) NOT NULL,
+                              legacy_name VARCHAR2(64),
+                              archived_at TIMESTAMP,
+                              PRIMARY KEY (id)
+                            );
+
+                            ALTER TABLE evolving_accounts ADD (
+                              display_name VARCHAR2(100),
+                              created_at TIMESTAMP
+                            );
+
+                            ALTER TABLE evolving_accounts RENAME COLUMN legacy_name TO account_code;
+
+                            ALTER TABLE evolving_accounts DROP COLUMN archived_at;
+                            """.trimIndent(),
+                        "Test.sq" to
+                            """
+                            selectEvolvingAccounts:
+                            SELECT id, account_code, display_name, created_at
+                            FROM evolving_accounts
+                            WHERE account_code = :account_code
+                              AND display_name IS NOT NULL;
+
+                            updateEvolvingAccount:
+                            UPDATE evolving_accounts
+                            SET display_name = :display_name,
+                                created_at = CURRENT_TIMESTAMP
+                            WHERE id = :id;
+                            """.trimIndent(),
+                    ),
+            ) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle datetime and interval literals exactly") {
             val sql =
                 """
@@ -9157,6 +9237,36 @@ class OracleParserBackedTest :
 
             bindExprCount(files, deriveSchemaFromMigrations = true) shouldBe 2
             queryParameterNames(files, deriveSchemaFromMigrations = true) shouldBe listOf("id", "name")
+        }
+
+        test("does not count Oracle returning targets as input bind expressions") {
+            val sql =
+                """
+                CREATE TABLE returning_samples (
+                  id NUMBER(10) NOT NULL,
+                  amount NUMBER(10, 2),
+                  name VARCHAR2(64),
+                  PRIMARY KEY (id)
+                );
+
+                insertReturning:
+                INSERT INTO returning_samples (id, amount, name)
+                VALUES (:id, :amount, :name)
+                RETURNING id, name INTO :returned_id, :returned_name;
+
+                updateReturning:
+                UPDATE returning_samples
+                SET amount = :amount
+                WHERE id = :id
+                RETURNING OLD amount, NEW amount INTO :old_amount, :new_amount;
+
+                deleteReturning:
+                DELETE FROM returning_samples
+                WHERE id = :id
+                RETURNING id, name BULK COLLECT INTO :deleted_ids, :deleted_names;
+                """.trimIndent()
+
+            bindExprCount(sql) shouldBe 6
         }
 
         test("accepts insert select bind parameters from Oracle dual") {

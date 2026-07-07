@@ -12,14 +12,24 @@ import app.cash.sqldelight.dialect.api.PrimitiveType.TEXT
 import app.cash.sqldelight.dialect.api.TypeResolver
 import app.cash.sqldelight.dialect.api.encapsulatingTypePreferringKotlin
 import com.alecstrong.sql.psi.core.psi.NamedElement
+import com.alecstrong.sql.psi.core.psi.QueryElement.QueryColumn
 import com.alecstrong.sql.psi.core.psi.SqlColumnDef
 import com.alecstrong.sql.psi.core.psi.SqlCompositeElement
+import com.alecstrong.sql.psi.core.psi.SqlDeleteStmt
+import com.alecstrong.sql.psi.core.psi.SqlDeleteStmtLimited
 import com.alecstrong.sql.psi.core.psi.SqlExpr
 import com.alecstrong.sql.psi.core.psi.SqlExtensionExpr
 import com.alecstrong.sql.psi.core.psi.SqlFunctionExpr
+import com.alecstrong.sql.psi.core.psi.SqlInsertStmt
+import com.alecstrong.sql.psi.core.psi.SqlInsertStmtValues
+import com.alecstrong.sql.psi.core.psi.SqlMultiColumnExpr
+import com.alecstrong.sql.psi.core.psi.SqlMultiColumnExpression
 import com.alecstrong.sql.psi.core.psi.SqlSetterExpression
 import com.alecstrong.sql.psi.core.psi.SqlTypeName
+import com.alecstrong.sql.psi.core.psi.SqlUpdateStmt
+import com.alecstrong.sql.psi.core.psi.SqlUpdateStmtLimited
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import com.squareup.kotlinpoet.ClassName
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.BINARY
@@ -33,7 +43,11 @@ import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.LONG_NUMBER
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.TIMESTAMP
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.TIMESTAMP_TIME_ZONE
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.indexOfKeyword
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.oracleParenthesizedBodyAfter
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.oracleParenthesizedBodyAt
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.oracleTopLevelCommaParts
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.trimOracleIdentifier
+import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleMergeStmt
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleVectorDistanceOperand
 
 public class OracleTypeResolver(
@@ -69,12 +83,47 @@ public class OracleTypeResolver(
     override fun argumentType(
         parent: PsiElement,
         argument: SqlExpr,
-    ): IntermediateType =
-        if (parent is SqlSetterExpression) {
-            parent.oracleSetterTargetType() ?: parentResolver.argumentType(parent, argument)
-        } else {
-            parentResolver.argumentType(parent, argument)
+    ): IntermediateType {
+        argument.oracleCastArgumentType()?.let { return it }
+        argument.oracleFlashbackArgumentType()?.let { return it }
+        argument.oraclePivotArgumentType()?.let { return it }
+        argument.oracleErrorLoggingTagArgumentType()?.let { return it }
+        argument.oracleVectorFunctionArgumentType()?.let { return it }
+
+        return when {
+            parent is SqlSetterExpression -> {
+                parent.oracleSetterTargetType()
+                    ?: argument.oracleInsertSetArgumentType()
+                    ?: parentResolver.argumentType(parent, argument)
+            }
+
+            PsiTreeUtil.getParentOfType(argument, OracleMergeStmt::class.java) != null -> {
+                argument.oracleMergeArgumentType() ?: parentResolver.argumentType(parent, argument)
+            }
+
+            PsiTreeUtil.getParentOfType(argument, SqlMultiColumnExpr::class.java) != null -> {
+                argument.oracleMultiColumnArgumentType() ?: parentResolver.argumentType(parent, argument)
+            }
+
+            PsiTreeUtil.getParentOfType(argument, SqlExtensionExpr::class.java) != null -> {
+                argument.oracleCastArgumentType()
+                    ?: argument.oraclePivotArgumentType()
+                    ?: argument.oracleMultiColumnTextArgumentType()
+                    ?: argument.oracleExtensionArgumentType()
+                    ?: parentResolver.argumentType(parent, argument)
+            }
+
+            else -> {
+                argument.oracleInsertSetArgumentType()
+                    ?: argument.oracleMultiTableInsertArgumentType()
+                    ?: argument.oracleCastArgumentType()
+                    ?: argument.oracleFlashbackArgumentType()
+                    ?: argument.oraclePivotArgumentType()
+                    ?: argument.oracleErrorLoggingTagArgumentType()
+                    ?: parentResolver.argumentType(parent, argument)
+            }
         }
+    }
 
     private fun oracleExtensionFunctionType(expr: SqlExpr): IntermediateType? {
         val extensionExpr = expr.oracleExtensionExpr() ?: return null
@@ -214,7 +263,7 @@ public class OracleTypeResolver(
     private fun oracleVectorDistanceShorthandType(expr: SqlExpr): IntermediateType? {
         val extensionExpr =
             expr.oracleExtensionExpr()
-                ?: return IntermediateType(BINARY_DOUBLE).takeIf { expr.text.hasOracleVectorDistanceShorthand() }
+                ?: return IntermediateType(BINARY_DOUBLE).asNullable().takeIf { expr.text.hasOracleVectorDistanceShorthand() }
         if (!extensionExpr.text.hasOracleVectorDistanceShorthand()) return null
         val operandTypes =
             PsiTreeUtil
@@ -222,9 +271,9 @@ public class OracleTypeResolver(
                 .toList()
                 .takeIf { operands -> operands.size == 2 }
                 ?.map { operand -> operand.oracleVectorDistanceOperandType() }
-                ?: return IntermediateType(BINARY_DOUBLE)
+                ?: return IntermediateType(BINARY_DOUBLE).asNullable()
         return IntermediateType(BINARY_DOUBLE)
-            .nullableIf(operandTypes.any { type -> type.javaType.isNullable })
+            .nullableIf(operandTypes.any { type -> type.javaType.isNullable || type.dialectType == TEXT })
     }
 
     private fun OracleOracleVectorDistanceOperand.oracleVectorDistanceOperandType(): IntermediateType =
@@ -411,6 +460,377 @@ public class OracleTypeResolver(
         return owner.oracleAvailableColumnType(targetText)
     }
 
+    private fun SqlExpr.oracleMultiColumnArgumentType(): IntermediateType? {
+        val expression = PsiTreeUtil.getParentOfType(this, SqlMultiColumnExpression::class.java) ?: return null
+        val multiColumnExpr = expression.parent as? SqlMultiColumnExpr ?: return null
+        val expressionIndex = multiColumnExpr.multiColumnExpressionList.indexOf(expression)
+        if (expressionIndex <= 0) return null
+        val argumentIndex = expression.exprList.indexOf(this)
+        if (argumentIndex == -1) return null
+
+        return multiColumnExpr
+            .multiColumnExpressionList
+            .firstOrNull()
+            ?.exprList
+            ?.getOrNull(argumentIndex)
+            ?.let(::resolvedType)
+    }
+
+    private fun SqlExpr.oracleExtensionArgumentType(): IntermediateType? {
+        val extensionExpr = PsiTreeUtil.getParentOfType(this, SqlExtensionExpr::class.java) ?: return null
+        val extensionText = extensionExpr.text
+        val argumentOffset = textRange.startOffset - extensionExpr.textRange.startOffset
+        if (argumentOffset !in extensionText.indices) return null
+        val beforeArgument = extensionText.substring(0, argumentOffset)
+
+        if (Regex("""(?is)\bLIKE[234C]?\s*$""").containsMatchIn(beforeArgument)) {
+            return IntermediateType(TEXT)
+        }
+        if (Regex("""(?is)\bESCAPE\s*$""").containsMatchIn(beforeArgument)) {
+            return IntermediateType(TEXT)
+        }
+        oracleVectorArgumentType(extensionExpr)?.let { return it }
+
+        val regexpLikeStart = Regex("""(?is)\bREGEXP_LIKE\s*\(""").find(extensionText)?.range?.last ?: return null
+        if (argumentOffset <= regexpLikeStart) return null
+        val argumentIndex = extensionText.substring(regexpLikeStart + 1, argumentOffset).oracleTopLevelCommaParts().size - 1
+        return when (argumentIndex) {
+            1 -> IntermediateType(TEXT)
+            2 -> IntermediateType(TEXT).asNullable()
+            else -> null
+        }
+    }
+
+    private fun SqlExpr.oracleVectorArgumentType(extensionExpr: SqlExtensionExpr): IntermediateType? {
+        val argumentOffset = textRange.startOffset - extensionExpr.textRange.startOffset
+        if (argumentOffset !in extensionExpr.text.indices) return null
+        val beforeArgument = extensionExpr.text.substring(0, argumentOffset)
+        val invocation =
+            Regex("""(?is)\b(?:VECTOR|TO_VECTOR)\s*\(""")
+                .findAll(beforeArgument)
+                .lastOrNull()
+                ?: return null
+        val functionOpenOffset = invocation.range.last
+        val invocationPrefix =
+            extensionExpr
+                .text
+                .substring(functionOpenOffset + 1, argumentOffset)
+        val argumentIndex =
+            if (invocationPrefix.isBlank()) {
+                0
+            } else {
+                invocationPrefix.oracleTopLevelCommaParts().size - 1
+            }
+        return when (argumentIndex) {
+            0 -> IntermediateType(TEXT)
+            1 -> IntermediateType(LONG_NUMBER)
+            else -> null
+        }
+    }
+
+    private fun SqlExpr.oracleVectorFunctionArgumentType(): IntermediateType? {
+        val functionExpr = PsiTreeUtil.getParentOfType(this, SqlFunctionExpr::class.java) ?: return null
+        if (!functionExpr.functionName.text.equals("VECTOR", ignoreCase = true) &&
+            !functionExpr.functionName.text.equals("TO_VECTOR", ignoreCase = true)
+        ) {
+            return null
+        }
+        return when (functionExpr.exprList.indexOf(this)) {
+            0 -> IntermediateType(TEXT)
+            1 -> IntermediateType(LONG_NUMBER)
+            else -> null
+        }
+    }
+
+    private fun SqlExpr.oracleMultiColumnTextArgumentType(): IntermediateType? {
+        val extensionExpr = PsiTreeUtil.getParentOfType(this, SqlExtensionExpr::class.java) ?: return null
+        val expressionText = extensionExpr.text
+        val argumentOffset = textRange.startOffset - extensionExpr.textRange.startOffset
+        if (argumentOffset !in expressionText.indices) return null
+
+        val leftTuple =
+            Regex("""(?is)\(([^()]+)\)\s*(?:=|IN)\s*\(""")
+                .find(expressionText)
+                ?.groupValues
+                ?.get(1)
+                ?: return null
+        val argumentIndex =
+            expressionText
+                .substring(0, argumentOffset)
+                .substringAfterLast("(")
+                .oracleTopLevelCommaParts()
+                .size - 1
+
+        val columnName =
+            leftTuple
+                .oracleTopLevelCommaParts()
+                .getOrNull(argumentIndex)
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+                ?: return null
+        return extensionExpr.oracleAvailableColumnType(columnName)
+    }
+
+    private fun SqlExpr.oraclePivotArgumentType(): IntermediateType? {
+        var current: PsiElement? = parent
+        while (current != null) {
+            val pivotType = current.oraclePivotArgumentType(this)
+            if (pivotType != null) return pivotType
+            current = current.parent
+        }
+        return null
+    }
+
+    private fun PsiElement.oraclePivotArgumentType(argument: SqlExpr): IntermediateType? {
+        val pivotBody = text.oracleParenthesizedBodyAfter("PIVOT") ?: return null
+        val pivotBodyOffset = text.indexOf(pivotBody).takeIf { it >= 0 } ?: return null
+        val argumentOffset = argument.textRange.startOffset - textRange.startOffset
+        if (argumentOffset !in pivotBodyOffset..<(pivotBodyOffset + pivotBody.length)) return null
+
+        val forOffset = pivotBody.indexOfKeyword("FOR") ?: return null
+        val inOffset = pivotBody.indexOfKeyword("IN", startIndex = forOffset + "FOR".length) ?: return null
+        val pivotColumns =
+            pivotBody
+                .substring(forOffset + "FOR".length, inOffset)
+                .oracleIdentifierList()
+        if (pivotColumns.isEmpty()) return null
+
+        val relativeArgumentOffset = argumentOffset - pivotBodyOffset
+        val inBodyStart = pivotBody.indexOf('(', startIndex = inOffset).takeIf { it >= 0 } ?: return null
+        if (relativeArgumentOffset <= inBodyStart) return null
+        val entryPrefix = pivotBody.substring(inBodyStart + 1, relativeArgumentOffset).substringAfterLast("(")
+        val argumentIndex = entryPrefix.oracleTopLevelCommaParts().size - 1
+        val columnName = pivotColumns.getOrNull(argumentIndex) ?: return null
+        return oracleAvailableTableColumnType(columnName)
+            ?: argument.oracleAvailableColumnType(columnName)
+    }
+
+    private fun String.oracleIdentifierList(): List<String> =
+        trim()
+            .removeSurrounding("(", ")")
+            .let { body ->
+                Regex(""""[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*""")
+                    .findAll(body)
+                    .map { match -> match.value.trimOracleIdentifier() }
+                    .toList()
+            }
+
+    private fun SqlExpr.oracleCastArgumentType(): IntermediateType? {
+        val functionExpr = PsiTreeUtil.getParentOfType(this, SqlFunctionExpr::class.java)
+        if (functionExpr != null && functionExpr.functionName.text.isOracleCastLikeFunctionName()) {
+            val argumentOffset = textRange.startOffset - functionExpr.textRange.startOffset
+            val asOffset = functionExpr.text.indexOfKeyword("AS") ?: return null
+            if (argumentOffset <= asOffset) {
+                return functionExpr.text.oracleCastTargetType()
+            }
+        }
+
+        return oracleCastExtensionArgumentType()
+    }
+
+    private fun SqlExpr.oracleCastExtensionArgumentType(): IntermediateType? {
+        val extensionExpr = PsiTreeUtil.getParentOfType(this, SqlExtensionExpr::class.java) ?: return null
+        val functionName = extensionExpr.text.oracleLeadingIdentifier()
+        if (!functionName.isOracleCastLikeFunctionName()) return null
+
+        val argumentTextRange = textRange ?: return null
+        val extensionTextRange = extensionExpr.textRange ?: return null
+        val argumentOffset = argumentTextRange.startOffset - extensionTextRange.startOffset
+        val asOffset = extensionExpr.text.indexOfKeyword("AS") ?: return null
+        if (argumentOffset > asOffset) return null
+
+        return extensionExpr.text.oracleCastTargetType()
+    }
+
+    private fun SqlExpr.oracleFlashbackArgumentType(): IntermediateType? {
+        val fileText = containingFile.text
+        val argumentTextRange = textRange
+        if (argumentTextRange != null && argumentTextRange.startOffset in fileText.indices) {
+            val beforeArgument = fileText.substring(0, argumentTextRange.startOffset)
+            when {
+                beforeArgument.hasOracleScnFlashbackBoundary() -> return IntermediateType(LONG_NUMBER)
+                beforeArgument.hasOracleTimestampFlashbackBoundary() -> return IntermediateType(TIMESTAMP)
+            }
+        }
+
+        var current: PsiElement? = parent
+        while (current != null) {
+            val flashbackType = current.oracleFlashbackArgumentType(this)
+            if (flashbackType != null) return flashbackType
+            current = current.parent
+        }
+        return null
+    }
+
+    private fun PsiElement.oracleFlashbackArgumentType(argument: SqlExpr): IntermediateType? {
+        val parentTextRange = textRange ?: return null
+        val argumentTextRange = argument.textRange ?: return null
+        val argumentOffset = argumentTextRange.startOffset - parentTextRange.startOffset
+        if (argumentOffset !in text.indices) return null
+
+        val beforeArgument = text.substring(0, argumentOffset)
+        return when {
+            beforeArgument.hasOracleScnFlashbackBoundary() -> IntermediateType(LONG_NUMBER)
+            beforeArgument.hasOracleTimestampFlashbackBoundary() -> IntermediateType(TIMESTAMP)
+            else -> null
+        }
+    }
+
+    private fun String.hasOracleScnFlashbackBoundary(): Boolean =
+        contains(Regex("""(?is)\bAS\s+OF\s+SCN\s*$""")) ||
+            contains(Regex("""(?is)\bVERSIONS\s+BETWEEN\s+SCN\s+(?:.*\bAND\s+)?$"""))
+
+    private fun String.hasOracleTimestampFlashbackBoundary(): Boolean =
+        contains(Regex("""(?is)\bAS\s+OF\s+TIMESTAMP\s*$""")) ||
+            contains(Regex("""(?is)\bAS\s+OF\s+PERIOD\s+FOR\s+[A-Za-z_][A-Za-z0-9_$#]*\s*$""")) ||
+            contains(Regex("""(?is)\bVERSIONS\s+BETWEEN\s+TIMESTAMP\s+(?:.*\bAND\s+)?$""")) ||
+            contains(Regex("""(?is)\bVERSIONS\s+PERIOD\s+FOR\s+[A-Za-z_][A-Za-z0-9_$#]*\s+BETWEEN\s+(?:.*\bAND\s+)?$"""))
+
+    private fun SqlExpr.oracleMergeArgumentType(): IntermediateType? {
+        val mergeStmt = PsiTreeUtil.getParentOfType(this, OracleMergeStmt::class.java) ?: return null
+        return mergeStmt.oracleMergeAssignmentArgumentType(this)
+            ?: mergeStmt.oracleMergeComparisonArgumentType(this)
+            ?: mergeStmt.oracleMergeInsertArgumentType(this)
+    }
+
+    private fun OracleMergeStmt.oracleMergeAssignmentArgumentType(argument: SqlExpr): IntermediateType? =
+        oracleAssignmentTargetType(argument)
+
+    private fun OracleMergeStmt.oracleMergeComparisonArgumentType(argument: SqlExpr): IntermediateType? {
+        val argumentStart = argument.textRange.startOffset - textRange.startOffset
+        if (argumentStart !in text.indices) return null
+        val argumentEnd = argument.textRange.endOffset - textRange.startOffset
+        if (argumentEnd !in 0..text.length) return null
+
+        val beforeArgument = text.substring(0, argumentStart)
+        val leftOperandText =
+            Regex("""(?is)([A-Za-z_][\w$#]*(?:\s*\.\s*[A-Za-z_][\w$#]*)*)\s*(?:=|<>|!=|<=|>=|<|>)\s*$""")
+                .find(beforeArgument)
+                ?.groupValues
+                ?.get(1)
+        if (leftOperandText != null) {
+            return oracleAvailableColumnType(leftOperandText)
+        }
+
+        val afterArgument = text.substring(argumentEnd)
+        val rightOperandText =
+            Regex("""(?is)^\s*(?:=|<>|!=|<=|>=|<|>)\s*([A-Za-z_][\w$#]*(?:\s*\.\s*[A-Za-z_][\w$#]*)*)""")
+                .find(afterArgument)
+                ?.groupValues
+                ?.get(1)
+                ?: return null
+        return oracleAvailableColumnType(rightOperandText)
+    }
+
+    private fun OracleMergeStmt.oracleMergeInsertArgumentType(argument: SqlExpr): IntermediateType? =
+        oracleColumnTypeForValue(argument, columnsKeyword = "INSERT")
+
+    private fun SqlExpr.oracleMultiTableInsertArgumentType(): IntermediateType? {
+        val insertStmt = PsiTreeUtil.getParentOfType(this, SqlInsertStmt::class.java) ?: return null
+        return insertStmt.oracleMultiTableInsertArgumentType(this)
+    }
+
+    private fun SqlExpr.oracleInsertSetArgumentType(): IntermediateType? {
+        val insertStmt = PsiTreeUtil.getParentOfType(this, SqlInsertStmt::class.java) ?: return null
+        return insertStmt.oracleInsertSetArgumentType(this)
+    }
+
+    private fun SqlInsertStmt.oracleInsertSetArgumentType(argument: SqlExpr): IntermediateType? {
+        val valuesText = PsiTreeUtil.getChildOfType(this, SqlInsertStmtValues::class.java)?.text ?: return null
+        if (!valuesText.trimStart().startsWith("SET ", ignoreCase = true)) return null
+        return oracleAssignmentTargetType(argument)
+    }
+
+    private fun SqlInsertStmt.oracleMultiTableInsertArgumentType(argument: SqlExpr): IntermediateType? {
+        val trimmed = text.trimStart()
+        if (!trimmed.startsWith("INSERT ALL", ignoreCase = true) && !trimmed.startsWith("INSERT FIRST", ignoreCase = true)) {
+            return null
+        }
+
+        return oracleColumnTypeForValue(argument, columnsKeyword = "INTO")
+    }
+
+    private fun PsiElement.oracleAssignmentTargetType(argument: SqlExpr): IntermediateType? {
+        val argumentStart = argument.textRange.startOffset - textRange.startOffset
+        if (argumentStart !in text.indices) return null
+        val beforeArgument = text.substring(0, argumentStart)
+        val targetText =
+            Regex("""(?is)(?:\bSET\b|,)\s*([A-Za-z_][\w$#]*(?:\s*\.\s*[A-Za-z_][\w$#]*)*)\s*=\s*$""")
+                .find(beforeArgument)
+                ?.groupValues
+                ?.get(1)
+                ?: return null
+        return oracleAvailableColumnType(targetText)
+    }
+
+    private fun PsiElement.oracleColumnTypeForValue(
+        argument: SqlExpr,
+        columnsKeyword: String,
+    ): IntermediateType? {
+        val argumentStart = argument.textRange.startOffset - textRange.startOffset
+        if (argumentStart !in text.indices) return null
+
+        val valuesKeywordOffset =
+            Regex("""(?i)\bVALUES\b""")
+                .findAll(text.substring(0, argumentStart))
+                .lastOrNull()
+                ?.range
+                ?.first
+                ?: return null
+        val valuesOpenOffset = text.indexOf('(', startIndex = valuesKeywordOffset).takeIf { it != -1 } ?: return null
+        val valueIndex = text.substring(valuesOpenOffset + 1, argumentStart).oracleTopLevelCommaParts().size - 1
+
+        val beforeValues = text.substring(0, valuesKeywordOffset)
+        val columnsKeywordOffset =
+            Regex("""(?i)\b${Regex.escape(columnsKeyword)}\b""")
+                .findAll(beforeValues)
+                .lastOrNull()
+                ?.range
+                ?.first
+                ?: return null
+        val columnsOpenOffset = text.indexOf('(', startIndex = columnsKeywordOffset).takeIf { it in 0..<valuesKeywordOffset } ?: return null
+        val columnName =
+            text
+                .oracleParenthesizedBodyAt(columnsOpenOffset)
+                .oracleTopLevelCommaParts()
+                .getOrNull(valueIndex)
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+                ?: return null
+
+        return oracleAvailableColumnType(columnName)
+    }
+
+    private fun SqlExpr.oracleErrorLoggingTagArgumentType(): IntermediateType? {
+        var current: PsiElement? = parent
+        while (current != null && current !is PsiFile) {
+            val argumentStart = textRange.startOffset - current.textRange.startOffset
+            if (argumentStart in current.text.indices) {
+                val beforeArgument = current.text.substring(0, argumentStart)
+                val logErrorsOffset =
+                    Regex("""(?i)\bLOG\s+ERRORS\b""")
+                        .findAll(beforeArgument)
+                        .lastOrNull()
+                        ?.range
+                        ?.first
+                if (logErrorsOffset != null && beforeArgument.substring(logErrorsOffset).lastIndexOf('(') != -1) {
+                    return IntermediateType(TEXT)
+                }
+            }
+            if (current.isOracleDmlStatement()) break
+            current = current.parent
+        }
+        return null
+    }
+
+    private fun PsiElement.isOracleDmlStatement(): Boolean =
+        this is SqlInsertStmt ||
+            this is SqlUpdateStmt ||
+            this is SqlUpdateStmtLimited ||
+            this is SqlDeleteStmt ||
+            this is SqlDeleteStmtLimited ||
+            this is OracleMergeStmt
+
     private fun PsiElement.oracleAvailableColumnType(operandText: String): IntermediateType? {
         val operandColumnName = operandText.substringAfterLast(".").trimOracleIdentifier()
         if (operandColumnName.isBlank()) return null
@@ -429,38 +849,58 @@ public class OracleTypeResolver(
         return oracleAvailableColumnTypeForColumn(operandColumnName)
     }
 
-    private fun PsiElement.oracleAvailableColumnTypeForColumn(operandColumnName: String): IntermediateType? {
+    private fun PsiElement.oracleAvailableColumnTypeForColumn(operandColumnName: String): IntermediateType? =
+        oracleAvailableColumnTypeInScopes(operandColumnName) { context ->
+            queryAvailable(context)
+                .asSequence()
+                .flatMap { result -> result.columns.asSequence() }
+        }
+
+    private fun PsiElement.oracleAvailableTableColumnType(operandText: String): IntermediateType? {
+        val operandColumnName = operandText.substringAfterLast(".").trimOracleIdentifier()
+        if (operandColumnName.isBlank()) return null
+
+        return oracleAvailableColumnTypeInScopes(operandColumnName) { context ->
+            tablesAvailable(context)
+                .asSequence()
+                .flatMap { table -> table.query.columns.asSequence() }
+        }
+    }
+
+    private fun PsiElement.oracleAvailableColumnTypeInScopes(
+        operandColumnName: String,
+        columnsAvailable: SqlCompositeElement.(PsiElement) -> Sequence<QueryColumn>?,
+    ): IntermediateType? {
         var current: PsiElement? = this
         while (current != null) {
             val queryElement = current as? SqlCompositeElement
             val column =
                 queryElement
-                    ?.queryAvailable(this)
-                    ?.asSequence()
-                    ?.flatMap { result -> result.columns.asSequence() }
+                    ?.columnsAvailable(this)
                     ?.firstOrNull { column ->
                         (column.element as? NamedElement)?.name.equals(operandColumnName, ignoreCase = true)
                     }
             val exposedType = column?.element as? ExposableType
             if (exposedType != null) return exposedType.type()
             val columnDef = column?.element?.parent as? SqlColumnDef
-            if (columnDef != null) {
-                val baseType = definitionType(columnDef.columnType.typeName)
-                val customType = (columnDef.columnType as? SqlDelightColumnType)?.javaTypeName?.text
-                if (!customType.isNullOrBlank() && !customType.equals("VALUE", ignoreCase = true)) {
-                    val customIntermediateType =
-                        baseType.copy(
-                            javaType = ClassName.bestGuess(customType),
-                            column = columnDef,
-                        )
-                    return customIntermediateType.nullableIf(!columnDef.text.contains(Regex("""(?i)\bNOT\s+NULL\b""")))
-                }
-                return baseType
-                    .nullableIf(!columnDef.text.contains(Regex("""(?i)\bNOT\s+NULL\b""")))
-            }
+            if (columnDef != null) return columnDef.oracleColumnDefinitionType()
             current = current.parent
         }
         return null
+    }
+
+    private fun SqlColumnDef.oracleColumnDefinitionType(): IntermediateType {
+        val baseType = definitionType(columnType.typeName)
+        val customType = (columnType as? SqlDelightColumnType)?.javaTypeName?.text
+        if (!customType.isNullOrBlank() && !customType.equals("VALUE", ignoreCase = true)) {
+            val customIntermediateType =
+                baseType.copy(
+                    javaType = ClassName.bestGuess(customType),
+                    column = this,
+                )
+            return customIntermediateType.nullableIf(!text.contains(Regex("""(?i)\bNOT\s+NULL\b""")))
+        }
+        return baseType.nullableIf(!text.contains(Regex("""(?i)\bNOT\s+NULL\b""")))
     }
 
     private fun SqlExpr.oracleBinaryOperatorBetween(operands: List<SqlExpr>): String? {
@@ -1337,6 +1777,15 @@ public class OracleTypeResolver(
         private fun String.oracleReturningTypeName(): String? = oracleTypeNameAfterKeyword("RETURNING")
 
         private fun String.oracleCastTypeName(): String? = oracleTypeNameAfterKeyword("AS")
+
+        private fun String.oracleCastTargetType(): IntermediateType? =
+            oracleCastTypeName()
+                ?.let { typeName -> IntermediateType(OracleType.fromSqlTypeName(typeName)) }
+
+        private fun String.isOracleCastLikeFunctionName(): Boolean =
+            equals("CAST", ignoreCase = true) ||
+                equals("XMLCAST", ignoreCase = true) ||
+                equals("TREAT", ignoreCase = true)
 
         private fun String.hasOracleDefaultNullOnConversionError(): Boolean {
             val asOffset = indexOfKeyword("AS") ?: return false

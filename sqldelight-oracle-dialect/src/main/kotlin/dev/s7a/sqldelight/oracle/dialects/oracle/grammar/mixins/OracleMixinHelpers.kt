@@ -42,8 +42,6 @@ internal fun PsiElement.oracleSingleColumnAlias(): SqlColumnAlias =
 
 internal fun SqlColumnDef.oracleQueryColumn(): QueryColumn = QueryColumn(columnName)
 
-internal fun SqlColumnAlias.oracleQueryColumn(): QueryColumn = QueryColumn(this)
-
 internal fun QueryColumn.renamedOracleColumn(alias: SqlColumnAlias): QueryColumn =
     QueryColumn(OracleRenamedColumnElement(alias, alias.name, this))
 

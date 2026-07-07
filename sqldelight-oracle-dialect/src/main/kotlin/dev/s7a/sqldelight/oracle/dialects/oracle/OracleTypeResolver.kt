@@ -12,6 +12,7 @@ import app.cash.sqldelight.dialect.api.PrimitiveType.TEXT
 import app.cash.sqldelight.dialect.api.TypeResolver
 import app.cash.sqldelight.dialect.api.encapsulatingTypePreferringKotlin
 import com.alecstrong.sql.psi.core.psi.NamedElement
+import com.alecstrong.sql.psi.core.psi.QueryElement.QueryColumn
 import com.alecstrong.sql.psi.core.psi.SqlColumnDef
 import com.alecstrong.sql.psi.core.psi.SqlCompositeElement
 import com.alecstrong.sql.psi.core.psi.SqlDeleteStmt
@@ -692,18 +693,8 @@ public class OracleTypeResolver(
             ?: mergeStmt.oracleMergeInsertArgumentType(this)
     }
 
-    private fun OracleMergeStmt.oracleMergeAssignmentArgumentType(argument: SqlExpr): IntermediateType? {
-        val argumentStart = argument.textRange.startOffset - textRange.startOffset
-        if (argumentStart !in text.indices) return null
-        val beforeArgument = text.substring(0, argumentStart)
-        val targetText =
-            Regex("""(?is)(?:\bSET\b|,)\s*([A-Za-z_][\w$#]*(?:\s*\.\s*[A-Za-z_][\w$#]*)*)\s*=\s*$""")
-                .find(beforeArgument)
-                ?.groupValues
-                ?.get(1)
-                ?: return null
-        return oracleAvailableColumnType(targetText)
-    }
+    private fun OracleMergeStmt.oracleMergeAssignmentArgumentType(argument: SqlExpr): IntermediateType? =
+        oracleAssignmentTargetType(argument)
 
     private fun OracleMergeStmt.oracleMergeComparisonArgumentType(argument: SqlExpr): IntermediateType? {
         val argumentStart = argument.textRange.startOffset - textRange.startOffset
@@ -731,40 +722,8 @@ public class OracleTypeResolver(
         return oracleAvailableColumnType(rightOperandText)
     }
 
-    private fun OracleMergeStmt.oracleMergeInsertArgumentType(argument: SqlExpr): IntermediateType? {
-        val argumentStart = argument.textRange.startOffset - textRange.startOffset
-        if (argumentStart !in text.indices) return null
-
-        val valuesKeywordOffset =
-            Regex("""(?i)\bVALUES\b""")
-                .findAll(text.substring(0, argumentStart))
-                .lastOrNull()
-                ?.range
-                ?.first
-                ?: return null
-        val valuesOpenOffset = text.indexOf('(', startIndex = valuesKeywordOffset).takeIf { it != -1 } ?: return null
-        val valueIndex = text.substring(valuesOpenOffset + 1, argumentStart).oracleTopLevelCommaParts().size - 1
-
-        val beforeValues = text.substring(0, valuesKeywordOffset)
-        val insertKeywordOffset =
-            Regex("""(?i)\bINSERT\b""")
-                .findAll(beforeValues)
-                .lastOrNull()
-                ?.range
-                ?.first
-                ?: return null
-        val columnsOpenOffset = text.indexOf('(', startIndex = insertKeywordOffset).takeIf { it in 0..<valuesKeywordOffset } ?: return null
-        val columnName =
-            text
-                .oracleParenthesizedBodyAt(columnsOpenOffset)
-                .oracleTopLevelCommaParts()
-                .getOrNull(valueIndex)
-                ?.trim()
-                ?.takeIf { it.isNotEmpty() }
-                ?: return null
-
-        return oracleAvailableColumnType(columnName)
-    }
+    private fun OracleMergeStmt.oracleMergeInsertArgumentType(argument: SqlExpr): IntermediateType? =
+        oracleColumnTypeForValue(argument, columnsKeyword = "INSERT")
 
     private fun SqlExpr.oracleMultiTableInsertArgumentType(): IntermediateType? {
         val insertStmt = PsiTreeUtil.getParentOfType(this, SqlInsertStmt::class.java) ?: return null
@@ -779,7 +738,19 @@ public class OracleTypeResolver(
     private fun SqlInsertStmt.oracleInsertSetArgumentType(argument: SqlExpr): IntermediateType? {
         val valuesText = PsiTreeUtil.getChildOfType(this, SqlInsertStmtValues::class.java)?.text ?: return null
         if (!valuesText.trimStart().startsWith("SET ", ignoreCase = true)) return null
+        return oracleAssignmentTargetType(argument)
+    }
 
+    private fun SqlInsertStmt.oracleMultiTableInsertArgumentType(argument: SqlExpr): IntermediateType? {
+        val trimmed = text.trimStart()
+        if (!trimmed.startsWith("INSERT ALL", ignoreCase = true) && !trimmed.startsWith("INSERT FIRST", ignoreCase = true)) {
+            return null
+        }
+
+        return oracleColumnTypeForValue(argument, columnsKeyword = "INTO")
+    }
+
+    private fun PsiElement.oracleAssignmentTargetType(argument: SqlExpr): IntermediateType? {
         val argumentStart = argument.textRange.startOffset - textRange.startOffset
         if (argumentStart !in text.indices) return null
         val beforeArgument = text.substring(0, argumentStart)
@@ -792,12 +763,10 @@ public class OracleTypeResolver(
         return oracleAvailableColumnType(targetText)
     }
 
-    private fun SqlInsertStmt.oracleMultiTableInsertArgumentType(argument: SqlExpr): IntermediateType? {
-        val trimmed = text.trimStart()
-        if (!trimmed.startsWith("INSERT ALL", ignoreCase = true) && !trimmed.startsWith("INSERT FIRST", ignoreCase = true)) {
-            return null
-        }
-
+    private fun PsiElement.oracleColumnTypeForValue(
+        argument: SqlExpr,
+        columnsKeyword: String,
+    ): IntermediateType? {
         val argumentStart = argument.textRange.startOffset - textRange.startOffset
         if (argumentStart !in text.indices) return null
 
@@ -812,14 +781,14 @@ public class OracleTypeResolver(
         val valueIndex = text.substring(valuesOpenOffset + 1, argumentStart).oracleTopLevelCommaParts().size - 1
 
         val beforeValues = text.substring(0, valuesKeywordOffset)
-        val intoKeywordOffset =
-            Regex("""(?i)\bINTO\b""")
+        val columnsKeywordOffset =
+            Regex("""(?i)\b${Regex.escape(columnsKeyword)}\b""")
                 .findAll(beforeValues)
                 .lastOrNull()
                 ?.range
                 ?.first
                 ?: return null
-        val columnsOpenOffset = text.indexOf('(', startIndex = intoKeywordOffset).takeIf { it in 0..<valuesKeywordOffset } ?: return null
+        val columnsOpenOffset = text.indexOf('(', startIndex = columnsKeywordOffset).takeIf { it in 0..<valuesKeywordOffset } ?: return null
         val columnName =
             text
                 .oracleParenthesizedBodyAt(columnsOpenOffset)
@@ -880,39 +849,34 @@ public class OracleTypeResolver(
         return oracleAvailableColumnTypeForColumn(operandColumnName)
     }
 
-    private fun PsiElement.oracleAvailableColumnTypeForColumn(operandColumnName: String): IntermediateType? {
-        var current: PsiElement? = this
-        while (current != null) {
-            val queryElement = current as? SqlCompositeElement
-            val column =
-                queryElement
-                    ?.queryAvailable(this)
-                    ?.asSequence()
-                    ?.flatMap { result -> result.columns.asSequence() }
-                    ?.firstOrNull { column ->
-                        (column.element as? NamedElement)?.name.equals(operandColumnName, ignoreCase = true)
-                    }
-            val exposedType = column?.element as? ExposableType
-            if (exposedType != null) return exposedType.type()
-            val columnDef = column?.element?.parent as? SqlColumnDef
-            if (columnDef != null) return columnDef.oracleColumnDefinitionType()
-            current = current.parent
+    private fun PsiElement.oracleAvailableColumnTypeForColumn(operandColumnName: String): IntermediateType? =
+        oracleAvailableColumnTypeInScopes(operandColumnName) { context ->
+            queryAvailable(context)
+                .asSequence()
+                .flatMap { result -> result.columns.asSequence() }
         }
-        return null
-    }
 
     private fun PsiElement.oracleAvailableTableColumnType(operandText: String): IntermediateType? {
         val operandColumnName = operandText.substringAfterLast(".").trimOracleIdentifier()
         if (operandColumnName.isBlank()) return null
 
+        return oracleAvailableColumnTypeInScopes(operandColumnName) { context ->
+            tablesAvailable(context)
+                .asSequence()
+                .flatMap { table -> table.query.columns.asSequence() }
+        }
+    }
+
+    private fun PsiElement.oracleAvailableColumnTypeInScopes(
+        operandColumnName: String,
+        columnsAvailable: SqlCompositeElement.(PsiElement) -> Sequence<QueryColumn>?,
+    ): IntermediateType? {
         var current: PsiElement? = this
         while (current != null) {
             val queryElement = current as? SqlCompositeElement
             val column =
                 queryElement
-                    ?.tablesAvailable(this)
-                    ?.asSequence()
-                    ?.flatMap { table -> table.query.columns.asSequence() }
+                    ?.columnsAvailable(this)
                     ?.firstOrNull { column ->
                         (column.element as? NamedElement)?.name.equals(operandColumnName, ignoreCase = true)
                     }

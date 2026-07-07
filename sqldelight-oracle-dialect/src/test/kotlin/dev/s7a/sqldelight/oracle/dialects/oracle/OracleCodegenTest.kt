@@ -904,6 +904,49 @@ class OracleCodegenTest :
             queries.contains("bindString(parameterIndex++, tradesAdapter.symbolAdapter.encode(symbol))") shouldBe true
         }
 
+        test("generates Oracle model clause bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import java.math.BigDecimal;
+
+                    CREATE TABLE sales (
+                      region VARCHAR2(30) NOT NULL,
+                      product VARCHAR2(30) NOT NULL,
+                      year_num NUMBER(10, 0) NOT NULL,
+                      amount NUMBER(12, 2)
+                    );
+
+                    selectModeledSales:
+                    SELECT region, product, year_num, amount
+                    FROM sales
+                    WHERE region = :region
+                    MODEL RETURN UPDATED ROWS
+                      PARTITION BY (region)
+                      DIMENSION BY (product, year_num)
+                      MEASURES (amount)
+                      RULES UPSERT ALL SEQUENTIAL ORDER (
+                        amount['chairs', 2026] ORDER BY year_num = amount['chairs', 2025] + 10
+                      );
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> selectModeledSales(region: String, mapper: (") shouldBe true
+            queries.contains("region: String,") shouldBe true
+            queries.contains("product: String,") shouldBe true
+            queries.contains("year_num: Long,") shouldBe true
+            queries.contains("amount: BigDecimal?,") shouldBe true
+            queries.contains("|WHERE region = ?") shouldBe true
+            queries.contains("|MODEL RETURN UPDATED ROWS") shouldBe true
+            queries.contains("|  PARTITION BY (region)") shouldBe true
+            queries.contains("|  DIMENSION BY (product, year_num)") shouldBe true
+            queries.contains("|  MEASURES (amount)") shouldBe true
+            queries.contains("|  RULES UPSERT ALL SEQUENTIAL ORDER (") shouldBe true
+            queries.contains("|    amount['chairs', 2026] ORDER BY year_num = amount['chairs', 2025] + 10") shouldBe true
+            queries.contains("bindString(parameterIndex++, region)") shouldBe true
+        }
+
         test("generates Oracle row limiting bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

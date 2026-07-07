@@ -14,6 +14,8 @@ import app.cash.sqldelight.dialect.api.encapsulatingTypePreferringKotlin
 import com.alecstrong.sql.psi.core.psi.NamedElement
 import com.alecstrong.sql.psi.core.psi.SqlColumnDef
 import com.alecstrong.sql.psi.core.psi.SqlCompositeElement
+import com.alecstrong.sql.psi.core.psi.SqlDeleteStmt
+import com.alecstrong.sql.psi.core.psi.SqlDeleteStmtLimited
 import com.alecstrong.sql.psi.core.psi.SqlExpr
 import com.alecstrong.sql.psi.core.psi.SqlExtensionExpr
 import com.alecstrong.sql.psi.core.psi.SqlFunctionExpr
@@ -23,7 +25,10 @@ import com.alecstrong.sql.psi.core.psi.SqlMultiColumnExpr
 import com.alecstrong.sql.psi.core.psi.SqlMultiColumnExpression
 import com.alecstrong.sql.psi.core.psi.SqlSetterExpression
 import com.alecstrong.sql.psi.core.psi.SqlTypeName
+import com.alecstrong.sql.psi.core.psi.SqlUpdateStmt
+import com.alecstrong.sql.psi.core.psi.SqlUpdateStmtLimited
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import com.squareup.kotlinpoet.ClassName
 import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType.BINARY
@@ -81,6 +86,7 @@ public class OracleTypeResolver(
         argument.oracleCastArgumentType()?.let { return it }
         argument.oracleFlashbackArgumentType()?.let { return it }
         argument.oraclePivotArgumentType()?.let { return it }
+        argument.oracleErrorLoggingTagArgumentType()?.let { return it }
 
         return when {
             parent is SqlSetterExpression -> {
@@ -111,6 +117,7 @@ public class OracleTypeResolver(
                     ?: argument.oracleCastArgumentType()
                     ?: argument.oracleFlashbackArgumentType()
                     ?: argument.oraclePivotArgumentType()
+                    ?: argument.oracleErrorLoggingTagArgumentType()
                     ?: parentResolver.argumentType(parent, argument)
             }
         }
@@ -781,6 +788,36 @@ public class OracleTypeResolver(
 
         return oracleAvailableColumnType(columnName)
     }
+
+    private fun SqlExpr.oracleErrorLoggingTagArgumentType(): IntermediateType? {
+        var current: PsiElement? = parent
+        while (current != null && current !is PsiFile) {
+            val argumentStart = textRange.startOffset - current.textRange.startOffset
+            if (argumentStart in current.text.indices) {
+                val beforeArgument = current.text.substring(0, argumentStart)
+                val logErrorsOffset =
+                    Regex("""(?i)\bLOG\s+ERRORS\b""")
+                        .findAll(beforeArgument)
+                        .lastOrNull()
+                        ?.range
+                        ?.first
+                if (logErrorsOffset != null && beforeArgument.substring(logErrorsOffset).lastIndexOf('(') != -1) {
+                    return IntermediateType(TEXT)
+                }
+            }
+            if (current.isOracleDmlStatement()) break
+            current = current.parent
+        }
+        return null
+    }
+
+    private fun PsiElement.isOracleDmlStatement(): Boolean =
+        this is SqlInsertStmt ||
+            this is SqlUpdateStmt ||
+            this is SqlUpdateStmtLimited ||
+            this is SqlDeleteStmt ||
+            this is SqlDeleteStmtLimited ||
+            this is OracleMergeStmt
 
     private fun PsiElement.oracleAvailableColumnType(operandText: String): IntermediateType? {
         val operandColumnName = operandText.substringAfterLast(".").trimOracleIdentifier()

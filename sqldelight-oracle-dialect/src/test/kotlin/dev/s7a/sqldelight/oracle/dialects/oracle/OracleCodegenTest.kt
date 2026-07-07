@@ -1303,6 +1303,78 @@ class OracleCodegenTest :
             queries.contains(", 1) {") shouldBe true
         }
 
+        test("generates Oracle DML error logging bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import java.math.BigDecimal;
+
+                    CREATE TABLE import_orders (
+                      order_id NUMBER(10, 0) NOT NULL,
+                      customer_name VARCHAR2(128) NOT NULL,
+                      order_total NUMBER(10, 2),
+                      PRIMARY KEY (order_id)
+                    );
+
+                    insertWithErrorLoggingTag:
+                    INSERT INTO import_orders (order_id, customer_name, order_total)
+                    VALUES (:order_id, :customer_name, :order_total)
+                    LOG ERRORS INTO import_order_errors (:error_tag) REJECT LIMIT 25;
+
+                    updateWithErrorLoggingTag:
+                    UPDATE import_orders
+                    SET order_total = :order_total
+                    WHERE order_id = :order_id
+                    LOG ERRORS INTO import_order_errors (:error_tag) REJECT LIMIT UNLIMITED;
+
+                    deleteWithErrorLoggingTag:
+                    DELETE FROM import_orders
+                    WHERE order_id = :order_id
+                    LOG ERRORS INTO import_order_errors (:error_tag) REJECT LIMIT 10;
+
+                    mergeWithErrorLoggingTag:
+                    MERGE INTO import_orders target
+                    USING import_orders source
+                    ON (target.order_id = :order_id AND source.order_id = :source_id)
+                    WHEN MATCHED THEN
+                      UPDATE SET target.order_total = :order_total
+                    WHEN NOT MATCHED THEN
+                      INSERT (order_id, customer_name, order_total)
+                      VALUES (:insert_order_id, :insert_customer_name, :insert_order_total)
+                    LOG ERRORS INTO import_order_errors (:error_tag) REJECT LIMIT UNLIMITED;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun insertWithErrorLoggingTag(") shouldBe true
+            queries.contains("order_id: Long,") shouldBe true
+            queries.contains("customer_name: String,") shouldBe true
+            queries.contains("order_total: BigDecimal?,") shouldBe true
+            queries.contains("error_tag: String,") shouldBe true
+            queries.contains("|VALUES (?, ?, ?)") shouldBe true
+            queries.contains("|LOG ERRORS INTO import_order_errors (?) REJECT LIMIT 25") shouldBe true
+            queries.contains("bindLong(parameterIndex++, order_id)") shouldBe true
+            queries.contains("bindString(parameterIndex++, customer_name)") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, order_total)") shouldBe true
+            queries.contains("bindString(parameterIndex++, error_tag)") shouldBe true
+            queries.contains("public fun updateWithErrorLoggingTag(") shouldBe true
+            queries.contains("|UPDATE import_orders") shouldBe true
+            queries.contains("|SET order_total = ?") shouldBe true
+            queries.contains("|WHERE order_id = ?") shouldBe true
+            queries.contains("|LOG ERRORS INTO import_order_errors (?) REJECT LIMIT UNLIMITED") shouldBe true
+            queries.contains("public fun deleteWithErrorLoggingTag(order_id: Long, error_tag: String): QueryResult<Long>") shouldBe true
+            queries.contains("|DELETE FROM import_orders") shouldBe true
+            queries.contains("|LOG ERRORS INTO import_order_errors (?) REJECT LIMIT 10") shouldBe true
+            queries.contains("public fun mergeWithErrorLoggingTag(") shouldBe true
+            queries.contains("source_id: Long,") shouldBe true
+            queries.contains("insert_order_id: Long,") shouldBe true
+            queries.contains("insert_customer_name: String,") shouldBe true
+            queries.contains("insert_order_total: BigDecimal?,") shouldBe true
+            queries.contains("|ON (target.order_id = ? AND source.order_id = ?)") shouldBe true
+            queries.contains("|  UPDATE SET target.order_total = ?") shouldBe true
+            queries.contains("|  VALUES (?, ?, ?)") shouldBe true
+        }
+
         test("generates Oracle merge bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

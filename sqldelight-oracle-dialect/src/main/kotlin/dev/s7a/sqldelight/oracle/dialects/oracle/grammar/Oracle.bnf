@@ -6171,8 +6171,12 @@ oracle_merge_value_expr ::= <<expr '-1'>> {
 
 private oracle_where_clause ::= 'WHERE' <<expr '-1'>>
 
-private oracle_error_logging_clause ::= 'LOG' 'ERRORS' [ 'INTO' oracle_schema_object_name ] [ LP <<expr '-1'>> RP ]
+private oracle_error_logging_clause ::= 'LOG' 'ERRORS' [ 'INTO' oracle_schema_object_name ] [ LP oracle_error_logging_tag_expr RP ]
   [ 'REJECT' 'LIMIT' ( {signed_number} | 'UNLIMITED' ) ]
+
+oracle_error_logging_tag_expr ::= <<expr '-1'>> {
+  implements = "com.alecstrong.sql.psi.core.psi.SqlExpr"
+}
 
 call_stmt ::= 'CALL' ( oracle_call_object_access_expression | oracle_call_routine_clause )
   [ oracle_call_into_clause ] {

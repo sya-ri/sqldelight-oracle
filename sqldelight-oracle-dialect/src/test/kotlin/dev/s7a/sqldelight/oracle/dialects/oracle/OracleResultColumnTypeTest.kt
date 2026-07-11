@@ -54,6 +54,27 @@ class OracleResultColumnTypeTest :
             return columns.single()
         }
 
+        val joinSchema =
+            """
+            CREATE TABLE dept (
+              dept_id NUMBER(10) NOT NULL,
+              dept_name VARCHAR2(100) NOT NULL,
+              parent_id NUMBER(10)
+            );
+
+            CREATE TABLE staff (
+              staff_id NUMBER(10) NOT NULL,
+              dept_id NUMBER(10) NOT NULL,
+              staff_name VARCHAR2(100) NOT NULL,
+              staff_nick VARCHAR2(100)
+            );
+            """.trimIndent()
+
+        fun joinTypeOf(query: String): String {
+            val sql = "$joinSchema\n\nresult:\n$query;"
+            return oracleResultColumnTypes(sql).single()
+        }
+
         test("resolves Oracle aggregate function result column types exactly") {
             typeOf("SELECT COUNT(*) AS c FROM emp") shouldBe "kotlin.Long"
             typeOf("SELECT SUM(salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
@@ -88,6 +109,90 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT CAST(my_func(id) AS NUMBER(10)) AS c FROM emp") shouldBe "kotlin.Long?"
             typeOf("SELECT CAST(reporting_pkg.score(id) AS BINARY_DOUBLE) AS c FROM emp") shouldBe "kotlin.Double?"
             typeOf("SELECT CAST(obj.method(id) AS VARCHAR2(100)) AS c FROM emp") shouldBe "kotlin.String?"
+        }
+
+        test("propagates Oracle left outer join result column nullability exactly") {
+            joinTypeOf(
+                """
+                SELECT staff.staff_name AS c
+                FROM dept
+                LEFT JOIN staff ON dept.dept_id = staff.dept_id
+                """.trimIndent(),
+            ) shouldBe "kotlin.String?"
+            joinTypeOf(
+                """
+                SELECT staff.staff_id AS c
+                FROM dept
+                LEFT OUTER JOIN staff ON dept.dept_id = staff.dept_id
+                """.trimIndent(),
+            ) shouldBe "kotlin.Long?"
+            joinTypeOf(
+                """
+                SELECT dept.dept_name AS c
+                FROM dept
+                LEFT JOIN staff ON dept.dept_id = staff.dept_id
+                """.trimIndent(),
+            ) shouldBe "kotlin.String"
+            joinTypeOf(
+                """
+                SELECT staff.staff_id AS c
+                FROM dept
+                INNER JOIN staff ON dept.dept_id = staff.dept_id
+                """.trimIndent(),
+            ) shouldBe "kotlin.Long"
+            joinTypeOf(
+                """
+                SELECT staff_query.staff_name AS c
+                FROM dept
+                OUTER APPLY (
+                  SELECT staff_name
+                  FROM staff
+                  WHERE staff.dept_id = dept.dept_id
+                ) staff_query
+                """.trimIndent(),
+            ) shouldBe "kotlin.String?"
+            joinTypeOf(
+                """
+                SELECT staff_query.staff_name AS c
+                FROM dept
+                CROSS APPLY (
+                  SELECT staff_name
+                  FROM staff
+                  WHERE staff.dept_id = dept.dept_id
+                ) staff_query
+                """.trimIndent(),
+            ) shouldBe "kotlin.String"
+        }
+
+        test("propagates Oracle right and full outer join result column nullability exactly") {
+            joinTypeOf(
+                """
+                SELECT dept.dept_name AS c
+                FROM dept
+                RIGHT JOIN staff ON dept.dept_id = staff.dept_id
+                """.trimIndent(),
+            ) shouldBe "kotlin.String?"
+            joinTypeOf(
+                """
+                SELECT staff.staff_name AS c
+                FROM dept
+                RIGHT OUTER JOIN staff ON dept.dept_id = staff.dept_id
+                """.trimIndent(),
+            ) shouldBe "kotlin.String"
+            joinTypeOf(
+                """
+                SELECT dept.dept_name AS c
+                FROM dept
+                FULL OUTER JOIN staff ON dept.dept_id = staff.dept_id
+                """.trimIndent(),
+            ) shouldBe "kotlin.String?"
+            joinTypeOf(
+                """
+                SELECT staff.staff_name AS c
+                FROM dept
+                FULL JOIN staff ON dept.dept_id = staff.dept_id
+                """.trimIndent(),
+            ) shouldBe "kotlin.String?"
         }
 
         test("compiles predicates referencing columns with Kotlin adapters") {

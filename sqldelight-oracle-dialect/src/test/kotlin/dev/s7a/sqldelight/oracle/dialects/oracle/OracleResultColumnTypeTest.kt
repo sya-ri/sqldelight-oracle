@@ -75,6 +75,21 @@ class OracleResultColumnTypeTest :
             ) shouldBe "java.math.BigDecimal?"
         }
 
+        test("resolves untyped Oracle extension result columns conservatively") {
+            typeOf("SELECT my_func(id) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT reporting_pkg.format_name(name) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT my_func(p_id => id, p_name => name) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT obj.method(id) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT my_type(id, name) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT CURSOR(SELECT id FROM emp) AS c FROM emp") shouldBe "kotlin.String?"
+        }
+
+        test("resolves casts around untyped Oracle extension expressions exactly") {
+            typeOf("SELECT CAST(my_func(id) AS NUMBER(10)) AS c FROM emp") shouldBe "kotlin.Long?"
+            typeOf("SELECT CAST(reporting_pkg.score(id) AS BINARY_DOUBLE) AS c FROM emp") shouldBe "kotlin.Double?"
+            typeOf("SELECT CAST(obj.method(id) AS VARCHAR2(100)) AS c FROM emp") shouldBe "kotlin.String?"
+        }
+
         test("compiles predicates referencing columns with Kotlin adapters") {
             val sql =
                 """

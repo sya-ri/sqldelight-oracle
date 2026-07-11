@@ -71,6 +71,7 @@ public class OracleTypeResolver(
                     ?: oracleNumericOperatorType(expr)
                     ?: oracleEmptyStringLiteralType(expr)
                     ?: oracleCaseExpressionType(expr)
+                    ?: oracleUnresolvedExtensionExprType(expr)
                     ?: parentResolver.resolvedType(expr)
             }
 
@@ -128,6 +129,7 @@ public class OracleTypeResolver(
     private fun oracleExtensionFunctionType(expr: SqlExpr): IntermediateType? {
         val extensionExpr = expr.oracleExtensionExpr() ?: return null
         val functionName = extensionExpr.text.oracleFunctionName() ?: return null
+        if (extensionExpr.text.hasOracleQualifiedFunctionName()) return null
         val invocationEnd = extensionExpr.text.oracleFirstFunctionInvocationEnd()
         val childExpressions = PsiTreeUtil.findChildrenOfType(extensionExpr, SqlExpr::class.java).toList()
         val invocationArguments =
@@ -248,6 +250,12 @@ public class OracleTypeResolver(
                     resultExpressions.any { expression -> expression.text.isOracleNullLiteral() } ||
                     resultExpressions.any { expression -> resolvedType(expression).javaType.isNullable },
             )
+    }
+
+    private fun oracleUnresolvedExtensionExprType(expr: SqlExpr): IntermediateType? {
+        val extensionExpr = expr.oracleExtensionExpr() ?: return null
+        return extensionExpr.oracleAvailableColumnType(extensionExpr.text)
+            ?: IntermediateType(OracleType.TEXT).asNullable()
     }
 
     private fun oracleExtensionConditionType(expr: SqlExpr): IntermediateType? {
@@ -1657,6 +1665,8 @@ public class OracleTypeResolver(
                 ?.groupValues
                 ?.get(1)
                 ?.uppercase()
+
+        private fun String.hasOracleQualifiedFunctionName(): Boolean = Regex("""(?i)^\s*[A-Z_][A-Z0-9_$#]*\s*\.""").containsMatchIn(this)
 
         private fun String.isOracleWithinGroupOrderedValueFunction(): Boolean =
             trim().uppercase() in setOf("APPROX_PERCENTILE", "PERCENTILE_CONT", "PERCENTILE_DISC")

@@ -4533,6 +4533,26 @@ class OracleParserBackedTest :
                   FOR region IN ('WEST', 'EAST')
                 ) pivoted_orders;
 
+                selectPivotSubqueryAggregateColumns:
+                SELECT pivoted_orders.id, pivoted_orders.west_created_year_total, pivoted_orders.east_created_year_total
+                FROM (
+                  SELECT id, region, created_year
+                  FROM partitioned_orders
+                ) PIVOT (
+                  SUM(created_year) AS created_year_total
+                  FOR region IN ('WEST' AS west, 'EAST' AS east)
+                ) pivoted_orders;
+
+                selectPivotSubqueryAggregateStar:
+                SELECT *
+                FROM (
+                  SELECT id, region, created_year
+                  FROM partitioned_orders
+                ) PIVOT (
+                  MAX(created_year) AS latest_created_year
+                  FOR region IN ('WEST' AS west)
+                ) pivoted_orders;
+
                 selectPivotXmlAny:
                 SELECT *
                 FROM partitioned_orders PIVOT XML (

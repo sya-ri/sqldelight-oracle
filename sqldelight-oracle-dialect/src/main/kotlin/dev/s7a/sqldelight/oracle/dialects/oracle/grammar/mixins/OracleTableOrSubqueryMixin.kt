@@ -338,7 +338,6 @@ internal abstract class OracleTableOrSubqueryMixin(
     }
 
     private fun oraclePivotAggregateAvailable(child: PsiElement): Collection<QueryResult> {
-        val tableNameElement = tableName ?: return emptyList()
         val pivotOffset = text.indexOfKeyword("PIVOT") ?: return emptyList()
         val pivotOpenOffset = text.indexOf('(', startIndex = pivotOffset + "PIVOT".length).takeIf { it != -1 } ?: return emptyList()
         val pivotBody = text.oracleParenthesizedBodyAt(pivotOpenOffset)
@@ -346,9 +345,18 @@ internal abstract class OracleTableOrSubqueryMixin(
         val childOffset = child.textRange.startOffset - textRange.startOffset
         if (childOffset !in (pivotOpenOffset + 1) until (pivotOpenOffset + 1 + forOffset)) return emptyList()
 
-        return oracleSynonymTargetAvailable(tableNameElement) { target, targetName ->
-            tableAvailable(target, targetName)
-        } ?: tableAvailable(tableNameElement, tableNameElement.name)
+        return oraclePivotSourceQueryResults()
+    }
+
+    private fun oraclePivotSourceQueryResults(): Collection<QueryResult> {
+        tableName?.let { tableNameElement ->
+            return oracleSynonymTargetAvailable(tableNameElement) { target, targetName ->
+                tableAvailable(target, targetName)
+            } ?: tableAvailable(tableNameElement, tableNameElement.name)
+        }
+        compoundSelectStmt?.let { return it.queryExposed() }
+        joinClause?.let { return it.queryExposed() }
+        return tableOrSubqueryList.flatMap { subquery -> subquery.queryExposed() }
     }
 
     private fun OracleOracleJsonTableColumnsClause.queryColumns(): List<QueryColumn> =
@@ -630,9 +638,13 @@ internal abstract class OracleTableOrSubqueryMixin(
         val names = oracleNameList().distinctBy { name -> name.uppercase() }
         if (names.isEmpty()) return emptyList()
         return oracleTableColumns().mapNotNull { column ->
-            val columnDef = column.element.parent as? SqlColumnDef ?: return@mapNotNull null
-            val columnName = columnDef.columnName.name
+            val columnName = (column.element as? NamedElement)?.name ?: return@mapNotNull null
             if (names.none { name -> columnName.equals(name, ignoreCase = true) }) return@mapNotNull null
+            val exposedType = column.element as? ExposableType
+            if (exposedType != null) {
+                return@mapNotNull exposedType.type().dialectType as? OracleType
+            }
+            val columnDef = column.element.parent as? SqlColumnDef ?: return@mapNotNull null
             OracleType.fromSqlTypeName(columnDef.columnType.typeName.text)
         }
     }
@@ -726,11 +738,9 @@ internal abstract class OracleTableOrSubqueryMixin(
             }
     }
 
-    private fun oracleTableColumns(): List<QueryColumn> {
-        val tableNameElement = tableName ?: return emptyList()
-        return tableAvailable(tableNameElement, tableNameElement.name)
+    private fun oracleTableColumns(): List<QueryColumn> =
+        oraclePivotSourceQueryResults()
             .flatMap { result -> result.columns }
-    }
 }
 
 private fun String.startsWithOracleCollectionTableReference(): Boolean =

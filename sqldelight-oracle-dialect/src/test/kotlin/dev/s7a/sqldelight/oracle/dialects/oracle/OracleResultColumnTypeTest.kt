@@ -111,6 +111,15 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT CAST(obj.method(id) AS VARCHAR2(100)) AS c FROM emp") shouldBe "kotlin.String?"
         }
 
+        test("propagates Oracle scalar subquery result column nullability exactly") {
+            typeOf("SELECT (SELECT id FROM emp WHERE emp.id = outer_emp.dept_id) AS c FROM emp outer_emp") shouldBe
+                "kotlin.Long?"
+            typeOf("SELECT (SELECT name FROM emp WHERE emp.id = outer_emp.dept_id) AS c FROM emp outer_emp") shouldBe
+                "kotlin.String?"
+            typeOf("SELECT id + (SELECT small_id FROM emp WHERE emp.id = outer_emp.dept_id) AS c FROM emp outer_emp") shouldBe
+                "kotlin.Long?"
+        }
+
         test("propagates Oracle left outer join result column nullability exactly") {
             joinTypeOf(
                 """

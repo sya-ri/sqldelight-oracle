@@ -17,6 +17,7 @@ import com.alecstrong.sql.psi.core.psi.SqlColumnDef
 import com.alecstrong.sql.psi.core.psi.SqlCompositeElement
 import com.alecstrong.sql.psi.core.psi.SqlDeleteStmt
 import com.alecstrong.sql.psi.core.psi.SqlDeleteStmtLimited
+import com.alecstrong.sql.psi.core.psi.SqlExistsExpr
 import com.alecstrong.sql.psi.core.psi.SqlExpr
 import com.alecstrong.sql.psi.core.psi.SqlExtensionExpr
 import com.alecstrong.sql.psi.core.psi.SqlFunctionExpr
@@ -72,6 +73,7 @@ public class OracleTypeResolver(
                     ?: oracleEmptyStringLiteralType(expr)
                     ?: oracleCaseExpressionType(expr)
                     ?: oracleUnresolvedExtensionExprType(expr)
+                    ?: oracleScalarSubqueryType(expr)
                     ?: parentResolver.resolvedType(expr)
             }
 
@@ -256,6 +258,20 @@ public class OracleTypeResolver(
         val extensionExpr = expr.oracleExtensionExpr() ?: return null
         return extensionExpr.oracleAvailableColumnType(extensionExpr.text)
             ?: IntermediateType(OracleType.TEXT).asNullable()
+    }
+
+    /**
+     * A scalar subquery (`(SELECT ...)`) can match zero rows and evaluate to `NULL`, so its result is
+     * always nullable regardless of the inner column's declared nullability. sql-psi's core resolver
+     * exposes the inner column type as-is, which incorrectly keeps a `NOT NULL` inner column non-null.
+     *
+     * `EXISTS (...)` / `NOT EXISTS (...)` share the same PSI type but yield a non-null boolean, so they
+     * are left to the parent resolver.
+     */
+    private fun oracleScalarSubqueryType(expr: SqlExpr): IntermediateType? {
+        if (expr !is SqlExistsExpr) return null
+        if (expr.text.trimStart().startsWith("EXISTS", ignoreCase = true)) return null
+        return parentResolver.resolvedType(expr).asNullable()
     }
 
     private fun oracleExtensionConditionType(expr: SqlExpr): IntermediateType? {

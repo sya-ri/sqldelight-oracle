@@ -73,7 +73,7 @@ internal abstract class OracleJoinClauseMixin(
                     queryAvailable +
                     QueryResult(
                         table = query.first().table,
-                        columns = columns,
+                        columns = columns.filterNot { it.hiddenByUsing },
                         synthesizedColumns = synthesizedColumns,
                         joinConstraint = constraint,
                     )

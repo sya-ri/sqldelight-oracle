@@ -195,6 +195,41 @@ class OracleResultColumnTypeTest :
             ) shouldBe "kotlin.String?"
         }
 
+        test("resolves Oracle USING join result columns exactly") {
+            joinTypeOf(
+                """
+                SELECT dept_id AS c
+                FROM staff
+                JOIN dept USING (dept_id)
+                """.trimIndent(),
+            ) shouldBe "kotlin.Long"
+            joinTypeOf(
+                """
+                SELECT dept_id AS c
+                FROM staff
+                LEFT JOIN dept USING (dept_id)
+                """.trimIndent(),
+            ) shouldBe "kotlin.Long"
+            oracleResultColumnTypes(
+                """
+                $joinSchema
+
+                result:
+                SELECT *
+                FROM staff
+                JOIN dept USING (dept_id);
+                """.trimIndent(),
+            ) shouldBe
+                listOf(
+                    "kotlin.Long",
+                    "kotlin.Long",
+                    "kotlin.String",
+                    "kotlin.String?",
+                    "kotlin.String",
+                    "kotlin.Long?",
+                )
+        }
+
         test("compiles predicates referencing columns with Kotlin adapters") {
             val sql =
                 """

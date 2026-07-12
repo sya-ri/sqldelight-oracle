@@ -5802,6 +5802,16 @@ class OracleParserBackedTest :
                 WHEN MATCHED THEN UPDATE SET balance = source.delta
                 WHEN NOT MATCHED THEN INSERT (account_id, balance)
                   VALUES (source.account_id, source.delta);
+
+                MERGE INTO account_balance target
+                USING (
+                  SELECT account_id, delta
+                  FROM account_delta
+                ) source
+                ON (target.account_id = source.account_id)
+                WHEN MATCHED THEN UPDATE SET balance = source.delta
+                WHEN NOT MATCHED THEN INSERT (account_id, balance)
+                  VALUES (source.account_id, source.delta);
                 """.trimIndent()
 
             parseOracleSql(sql) shouldBe

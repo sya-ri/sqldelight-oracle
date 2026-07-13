@@ -492,6 +492,30 @@ class OracleCodegenTest :
             queries.contains("bindBigDecimal(parameterIndex++, min_value)") shouldBe true
         }
 
+        test("generates Oracle inline external table queries exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    externalRows:
+                    SELECT ext.id, ext.label
+                    FROM EXTERNAL ((
+                      id NUMBER(9) NOT NULL,
+                      label VARCHAR2(100)
+                    ) TYPE ORACLE_LOADER
+                      DEFAULT DIRECTORY data_dir
+                      LOCATION ('items.csv')
+                    ) ext;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            val result = generated.contentsByFile.getValue("com/example/ExternalRows.kt")
+            queries.contains("public fun externalRows(): ExecutableQuery<ExternalRows>") shouldBe true
+            result.contains("public data class ExternalRows(") shouldBe true
+            result.contains("public val id: Int,") shouldBe true
+            result.contains("public val label: String?,") shouldBe true
+        }
+
         test("generates Oracle flashback bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

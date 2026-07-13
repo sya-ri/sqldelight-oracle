@@ -31,7 +31,7 @@ internal abstract class OracleTableAliasMixin(
             tableOrSubquery.tableName
                 ?: tableOrSubquery.compoundSelectStmt
                 ?: oracleCollectionTableSource(tableOrSubquery)
-                ?: tableOrSubquery
+                ?: OracleSyntheticTableNameElement(this)
         } ?: oracleCollectionTableSource() ?: oracleTableFunctionSource() ?: parent.parent
 
     override fun getIcon(flags: Int): Icon = AllIcons.Nodes.DataTables

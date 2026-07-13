@@ -468,6 +468,9 @@ class OracleResultColumnTypeTest :
         test("resolves Oracle hierarchical operator result column types exactly") {
             typeOf("SELECT CONNECT_BY_ROOT name AS c FROM emp CONNECT BY PRIOR id = dept_id") shouldBe "kotlin.String"
             typeOf("SELECT CONNECT_BY_ROOT nickname AS c FROM emp CONNECT BY PRIOR id = dept_id") shouldBe "kotlin.String?"
+            typeOf("SELECT PRIOR name AS c FROM emp CONNECT BY PRIOR id = dept_id") shouldBe "kotlin.String?"
+            typeOf("SELECT PRIOR id AS c FROM emp CONNECT BY PRIOR id = dept_id") shouldBe "kotlin.Long?"
+            typeOf("SELECT PRIOR dept_id AS c FROM emp CONNECT BY PRIOR id = dept_id") shouldBe "kotlin.Long?"
         }
 
         test("resolves Oracle pivot result column types exactly") {

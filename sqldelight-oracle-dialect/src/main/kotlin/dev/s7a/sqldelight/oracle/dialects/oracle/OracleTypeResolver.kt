@@ -327,7 +327,11 @@ public class OracleTypeResolver(
                 .filterIsInstance<SqlExpr>()
                 .singleOrNull()
                 ?: return null
-        return resolvedType(operand)
+        val operandType = resolvedType(operand)
+        // PRIOR returns the parent row's value, which is NULL for root rows, so the result is
+        // always nullable even when the referenced column is NOT NULL. CONNECT_BY_ROOT always has a
+        // root ancestor, so it keeps the operand nullability.
+        return if (text.startsWith("PRIOR ")) operandType.asNullable() else operandType
     }
 
     private fun oracleNumericOperatorType(expr: SqlExpr): IntermediateType? {

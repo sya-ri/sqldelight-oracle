@@ -84,6 +84,7 @@ public class OracleTypeResolver(
         parent: PsiElement,
         argument: SqlExpr,
     ): IntermediateType {
+        argument.oracleToClobArgumentType()?.let { return it }
         argument.oracleCastArgumentType()?.let { return it }
         argument.oracleFlashbackArgumentType()?.let { return it }
         argument.oraclePivotArgumentType()?.let { return it }
@@ -498,6 +499,26 @@ public class OracleTypeResolver(
             1 -> IntermediateType(TEXT)
             2 -> IntermediateType(TEXT).asNullable()
             else -> null
+        }
+    }
+
+    private fun SqlExpr.oracleToClobArgumentType(): IntermediateType? {
+        val functionExpr = PsiTreeUtil.getParentOfType(this, SqlFunctionExpr::class.java)
+        val functionExprName = functionExpr?.functionName?.text
+        if (functionExpr != null &&
+            (
+                functionExprName.equals("TO_CLOB", ignoreCase = true) ||
+                    functionExprName.equals("TO_NCLOB", ignoreCase = true)
+            )
+        ) {
+            return IntermediateType(TEXT).takeIf { functionExpr.exprList.firstOrNull() == this }
+        }
+
+        val extensionExpr = PsiTreeUtil.getParentOfType(this, SqlExtensionExpr::class.java) ?: return null
+        val functionName = extensionExpr.text.oracleLeadingIdentifier()
+        return IntermediateType(TEXT).takeIf {
+            functionName.equals("TO_CLOB", ignoreCase = true) ||
+                functionName.equals("TO_NCLOB", ignoreCase = true)
         }
     }
 

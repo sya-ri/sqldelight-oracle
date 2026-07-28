@@ -1307,6 +1307,8 @@ class OracleParserBackedTest :
                     SELECT id, name
                     FROM departments
                   )
+                  AND (department_id, status) IN :included_pairs
+                  AND (department_id, status) NOT IN ?
                   AND EXISTS (
                     SELECT id
                     FROM departments

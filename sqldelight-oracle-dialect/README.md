@@ -31,6 +31,40 @@ The dialect maps Oracle scalar type names to SQLDelight Kotlin types, including:
 
 Function and expression return type mapping covers deterministic Oracle functions such as `SYSDATE`, `SYSTIMESTAMP`, `TO_CHAR`, `TO_NUMBER`, JSON/XML constructors, UUID helpers, vector constructors and distance functions, domain predicates, analytic rank functions, numeric math functions, pseudocolumns, aggregate/window outputs, pivot/unpivot outputs, row pattern measures, collection-table values, XMLTABLE/JSON_TABLE columns, `CONTAINERS` / `SHARDS` columns, `VALUES` tables, and argument-dependent functions such as `COALESCE`, `NVL`, `NVL2`, `DECODE`, `GREATEST`, `LEAST`, `MAX`, `MIN`, and `SUM`.
 
+## Collection Inputs
+
+For a typed row-value filter, use a multi-column collection bind:
+
+```sql
+selectByPairs:
+SELECT department_id, status
+FROM employee
+WHERE (department_id, status) IN :pairs;
+```
+
+SQLDelight exposes `pairs` as `Collection<SelectByPairsPairs>`, expands it to `((?, ?), ...)`, and binds each generated data-class field from left to right. `NOT IN` and positional `?` binds use the same API.
+
+For a large input or stable SQL text, pass one JSON string and project it with `JSON_TABLE`:
+
+```sql
+selectByPairsJson:
+SELECT employee.department_id, employee.status
+FROM employee
+JOIN JSON_TABLE(
+  TO_CLOB(:pairs_json),
+  '$[*]' COLUMNS (
+    department_id NUMBER PATH '$.department_id',
+    status VARCHAR2(20) PATH '$.status'
+  )
+) pairs
+  ON pairs.department_id = employee.department_id
+ AND pairs.status = employee.status;
+```
+
+This exposes `pairs_json` as `String` and uses one JDBC bind. `TO_CLOB` converts that bind to a CLOB inside Oracle. The caller owns JSON serialization and should keep the `JSON_TABLE` column types aligned with the table columns.
+
+Oracle `TABLE(collection)` is another unnesting option, but it requires schema-level collection/object types and Oracle JDBC `ARRAY`/`STRUCT` binding. SQLDelight's standard scalar binder does not provide that object-collection path, so it is not used for the portable generated API above.
+
 ## Supported Oracle Syntax
 
 Baseline: [Oracle AI Database 26ai SQL Language Reference](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/index.html).

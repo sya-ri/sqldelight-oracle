@@ -276,6 +276,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParser : co
 	public static fun oracle_local_synonym_target_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun oracle_lowercase_as_result_column_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun oracle_merge_value_expr_real (Lcom/intellij/lang/PsiBuilder;I)Z
+	public static fun oracle_multi_column_collection_in_expr_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun oracle_multi_table_insert_value_expr_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun oracle_pivot_in_value_real (Lcom/intellij/lang/PsiBuilder;I)Z
 	public static fun oracle_row_pattern_clause_real (Lcom/intellij/lang/PsiBuilder;I)Z
@@ -745,6 +746,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun getOracle_local_synonym_target ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOracle_lowercase_as_result_column ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOracle_merge_value_expr ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
+	public final fun getOracle_multi_column_collection_in_expr ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOracle_multi_table_insert_value_expr ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOracle_pivot_in_value ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
 	public final fun getOracle_row_pattern_clause ()Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;
@@ -810,6 +812,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public static final fun oracleLocalSynonymTargetExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun oracleLowercaseAsResultColumnExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun oracleMergeValueExprExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
+	public static final fun oracleMultiColumnCollectionInExprExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun oracleMultiTableInsertValueExprExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun oraclePivotInValueExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
 	public static final fun oracleRowPatternClauseExt (Lcom/intellij/lang/PsiBuilder;ILcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)Z
@@ -1062,6 +1065,7 @@ public final class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/OracleParse
 	public final fun setOracle_local_synonym_target (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOracle_lowercase_as_result_column (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOracle_merge_value_expr (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
+	public final fun setOracle_multi_column_collection_in_expr (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOracle_multi_table_insert_value_expr (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOracle_pivot_in_value (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
 	public final fun setOracle_row_pattern_clause (Lcom/intellij/lang/parser/GeneratedParserUtilBase$Parser;)V
@@ -1730,6 +1734,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleExtensionExpr : com/alecstrong/sql/psi/core/psi/SqlExtensionExpr {
 	public abstract fun getOracleJsonPassingExprList ()Ljava/util/List;
+	public abstract fun getOracleMultiColumnCollectionInExpr ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleMultiColumnCollectionInExpr;
 	public abstract fun getOracleTypeNameList ()Ljava/util/List;
 	public abstract fun getOracleVectorDistanceShorthandExpr ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleVectorDistanceShorthandExpr;
 	public abstract fun getTypeName ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTypeName;
@@ -2024,6 +2029,9 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleMergeValueExpr : com/alecstrong/sql/psi/core/psi/SqlExpr {
+}
+
+public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleMultiColumnCollectionInExpr : com/alecstrong/sql/psi/core/psi/SqlMultiColumnInExpr {
 }
 
 public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleMultiTableInsertValueExpr : com/alecstrong/sql/psi/core/psi/SqlExpr {
@@ -2589,6 +2597,7 @@ public abstract interface class dev/s7a/sqldelight/oracle/dialects/oracle/gramma
 	public static final field ORACLE_LOCAL_SYNONYM_TARGET Lcom/intellij/psi/tree/IElementType;
 	public static final field ORACLE_LOWERCASE_AS_RESULT_COLUMN Lcom/intellij/psi/tree/IElementType;
 	public static final field ORACLE_MERGE_VALUE_EXPR Lcom/intellij/psi/tree/IElementType;
+	public static final field ORACLE_MULTI_COLUMN_COLLECTION_IN_EXPR Lcom/intellij/psi/tree/IElementType;
 	public static final field ORACLE_MULTI_TABLE_INSERT_VALUE_EXPR Lcom/intellij/psi/tree/IElementType;
 	public static final field ORACLE_PIVOT_IN_VALUE Lcom/intellij/psi/tree/IElementType;
 	public static final field ORACLE_ROW_PATTERN_CLAUSE Lcom/intellij/psi/tree/IElementType;
@@ -2879,6 +2888,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitOracleLocalSynonymTarget (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleLocalSynonymTarget;)V
 	public fun visitOracleLowercaseAsResultColumn (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleLowercaseAsResultColumn;)V
 	public fun visitOracleMergeValueExpr (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleMergeValueExpr;)V
+	public fun visitOracleMultiColumnCollectionInExpr (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleMultiColumnCollectionInExpr;)V
 	public fun visitOracleMultiTableInsertValueExpr (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleMultiTableInsertValueExpr;)V
 	public fun visitOraclePivotInValue (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOraclePivotInValue;)V
 	public fun visitOracleRowPatternClause (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleRowPatternClause;)V
@@ -2936,6 +2946,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor
 	public fun visitSqlJoinConstraint (Lcom/alecstrong/sql/psi/core/psi/SqlJoinConstraint;)V
 	public fun visitSqlJoinOperator (Lcom/alecstrong/sql/psi/core/psi/SqlJoinOperator;)V
 	public fun visitSqlLimitStmt (Lcom/alecstrong/sql/psi/core/psi/SqlLimitStmt;)V
+	public fun visitSqlMultiColumnInExpr (Lcom/alecstrong/sql/psi/core/psi/SqlMultiColumnInExpr;)V
 	public fun visitSqlOrderingTerm (Lcom/alecstrong/sql/psi/core/psi/SqlOrderingTerm;)V
 	public fun visitSqlQualifiedTableName (Lcom/alecstrong/sql/psi/core/psi/SqlQualifiedTableName;)V
 	public fun visitSqlResultColumn (Lcom/alecstrong/sql/psi/core/psi/SqlResultColumn;)V
@@ -4192,6 +4203,7 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleEx
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
 	public fun getOracleJsonPassingExprList ()Ljava/util/List;
+	public fun getOracleMultiColumnCollectionInExpr ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleMultiColumnCollectionInExpr;
 	public fun getOracleTypeNameList ()Ljava/util/List;
 	public fun getOracleVectorDistanceShorthandExpr ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleVectorDistanceShorthandExpr;
 	public fun getTypeName ()Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleTypeName;
@@ -4576,6 +4588,12 @@ public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOr
 }
 
 public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOracleMergeValueExprImpl : com/alecstrong/sql/psi/core/psi/SqlCompositeElementImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleMergeValueExpr {
+	public fun <init> (Lcom/intellij/lang/ASTNode;)V
+	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
+	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V
+}
+
+public class dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/impl/OracleOracleMultiColumnCollectionInExprImpl : com/alecstrong/sql/psi/core/psi/impl/SqlMultiColumnInExprImpl, dev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleOracleMultiColumnCollectionInExpr {
 	public fun <init> (Lcom/intellij/lang/ASTNode;)V
 	public fun accept (Lcom/intellij/psi/PsiElementVisitor;)V
 	public fun accept (Ldev/s7a/sqldelight/oracle/dialects/oracle/grammar/psi/OracleVisitor;)V

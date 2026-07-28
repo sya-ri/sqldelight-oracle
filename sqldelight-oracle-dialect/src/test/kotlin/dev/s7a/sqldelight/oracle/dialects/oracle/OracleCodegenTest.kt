@@ -13,6 +13,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import java.io.File
 import java.nio.file.Files
 
@@ -1857,6 +1858,112 @@ class OracleCodegenTest :
                   }
                 }
                 """.trimIndent() + "\n"
+        }
+
+        test("generates Oracle multi-column collection bind SQL and binders exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import com.example.Label;
+
+                    CREATE TABLE sample (
+                      id NUMBER(10, 0) AS VALUE NOT NULL,
+                      label NVARCHAR2(50) AS Label NOT NULL,
+                      note VARCHAR2(100),
+                      PRIMARY KEY (id)
+                    );
+
+                    selectByPairs:
+                    SELECT id, label, note
+                    FROM sample
+                    WHERE note = :note
+                      AND (id, label) IN :pairs
+                      AND (id, label, note) NOT IN ?;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries shouldContain
+                """
+                public data class SelectByPairsPairs(
+                  public val id: Sample.Id,
+                  public val label: Label,
+                )
+                """.trimIndent()
+            queries shouldContain
+                """
+                public data class SelectByPairsId(
+                  public val id: Sample.Id,
+                  public val label: Label,
+                  public val note: String?,
+                )
+                """.trimIndent()
+            queries shouldContain "note: String?"
+            queries shouldContain "pairs: Collection<SelectByPairsPairs>"
+            queries shouldContain "id: Collection<SelectByPairsId>"
+            queries shouldContain
+                """
+                val pairsIndexes = pairs.joinToString(prefix = "(", postfix = ")") {
+                  createArguments(count = 2)
+                }
+                val idIndexes = id.joinToString(prefix = "(", postfix = ")") {
+                  createArguments(count = 3)
+                }
+                """.trimIndent().prependIndent("      ")
+            queries shouldContain
+                """
+                |WHERE note ${'$'}{ if (note == null) "IS" else "=" } ?
+                |  AND (id, label) IN ${'$'}pairsIndexes
+                |  AND (id, label, note) NOT IN ${'$'}idIndexes
+                """.trimIndent().prependIndent("          ")
+            queries shouldContain "mapper, 1 + pairs.size * 2 + id.size * 3)"
+            queries shouldContain
+                """
+                bindString(parameterIndex++, note)
+                pairs.forEach { pairs_ ->
+                  bindLong(parameterIndex++, pairs_.id.id)
+                  bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(pairs_.label))
+                }
+                id.forEach { id_ ->
+                  bindLong(parameterIndex++, id_.id.id)
+                  bindString(parameterIndex++, sampleAdapter.labelAdapter.encode(id_.label))
+                  bindString(parameterIndex++, id_.note)
+                }
+                """.trimIndent().prependIndent("            ")
+        }
+
+        test("generates Oracle JSON_TABLE collection input with one string bind exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    CREATE TABLE sample (
+                      id NUMBER(10, 0) NOT NULL,
+                      status VARCHAR2(20) NOT NULL,
+                      PRIMARY KEY (id)
+                    );
+
+                    selectByPairsJson:
+                    SELECT sample.id, sample.status
+                    FROM sample
+                    JOIN JSON_TABLE(
+                      TO_CLOB(:pairs_json),
+                      '${'$'}[*]' COLUMNS (
+                        id NUMBER(10, 0) PATH '${'$'}.id',
+                        status VARCHAR2(20) PATH '${'$'}.status'
+                      )
+                    ) pairs
+                      ON pairs.id = sample.id
+                     AND pairs.status = sample.status;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries shouldContain "selectByPairsJson(pairs_json: String"
+            queries shouldContain "|JOIN JSON_TABLE("
+            queries shouldContain "|  TO_CLOB(?),"
+            queries shouldContain "|  '${'$'}[*]' COLUMNS ("
+            queries shouldContain "mapper, 1)"
+            queries shouldContain "bindString(parameterIndex++, pairs_json)"
         }
     })
 

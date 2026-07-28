@@ -1015,7 +1015,17 @@ class OracleCodegenTest :
                     SELECT id, status
                     FROM ranked_accounts
                     ORDER BY status, score DESC
-                    FETCH FIRST :partition_count PARTITIONS BY status, :rows_per_partition ROWS ONLY;
+                    FETCH EXACT FIRST :partition_count PARTITIONS BY status, :rows_per_partition ROWS ONLY;
+
+                    selectApproximate:
+                    SELECT id, status
+                    FROM ranked_accounts
+                    ORDER BY score DESC
+                    FETCH APPROX FIRST :row_count ROWS ONLY
+                    WITH TARGET ACCURACY PARAMETERS (
+                      EFSEARCH :ef_search,
+                      NEIGHBOR PARTITION PROBES :partition_probes
+                    );
                     """.trimIndent(),
                 )
 
@@ -1031,9 +1041,20 @@ class OracleCodegenTest :
             queries.contains("public fun <T : Any> selectPartitions(") shouldBe true
             queries.contains("partition_count: Long,") shouldBe true
             queries.contains("rows_per_partition: Long,") shouldBe true
-            queries.contains("|FETCH FIRST ? PARTITIONS BY status, ? ROWS ONLY") shouldBe true
+            queries.contains("|FETCH EXACT FIRST ? PARTITIONS BY status, ? ROWS ONLY") shouldBe true
             queries.contains("bindLong(parameterIndex++, partition_count)") shouldBe true
             queries.contains("bindLong(parameterIndex++, rows_per_partition)") shouldBe true
+            queries.contains("public fun <T : Any> selectApproximate(") shouldBe true
+            queries.contains("row_count: Long,") shouldBe true
+            queries.contains("ef_search: Long,") shouldBe true
+            queries.contains("partition_probes: Long,") shouldBe true
+            queries.contains("|FETCH APPROX FIRST ? ROWS ONLY") shouldBe true
+            queries.contains("|WITH TARGET ACCURACY PARAMETERS (") shouldBe true
+            queries.contains("|  EFSEARCH ?,") shouldBe true
+            queries.contains("|  NEIGHBOR PARTITION PROBES ?") shouldBe true
+            queries.contains("bindLong(parameterIndex++, row_count)") shouldBe true
+            queries.contains("bindLong(parameterIndex++, ef_search)") shouldBe true
+            queries.contains("bindLong(parameterIndex++, partition_probes)") shouldBe true
         }
 
         test("generates Oracle sample clause bind parameters exactly") {

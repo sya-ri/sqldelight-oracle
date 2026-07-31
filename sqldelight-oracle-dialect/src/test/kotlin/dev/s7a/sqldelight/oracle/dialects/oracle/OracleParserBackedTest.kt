@@ -3832,11 +3832,76 @@ class OracleParserBackedTest :
                 ORDER BY id
                 OFFSET 1 ROW FETCH NEXT 2 ROWS ONLY;
 
+                selectBoundFetch:
+                SELECT id, status
+                FROM ranked_accounts
+                ORDER BY id
+                FETCH FIRST :rowCount ROWS ONLY;
+
+                selectBoundPercent:
+                SELECT id, status
+                FROM ranked_accounts
+                ORDER BY id
+                FETCH FIRST :percent PERCENT ROWS ONLY;
+
+                selectApproximateNumberRange:
+                SELECT id
+                FROM ranked_accounts
+                ORDER BY VECTOR_DISTANCE(embedding, VECTOR('[1,2,3]'))
+                FETCH APPROX FIRST NUMBER TO NUMBER :rowCount ROWS ONLY;
+
+                selectBoundOffsetFetch:
+                SELECT id, status
+                FROM ranked_accounts
+                ORDER BY id
+                OFFSET :offset ROWS FETCH NEXT ? ROWS ONLY;
+
+                selectDefaultFetch:
+                SELECT id, status
+                FROM ranked_accounts
+                FETCH FIRST ROW ONLY;
+
+                selectBoundExactPartitioned:
+                SELECT id, status
+                FROM ranked_accounts
+                ORDER BY status, score DESC
+                FETCH EXACT FIRST
+                  :statusCount PARTITIONS BY status,
+                  :scoreCount PARTITIONS BY score,
+                  :rowCount ROWS ONLY;
+
+                selectBoundApproximateAccuracy:
+                SELECT id
+                FROM ranked_accounts
+                ORDER BY VECTOR_DISTANCE(embedding, VECTOR('[1,2,3]'))
+                FETCH APPROX FIRST :rowCount ROWS ONLY
+                WITH TARGET ACCURACY :accuracy PERCENT;
+
+                selectBoundApproximateParameters:
+                SELECT id
+                FROM ranked_accounts
+                ORDER BY VECTOR_DISTANCE(embedding, VECTOR('[1,2,3]'))
+                FETCH APPROXIMATE NEXT ? ROWS ONLY
+                ACCURACY PARAMETERS (
+                  EFSEARCH :efSearch,
+                  NEIGHBOR PARTITION PROBES :partitionProbes
+                );
+
+                selectBoundApproximateReverseParameters:
+                SELECT id
+                FROM ranked_accounts
+                ORDER BY VECTOR_DISTANCE(embedding, VECTOR('[1,2,3]'))
+                FETCH APPROX FIRST :rowCount ROWS ONLY
+                TARGET ACCURACY PARAMETERS (
+                  NEIGHBOR PARTITION PROBES :partitionProbes,
+                  EFSEARCH :efSearch
+                );
+
                 selectApproximate:
                 SELECT id
                 FROM ranked_accounts
                 ORDER BY VECTOR_DISTANCE(embedding, VECTOR('[1,2,3]'))
-                FETCH APPROX FIRST 20 ROWS ONLY WITH TARGET 90 PERCENT PARAMETERS (efs = 80);
+                FETCH APPROX FIRST 20 ROWS ONLY WITH TARGET ACCURACY 90 PERCENT;
 
                 selectPartitioned:
                 SELECT id, status

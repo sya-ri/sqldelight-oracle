@@ -1106,7 +1106,60 @@ private oracle_row_limiting_clause ::= (
   oracle_fetch_clause
 )
 
-private oracle_fetch_clause ::= 'FETCH' oracle_row_limiting_fetch_token +
+private oracle_fetch_clause ::= 'FETCH' (
+  oracle_default_fetch_clause |
+  oracle_structured_fetch_clause |
+  oracle_row_limiting_fetch_token +
+)
+
+private oracle_default_fetch_clause ::= ( 'FIRST' | 'NEXT' )
+  ( 'ROW' | 'ROWS' ) ( 'ONLY' | 'WITH' 'TIES' )
+
+private oracle_structured_fetch_clause ::= [ ( 'EXACT' | 'APPROX' | 'APPROXIMATE' ) ]
+  ( 'FIRST' [ 'NUMBER' ] [ 'TO' ] [ 'NUMBER' ] | 'NEXT' )
+  oracle_row_limiting_partition_clause * oracle_row_specification [ oracle_accuracy_clause ]
+
+private oracle_row_limiting_partition_clause ::= ! ( 'ROW' | 'ROWS' ) {limiting_term}
+  [ ( 'PARTITION' | 'PARTITIONS' ) 'BY' ] oracle_row_limiting_partition_expression COMMA
+
+private oracle_row_limiting_partition_expression ::= oracle_row_limiting_partition_expression_token +
+
+private oracle_row_limiting_partition_expression_token ::= (
+  oracle_row_limiting_partition_parenthesized_expression |
+  {bind_parameter} |
+  oracle_object_name_part |
+  {string_literal} |
+  string |
+  DIGIT |
+  {signed_number} |
+  DOT |
+  EQ |
+  '+' |
+  '-' |
+  '*' |
+  '/' |
+  '||'
+)
+
+private oracle_row_limiting_partition_parenthesized_expression ::= LP (
+  oracle_row_limiting_partition_expression_token |
+  COMMA
+) * RP
+
+private oracle_row_specification ::= (
+  ( 'ROW' | 'ROWS' ) ( 'ONLY' | 'WITH' 'TIES' ) |
+  {limiting_term} [ 'PERCENT' ] ( 'ROW' | 'ROWS' ) ( 'ONLY' | 'WITH' 'TIES' )
+)
+
+private oracle_accuracy_clause ::= [ 'WITH' ] [ 'TARGET' ] 'ACCURACY' (
+  'PARAMETERS' LP (
+    'EFSEARCH' {limiting_term}
+      [ COMMA 'NEIGHBOR' 'PARTITION' 'PROBES' {limiting_term} ] |
+    'NEIGHBOR' 'PARTITION' 'PROBES' {limiting_term}
+      [ COMMA 'EFSEARCH' {limiting_term} ]
+  ) RP |
+  {limiting_term} [ 'PERCENT' ]
+)
 
 private oracle_row_limiting_fetch_token ::= (
   oracle_object_name_part |
@@ -1880,6 +1933,7 @@ table_alias ::= !oracle_table_alias_stop_keyword ( <<identifierExt <<identifier_
 private oracle_table_alias_stop_keyword ::= (
   'CONNECT' |
   'CROSS' |
+  'FETCH' |
   'FOR' |
   'FULL' |
   'GROUP' |

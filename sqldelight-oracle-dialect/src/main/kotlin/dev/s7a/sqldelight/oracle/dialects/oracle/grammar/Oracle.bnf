@@ -750,7 +750,7 @@ private oracle_json_id_operator ::= 'JSON_ID' LP ( 'OID' | 'UUID' | {string_lite
 
 private oracle_shard_chunk_id_operator ::= 'SHARD_CHUNK_ID' LP <<expr '-1'>> COMMA <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP
 
-private oracle_condition_expr ::= oracle_sql_json_condition_expr | oracle_xml_condition_expr | oracle_pattern_matching_condition_expr | oracle_comparison_condition_expr | oracle_in_condition_expr | oracle_floating_point_condition_expr | oracle_is_of_type_condition_expr | oracle_is_dangling_condition_expr | oracle_model_condition_expr
+private oracle_condition_expr ::= oracle_sql_json_condition_expr | oracle_xml_condition_expr | oracle_pattern_matching_condition_expr | oracle_comparison_condition_expr | oracle_in_condition_expr | oracle_multi_column_collection_in_expr | oracle_floating_point_condition_expr | oracle_is_of_type_condition_expr | oracle_is_dangling_condition_expr | oracle_model_condition_expr
 
 private oracle_comparison_condition_expr ::= (
   oracle_outer_join_condition |
@@ -774,6 +774,12 @@ private oracle_group_comparison_rhs ::= LP ( <<compoundSelectStmtExt <<compound_
 private oracle_row_group_comparison_rhs ::= LP ( <<compoundSelectStmtExt <<compound_select_stmt_real>>>> | oracle_row_value_constructor ( COMMA oracle_row_value_constructor ) * ) RP
 
 private oracle_row_comparison_rhs ::= oracle_row_value_constructor | LP <<compoundSelectStmtExt <<compound_select_stmt_real>>>> RP
+
+oracle_multi_column_collection_in_expr ::= {multi_column_expression} [ 'NOT' ] 'IN' {bind_expr} {
+  extends = "com.alecstrong.sql.psi.core.psi.impl.SqlMultiColumnInExprImpl"
+  implements = "com.alecstrong.sql.psi.core.psi.SqlMultiColumnInExpr"
+  pin = 3
+}
 
 private oracle_in_condition_expr ::= (
   oracle_row_value_constructor [ 'NOT' ] 'IN' LP ( <<compoundSelectStmtExt <<compound_select_stmt_real>>>> | oracle_row_value_constructor ( COMMA oracle_row_value_constructor ) * ) RP |

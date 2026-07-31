@@ -201,6 +201,128 @@ class OracleContainerSmokeTest :
                 }
             }
         }
+
+        test("executes expanded tuple binds and JSON_TABLE collection inputs with Testcontainers when enabled") {
+            if (!oracleTestcontainersEnabled) return@test
+
+            oracle.requireStarted().connection().use { connection ->
+                connection.createStatement().use { statement ->
+                    statement.executeUpdate(
+                        """
+                        CREATE TABLE sqldelight_collection_inputs (
+                            department_id NUMBER(10) NOT NULL,
+                            status VARCHAR2(20) NOT NULL,
+                            priority NUMBER(10) NOT NULL,
+                            PRIMARY KEY (department_id, status)
+                        )
+                        """.trimIndent(),
+                    )
+                    statement.executeUpdate(
+                        """
+                        INSERT ALL
+                          INTO sqldelight_collection_inputs VALUES (1, 'active', 10)
+                          INTO sqldelight_collection_inputs VALUES (2, 'inactive', 20)
+                          INTO sqldelight_collection_inputs VALUES (3, 'active', 30)
+                          INTO sqldelight_collection_inputs VALUES (4, 'pending', 40)
+                        SELECT 1 FROM dual
+                        """.trimIndent(),
+                    ) shouldBe 4
+                }
+
+                connection
+                    .prepareStatement(
+                        """
+                        SELECT department_id
+                        FROM sqldelight_collection_inputs
+                        WHERE (department_id, status) IN ((?, ?), (?, ?))
+                        ORDER BY department_id
+                        """.trimIndent(),
+                    ).use { statement ->
+                        statement.setLong(1, 1L)
+                        statement.setString(2, "active")
+                        statement.setLong(3, 3L)
+                        statement.setString(4, "active")
+                        statement.executeQuery().use { resultSet ->
+                            buildList {
+                                while (resultSet.next()) add(resultSet.getLong(1))
+                            } shouldBe listOf(1L, 3L)
+                        }
+                    }
+
+                connection
+                    .prepareStatement(
+                        """
+                        SELECT department_id
+                        FROM sqldelight_collection_inputs
+                        WHERE (department_id, status, priority) IN ((?, ?, ?), (?, ?, ?))
+                        ORDER BY department_id
+                        """.trimIndent(),
+                    ).use { statement ->
+                        statement.setLong(1, 2L)
+                        statement.setString(2, "inactive")
+                        statement.setLong(3, 20L)
+                        statement.setLong(4, 4L)
+                        statement.setString(5, "pending")
+                        statement.setLong(6, 40L)
+                        statement.executeQuery().use { resultSet ->
+                            buildList {
+                                while (resultSet.next()) add(resultSet.getLong(1))
+                            } shouldBe listOf(2L, 4L)
+                        }
+                    }
+
+                connection
+                    .prepareStatement(
+                        """
+                        SELECT department_id
+                        FROM sqldelight_collection_inputs
+                        WHERE (department_id, status) NOT IN ((?, ?))
+                        ORDER BY department_id
+                        """.trimIndent(),
+                    ).use { statement ->
+                        statement.setLong(1, 2L)
+                        statement.setString(2, "inactive")
+                        statement.executeQuery().use { resultSet ->
+                            buildList {
+                                while (resultSet.next()) add(resultSet.getLong(1))
+                            } shouldBe listOf(1L, 3L, 4L)
+                        }
+                    }
+
+                connection
+                    .prepareStatement(
+                        """
+                        SELECT source.department_id
+                        FROM sqldelight_collection_inputs source
+                        JOIN JSON_TABLE(
+                          TO_CLOB(?),
+                          '${'$'}[*]' COLUMNS (
+                            department_id NUMBER(10) PATH '${'$'}.department_id',
+                            status VARCHAR2(20) PATH '${'$'}.status'
+                          )
+                        ) pairs
+                          ON pairs.department_id = source.department_id
+                         AND pairs.status = source.status
+                        ORDER BY source.department_id
+                        """.trimIndent(),
+                    ).use { statement ->
+                        statement.setString(
+                            1,
+                            """
+                            [
+                              {"department_id": 1, "status": "active"},
+                              {"department_id": 4, "status": "pending"}
+                            ]
+                            """.trimIndent(),
+                        )
+                        statement.executeQuery().use { resultSet ->
+                            buildList {
+                                while (resultSet.next()) add(resultSet.getLong(1))
+                            } shouldBe listOf(1L, 4L)
+                        }
+                    }
+            }
+        }
     })
 
 private val oracleTestcontainersEnabled: Boolean =

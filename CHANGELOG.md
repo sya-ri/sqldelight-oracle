@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Add Oracle multi-column `IN` and `NOT IN` collection-bind parsing and code generation coverage.
+- Document typed multi-column collection binds and single-bind `JSON_TABLE` collection inputs.
+
+### Fixed
+
+- Infer `TO_CLOB` and `TO_NCLOB` input binds as `String`.
+
 ## 0.1.4
 
 ### Added

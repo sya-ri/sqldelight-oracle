@@ -145,7 +145,8 @@ public class OracleTypeResolver(
 
     private fun oracleExtensionOperatorType(expr: SqlExpr): IntermediateType? {
         val extensionExpr = expr.oracleExtensionExpr() ?: return null
-        return when (val operatorName = extensionExpr.text.oracleLeadingIdentifier()) {
+        return when (val operatorName = extensionExpr.text.oracleLeadingIdentifier().substringBefore(".")) {
+            "ORA_END_USER_CONTEXT" -> IntermediateType(OracleType.TEXT).asNullable()
             "JSON_ID" -> OracleType.fromFunctionName(operatorName)?.let { type -> IntermediateType(type) }
             "SHARD_CHUNK_ID" -> OracleType.fromFunctionName(operatorName)?.let { type -> IntermediateType(type) }
             else -> null

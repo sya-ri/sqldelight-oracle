@@ -758,6 +758,12 @@ class OracleResultColumnTypeTest :
                 "kotlin.String?"
         }
 
+        test("resolves Oracle end user context JSON path result types exactly") {
+            typeOf("SELECT ORA_END_USER_CONTEXT.username AS c FROM dual") shouldBe "kotlin.String?"
+            typeOf("SELECT ORA_END_USER_CONTEXT.USER.TOKEN.iss AS c FROM dual") shouldBe "kotlin.String?"
+            typeOf("SELECT ORA_END_USER_CONTEXT AS c FROM dual") shouldBe "kotlin.String?"
+        }
+
         test("resolves Oracle SQL JSON input nullability exactly") {
             typeOf("SELECT JSON_VALUE(nickname, '${'$'}.id' RETURNING NUMBER) AS c FROM emp") shouldBe
                 "java.math.BigDecimal?"

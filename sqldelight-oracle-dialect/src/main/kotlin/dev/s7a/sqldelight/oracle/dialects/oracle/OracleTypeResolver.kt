@@ -133,9 +133,12 @@ public class OracleTypeResolver(
         val invocationEnd = extensionExpr.text.oracleFirstFunctionInvocationEnd()
         val childExpressions = PsiTreeUtil.findChildrenOfType(extensionExpr, SqlExpr::class.java).toList()
         val invocationArguments =
-            childExpressions.filter { argument ->
-                argument.textRange.startOffset - extensionExpr.textRange.startOffset < invocationEnd
-            }
+            childExpressions
+                .filter { argument ->
+                    argument.textRange.startOffset - extensionExpr.textRange.startOffset < invocationEnd
+                }.let { arguments ->
+                    if (functionName == "ANY_VALUE") arguments.oracleOutermostExpressions() else arguments
+                }
         val arguments =
             if (functionName.isOracleWithinGroupOrderedValueFunction()) {
                 invocationArguments + childExpressions.oracleWithinGroupOrderingExpressions(extensionExpr)
@@ -144,6 +147,11 @@ public class OracleTypeResolver(
             }
         return oracleFunctionType(functionName, extensionExpr.text, arguments)
     }
+
+    private fun List<SqlExpr>.oracleOutermostExpressions(): List<SqlExpr> =
+        filter { candidate ->
+            none { expression -> expression !== candidate && PsiTreeUtil.isAncestor(expression, candidate, false) }
+        }
 
     private fun oracleExtensionOperatorType(expr: SqlExpr): IntermediateType? {
         val extensionExpr = expr.oracleExtensionExpr() ?: return null

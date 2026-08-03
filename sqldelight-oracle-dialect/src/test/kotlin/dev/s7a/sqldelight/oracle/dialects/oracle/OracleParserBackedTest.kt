@@ -2633,6 +2633,37 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle ANY_VALUE expression operands exactly") {
+            val sql =
+                """
+                CREATE TABLE any_value_bind (
+                  amount NUMBER(10, 2) NOT NULL,
+                  nullable_amount NUMBER(10, 2)
+                );
+
+                anyValuePositional:
+                SELECT ANY_VALUE(CAST(? AS NUMBER)) AS value
+                FROM any_value_bind;
+
+                anyValueNamed:
+                SELECT ANY_VALUE(CAST(:amount_bind AS NUMBER(10, 2))) AS value
+                FROM any_value_bind;
+
+                anyValueExpressions:
+                SELECT ANY_VALUE(CAST(1 AS NUMBER)) AS cast_literal_value,
+                  ANY_VALUE(amount + 1) AS scalar_value,
+                  ANY_VALUE(amount) AS non_null_column_value,
+                  ANY_VALUE(nullable_amount) AS nullable_column_value
+                FROM any_value_bind;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle aggregate argument modifiers exactly") {
             val sql =
                 """

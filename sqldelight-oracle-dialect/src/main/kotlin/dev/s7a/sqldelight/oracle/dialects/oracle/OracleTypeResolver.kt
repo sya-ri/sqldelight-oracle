@@ -508,6 +508,7 @@ public class OracleTypeResolver(
         }
         oracleVectorArgumentType(extensionExpr)?.let { return it }
         oracle26AiConversionArgumentType(extensionExpr)?.let { return it }
+        oracleTimeBucketArgumentType(extensionExpr, argumentOffset)?.let { return it }
 
         val regexpLikeStart = Regex("""(?is)\bREGEXP_LIKE\s*\(""").find(extensionText)?.range?.last ?: return null
         if (argumentOffset <= regexpLikeStart) return null
@@ -528,6 +529,25 @@ public class OracleTypeResolver(
         if (argumentOffset <= invocationStart) return null
 
         return IntermediateType(TEXT)
+    }
+
+    private fun oracleTimeBucketArgumentType(
+        extensionExpr: SqlExtensionExpr,
+        argumentOffset: Int,
+    ): IntermediateType? {
+        if (extensionExpr.text.oracleFunctionName() != "TIME_BUCKET") return null
+        val invocationStart = extensionExpr.text.indexOf('(').takeIf { it >= 0 } ?: return null
+        if (argumentOffset <= invocationStart) return null
+        val argumentIndex =
+            extensionExpr.text
+                .substring(invocationStart + 1, argumentOffset)
+                .oracleTopLevelCommaParts()
+                .size - 1
+        return when (argumentIndex) {
+            0, 2 -> IntermediateType(TIMESTAMP).asNullable()
+            1 -> IntermediateType(TEXT)
+            else -> null
+        }
     }
 
     private fun SqlExpr.oracleVectorArgumentType(extensionExpr: SqlExtensionExpr): IntermediateType? {

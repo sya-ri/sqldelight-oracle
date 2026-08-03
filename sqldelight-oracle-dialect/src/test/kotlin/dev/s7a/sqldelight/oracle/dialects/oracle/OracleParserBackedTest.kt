@@ -9208,6 +9208,60 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle time bucket named and positional binds exactly") {
+            val sql =
+                """
+                CREATE TABLE sample (
+                  id NUMBER PRIMARY KEY,
+                  created_at TIMESTAMP
+                );
+
+                bucketNamed:
+                SELECT TIME_BUCKET(:datetime, :stride, :origin, END) AS bucket_end
+                FROM sample;
+
+                bucketPositional:
+                SELECT TIME_BUCKET(?, ?, ?, START) AS bucket_start
+                FROM sample;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+            bindExprCount(sql) shouldBe 6
+            queryParameterNames(sql) shouldBe listOf("datetime", "stride", "origin", "value", "value_", "value__")
+        }
+
+        test("parses Oracle time bucket overflow clauses exactly") {
+            val sql =
+                """
+                CREATE TABLE sample (
+                  id NUMBER PRIMARY KEY,
+                  created_at DATE NOT NULL
+                );
+
+                bucketRounded:
+                SELECT TIME_BUCKET(created_at, INTERVAL '1' YEAR, DATE '2000-02-29', START ON OVERFLOW ROUND)
+                FROM sample;
+
+                bucketError:
+                SELECT TIME_BUCKET(created_at, 'P1Y', DATE '2000-02-29', END ON OVERFLOW ERROR)
+                FROM sample;
+
+                bucketLastDay:
+                SELECT TIME_BUCKET(created_at, INTERVAL '1' MONTH, DATE '2000-02-29' LAST DAY OF MONTH)
+                FROM sample;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle model clause queries exactly") {
             val sql =
                 """

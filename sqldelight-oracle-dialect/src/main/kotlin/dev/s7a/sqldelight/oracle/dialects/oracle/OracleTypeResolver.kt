@@ -490,6 +490,7 @@ public class OracleTypeResolver(
             return IntermediateType(TEXT)
         }
         oracleVectorArgumentType(extensionExpr)?.let { return it }
+        oracle26AiConversionArgumentType(extensionExpr)?.let { return it }
 
         val regexpLikeStart = Regex("""(?is)\bREGEXP_LIKE\s*\(""").find(extensionText)?.range?.last ?: return null
         if (argumentOffset <= regexpLikeStart) return null
@@ -499,6 +500,17 @@ public class OracleTypeResolver(
             2 -> IntermediateType(TEXT).asNullable()
             else -> null
         }
+    }
+
+    private fun SqlExpr.oracle26AiConversionArgumentType(extensionExpr: SqlExtensionExpr): IntermediateType? {
+        val functionName = extensionExpr.text.oracleFunctionName() ?: return null
+        if (functionName !in setOf("TO_BOOLEAN", "TO_UTC_TIMESTAMP_TZ")) return null
+
+        val argumentOffset = textRange.startOffset - extensionExpr.textRange.startOffset
+        val invocationStart = Regex("""(?is)^\s*$functionName\s*\(""").find(extensionExpr.text)?.range?.last ?: return null
+        if (argumentOffset <= invocationStart) return null
+
+        return IntermediateType(TEXT)
     }
 
     private fun SqlExpr.oracleVectorArgumentType(extensionExpr: SqlExtensionExpr): IntermediateType? {
@@ -1486,6 +1498,7 @@ public class OracleTypeResolver(
                     "TO_BLOB",
                     "TO_BINARY_DOUBLE",
                     "TO_BINARY_FLOAT",
+                    "TO_BOOLEAN",
                     "TO_CHAR",
                     "TO_DATE",
                     "TO_DSINTERVAL",
@@ -1496,6 +1509,7 @@ public class OracleTypeResolver(
                     "TO_SINGLE_BYTE",
                     "TO_TIMESTAMP",
                     "TO_TIMESTAMP_TZ",
+                    "TO_UTC_TIMESTAMP_TZ",
                     "TO_VECTOR",
                     "TO_YMINTERVAL",
                     "TRANSLATE",

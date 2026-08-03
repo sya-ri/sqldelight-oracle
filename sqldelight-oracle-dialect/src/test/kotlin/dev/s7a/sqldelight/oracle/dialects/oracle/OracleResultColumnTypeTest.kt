@@ -891,6 +891,18 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT TZ_OFFSET(nickname) AS c FROM emp") shouldBe "kotlin.String?"
         }
 
+        test("resolves Oracle 26ai conversion result types and nullability exactly") {
+            typeOf("SELECT TO_BOOLEAN('TRUE') AS c FROM emp") shouldBe "kotlin.Boolean"
+            typeOf("SELECT TO_BOOLEAN(name) AS c FROM emp") shouldBe "kotlin.Boolean"
+            typeOf("SELECT TO_BOOLEAN(nickname) AS c FROM emp") shouldBe "kotlin.Boolean?"
+            typeOf("SELECT TO_BOOLEAN(CAST(NULL AS VARCHAR2(5))) AS c FROM emp") shouldBe "kotlin.Boolean?"
+            typeOf("SELECT TO_UTC_TIMESTAMP_TZ('2024-01-01') AS c FROM emp") shouldBe "java.time.OffsetDateTime"
+            typeOf("SELECT TO_UTC_TIMESTAMP_TZ(name) AS c FROM emp") shouldBe "java.time.OffsetDateTime"
+            typeOf("SELECT TO_UTC_TIMESTAMP_TZ(nickname) AS c FROM emp") shouldBe "java.time.OffsetDateTime?"
+            typeOf("SELECT TO_UTC_TIMESTAMP_TZ(CAST(NULL AS VARCHAR2(20))) AS c FROM emp") shouldBe
+                "java.time.OffsetDateTime?"
+        }
+
         test("propagates Oracle calendar function nullability exactly") {
             typeOf("SELECT CALENDAR_YEAR(created_ts) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT FISCAL_YEAR(created_ts, fiscal_start) AS c FROM emp") shouldBe "kotlin.String?"

@@ -518,6 +518,8 @@ public enum class OracleType(
                 "TO_DATE" to DATE,
                 "TO_TIMESTAMP" to TIMESTAMP,
                 "TO_TIMESTAMP_TZ" to TIMESTAMP_TIME_ZONE,
+                "TO_UTC_TIMESTAMP_TZ" to TIMESTAMP_TIME_ZONE,
+                "TO_BOOLEAN" to BOOLEAN_TYPE,
                 "TO_NUMBER" to DECIMAL_NUMBER,
                 "BIN_TO_NUM" to DECIMAL_NUMBER,
                 "CALENDAR_DAY_OF_MONTH" to DECIMAL_NUMBER,

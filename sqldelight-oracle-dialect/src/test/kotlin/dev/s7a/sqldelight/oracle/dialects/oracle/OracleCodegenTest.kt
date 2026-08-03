@@ -759,6 +759,42 @@ class OracleCodegenTest :
             queries.contains("bindLong(parameterIndex++, minimum_id)") shouldBe true
         }
 
+        test("generates Oracle 26ai conversion bind parameters and result types exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    CREATE TABLE conversion_input (
+                      id NUMBER(10) NOT NULL
+                    );
+
+                    toBooleanPositional:
+                    SELECT TO_BOOLEAN(?) AS value FROM conversion_input;
+
+                    toBooleanNamed:
+                    SELECT TO_BOOLEAN(:flag) AS value FROM conversion_input;
+
+                    toUtcPositional:
+                    SELECT TO_UTC_TIMESTAMP_TZ(?) AS value FROM conversion_input;
+
+                    toUtcNamed:
+                    SELECT TO_UTC_TIMESTAMP_TZ(:iso) AS value FROM conversion_input;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun toBooleanPositional(value_: String)") shouldBe true
+            queries.contains("public fun toBooleanNamed(flag: String)") shouldBe true
+            queries.contains("public fun toUtcPositional(value_: String)") shouldBe true
+            queries.contains("public fun toUtcNamed(iso: String)") shouldBe true
+            queries.contains("bindString(parameterIndex++, value)") shouldBe true
+            queries.contains("bindString(parameterIndex++, flag)") shouldBe true
+            queries.contains("bindString(parameterIndex++, iso)") shouldBe true
+            queries.contains("mapper: (value_: Boolean?) -> T") shouldBe true
+            queries.contains("mapper: (value_: OffsetDateTime?) -> T") shouldBe true
+            queries.contains("cursor.getBoolean(0)") shouldBe true
+            queries.contains("cursor.getObject<OffsetDateTime>(0)") shouldBe true
+        }
+
         test("generates Oracle GraphQL passing bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

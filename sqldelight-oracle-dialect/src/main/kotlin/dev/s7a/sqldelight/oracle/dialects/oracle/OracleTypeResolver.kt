@@ -89,6 +89,8 @@ public class OracleTypeResolver(
         argument.oraclePivotArgumentType()?.let { return it }
         argument.oracleErrorLoggingTagArgumentType()?.let { return it }
         argument.oracleVectorFunctionArgumentType()?.let { return it }
+        argument.oracleFunctionArgumentType()?.let { return it }
+        argument.oracleExtensionFunctionArgumentType()?.let { return it }
 
         return when {
             parent is SqlSetterExpression -> {
@@ -554,6 +556,125 @@ public class OracleTypeResolver(
             else -> null
         }
     }
+
+    private fun SqlExpr.oracleFunctionArgumentType(): IntermediateType? {
+        val functionExpr = PsiTreeUtil.getParentOfType(this, SqlFunctionExpr::class.java) ?: return null
+        val argumentIndex = functionExpr.exprList.indexOf(this)
+        if (argumentIndex == -1) return null
+
+        return oracleFunctionArgumentType(functionExpr.functionName.text, argumentIndex, functionExpr.exprList)
+    }
+
+    private fun SqlExpr.oracleExtensionFunctionArgumentType(): IntermediateType? {
+        val extensionExpr = PsiTreeUtil.getParentOfType(this, SqlExtensionExpr::class.java) ?: return null
+        val functionName = extensionExpr.text.oracleFunctionName() ?: return null
+        val invocationEnd = extensionExpr.text.oracleFirstFunctionInvocationEnd()
+        val arguments =
+            PsiTreeUtil
+                .findChildrenOfType(extensionExpr, SqlExpr::class.java)
+                .filter { expression ->
+                    expression.textRange.startOffset - extensionExpr.textRange.startOffset < invocationEnd
+                }.toList()
+        val argumentIndex = arguments.indexOf(this)
+        if (argumentIndex == -1) return null
+
+        return oracleFunctionArgumentType(functionName, argumentIndex, arguments)
+    }
+
+    private fun SqlExpr.oracleFunctionArgumentType(
+        rawFunctionName: String,
+        argumentIndex: Int,
+        arguments: List<SqlExpr>,
+    ): IntermediateType? {
+        val functionName = rawFunctionName.trim().uppercase()
+
+        val siblingType: (Int) -> IntermediateType? = { index ->
+            arguments.getOrNull(index)?.takeUnless { expression -> expression == this }?.oracleResolvedTypeOrNull()
+        }
+        val firstSiblingType =
+            arguments.firstNotNullOfOrNull { expression ->
+                expression.takeUnless { it == this }?.oracleResolvedTypeOrNull()
+            }
+
+        return when (functionName) {
+            "COALESCE", "GREATEST", "LEAST", "NANVL" -> {
+                firstSiblingType
+            }
+
+            "NVL" -> {
+                siblingType(0) ?: siblingType(1)
+            }
+
+            "NVL2" -> {
+                when (argumentIndex) {
+                    0 -> siblingType(1) ?: siblingType(2)
+                    1 -> siblingType(2)
+                    2 -> siblingType(1)
+                    else -> null
+                }
+            }
+
+            "DECODE" -> {
+                when {
+                    argumentIndex == 0 -> {
+                        siblingType(1)
+                    }
+
+                    argumentIndex % 2 == 1 -> {
+                        siblingType(0)
+                    }
+
+                    else -> {
+                        arguments.withIndex().firstNotNullOfOrNull { (index, expression) ->
+                            if (index >= 2 && index % 2 == 0 && expression != this) {
+                                expression.oracleResolvedTypeOrNull()
+                            } else {
+                                null
+                            }
+                        }
+                    }
+                }
+            }
+
+            "LAG", "LEAD" -> {
+                when (argumentIndex) {
+                    0 -> siblingType(2)
+                    1 -> IntermediateType(LONG_NUMBER)
+                    2 -> siblingType(0)
+                    else -> null
+                }
+            }
+
+            "JSON_DATAGUIDE", "JSON_EXISTS", "JSON_QUERY", "JSON_VALUE" -> {
+                if (argumentIndex == 0) firstSiblingType ?: IntermediateType(TEXT) else IntermediateType(TEXT)
+            }
+
+            "NTH_VALUE" -> {
+                when (argumentIndex) {
+                    0 -> null
+                    1 -> IntermediateType(LONG_NUMBER)
+                    else -> null
+                }
+            }
+
+            "LOWER", "UPPER", "INITCAP", "LTRIM", "RTRIM", "TRIM",
+            "ASCII", "ASCIISTR", "COMPOSE", "DECOMPOSE", "LENGTH", "LENGTHB", "LENGTHC", "LENGTH2", "LENGTH4",
+            "TO_DATE", "TO_TIMESTAMP", "TO_TIMESTAMP_TZ", "TO_NUMBER",
+            -> {
+                IntermediateType(TEXT)
+            }
+
+            "CONCAT" -> {
+                IntermediateType(TEXT)
+            }
+
+            else -> {
+                null
+            }
+        }
+    }
+
+    private fun SqlExpr.oracleResolvedTypeOrNull(): IntermediateType? = runCatching { resolvedType(this) }.getOrNull()
 
     private fun SqlExpr.oracleMultiColumnTextArgumentType(): IntermediateType? {
         val extensionExpr = PsiTreeUtil.getParentOfType(this, SqlExtensionExpr::class.java) ?: return null

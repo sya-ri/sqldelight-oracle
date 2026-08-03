@@ -1327,6 +1327,35 @@ public class OracleTypeResolver(
                 }
             }
 
+            "time_bucket" -> {
+                exprList.takeIf { args -> args.size >= 3 }?.let { args ->
+                    val argumentTypes = args.take(3).map { expression -> resolvedType(expression) }
+                    val resultType =
+                        when (argumentTypes.first().dialectType) {
+                            DATE -> DATE
+
+                            TIMESTAMP -> TIMESTAMP
+
+                            TIMESTAMP_TIME_ZONE -> TIMESTAMP_TIME_ZONE
+
+                            TEXT -> TIMESTAMP
+
+                            INTEGER,
+                            INTEGER_NUMBER,
+                            LONG_NUMBER,
+                            DECIMAL_NUMBER,
+                            REAL,
+                            BINARY_FLOAT,
+                            BINARY_DOUBLE,
+                            -> DECIMAL_NUMBER
+
+                            else -> return@let null
+                        }
+                    IntermediateType(resultType)
+                        .nullableIf(argumentTypes.any { type -> type.javaType.isNullable })
+                }
+            }
+
             "coalesce" -> {
                 exprList.takeIf { args -> args.isNotEmpty() }?.let { args ->
                     encapsulatingTypePreferringKotlin(

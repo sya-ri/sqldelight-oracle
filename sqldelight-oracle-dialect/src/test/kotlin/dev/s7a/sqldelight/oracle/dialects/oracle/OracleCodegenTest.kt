@@ -2148,6 +2148,30 @@ class OracleCodegenTest :
             queries.contains("SYS_ROW_ETAG(s.id, s.department_id, s.name)") shouldBe true
         }
 
+        test("generates Oracle time bucket result exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    CREATE TABLE sample (
+                      created_at TIMESTAMP
+                    );
+
+                    bucket:
+                    SELECT TIME_BUCKET(
+                      created_at,
+                      INTERVAL '1' DAY,
+                      TIMESTAMP '2000-01-01 00:00:00'
+                    ) AS bucket_start
+                    FROM sample;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("bucket_start: LocalDateTime?") shouldBe true
+            queries.contains("cursor.getObject<LocalDateTime>(0)") shouldBe true
+            queries.contains("TIME_BUCKET(") shouldBe true
+        }
+
         test("generates SQLDelight value type row and variable arguments exactly") {
             val generated =
                 generateOracleSqlDelight(

@@ -511,6 +511,7 @@ public class OracleTypeResolver(
         oracle26AiConversionArgumentType(extensionExpr)?.let { return it }
         oracleTimeBucketArgumentType(extensionExpr, argumentOffset)?.let { return it }
         oracleCorrelationAndRoundArgumentType(extensionExpr, argumentOffset)?.let { return it }
+        oracleContainerIdentityArgumentType(extensionExpr)?.let { return it }
 
         val regexpLikeStart = Regex("""(?is)\bREGEXP_LIKE\s*\(""").find(extensionText)?.range?.last ?: return null
         if (argumentOffset <= regexpLikeStart) return null
@@ -521,6 +522,19 @@ public class OracleTypeResolver(
             else -> null
         }
     }
+
+    private fun oracleContainerIdentityArgumentType(extensionExpr: SqlExtensionExpr): IntermediateType? =
+        IntermediateType(DECIMAL_NUMBER)
+            .asNullable()
+            .takeIf {
+                extensionExpr.text.oracleFunctionName() in
+                    setOf(
+                        "CON_ID_TO_CON_NAME",
+                        "CON_ID_TO_DBID",
+                        "CON_ID_TO_GUID",
+                        "CON_ID_TO_UID",
+                    )
+            }
 
     private fun SqlExpr.oracle26AiConversionArgumentType(extensionExpr: SqlExtensionExpr): IntermediateType? {
         val functionName = extensionExpr.text.oracleFunctionName() ?: return null
@@ -1657,6 +1671,10 @@ public class OracleTypeResolver(
                     "CHARTOROWID",
                     "CHR",
                     "COMPOSE",
+                    "CON_ID_TO_CON_NAME",
+                    "CON_ID_TO_DBID",
+                    "CON_ID_TO_GUID",
+                    "CON_ID_TO_UID",
                     "CONVERT",
                     "COS",
                     "COSH",

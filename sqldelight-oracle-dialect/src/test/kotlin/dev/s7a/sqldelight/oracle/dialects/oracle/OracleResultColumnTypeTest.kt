@@ -358,6 +358,21 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT LEAST(id, dept_id) AS c FROM emp") shouldBe "kotlin.Long?"
         }
 
+        test("resolves Oracle time bucket result types from datetime input exactly") {
+            typeOf(
+                "SELECT TIME_BUCKET(DATE '2022-06-29', INTERVAL '5' YEAR, DATE '2000-01-01') AS c FROM emp",
+            ) shouldBe "java.time.LocalDateTime"
+            typeOf(
+                "SELECT TIME_BUCKET(created_ts, INTERVAL '1' DAY, TIMESTAMP '2000-01-01 00:00:00') AS c FROM emp",
+            ) shouldBe "java.time.LocalDateTime?"
+            typeOf(
+                "SELECT TIME_BUCKET(CAST(hire_date AS TIMESTAMP WITH TIME ZONE), INTERVAL '1' DAY, CAST(hire_date AS TIMESTAMP WITH TIME ZONE)) AS c FROM emp",
+            ) shouldBe "java.time.OffsetDateTime"
+            typeOf(
+                "SELECT TIME_BUCKET(id, INTERVAL '60' SECOND, 0) AS c FROM emp",
+            ) shouldBe "java.math.BigDecimal"
+        }
+
         test("resolves Oracle CAST result column types exactly") {
             typeOf("SELECT CAST(salary AS NUMBER(5)) AS c FROM emp") shouldBe "kotlin.Int?"
             typeOf("SELECT CAST(dept_id AS VARCHAR2(20)) AS c FROM emp") shouldBe "kotlin.String?"

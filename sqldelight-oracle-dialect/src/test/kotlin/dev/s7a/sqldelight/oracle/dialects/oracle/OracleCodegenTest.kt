@@ -1872,6 +1872,37 @@ class OracleCodegenTest :
             queries.contains("bindString(parameterIndex++, cycle_marker)") shouldBe true
         }
 
+        test("generates Oracle approximate rank result exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    CREATE TABLE sample (
+                      department_id NUMBER(10) NOT NULL,
+                      salary NUMBER(10, 2)
+                    );
+
+                    topDepartments:
+                    SELECT department_id,
+                           APPROX_SUM(salary) AS total_salary,
+                           APPROX_RANK(
+                             PARTITION BY department_id
+                             ORDER BY APPROX_SUM(salary) DESC
+                           ) AS ranking
+                    FROM sample
+                    GROUP BY department_id
+                    HAVING APPROX_RANK(
+                             PARTITION BY department_id
+                             ORDER BY APPROX_SUM(salary) DESC
+                           ) <= 10;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("ranking: Long,") shouldBe true
+            queries.contains("cursor.getLong(2)!!") shouldBe true
+            queries.contains("APPROX_RANK(") shouldBe true
+        }
+
         test("generates SQLDelight value type row and variable arguments exactly") {
             val generated =
                 generateOracleSqlDelight(

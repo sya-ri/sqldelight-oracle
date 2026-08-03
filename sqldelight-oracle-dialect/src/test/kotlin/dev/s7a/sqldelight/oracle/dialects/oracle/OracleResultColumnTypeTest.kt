@@ -73,6 +73,30 @@ class OracleResultColumnTypeTest :
             typeOf(
                 "SELECT APPROX_PERCENTILE(0.5 DETERMINISTIC, 'ERROR_RATE') WITHIN GROUP (ORDER BY id) AS c FROM emp",
             ) shouldBe "java.math.BigDecimal?"
+            typeOf(
+                """
+                SELECT APPROX_RANK(
+                  PARTITION BY dept_id
+                  ORDER BY APPROX_SUM(salary) DESC
+                ) AS c
+                FROM emp
+                GROUP BY dept_id
+                HAVING APPROX_RANK(
+                  PARTITION BY dept_id
+                  ORDER BY APPROX_SUM(salary) DESC
+                ) <= 10
+                """.trimIndent(),
+            ) shouldBe "kotlin.Long"
+            typeOf(
+                """
+                SELECT APPROX_RANK(
+                  ORDER BY APPROX_COUNT(*) DESC
+                ) FILTER (WHERE salary IS NOT NULL) AS c
+                FROM emp
+                GROUP BY dept_id
+                HAVING APPROX_RANK(ORDER BY APPROX_COUNT(*) DESC) <= 10
+                """.trimIndent(),
+            ) shouldBe "kotlin.Long"
         }
 
         test("resolves Oracle 26ai datetime bitmap and boolean aggregate types exactly") {

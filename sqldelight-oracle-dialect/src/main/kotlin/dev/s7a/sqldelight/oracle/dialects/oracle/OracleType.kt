@@ -659,6 +659,7 @@ public enum class OracleType(
                 "ORA_INVOKING_USERID" to LONG_NUMBER,
                 "ROW_NUMBER" to LONG_NUMBER,
                 "RANK" to LONG_NUMBER,
+                "APPROX_RANK" to LONG_NUMBER,
                 "DENSE_RANK" to LONG_NUMBER,
                 "NTILE" to LONG_NUMBER,
                 "GROUPING" to LONG_NUMBER,

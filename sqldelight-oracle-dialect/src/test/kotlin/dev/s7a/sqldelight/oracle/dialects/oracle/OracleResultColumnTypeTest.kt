@@ -115,6 +115,40 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT BOOLEAN_AND_AGG(id > 0) AS c FROM emp") shouldBe "kotlin.Boolean?"
         }
 
+        test("resolves Oracle approximate detail and conversion types exactly") {
+            typeOf("SELECT APPROX_COUNT_DISTINCT_DETAIL(id) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+            typeOf("SELECT APPROX_COUNT_DISTINCT_DETAIL(dept_id) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+            typeOf("SELECT APPROX_PERCENTILE_DETAIL(id) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+            typeOf("SELECT APPROX_PERCENTILE_DETAIL(dept_id) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+            typeOf("SELECT TO_APPROX_COUNT_DISTINCT(APPROX_COUNT_DISTINCT_DETAIL(id)) AS c FROM emp") shouldBe
+                "java.math.BigDecimal?"
+            typeOf("SELECT TO_APPROX_PERCENTILE(APPROX_PERCENTILE_DETAIL(id), 0.5, 'NUMBER') AS c FROM emp") shouldBe
+                "java.math.BigDecimal?"
+
+            val inlineViewSql =
+                """
+                CREATE TABLE audit_approx (
+                  id NUMBER(10) NOT NULL
+                );
+
+                countAggregate:
+                SELECT APPROX_COUNT_DISTINCT_AGG(detail) AS value
+                FROM (
+                  SELECT APPROX_COUNT_DISTINCT_DETAIL(id) AS detail
+                  FROM audit_approx
+                );
+
+                percentileAggregate:
+                SELECT APPROX_PERCENTILE_AGG(detail) AS value
+                FROM (
+                  SELECT APPROX_PERCENTILE_DETAIL(id) AS detail
+                  FROM audit_approx
+                );
+                """.trimIndent()
+
+            oracleResultColumnTypes(inlineViewSql) shouldBe listOf("kotlin.ByteArray?", "kotlin.ByteArray?")
+        }
+
         test("compiles predicates referencing columns with Kotlin adapters") {
             val sql =
                 """

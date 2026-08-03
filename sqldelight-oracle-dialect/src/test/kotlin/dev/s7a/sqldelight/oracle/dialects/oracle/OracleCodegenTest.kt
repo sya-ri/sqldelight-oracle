@@ -788,6 +788,53 @@ class OracleCodegenTest :
             queries.contains("cursor.getBigDecimal(0)") shouldBe true
         }
 
+        test("generates Oracle approximate detail and conversion results exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    CREATE TABLE audit_approx (
+                      id NUMBER(10) NOT NULL
+                    );
+
+                    countDetail:
+                    SELECT APPROX_COUNT_DISTINCT_DETAIL(id) AS value
+                    FROM audit_approx;
+
+                    countAggregate:
+                    SELECT APPROX_COUNT_DISTINCT_AGG(detail) AS value
+                    FROM (
+                      SELECT APPROX_COUNT_DISTINCT_DETAIL(id) AS detail
+                      FROM audit_approx
+                    );
+
+                    countValue:
+                    SELECT TO_APPROX_COUNT_DISTINCT(APPROX_COUNT_DISTINCT_DETAIL(id)) AS value
+                    FROM audit_approx;
+
+                    percentileDetail:
+                    SELECT APPROX_PERCENTILE_DETAIL(id) AS value
+                    FROM audit_approx;
+
+                    percentileAggregate:
+                    SELECT APPROX_PERCENTILE_AGG(detail) AS value
+                    FROM (
+                      SELECT APPROX_PERCENTILE_DETAIL(id) AS detail
+                      FROM audit_approx
+                    );
+
+                    percentileValue:
+                    SELECT TO_APPROX_PERCENTILE(APPROX_PERCENTILE_DETAIL(id), 0.5, 'NUMBER') AS value
+                    FROM audit_approx;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("mapper: (value_: ByteArray?) -> T") shouldBe true
+            queries.contains("mapper: (value_: BigDecimal?) -> T") shouldBe true
+            queries.contains("cursor.getBytes(0)") shouldBe true
+            queries.contains("cursor.getBigDecimal(0)") shouldBe true
+        }
+
         test("generates Oracle SQL JSON passing bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

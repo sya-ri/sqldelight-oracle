@@ -778,6 +778,41 @@ class OracleCodegenTest :
             queries.contains("bindBigDecimal(parameterIndex++, min_area)") shouldBe true
         }
 
+        test("generates Oracle XMLELEMENT EVALNAME bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    CREATE TABLE xml_bind (
+                      label VARCHAR2(100) NOT NULL,
+                      element_name VARCHAR2(100) NOT NULL
+                    );
+
+                    xmlElementNames:
+                    SELECT XMLELEMENT(EVALNAME ?, label) AS positional_value,
+                      XMLELEMENT(EVALNAME :element_name, XMLATTRIBUTES(label AS "label"), label) AS named_value,
+                      XMLELEMENT(EVALNAME CAST(:cast_name AS VARCHAR2(30)), label) AS cast_value,
+                      XMLELEMENT(EVALNAME element_name, label) AS column_value,
+                      XMLELEMENT(NAME "fixed", label) AS fixed_value
+                    FROM xml_bind;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> xmlElementNames(") shouldBe true
+            queries.contains("`value`: String,") shouldBe true
+            queries.contains("element_name: String,") shouldBe true
+            queries.contains("cast_name: String,") shouldBe true
+            queries.contains("positional_value: String,") shouldBe true
+            queries.contains("named_value: String,") shouldBe true
+            queries.contains("cast_value: String,") shouldBe true
+            queries.contains("|SELECT XMLELEMENT(EVALNAME ?, label) AS positional_value,") shouldBe true
+            queries.contains("|  XMLELEMENT(EVALNAME ?, XMLATTRIBUTES(label AS \"label\"), label) AS named_value,") shouldBe true
+            queries.contains("|  XMLELEMENT(EVALNAME CAST(? AS VARCHAR2(30)), label) AS cast_value,") shouldBe true
+            queries.contains("bindString(parameterIndex++, value)") shouldBe true
+            queries.contains("bindString(parameterIndex++, element_name)") shouldBe true
+            queries.contains("bindString(parameterIndex++, cast_name)") shouldBe true
+        }
+
         test("generates Oracle vector function bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

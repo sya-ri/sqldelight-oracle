@@ -713,6 +713,12 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT XMLROOT(XMLTYPE('<Warehouse/>'), VERSION NO VALUE) AS c FROM emp") shouldBe "kotlin.String"
         }
 
+        test("resolves Oracle XMLELEMENT EVALNAME result column types exactly") {
+            typeOf("SELECT XMLELEMENT(EVALNAME 'dynamic_name', name) AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT XMLELEMENT(EVALNAME name, nickname) AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT XMLELEMENT(EVALNAME CAST(name AS VARCHAR2(30)), name) AS c FROM emp") shouldBe "kotlin.String"
+        }
+
         test("propagates Oracle XML and file locator nullability exactly") {
             typeOf("SELECT XMLTYPE(nickname) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT BFILENAME(nickname, name) AS c FROM emp") shouldBe "kotlin.ByteArray?"

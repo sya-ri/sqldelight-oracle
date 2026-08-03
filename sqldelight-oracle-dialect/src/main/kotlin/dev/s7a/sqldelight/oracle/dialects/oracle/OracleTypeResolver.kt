@@ -490,6 +490,12 @@ public class OracleTypeResolver(
         if (Regex("""(?is)\bESCAPE\s*$""").containsMatchIn(beforeArgument)) {
             return IntermediateType(TEXT)
         }
+        if (
+            Regex("""(?is)\bXMLELEMENT\s*\(\s*(?:(?:ENTITYESCAPING|NOENTITYESCAPING)\s+)?EVALNAME\s*$""")
+                .containsMatchIn(beforeArgument)
+        ) {
+            return IntermediateType(TEXT)
+        }
         oracleVectorArgumentType(extensionExpr)?.let { return it }
         oracle26AiConversionArgumentType(extensionExpr)?.let { return it }
 

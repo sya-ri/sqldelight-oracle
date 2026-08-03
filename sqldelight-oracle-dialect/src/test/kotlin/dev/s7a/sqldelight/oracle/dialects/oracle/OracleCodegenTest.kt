@@ -1070,6 +1070,52 @@ class OracleCodegenTest :
             queries.contains("cursor.getObject<OffsetDateTime>(0)") shouldBe true
         }
 
+        test("generates Oracle analytic window frame bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    CREATE TABLE window_bind_sample (
+                      id NUMBER(10, 0) NOT NULL,
+                      amount NUMBER(10, 2),
+                      PRIMARY KEY (id)
+                    );
+
+                    selectWindowBinds:
+                    SELECT SUM(amount) OVER (
+                             ORDER BY id
+                             ROWS BETWEEN ? PRECEDING AND :following FOLLOWING
+                           ) AS rows_total,
+                           SUM(amount) OVER (
+                             ORDER BY id
+                             RANGE :range_preceding PRECEDING
+                           ) AS range_total,
+                           SUM(amount) OVER (
+                             ORDER BY id
+                             GROUPS BETWEEN :groups_preceding PRECEDING AND ? FOLLOWING
+                           ) AS groups_total,
+                           SUM(amount) OVER (
+                             ORDER BY id
+                             ROWS BETWEEN CAST(:cast_preceding AS NUMBER) PRECEDING AND CURRENT ROW
+                           ) AS cast_total
+                    FROM window_bind_sample;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("`value`: Long,") shouldBe true
+            queries.contains("following: Long,") shouldBe true
+            queries.contains("range_preceding: Long,") shouldBe true
+            queries.contains("groups_preceding: Long,") shouldBe true
+            queries.contains("value_: Long,") shouldBe true
+            queries.contains("cast_preceding: BigDecimal,") shouldBe true
+            queries.split("bindLong(parameterIndex++").size - 1 shouldBe 5
+            queries.contains("bindBigDecimal(parameterIndex++, cast_preceding)") shouldBe true
+            queries.contains("ROWS BETWEEN ? PRECEDING AND ? FOLLOWING") shouldBe true
+            queries.contains("RANGE ? PRECEDING") shouldBe true
+            queries.contains("GROUPS BETWEEN ? PRECEDING AND ? FOLLOWING") shouldBe true
+            queries.contains("ROWS BETWEEN CAST(? AS NUMBER) PRECEDING AND CURRENT ROW") shouldBe true
+        }
+
         test("generates Oracle GraphQL passing bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

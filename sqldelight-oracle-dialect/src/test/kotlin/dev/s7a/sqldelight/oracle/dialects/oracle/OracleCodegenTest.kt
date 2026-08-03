@@ -287,6 +287,61 @@ class OracleCodegenTest :
                 """.trimIndent() + "\n"
         }
 
+        test("generates Oracle function argument bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import com.example.Label;
+
+                    CREATE TABLE function_bind_sample (
+                      id NUMBER(10, 0) NOT NULL,
+                      label NVARCHAR2(50) AS Label NOT NULL,
+                      nullable_label NVARCHAR2(50) AS Label,
+                      amount NUMBER(10, 2),
+                      created_at TIMESTAMP,
+                      payload JSON,
+                      PRIMARY KEY (id)
+                    );
+
+                    selectFunctionBinds:
+                    SELECT COALESCE(nullable_label, :fallback) AS coalesced,
+                           NVL(nullable_label, ?) AS defaulted,
+                           NVL2(nullable_label, :present, label) AS selected,
+                           LEAST(label, :ceiling) AS least_label,
+                           UPPER(:upper_value) AS upper_value,
+                           UPPER(CAST(:cast_upper_value AS VARCHAR2(50))) AS cast_upper_value,
+                           TO_DATE(:date_value, 'YYYY-MM-DD') AS converted_date,
+                           JSON_DATAGUIDE(payload, :json_format, :json_pretty) AS json_dataguide,
+                           NTH_VALUE(amount, :position) OVER (ORDER BY id) AS nth_amount
+                    FROM function_bind_sample
+                    WHERE label = COALESCE(:predicate_fallback, nullable_label);
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("fallback: Label?,") shouldBe true
+            queries.contains("nullable_label: Label?,") shouldBe true
+            queries.contains("present: Label,") shouldBe true
+            queries.contains("ceiling: Label,") shouldBe true
+            queries.contains("upper_value: String,") shouldBe true
+            queries.contains("cast_upper_value: String,") shouldBe true
+            queries.contains("date_value: String,") shouldBe true
+            queries.contains("json_format: String,") shouldBe true
+            queries.contains("json_pretty: String,") shouldBe true
+            queries.contains("position: Long,") shouldBe true
+            queries.contains("predicate_fallback: Label?,") shouldBe true
+            queries.contains("function_bind_sampleAdapter.nullable_labelAdapter.encode(it)") shouldBe true
+            queries.contains("function_bind_sampleAdapter.labelAdapter.encode(present)") shouldBe true
+            queries.contains("function_bind_sampleAdapter.labelAdapter.encode(ceiling)") shouldBe true
+            queries.contains("predicate_fallback?.let { function_bind_sampleAdapter.nullable_labelAdapter.encode(it) }") shouldBe true
+            queries.contains("bindString(parameterIndex++, upper_value)") shouldBe true
+            queries.contains("bindString(parameterIndex++, cast_upper_value)") shouldBe true
+            queries.contains("bindString(parameterIndex++, date_value)") shouldBe true
+            queries.contains("bindString(parameterIndex++, json_format)") shouldBe true
+            queries.contains("bindString(parameterIndex++, json_pretty)") shouldBe true
+            queries.contains("bindLong(parameterIndex++, position)") shouldBe true
+        }
+
         test("generates Oracle text pattern bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

@@ -2172,6 +2172,35 @@ class OracleCodegenTest :
             queries.contains("TIME_BUCKET(") shouldBe true
         }
 
+        test("generates Oracle correlation and ties-to-even bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    CREATE TABLE sample (
+                      salary NUMBER(10, 2),
+                      bonus NUMBER
+                    );
+
+                    correlation:
+                    SELECT CORR_K(:salary, bonus) AS value
+                    FROM sample;
+
+                    rounded:
+                    SELECT ROUND_TIES_TO_EVEN(?, :scale) AS value
+                    FROM sample;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> correlation(") shouldBe true
+            queries.contains("salary: BigDecimal?,") shouldBe true
+            queries.contains("mapper: (value_: BigDecimal?) -> T") shouldBe true
+            queries.contains("public fun <T : Any> rounded(") shouldBe true
+            queries.contains("scale: Long,") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, salary)") shouldBe true
+            queries.contains("bindLong(parameterIndex++, scale)") shouldBe true
+        }
+
         test("generates SQLDelight value type row and variable arguments exactly") {
             val generated =
                 generateOracleSqlDelight(

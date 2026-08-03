@@ -242,6 +242,8 @@ class OracleTypeTest :
                     "TO_DATE" to OracleType.DATE,
                     "TO_TIMESTAMP" to OracleType.TIMESTAMP,
                     "TO_TIMESTAMP_TZ" to OracleType.TIMESTAMP_TIME_ZONE,
+                    "TO_UTC_TIMESTAMP_TZ" to OracleType.TIMESTAMP_TIME_ZONE,
+                    "TO_BOOLEAN" to OracleType.BOOLEAN_TYPE,
                     "TO_NUMBER" to OracleType.DECIMAL_NUMBER,
                     "BIN_TO_NUM" to OracleType.DECIMAL_NUMBER,
                     "CALENDAR_DAY_OF_MONTH" to OracleType.DECIMAL_NUMBER,

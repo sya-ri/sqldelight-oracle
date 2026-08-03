@@ -1006,6 +1006,11 @@ class OracleResultColumnTypeTest :
         test("resolves Oracle value aggregate result column types exactly") {
             typeOf("SELECT ANY_VALUE(name) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT ANY_VALUE(salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT ANY_VALUE(CAST(1 AS NUMBER)) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT ANY_VALUE(CAST(? AS NUMBER)) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT ANY_VALUE(CAST(:amount_bind AS NUMBER(10, 2))) AS c FROM emp") shouldBe
+                "java.math.BigDecimal?"
+            typeOf("SELECT ANY_VALUE(id + 1) AS c FROM emp") shouldBe "kotlin.Long?"
             typeOf("SELECT STATS_MODE(id) AS c FROM emp") shouldBe "kotlin.Long?"
             typeOf("SELECT STATS_MODE(nickname) AS c FROM emp") shouldBe "kotlin.String?"
         }

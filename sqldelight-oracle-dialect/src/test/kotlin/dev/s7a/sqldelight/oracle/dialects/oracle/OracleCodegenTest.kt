@@ -618,6 +618,47 @@ class OracleCodegenTest :
             queries.contains("bindBigDecimal(parameterIndex++, minimum_amount)") shouldBe true
         }
 
+        test("generates Oracle ANY_VALUE expression operands exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    import java.math.BigDecimal;
+                    import com.example.Amount;
+
+                    CREATE TABLE any_value_bind (
+                      amount NUMBER(10, 2) NOT NULL,
+                      nullable_amount NUMBER(10, 2),
+                      adapted_amount NUMBER(10, 2) AS Amount NOT NULL
+                    );
+
+                    anyValueExpressions:
+                    SELECT ANY_VALUE(CAST(? AS NUMBER)) AS positional_value,
+                      ANY_VALUE(CAST(:amount_bind AS NUMBER(10, 2))) AS named_value,
+                      ANY_VALUE(CAST(1 AS NUMBER)) AS cast_literal_value,
+                      ANY_VALUE(amount + 1) AS scalar_value,
+                      ANY_VALUE(nullable_amount) AS nullable_value,
+                      ANY_VALUE(adapted_amount) AS adapted_value
+                    FROM any_value_bind;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> anyValueExpressions(") shouldBe true
+            queries.contains("`value`: BigDecimal,") shouldBe true
+            queries.contains("amount_bind: BigDecimal,") shouldBe true
+            queries.contains("positional_value: BigDecimal?,") shouldBe true
+            queries.contains("named_value: BigDecimal?,") shouldBe true
+            queries.contains("cast_literal_value: BigDecimal?,") shouldBe true
+            queries.contains("scalar_value: BigDecimal?,") shouldBe true
+            queries.contains("nullable_value: BigDecimal?,") shouldBe true
+            queries.contains("adapted_value: Amount?,") shouldBe true
+            queries.contains("|SELECT ANY_VALUE(CAST(? AS NUMBER)) AS positional_value,") shouldBe true
+            queries.contains("|  ANY_VALUE(CAST(? AS NUMBER(10, 2))) AS named_value,") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, value)") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, amount_bind)") shouldBe true
+            queries.contains("any_value_bindAdapter.adapted_amountAdapter.decode") shouldBe true
+        }
+
         test("generates Oracle 26ai datetime bitmap and every result types exactly") {
             val generated =
                 generateOracleSqlDelight(

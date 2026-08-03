@@ -618,6 +618,45 @@ class OracleCodegenTest :
             queries.contains("bindBigDecimal(parameterIndex++, minimum_amount)") shouldBe true
         }
 
+        test("generates Oracle 26ai datetime bitmap and every result types exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    CREATE TABLE audit_functions (
+                      id NUMBER(10) NOT NULL,
+                      created_at DATE NOT NULL,
+                      bitmap_value BLOB
+                    );
+
+                    dateDifference:
+                    SELECT DATEDIFF('DAY', created_at, created_at) AS value
+                    FROM audit_functions
+                    WHERE id > :minimum_id;
+
+                    bitmapSummary:
+                    SELECT BITMAP_CONSTRUCT_AGG(id) AS detail,
+                           BITMAP_COUNT(bitmap_value) AS cardinality,
+                           BITMAP_OR_AGG(bitmap_value) AS combined
+                    FROM audit_functions;
+
+                    everyAbove:
+                    SELECT EVERY(id > :minimum_id) AS value
+                    FROM audit_functions;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun dateDifference(minimum_id: Long): Query<BigDecimal>") shouldBe true
+            queries.contains("detail: ByteArray?") shouldBe true
+            queries.contains("cardinality: BigDecimal?") shouldBe true
+            queries.contains("combined: ByteArray?") shouldBe true
+            queries.contains("mapper: (value_: Boolean?) -> T") shouldBe true
+            queries.contains("bindLong(parameterIndex++, minimum_id)") shouldBe true
+            queries.contains("cursor.getBytes(0)") shouldBe true
+            queries.contains("cursor.getBigDecimal(1)") shouldBe true
+            queries.contains("cursor.getBoolean(0)") shouldBe true
+        }
+
         test("generates Oracle SQL JSON passing bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

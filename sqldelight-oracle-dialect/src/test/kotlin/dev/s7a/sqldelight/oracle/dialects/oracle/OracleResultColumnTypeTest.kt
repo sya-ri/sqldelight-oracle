@@ -377,6 +377,14 @@ class OracleResultColumnTypeTest :
             ) shouldBe "java.math.BigDecimal"
         }
 
+        test("resolves Oracle container identity function result types exactly") {
+            typeOf("SELECT CON_ID_TO_CON_NAME(1) AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT CON_ID_TO_DBID(id) AS c FROM emp") shouldBe "java.math.BigDecimal"
+            typeOf("SELECT CON_ID_TO_GUID(dept_id) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+            typeOf("SELECT CON_ID_TO_UID(:container_id) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT CON_ID_TO_GUID(?) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+        }
+
         test("resolves Oracle CAST result column types exactly") {
             typeOf("SELECT CAST(salary AS NUMBER(5)) AS c FROM emp") shouldBe "kotlin.Int?"
             typeOf("SELECT CAST(dept_id AS VARCHAR2(20)) AS c FROM emp") shouldBe "kotlin.String?"

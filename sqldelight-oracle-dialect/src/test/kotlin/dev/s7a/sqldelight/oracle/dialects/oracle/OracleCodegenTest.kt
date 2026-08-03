@@ -2201,6 +2201,32 @@ class OracleCodegenTest :
             queries.contains("bindLong(parameterIndex++, scale)") shouldBe true
         }
 
+        test("generates Oracle container identity function bind parameters exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    CREATE TABLE sample (
+                      id NUMBER(10) NOT NULL
+                    );
+
+                    containerName:
+                    SELECT CON_ID_TO_CON_NAME(:container_id) AS value
+                    FROM sample;
+
+                    containerGuid:
+                    SELECT CON_ID_TO_GUID(?) AS value
+                    FROM sample;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("container_id: BigDecimal?,") shouldBe true
+            queries.contains("mapper: (value_: String?) -> T") shouldBe true
+            queries.contains("mapper: (value_: ByteArray?) -> T") shouldBe true
+            queries.contains("bindBigDecimal(parameterIndex++, container_id)") shouldBe true
+            queries.contains("cursor.getBytes(0)") shouldBe true
+        }
+
         test("generates SQLDelight value type row and variable arguments exactly") {
             val generated =
                 generateOracleSqlDelight(

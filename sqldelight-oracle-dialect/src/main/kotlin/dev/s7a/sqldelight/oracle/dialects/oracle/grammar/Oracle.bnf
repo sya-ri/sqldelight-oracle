@@ -465,7 +465,7 @@ private oracle_xmlelement_expr ::= 'XMLELEMENT' LP [ oracle_xml_escaping_clause 
 
 private oracle_xml_escaping_clause ::= 'ENTITYESCAPING' | 'NOENTITYESCAPING'
 
-private oracle_xmlelement_name ::= [ 'NAME' ] oracle_xml_name
+private oracle_xmlelement_name ::= 'EVALNAME' <<expr '-1'>> | [ 'NAME' ] oracle_xml_name
 
 private oracle_xml_element_content ::= oracle_xmlattributes_expr | <<expr '-1'>> [ oracle_xml_content_alias ]
 
@@ -537,7 +537,7 @@ private oracle_xml_passing_clause ::= 'PASSING' [ 'BY' 'VALUE' ] oracle_xml_pass
 
 private oracle_xml_passing_binding ::= <<expr '-1'>> [ 'AS' oracle_xml_name ]
 
-private oracle_xml_name ::= {string_literal} | string | oracle_object_name_part | 'EVALNAME' <<expr '-1'>>
+private oracle_xml_name ::= {string_literal} | string | oracle_object_name_part
 
 private oracle_vector_expr ::= oracle_to_vector_expr | oracle_vector_distance_expr | oracle_vector_embedding_expr | oracle_vector_serialize_expr
 

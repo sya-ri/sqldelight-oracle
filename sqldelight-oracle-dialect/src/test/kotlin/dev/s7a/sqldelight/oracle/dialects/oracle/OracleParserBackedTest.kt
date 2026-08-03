@@ -1882,6 +1882,47 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle XMLELEMENT EVALNAME expressions exactly") {
+            val sql =
+                """
+                CREATE TABLE xml_bind (
+                  label VARCHAR2(100) NOT NULL,
+                  element_name VARCHAR2(100) NOT NULL
+                );
+
+                xmlElementLiteral:
+                SELECT XMLELEMENT(EVALNAME 'dynamic_name', label) AS value
+                FROM xml_bind;
+
+                xmlElementColumn:
+                SELECT XMLELEMENT(EVALNAME element_name, XMLATTRIBUTES(label AS "label"), label) AS value
+                FROM xml_bind;
+
+                xmlElementPositional:
+                SELECT XMLELEMENT(EVALNAME ?, label) AS value
+                FROM xml_bind;
+
+                xmlElementNamed:
+                SELECT XMLELEMENT(NOENTITYESCAPING EVALNAME :element_name, label) AS value
+                FROM xml_bind;
+
+                xmlElementCast:
+                SELECT XMLELEMENT(EVALNAME CAST(:cast_name AS VARCHAR2(30)), label) AS value
+                FROM xml_bind;
+
+                xmlElementFixed:
+                SELECT XMLELEMENT(NAME "fixed", label) AS value,
+                  XMLPI(EVALNAME 'processing_instruction', label) AS instruction
+                FROM xml_bind;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle SQL vector functions exactly") {
             val sql =
                 """

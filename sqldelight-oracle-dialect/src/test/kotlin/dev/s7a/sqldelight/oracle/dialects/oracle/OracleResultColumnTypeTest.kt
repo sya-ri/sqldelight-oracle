@@ -75,6 +75,22 @@ class OracleResultColumnTypeTest :
             ) shouldBe "java.math.BigDecimal?"
         }
 
+        test("resolves Oracle 26ai datetime bitmap and boolean aggregate types exactly") {
+            typeOf("SELECT DATEDIFF('DAY', hire_date, hire_date) AS c FROM emp") shouldBe "java.math.BigDecimal"
+            typeOf("SELECT DATEDIFF('DAY', hire_date, created_ts) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT TIMESTAMPDIFF('DAY', hire_date, hire_date) AS c FROM emp") shouldBe "java.math.BigDecimal"
+            typeOf("SELECT TIMESTAMPDIFF('DAY', created_ts, hire_date) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT BITMAP_BIT_POSITION(id) AS c FROM emp") shouldBe "java.math.BigDecimal"
+            typeOf("SELECT BITMAP_BIT_POSITION(dept_id) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT BITMAP_BUCKET_NUMBER(id) AS c FROM emp") shouldBe "java.math.BigDecimal"
+            typeOf("SELECT BITMAP_BUCKET_NUMBER(dept_id) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT BITMAP_CONSTRUCT_AGG(id) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+            typeOf("SELECT BITMAP_COUNT(raw_col) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT BITMAP_OR_AGG(raw_col) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+            typeOf("SELECT EVERY(id > 0) AS c FROM emp") shouldBe "kotlin.Boolean?"
+            typeOf("SELECT BOOLEAN_AND_AGG(id > 0) AS c FROM emp") shouldBe "kotlin.Boolean?"
+        }
+
         test("compiles predicates referencing columns with Kotlin adapters") {
             val sql =
                 """

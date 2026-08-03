@@ -710,6 +710,29 @@ class OracleCodegenTest :
             queries.contains("bindLong(parameterIndex++, tenant_id)") shouldBe true
         }
 
+        test("generates Oracle end user context JSON path queries exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    username:
+                    SELECT ORA_END_USER_CONTEXT.username AS value
+                    FROM dual;
+
+                    tokenIssuer:
+                    SELECT ORA_END_USER_CONTEXT.USER.TOKEN.iss AS value
+                    FROM dual
+                    WHERE ORA_END_USER_CONTEXT.USER.TOKEN.iss IS NOT NULL;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("public fun <T : Any> username(mapper: (value_: String?) -> T)") shouldBe true
+            queries.contains("public fun <T : Any> tokenIssuer(mapper: (value_: String?) -> T)") shouldBe true
+            queries.contains("|SELECT ORA_END_USER_CONTEXT.username AS value") shouldBe true
+            queries.contains("|SELECT ORA_END_USER_CONTEXT.USER.TOKEN.iss AS value") shouldBe true
+            queries.contains("cursor.getString(0)") shouldBe true
+        }
+
         test("generates Oracle SQL XML passing bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

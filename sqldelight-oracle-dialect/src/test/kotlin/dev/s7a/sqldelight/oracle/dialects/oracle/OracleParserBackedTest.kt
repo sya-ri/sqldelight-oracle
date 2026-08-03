@@ -1677,6 +1677,30 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle end user context JSON paths exactly") {
+            val sql =
+                """
+                username:
+                SELECT ORA_END_USER_CONTEXT.username AS value
+                FROM dual;
+
+                tokenIssuer:
+                SELECT ORA_END_USER_CONTEXT.USER.TOKEN.iss AS value
+                FROM dual
+                WHERE ORA_END_USER_CONTEXT.USER.TOKEN.iss IS NOT NULL;
+
+                completeContext:
+                SELECT ORA_END_USER_CONTEXT AS value
+                FROM dual;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle SQL JSON transform function exactly") {
             val sql =
                 """

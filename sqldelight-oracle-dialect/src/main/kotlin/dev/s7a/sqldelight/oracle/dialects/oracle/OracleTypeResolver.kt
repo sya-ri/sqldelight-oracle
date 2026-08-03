@@ -91,6 +91,7 @@ public class OracleTypeResolver(
         argument.oracleVectorFunctionArgumentType()?.let { return it }
         argument.oracleFunctionArgumentType()?.let { return it }
         argument.oracleExtensionFunctionArgumentType()?.let { return it }
+        argument.oracleWindowFrameArgumentType()?.let { return it }
 
         return when {
             parent is SqlSetterExpression -> {
@@ -689,6 +690,18 @@ public class OracleTypeResolver(
     }
 
     private fun SqlExpr.oracleResolvedTypeOrNull(): IntermediateType? = runCatching { resolvedType(this) }.getOrNull()
+
+    private fun SqlExpr.oracleWindowFrameArgumentType(): IntermediateType? {
+        val extensionExpr = PsiTreeUtil.getParentOfType(this, SqlExtensionExpr::class.java) ?: return null
+        if (!extensionExpr.text.contains(Regex("""(?i)\b(?:ROWS|RANGE|GROUPS)\b"""))) return null
+
+        val argumentEnd = textRange.endOffset - extensionExpr.textRange.startOffset
+        if (argumentEnd !in 0..extensionExpr.text.length) return null
+        val afterArgument = extensionExpr.text.substring(argumentEnd)
+        if (!afterArgument.matches(Regex("""(?is)^\s+(?:PRECEDING|FOLLOWING)\b.*"""))) return null
+
+        return IntermediateType(LONG_NUMBER)
+    }
 
     private fun SqlExpr.oracleMultiColumnTextArgumentType(): IntermediateType? {
         val extensionExpr = PsiTreeUtil.getParentOfType(this, SqlExtensionExpr::class.java) ?: return null

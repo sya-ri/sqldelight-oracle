@@ -1674,6 +1674,17 @@ public class OracleTypeResolver(
                     "REGR_SYY",
                     "SKEWNESS_POP",
                     "SKEWNESS_SAMP",
+                    "STATS_BINOMIAL_TEST",
+                    "STATS_CROSSTAB",
+                    "STATS_F_TEST",
+                    "STATS_KS_TEST",
+                    "STATS_MW_TEST",
+                    "STATS_ONE_WAY_ANOVA",
+                    "STATS_T_TEST_ONE",
+                    "STATS_T_TEST_PAIRED",
+                    "STATS_T_TEST_INDEP",
+                    "STATS_T_TEST_INDEPU",
+                    "STATS_WSR_TEST",
                 )
 
         private fun String.isOracleDefaultNullableSqlJsonFunction(): Boolean = trim().uppercase() in setOf("JSON_QUERY", "JSON_VALUE")

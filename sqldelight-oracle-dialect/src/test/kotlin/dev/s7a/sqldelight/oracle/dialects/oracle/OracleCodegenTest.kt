@@ -657,6 +657,41 @@ class OracleCodegenTest :
             queries.contains("cursor.getBoolean(0)") shouldBe true
         }
 
+        test("generates Oracle statistical aggregate results and bind order exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    CREATE TABLE stats_sample (
+                      group_id NUMBER(10) NOT NULL,
+                      sample_value NUMBER(10, 2),
+                      sample_value_2 NUMBER(10, 2)
+                    );
+
+                    tTests:
+                    SELECT STATS_T_TEST_ONE(sample_value, 0, 'TWO_SIDED_SIG') AS one_sample,
+                           STATS_T_TEST_PAIRED(sample_value, sample_value_2, 'TWO_SIDED_SIG') AS paired,
+                           STATS_T_TEST_INDEP(group_id, sample_value, 'TWO_SIDED_SIG') AS independent,
+                           STATS_T_TEST_INDEPU(group_id, sample_value, 'TWO_SIDED_SIG') AS unequal_variance
+                    FROM stats_sample
+                    WHERE group_id > :minimum_group;
+
+                    ksTest:
+                    SELECT STATS_KS_TEST(group_id, sample_value, 'TWO_SIDED_SIG') AS value
+                    FROM stats_sample
+                    WHERE group_id > ?;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("one_sample: BigDecimal?") shouldBe true
+            queries.contains("paired: BigDecimal?") shouldBe true
+            queries.contains("independent: BigDecimal?") shouldBe true
+            queries.contains("unequal_variance: BigDecimal?") shouldBe true
+            queries.contains("mapper: (value_: BigDecimal?) -> T") shouldBe true
+            queries.contains("bindLong(parameterIndex++, minimum_group)") shouldBe true
+            queries.contains("cursor.getBigDecimal(0)") shouldBe true
+        }
+
         test("generates Oracle SQL JSON passing bind parameters exactly") {
             val generated =
                 generateOracleSqlDelight(

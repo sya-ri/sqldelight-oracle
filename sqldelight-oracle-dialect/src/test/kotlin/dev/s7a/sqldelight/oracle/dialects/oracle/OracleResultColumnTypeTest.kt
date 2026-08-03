@@ -997,6 +997,24 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT REGR_SXY(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
         }
 
+        test("resolves Oracle statistical test aggregate result types exactly") {
+            typeOf("SELECT STATS_BINOMIAL_TEST(id, 1, 0.5) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_BINOMIAL_TEST(id, 1, 0.5, 'TWO_SIDED_PROB') AS c FROM emp") shouldBe
+                "java.math.BigDecimal?"
+            typeOf("SELECT STATS_CROSSTAB(nickname, id) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_CROSSTAB(nickname, id, 'CHISQ_OBS') AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_F_TEST(id, salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_KS_TEST(id, salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_MW_TEST(id, salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_ONE_WAY_ANOVA(id, salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_T_TEST_ONE(salary, 0) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_T_TEST_PAIRED(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_T_TEST_INDEP(id, salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_T_TEST_INDEPU(id, salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_WSR_TEST(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_MODE(nickname) AS c FROM emp") shouldBe "kotlin.String?"
+        }
+
         test("resolves Oracle value aggregate result column types exactly") {
             typeOf("SELECT ANY_VALUE(name) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT ANY_VALUE(salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"

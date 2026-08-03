@@ -596,6 +596,7 @@ public enum class OracleType(
                 "NLSSORT" to BINARY,
                 "STANDARD_HASH" to BINARY,
                 "SYS_GUID" to BINARY,
+                "SYS_ROW_ETAG" to BINARY,
                 "SYS_TYPEID" to BINARY,
                 "UUID" to BINARY,
                 "UUID_TO_RAW" to BINARY,

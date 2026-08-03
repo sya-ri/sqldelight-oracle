@@ -2081,6 +2081,27 @@ class OracleCodegenTest :
             queries.contains("APPROX_RANK(") shouldBe true
         }
 
+        test("generates Oracle row etag binary results exactly") {
+            val generated =
+                generateOracleSqlDelight(
+                    """
+                    CREATE TABLE sample (
+                      id NUMBER(10) NOT NULL,
+                      department_id NUMBER(10),
+                      name VARCHAR2(100)
+                    );
+
+                    rowEtag:
+                    SELECT SYS_ROW_ETAG(s.id, s.department_id, s.name) AS etag
+                    FROM sample s;
+                    """.trimIndent(),
+                )
+
+            val queries = generated.contentsByFile.getValue("com/example/TestQueries.kt")
+            queries.contains("cursor.getBytes(0)!!") shouldBe true
+            queries.contains("SYS_ROW_ETAG(s.id, s.department_id, s.name)") shouldBe true
+        }
+
         test("generates SQLDelight value type row and variable arguments exactly") {
             val generated =
                 generateOracleSqlDelight(

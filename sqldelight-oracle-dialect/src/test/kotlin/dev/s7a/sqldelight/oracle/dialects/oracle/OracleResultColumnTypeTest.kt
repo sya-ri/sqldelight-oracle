@@ -258,6 +258,13 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT CASE WHEN dept_id IS NULL THEN NULL ELSE name END AS c FROM emp") shouldBe "kotlin.String?"
         }
 
+        test("resolves Oracle row etag result types exactly") {
+            typeOf("SELECT SYS_ROW_ETAG(id, dept_id) AS c FROM emp") shouldBe "kotlin.ByteArray"
+            typeOf("SELECT SYS_ROW_ETAG(e.id, e.dept_id) AS c FROM emp e") shouldBe "kotlin.ByteArray"
+            typeOf("SELECT SYS_ROW_ETAG(dept_id, id) AS c FROM emp") shouldBe "kotlin.ByteArray"
+            typeOf("SELECT SYS_ROW_ETAG(nickname, dept_id) AS c FROM emp") shouldBe "kotlin.ByteArray"
+        }
+
         test("propagates Oracle function result column nullability exactly") {
             typeOf("SELECT ROUND(id, 2) AS c FROM emp") shouldBe "java.math.BigDecimal"
             typeOf("SELECT ROUND(salary, 2) AS c FROM emp") shouldBe "java.math.BigDecimal?"

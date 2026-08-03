@@ -61,6 +61,8 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT MAX(hire_date) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
             typeOf("SELECT MIN(name) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT CORR(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT CORR_S(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT CORR_K(id, small_id, 'COEFFICIENT') AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT COVAR_POP(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT LISTAGG(nickname, ',') WITHIN GROUP (ORDER BY nickname) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT MEDIAN(hire_date) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
@@ -302,6 +304,8 @@ class OracleResultColumnTypeTest :
         test("propagates Oracle function result column nullability exactly") {
             typeOf("SELECT ROUND(id, 2) AS c FROM emp") shouldBe "java.math.BigDecimal"
             typeOf("SELECT ROUND(salary, 2) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT ROUND_TIES_TO_EVEN(id, -2) AS c FROM emp") shouldBe "java.math.BigDecimal"
+            typeOf("SELECT ROUND_TIES_TO_EVEN(salary, 2) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT SIGN(salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT COSH(id) AS c FROM emp") shouldBe "kotlin.Long"
             typeOf("SELECT SINH(salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"

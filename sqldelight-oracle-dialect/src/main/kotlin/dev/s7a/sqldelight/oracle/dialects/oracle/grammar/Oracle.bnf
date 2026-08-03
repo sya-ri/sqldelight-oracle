@@ -412,7 +412,7 @@ private oracle_approx_rank_order_expr ::= 'APPROX_COUNT' LP '*' RP | 'APPROX_SUM
 private oracle_aggregate_function_name ::= (
   'APPROX_COUNT' | 'APPROX_COUNT_DISTINCT' | 'APPROX_MEDIAN' | 'APPROX_SUM' |
   'AVG' | 'BIT_AND_AGG' | 'BIT_OR_AGG' | 'BIT_XOR_AGG' | 'BOOLEAN_AND_AGG' | 'BOOLEAN_OR_AGG' | 'CHECKSUM' |
-  'CORR' | 'COUNT' | 'COVAR_POP' | 'COVAR_SAMP' | 'KURTOSIS_POP' | 'KURTOSIS_SAMP' |
+  'CORR' | 'CORR_K' | 'CORR_S' | 'COUNT' | 'COVAR_POP' | 'COVAR_SAMP' | 'KURTOSIS_POP' | 'KURTOSIS_SAMP' |
   'MAX' | 'MEDIAN' | 'MIN' | 'SKEWNESS_POP' | 'SKEWNESS_SAMP' |
   'STDDEV' | 'STDDEV_POP' | 'STDDEV_SAMP' | 'SUM' | 'VARIANCE' | 'VAR_POP' | 'VAR_SAMP'
 )

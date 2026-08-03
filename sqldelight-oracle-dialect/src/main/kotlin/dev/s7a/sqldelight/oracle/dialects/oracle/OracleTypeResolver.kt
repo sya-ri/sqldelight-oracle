@@ -510,6 +510,7 @@ public class OracleTypeResolver(
         oracleVectorArgumentType(extensionExpr)?.let { return it }
         oracle26AiConversionArgumentType(extensionExpr)?.let { return it }
         oracleTimeBucketArgumentType(extensionExpr, argumentOffset)?.let { return it }
+        oracleCorrelationAndRoundArgumentType(extensionExpr, argumentOffset)?.let { return it }
 
         val regexpLikeStart = Regex("""(?is)\bREGEXP_LIKE\s*\(""").find(extensionText)?.range?.last ?: return null
         if (argumentOffset <= regexpLikeStart) return null
@@ -548,6 +549,41 @@ public class OracleTypeResolver(
             0, 2 -> IntermediateType(TIMESTAMP).asNullable()
             1 -> IntermediateType(TEXT)
             else -> null
+        }
+    }
+
+    private fun oracleCorrelationAndRoundArgumentType(
+        extensionExpr: SqlExtensionExpr,
+        argumentOffset: Int,
+    ): IntermediateType? {
+        val functionName = extensionExpr.text.oracleFunctionName() ?: return null
+        val invocationStart = extensionExpr.text.indexOf('(').takeIf { it >= 0 } ?: return null
+        if (argumentOffset <= invocationStart) return null
+        val argumentIndex =
+            extensionExpr.text
+                .substring(invocationStart + 1, argumentOffset)
+                .oracleTopLevelCommaParts()
+                .size - 1
+        return when (functionName) {
+            "CORR_S", "CORR_K" -> {
+                when (argumentIndex) {
+                    0, 1 -> IntermediateType(DECIMAL_NUMBER).asNullable()
+                    2 -> IntermediateType(TEXT)
+                    else -> null
+                }
+            }
+
+            "ROUND_TIES_TO_EVEN" -> {
+                when (argumentIndex) {
+                    0 -> IntermediateType(DECIMAL_NUMBER).asNullable()
+                    1 -> IntermediateType(LONG_NUMBER)
+                    else -> null
+                }
+            }
+
+            else -> {
+                null
+            }
         }
     }
 
@@ -1308,7 +1344,7 @@ public class OracleTypeResolver(
                     }
             }
 
-            "round", "trunc" -> {
+            "round", "round_ties_to_even", "trunc" -> {
                 when (exprList.size) {
                     1 -> {
                         resolvedType(exprList.single()).roundOrTruncSingleArgumentType()
@@ -1679,6 +1715,7 @@ public class OracleTypeResolver(
                     "RATIO_TO_REPORT",
                     "ROWIDTOCHAR",
                     "ROWIDTONCHAR",
+                    "ROUND_TIES_TO_EVEN",
                     "RPAD",
                     "RTRIM",
                     "SCN_TO_TIMESTAMP",
@@ -1853,6 +1890,8 @@ public class OracleTypeResolver(
                     "BOOLEAN_AND_AGG",
                     "BOOLEAN_OR_AGG",
                     "CORR",
+                    "CORR_K",
+                    "CORR_S",
                     "COVAR_POP",
                     "COVAR_SAMP",
                     "EVERY",

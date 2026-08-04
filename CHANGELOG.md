@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.1.5
+
+### Added
+
+- Add Oracle sqldelight-check validation for DML `WAIT` clauses and type-aware NLS parameters.
+- Expand Oracle parser and code-generation coverage for `RETURNING`, row limiting, JSON/XML passing, hierarchical queries, model clauses, `MATCH_RECOGNIZE`, vector, collection, pivot/unpivot, `LISTAGG`, ordered aggregates, and `GRAPH_TABLE` syntax.
+- Add parser and result-mapping support for Oracle 26ai conversions, `TIME_BUCKET`, `XMLELEMENT(EVALNAME ...)`, `ORA_END_USER_CONTEXT`, `APPROX_RANK`, `ANY_VALUE`, and container identity functions.
+
+### Fixed
+
+- Resolve Oracle function result types, argument bind inference, nullability, and code generation across scalar, conversion, datetime, bitmap, statistical, approximate, correlation, aggregate, vector, generated-column, `SYS_ROW_ETAG`, and `CON_ID_TO_*` expressions.
+- Fix bind parsing and code generation for row limiting, window frames, `TIME_BUCKET`, and common Oracle DML/query clauses, including JSON/XML passing, `RETURNING`, `MATCH_RECOGNIZE`, `PIVOT`, `UNPIVOT`, hierarchical queries, model clauses, and collection/table syntax.
+- Improve complex function arity validation and NLS expression validation.
+- Address Qodana and release-check findings in the Oracle dialect and check rule modules.
+
 ## 0.1.4
 
 ### Added

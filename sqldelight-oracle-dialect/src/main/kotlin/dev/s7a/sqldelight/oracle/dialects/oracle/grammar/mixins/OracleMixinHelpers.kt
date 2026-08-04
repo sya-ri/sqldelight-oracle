@@ -1,5 +1,10 @@
 package dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins
 
+import app.cash.sqldelight.core.psi.SqlDelightColumnType
+import app.cash.sqldelight.dialect.api.ExposableType
+import app.cash.sqldelight.dialect.api.IntermediateType
+import com.alecstrong.sql.psi.core.SqlAnnotationHolder
+import com.alecstrong.sql.psi.core.psi.AliasElement
 import com.alecstrong.sql.psi.core.psi.LazyQuery
 import com.alecstrong.sql.psi.core.psi.NamedElement
 import com.alecstrong.sql.psi.core.psi.QueryElement.QueryColumn
@@ -12,8 +17,12 @@ import com.alecstrong.sql.psi.core.psi.SqlQualifiedTableName
 import com.alecstrong.sql.psi.core.psi.SqlTableAlias
 import com.alecstrong.sql.psi.core.psi.SqlTableName
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.util.PsiTreeUtil
+import com.squareup.kotlinpoet.ClassName
+import dev.s7a.sqldelight.oracle.dialects.oracle.OracleType
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleCreateSchemaQualifiedSynonymStmt
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleCreateUnqualifiedSynonymStmt
 import dev.s7a.sqldelight.oracle.dialects.oracle.grammar.psi.OracleOracleLocalSynonymTarget
@@ -33,7 +42,8 @@ internal fun PsiElement.oracleSingleColumnAlias(): SqlColumnAlias =
 
 internal fun SqlColumnDef.oracleQueryColumn(): QueryColumn = QueryColumn(columnName)
 
-internal fun SqlColumnAlias.oracleQueryColumn(): QueryColumn = QueryColumn(this)
+internal fun QueryColumn.renamedOracleColumn(alias: SqlColumnAlias): QueryColumn =
+    QueryColumn(OracleRenamedColumnElement(alias, alias.name, this))
 
 internal fun LazyQuery.withOracleColumns(transform: (List<QueryColumn>) -> List<QueryColumn>): LazyQuery =
     LazyQuery(
@@ -80,6 +90,58 @@ internal fun List<QueryColumn>.replaceOracleColumn(
             queryColumn
         }
     }
+
+private class OracleRenamedColumnElement(
+    private val alias: SqlColumnAlias,
+    private val columnName: String,
+    private val originalColumn: QueryColumn,
+) : LightElement(alias.manager, alias.language),
+    NamedElement,
+    ExposableType,
+    AliasElement {
+    override fun type(): IntermediateType {
+        val exposedType = originalColumn.element as? ExposableType
+        if (exposedType != null) return exposedType.type().copy(name = columnName)
+
+        val columnDef = originalColumn.element.parent as? SqlColumnDef
+        if (columnDef != null) {
+            val baseType = IntermediateType(OracleType.fromSqlTypeName(columnDef.columnType.typeName.text))
+            val customType = (columnDef.columnType as? SqlDelightColumnType)?.javaTypeName?.text
+            val type =
+                if (!customType.isNullOrBlank() && !customType.equals("VALUE", ignoreCase = true)) {
+                    baseType.copy(
+                        javaType = ClassName.bestGuess(customType),
+                        column = columnDef,
+                    )
+                } else {
+                    baseType
+                }
+            return type
+                .copy(name = columnName)
+                .nullableIf(!columnDef.text.contains(Regex("""(?i)\bNOT\s+NULL\b""")))
+        }
+
+        return IntermediateType(OracleType.TEXT, name = columnName)
+    }
+
+    override fun annotate(annotationHolder: SqlAnnotationHolder) = Unit
+
+    override fun source(): PsiElement = originalColumn.element
+
+    override fun getName(): String = columnName
+
+    override fun setName(name: String): PsiElement = alias
+
+    override fun getText(): String = columnName
+
+    override fun getContainingFile(): PsiFile = alias.containingFile
+
+    override fun getParent(): PsiElement = alias.parent
+
+    override fun getNameIdentifier(): PsiElement? = null
+
+    override fun toString(): String = "Oracle renamed column: $columnName"
+}
 
 internal fun PsiElement.oracleAliasNamedTarget(base: Collection<QueryResult>): Collection<QueryResult> {
     val qualifiedTableName = PsiTreeUtil.getChildOfType(this, SqlQualifiedTableName::class.java)

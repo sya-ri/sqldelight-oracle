@@ -24,12 +24,25 @@ public class ValidNlsParameterRule : Rule {
     ) {
         val content = context.file.content
         val masked = content.maskSqlCommentsAndQuotedTextPreservingOffsets()
+        val columnTypes = content.oracleColumnNlsExpressionKinds(masked)
         nlsParameterFunctionPattern.findAll(masked).forEach { match ->
             val functionName = match.groupValues[1].uppercase()
             val openParenthesisOffset = masked.indexOf('(', startIndex = match.range.first)
             val arguments = content.nlsRuleFunctionArgumentsAt(openParenthesisOffset) ?: return@forEach
             val argument = arguments.getOrNull(2)?.let { content.staticSqlStringLiteral(it.startOffset, it.endOffset) } ?: return@forEach
-            val error = validateNlsParameter(functionName, argument.value) ?: return@forEach
+            val toCharKind =
+                if (functionName == "TO_CHAR") {
+                    arguments.getOrNull(0)?.let { firstArgument ->
+                        content.nlsExpressionKind(
+                            startOffset = firstArgument.startOffset,
+                            endOffset = firstArgument.endOffset,
+                            columnTypes = columnTypes,
+                        )
+                    }
+                } else {
+                    null
+                }
+            val error = validateNlsParameter(functionName, argument.value, toCharKind) ?: return@forEach
 
             reporter.report(
                 RuleDiagnostic(
@@ -55,6 +68,11 @@ private data class NlsRuleArgumentRange(
     val endOffset: Int,
 )
 
+private enum class NlsExpressionKind {
+    Datetime,
+    Number,
+}
+
 private val nlsParameterFunctionPattern =
     Regex("""(?i)\b(TO_CHAR|TO_DATE|TO_TIMESTAMP|TO_TIMESTAMP_TZ|TO_NUMBER|TO_BINARY_FLOAT|TO_BINARY_DOUBLE)\s*\(""")
 
@@ -64,12 +82,36 @@ private val nlsAssignmentPattern =
 private fun validateNlsParameter(
     functionName: String,
     value: String,
+    toCharKind: NlsExpressionKind?,
 ): String? =
     when (functionName) {
-        "TO_DATE", "TO_TIMESTAMP", "TO_TIMESTAMP_TZ" -> validateDatetimeNlsParameter(value)
-        "TO_NUMBER", "TO_BINARY_FLOAT", "TO_BINARY_DOUBLE" -> validateNumberNlsParameter(value)
-        "TO_CHAR" -> validateToCharNlsParameter(value)
-        else -> null
+        "TO_DATE", "TO_TIMESTAMP", "TO_TIMESTAMP_TZ" -> {
+            validateDatetimeNlsParameter(value)
+        }
+
+        "TO_NUMBER", "TO_BINARY_FLOAT", "TO_BINARY_DOUBLE" -> {
+            validateNumberNlsParameter(value)
+        }
+
+        "TO_CHAR" -> {
+            when (toCharKind) {
+                NlsExpressionKind.Datetime -> {
+                    validateDatetimeNlsParameter(value)
+                }
+
+                NlsExpressionKind.Number -> {
+                    validateNumberNlsParameter(value)
+                }
+
+                null -> {
+                    validateToCharNlsParameter(value)
+                }
+            }
+        }
+
+        else -> {
+            null
+        }
     }
 
 private fun validateToCharNlsParameter(value: String): String? =
@@ -142,6 +184,168 @@ private fun parseNlsAssignments(value: String): List<NlsAssignment>? {
     return assignments
 }
 
+private fun String.nlsExpressionKind(
+    startOffset: Int,
+    endOffset: Int,
+    columnTypes: Map<String, NlsExpressionKind?>,
+): NlsExpressionKind? {
+    val expression = substring(startOffset, endOffset).trim()
+    if (expression.isEmpty()) return null
+
+    expression.nlsCastTargetType()?.let { return it.oracleTypeNlsExpressionKind() }
+    expression.nlsFunctionReturnKind()?.let { return it }
+    expression.nlsLiteralKind()?.let { return it }
+
+    val columnName = expression.nlsColumnReferenceName() ?: return null
+    return columnTypes[normalizeOracleIdentifier(columnName)]
+}
+
+private fun String.nlsLiteralKind(): NlsExpressionKind? {
+    val value = trim()
+    if (value.matches(Regex("""(?i)(DATE|TIMESTAMP)\s*'.*'""", RegexOption.DOT_MATCHES_ALL))) {
+        return NlsExpressionKind.Datetime
+    }
+    if (value.matches(Regex("""[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?[fFdD]?"""))) {
+        return NlsExpressionKind.Number
+    }
+    return null
+}
+
+private fun String.nlsFunctionReturnKind(): NlsExpressionKind? {
+    val functionName = trimStart().takeWhile { character -> character.isLetterOrDigit() || character == '_' }.uppercase()
+    return when (functionName) {
+        "CURRENT_DATE",
+        "CURRENT_TIMESTAMP",
+        "LOCALTIMESTAMP",
+        "SYSDATE",
+        "SYSTIMESTAMP",
+        "TO_DATE",
+        "TO_TIMESTAMP",
+        "TO_TIMESTAMP_TZ",
+        -> NlsExpressionKind.Datetime
+
+        "ABS",
+        "ACOS",
+        "ASIN",
+        "ATAN",
+        "ATAN2",
+        "COS",
+        "COSH",
+        "EXP",
+        "LN",
+        "LOG",
+        "MOD",
+        "POWER",
+        "SIGN",
+        "SIN",
+        "SINH",
+        "SQRT",
+        "TAN",
+        "TANH",
+        "TO_BINARY_DOUBLE",
+        "TO_BINARY_FLOAT",
+        "TO_NUMBER",
+        -> NlsExpressionKind.Number
+
+        else -> null
+    }
+}
+
+private fun String.nlsCastTargetType(): String? {
+    val value = trim()
+    if (!value.startsWith("CAST", ignoreCase = true)) return null
+    val asOffset = value.indexOfTopLevelKeyword("AS") ?: return null
+    val closeOffset = value.lastIndexOf(')')
+    if (closeOffset <= asOffset) return null
+    return value.substring(asOffset + 2, closeOffset).trim()
+}
+
+private fun String.nlsColumnReferenceName(): String? {
+    val value = trim()
+    if (!value.matches(nlsColumnReferencePattern)) {
+        return null
+    }
+    return value.substringAfterLast('.').trim()
+}
+
+private val nlsColumnReferencePattern =
+    Regex(
+        """(?i)"[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*|("[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*)\s*\.\s*("[^"]+"|[A-Za-z_][A-Za-z0-9_$#]*)""",
+    )
+
+private fun String.oracleColumnNlsExpressionKinds(masked: String): Map<String, NlsExpressionKind?> {
+    val types = linkedMapOf<String, NlsExpressionKind?>()
+    Regex("""(?i)\bCREATE\s+(?:GLOBAL\s+TEMPORARY\s+|PRIVATE\s+TEMPORARY\s+)?TABLE\s+""")
+        .findAll(masked)
+        .forEach { match ->
+            val openParenthesisOffset = masked.indexOf('(', startIndex = match.range.last + 1)
+            if (openParenthesisOffset == -1) return@forEach
+            val closeParenthesisOffset = masked.findMatchingParenthesis(openParenthesisOffset) ?: return@forEach
+            splitTopLevelRanges(openParenthesisOffset + 1, closeParenthesisOffset).forEach { range ->
+                val column = substring(range.first, range.last + 1).trim()
+                val columnName = column.leadingOracleIdentifier() ?: return@forEach
+                if (columnName.isOracleTableConstraintName()) return@forEach
+                val typeText = column.substringAfter(columnName).trimStart()
+                val kind = typeText.oracleTypeNlsExpressionKind()
+                val normalizedName = normalizeOracleIdentifier(columnName)
+                types[normalizedName] =
+                    when (val existing = types[normalizedName]) {
+                        null -> if (types.containsKey(normalizedName)) null else kind
+                        kind -> kind
+                        else -> null
+                    }
+            }
+        }
+    return types
+}
+
+private fun String.oracleTypeNlsExpressionKind(): NlsExpressionKind? {
+    val normalized = trimStart().uppercase()
+    val leadingType = normalized.takeWhile { character -> character.isLetter() || character == '_' }
+    return when (leadingType) {
+        "DATE", "TIMESTAMP" -> NlsExpressionKind.Datetime
+
+        "BINARY_DOUBLE",
+        "BINARY_FLOAT",
+        "DEC",
+        "DECIMAL",
+        "DOUBLE",
+        "FLOAT",
+        "INT",
+        "INTEGER",
+        "NUMBER",
+        "NUMERIC",
+        "REAL",
+        "SMALLINT",
+        -> NlsExpressionKind.Number
+
+        else -> null
+    }
+}
+
+private fun String.leadingOracleIdentifier(): String? =
+    when {
+        startsWith("\"") -> {
+            val end = indexOf('"', startIndex = 1)
+            if (end == -1) null else substring(0, end + 1)
+        }
+
+        firstOrNull()?.let { character -> character.isLetter() || character == '_' } == true -> {
+            takeWhile { character -> character.isLetterOrDigit() || character == '_' || character == '$' || character == '#' }
+        }
+
+        else -> {
+            null
+        }
+    }
+
+private fun String.isOracleTableConstraintName(): Boolean = removeSurrounding("\"").uppercase() in oracleTableConstraintNames
+
+private fun normalizeOracleIdentifier(value: String): String = value.trim().removeSurrounding("\"").uppercase()
+
+private val oracleTableConstraintNames =
+    setOf("CONSTRAINT", "PRIMARY", "UNIQUE", "FOREIGN", "CHECK", "SUPPLEMENTAL")
+
 private fun String.nlsRuleFunctionArgumentsAt(openParenthesisOffset: Int): List<NlsRuleArgumentRange>? {
     if (openParenthesisOffset !in indices || this[openParenthesisOffset] != '(') return null
 
@@ -192,6 +396,86 @@ private fun String.nlsRuleFunctionArgumentsAt(openParenthesisOffset: Int): List<
                     index + 1
                 }
             }
+    }
+    return null
+}
+
+private fun String.findMatchingParenthesis(openParenthesisOffset: Int): Int? {
+    if (openParenthesisOffset !in indices || this[openParenthesisOffset] != '(') return null
+
+    var index = openParenthesisOffset + 1
+    var depth = 0
+    while (index < length) {
+        when (this[index]) {
+            '(' -> {
+                depth++
+            }
+
+            ')' -> {
+                if (depth == 0) return index
+                depth--
+            }
+        }
+        index++
+    }
+    return null
+}
+
+private fun String.splitTopLevelRanges(
+    startOffset: Int,
+    endOffset: Int,
+): List<IntRange> {
+    val ranges = mutableListOf<IntRange>()
+    var itemStart = startOffset
+    var index = startOffset
+    var depth = 0
+    while (index < endOffset) {
+        when (this[index]) {
+            '(' -> {
+                depth++
+            }
+
+            ')' -> {
+                if (depth > 0) depth--
+            }
+
+            ',' -> {
+                if (depth == 0) {
+                    if (substring(itemStart, index).isNotBlank()) {
+                        ranges += itemStart until index
+                    }
+                    itemStart = index + 1
+                }
+            }
+        }
+        index++
+    }
+    if (substring(itemStart, endOffset).isNotBlank()) ranges += itemStart until endOffset
+    return ranges
+}
+
+private fun String.indexOfTopLevelKeyword(keyword: String): Int? {
+    var index = 0
+    var depth = 0
+    while (index <= length - keyword.length) {
+        when (this[index]) {
+            '(' -> {
+                depth++
+            }
+
+            ')' -> {
+                if (depth > 0) depth--
+            }
+        }
+        if (
+            depth == 1 &&
+            regionMatches(index, keyword, 0, keyword.length, ignoreCase = true) &&
+            (index == 0 || !this[index - 1].isLetterOrDigit()) &&
+            (index + keyword.length == length || !this[index + keyword.length].isLetterOrDigit())
+        ) {
+            return index
+        }
+        index++
     }
     return null
 }

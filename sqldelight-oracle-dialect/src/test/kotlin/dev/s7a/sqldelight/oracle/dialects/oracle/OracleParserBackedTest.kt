@@ -537,6 +537,86 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle DML returning clauses from query files exactly") {
+            val sql =
+                """
+                CREATE TABLE returning_samples (
+                  id NUMBER(10) NOT NULL,
+                  name VARCHAR2(64),
+                  updated_at TIMESTAMP,
+                  PRIMARY KEY (id)
+                );
+
+                insertReturning:
+                INSERT INTO returning_samples (id, name, updated_at)
+                VALUES (:id, :name, CURRENT_TIMESTAMP)
+                RETURNING id, name INTO :returned_id, :returned_name;
+
+                updateReturning:
+                UPDATE returning_samples
+                SET name = :name,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = :id
+                RETURNING OLD name, NEW updated_at INTO :old_name, :new_updated_at;
+
+                deleteReturning:
+                DELETE FROM returning_samples
+                WHERE id = :id
+                RETURNING id, name BULK COLLECT INTO :deleted_ids, :deleted_names;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
+        test("resolves Oracle migration alter table columns from query files exactly") {
+            parseOracleSqlFiles(
+                deriveSchemaFromMigrations = true,
+                files =
+                    mapOf(
+                        "1.sqm" to
+                            """
+                            CREATE TABLE evolving_accounts (
+                              id NUMBER(10) NOT NULL,
+                              legacy_name VARCHAR2(64),
+                              archived_at TIMESTAMP,
+                              PRIMARY KEY (id)
+                            );
+
+                            ALTER TABLE evolving_accounts ADD (
+                              display_name VARCHAR2(100),
+                              created_at TIMESTAMP
+                            );
+
+                            ALTER TABLE evolving_accounts RENAME COLUMN legacy_name TO account_code;
+
+                            ALTER TABLE evolving_accounts DROP COLUMN archived_at;
+                            """.trimIndent(),
+                        "Test.sq" to
+                            """
+                            selectEvolvingAccounts:
+                            SELECT id, account_code, display_name, created_at
+                            FROM evolving_accounts
+                            WHERE account_code = :account_code
+                              AND display_name IS NOT NULL;
+
+                            updateEvolvingAccount:
+                            UPDATE evolving_accounts
+                            SET display_name = :display_name,
+                                created_at = CURRENT_TIMESTAMP
+                            WHERE id = :id;
+                            """.trimIndent(),
+                    ),
+            ) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle datetime and interval literals exactly") {
             val sql =
                 """
@@ -616,8 +696,11 @@ class OracleParserBackedTest :
                 FROM employees;
 
                 SELECT DBTIMEZONE,
+                  CURRENT_SCHEMA,
+                  CURRENT_USER,
                   ORA_INVOKING_USER,
                   ORA_INVOKING_USERID,
+                  SESSION_USER,
                   SESSIONTIMEZONE,
                   UID,
                   USER
@@ -1594,6 +1677,30 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle end user context JSON paths exactly") {
+            val sql =
+                """
+                username:
+                SELECT ORA_END_USER_CONTEXT.username AS value
+                FROM dual;
+
+                tokenIssuer:
+                SELECT ORA_END_USER_CONTEXT.USER.TOKEN.iss AS value
+                FROM dual
+                WHERE ORA_END_USER_CONTEXT.USER.TOKEN.iss IS NOT NULL;
+
+                completeContext:
+                SELECT ORA_END_USER_CONTEXT AS value
+                FROM dual;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle SQL JSON transform function exactly") {
             val sql =
                 """
@@ -1795,6 +1902,47 @@ class OracleParserBackedTest :
             parseOracleSql(sql, fileName = "1.sqm") shouldBe
                 ParseResult(
                     fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle XMLELEMENT EVALNAME expressions exactly") {
+            val sql =
+                """
+                CREATE TABLE xml_bind (
+                  label VARCHAR2(100) NOT NULL,
+                  element_name VARCHAR2(100) NOT NULL
+                );
+
+                xmlElementLiteral:
+                SELECT XMLELEMENT(EVALNAME 'dynamic_name', label) AS value
+                FROM xml_bind;
+
+                xmlElementColumn:
+                SELECT XMLELEMENT(EVALNAME element_name, XMLATTRIBUTES(label AS "label"), label) AS value
+                FROM xml_bind;
+
+                xmlElementPositional:
+                SELECT XMLELEMENT(EVALNAME ?, label) AS value
+                FROM xml_bind;
+
+                xmlElementNamed:
+                SELECT XMLELEMENT(NOENTITYESCAPING EVALNAME :element_name, label) AS value
+                FROM xml_bind;
+
+                xmlElementCast:
+                SELECT XMLELEMENT(EVALNAME CAST(:cast_name AS VARCHAR2(30)), label) AS value
+                FROM xml_bind;
+
+                xmlElementFixed:
+                SELECT XMLELEMENT(NAME "fixed", label) AS value,
+                  XMLPI(EVALNAME 'processing_instruction', label) AS instruction
+                FROM xml_bind;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
                     errors = emptyList(),
                 )
         }
@@ -2481,6 +2629,37 @@ class OracleParserBackedTest :
             parseOracleSql(sql, fileName = "1.sqm") shouldBe
                 ParseResult(
                     fileNames = emptyList(),
+                    errors = emptyList(),
+                )
+        }
+
+        test("parses Oracle ANY_VALUE expression operands exactly") {
+            val sql =
+                """
+                CREATE TABLE any_value_bind (
+                  amount NUMBER(10, 2) NOT NULL,
+                  nullable_amount NUMBER(10, 2)
+                );
+
+                anyValuePositional:
+                SELECT ANY_VALUE(CAST(? AS NUMBER)) AS value
+                FROM any_value_bind;
+
+                anyValueNamed:
+                SELECT ANY_VALUE(CAST(:amount_bind AS NUMBER(10, 2))) AS value
+                FROM any_value_bind;
+
+                anyValueExpressions:
+                SELECT ANY_VALUE(CAST(1 AS NUMBER)) AS cast_literal_value,
+                  ANY_VALUE(amount + 1) AS scalar_value,
+                  ANY_VALUE(amount) AS non_null_column_value,
+                  ANY_VALUE(nullable_amount) AS nullable_column_value
+                FROM any_value_bind;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
                     errors = emptyList(),
                 )
         }
@@ -3749,11 +3928,76 @@ class OracleParserBackedTest :
                 ORDER BY id
                 OFFSET 1 ROW FETCH NEXT 2 ROWS ONLY;
 
+                selectBoundFetch:
+                SELECT id, status
+                FROM ranked_accounts
+                ORDER BY id
+                FETCH FIRST :rowCount ROWS ONLY;
+
+                selectBoundPercent:
+                SELECT id, status
+                FROM ranked_accounts
+                ORDER BY id
+                FETCH FIRST :percent PERCENT ROWS ONLY;
+
+                selectApproximateNumberRange:
+                SELECT id
+                FROM ranked_accounts
+                ORDER BY VECTOR_DISTANCE(embedding, VECTOR('[1,2,3]'))
+                FETCH APPROX FIRST NUMBER TO NUMBER :rowCount ROWS ONLY;
+
+                selectBoundOffsetFetch:
+                SELECT id, status
+                FROM ranked_accounts
+                ORDER BY id
+                OFFSET :offset ROWS FETCH NEXT ? ROWS ONLY;
+
+                selectDefaultFetch:
+                SELECT id, status
+                FROM ranked_accounts
+                FETCH FIRST ROW ONLY;
+
+                selectBoundExactPartitioned:
+                SELECT id, status
+                FROM ranked_accounts
+                ORDER BY status, score DESC
+                FETCH EXACT FIRST
+                  :statusCount PARTITIONS BY status,
+                  :scoreCount PARTITIONS BY score,
+                  :rowCount ROWS ONLY;
+
+                selectBoundApproximateAccuracy:
+                SELECT id
+                FROM ranked_accounts
+                ORDER BY VECTOR_DISTANCE(embedding, VECTOR('[1,2,3]'))
+                FETCH APPROX FIRST :rowCount ROWS ONLY
+                WITH TARGET ACCURACY :accuracy PERCENT;
+
+                selectBoundApproximateParameters:
+                SELECT id
+                FROM ranked_accounts
+                ORDER BY VECTOR_DISTANCE(embedding, VECTOR('[1,2,3]'))
+                FETCH APPROXIMATE NEXT ? ROWS ONLY
+                ACCURACY PARAMETERS (
+                  EFSEARCH :efSearch,
+                  NEIGHBOR PARTITION PROBES :partitionProbes
+                );
+
+                selectBoundApproximateReverseParameters:
+                SELECT id
+                FROM ranked_accounts
+                ORDER BY VECTOR_DISTANCE(embedding, VECTOR('[1,2,3]'))
+                FETCH APPROX FIRST :rowCount ROWS ONLY
+                TARGET ACCURACY PARAMETERS (
+                  NEIGHBOR PARTITION PROBES :partitionProbes,
+                  EFSEARCH :efSearch
+                );
+
                 selectApproximate:
                 SELECT id
                 FROM ranked_accounts
                 ORDER BY VECTOR_DISTANCE(embedding, VECTOR('[1,2,3]'))
-                FETCH APPROX FIRST 20 ROWS ONLY WITH TARGET 90 PERCENT PARAMETERS (efs = 80);
+                FETCH APPROX FIRST 20 ROWS ONLY WITH TARGET ACCURACY 90 PERCENT;
 
                 selectPartitioned:
                 SELECT id, status
@@ -4767,9 +5011,12 @@ class OracleParserBackedTest :
                   ONE ROW PER STEP (employee, works_at, department)
                   COLUMNS (
                     MATCHNUM() AS match_number,
+                    PATH_NAME() AS path_name,
                     ELEMENT_NUMBER(works_at) AS edge_number,
                     VERTEX_ID(employee) AS employee_vertex_id,
-                    EDGE_ID(works_at) AS works_at_edge_id
+                    EDGE_ID(works_at) AS works_at_edge_id,
+                    employee IS SOURCE OF works_at AS employee_is_source,
+                    PROPERTY_EXISTS(employee, name) AS employee_has_name
                   )
                 ) graph_employee_department_steps;
 
@@ -8961,6 +9208,60 @@ class OracleParserBackedTest :
                 )
         }
 
+        test("parses Oracle time bucket named and positional binds exactly") {
+            val sql =
+                """
+                CREATE TABLE sample (
+                  id NUMBER PRIMARY KEY,
+                  created_at TIMESTAMP
+                );
+
+                bucketNamed:
+                SELECT TIME_BUCKET(:datetime, :stride, :origin, END) AS bucket_end
+                FROM sample;
+
+                bucketPositional:
+                SELECT TIME_BUCKET(?, ?, ?, START) AS bucket_start
+                FROM sample;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+            bindExprCount(sql) shouldBe 6
+            queryParameterNames(sql) shouldBe listOf("datetime", "stride", "origin", "value", "value_", "value__")
+        }
+
+        test("parses Oracle time bucket overflow clauses exactly") {
+            val sql =
+                """
+                CREATE TABLE sample (
+                  id NUMBER PRIMARY KEY,
+                  created_at DATE NOT NULL
+                );
+
+                bucketRounded:
+                SELECT TIME_BUCKET(created_at, INTERVAL '1' YEAR, DATE '2000-02-29', START ON OVERFLOW ROUND)
+                FROM sample;
+
+                bucketError:
+                SELECT TIME_BUCKET(created_at, 'P1Y', DATE '2000-02-29', END ON OVERFLOW ERROR)
+                FROM sample;
+
+                bucketLastDay:
+                SELECT TIME_BUCKET(created_at, INTERVAL '1' MONTH, DATE '2000-02-29' LAST DAY OF MONTH)
+                FROM sample;
+                """.trimIndent()
+
+            parseOracleSql(sql) shouldBe
+                ParseResult(
+                    fileNames = listOf("Test.sq"),
+                    errors = emptyList(),
+                )
+        }
+
         test("parses Oracle model clause queries exactly") {
             val sql =
                 """
@@ -9151,6 +9452,36 @@ class OracleParserBackedTest :
 
             bindExprCount(files, deriveSchemaFromMigrations = true) shouldBe 2
             queryParameterNames(files, deriveSchemaFromMigrations = true) shouldBe listOf("id", "name")
+        }
+
+        test("does not count Oracle returning targets as input bind expressions") {
+            val sql =
+                """
+                CREATE TABLE returning_samples (
+                  id NUMBER(10) NOT NULL,
+                  amount NUMBER(10, 2),
+                  name VARCHAR2(64),
+                  PRIMARY KEY (id)
+                );
+
+                insertReturning:
+                INSERT INTO returning_samples (id, amount, name)
+                VALUES (:id, :amount, :name)
+                RETURNING id, name INTO :returned_id, :returned_name;
+
+                updateReturning:
+                UPDATE returning_samples
+                SET amount = :amount
+                WHERE id = :id
+                RETURNING OLD amount, NEW amount INTO :old_amount, :new_amount;
+
+                deleteReturning:
+                DELETE FROM returning_samples
+                WHERE id = :id
+                RETURNING id, name BULK COLLECT INTO :deleted_ids, :deleted_names;
+                """.trimIndent()
+
+            bindExprCount(sql) shouldBe 6
         }
 
         test("accepts insert select bind parameters from Oracle dual") {

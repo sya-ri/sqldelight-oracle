@@ -11,6 +11,7 @@ import app.cash.sqldelight.core.lang.SqlDelightLanguage
 import app.cash.sqldelight.core.lang.SqlDelightQueriesFile
 import com.intellij.lang.LanguageParserDefinitions
 import com.intellij.psi.PsiDocumentManager
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.io.File
@@ -60,6 +61,8 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT MAX(hire_date) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
             typeOf("SELECT MIN(name) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT CORR(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT CORR_S(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT CORR_K(id, small_id, 'COEFFICIENT') AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT COVAR_POP(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT LISTAGG(nickname, ',') WITHIN GROUP (ORDER BY nickname) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT MEDIAN(hire_date) AS c FROM emp") shouldBe "java.time.LocalDateTime?"
@@ -72,6 +75,80 @@ class OracleResultColumnTypeTest :
             typeOf(
                 "SELECT APPROX_PERCENTILE(0.5 DETERMINISTIC, 'ERROR_RATE') WITHIN GROUP (ORDER BY id) AS c FROM emp",
             ) shouldBe "java.math.BigDecimal?"
+            typeOf(
+                """
+                SELECT APPROX_RANK(
+                  PARTITION BY dept_id
+                  ORDER BY APPROX_SUM(salary) DESC
+                ) AS c
+                FROM emp
+                GROUP BY dept_id
+                HAVING APPROX_RANK(
+                  PARTITION BY dept_id
+                  ORDER BY APPROX_SUM(salary) DESC
+                ) <= 10
+                """.trimIndent(),
+            ) shouldBe "kotlin.Long"
+            typeOf(
+                """
+                SELECT APPROX_RANK(
+                  ORDER BY APPROX_COUNT(*) DESC
+                ) FILTER (WHERE salary IS NOT NULL) AS c
+                FROM emp
+                GROUP BY dept_id
+                HAVING APPROX_RANK(ORDER BY APPROX_COUNT(*) DESC) <= 10
+                """.trimIndent(),
+            ) shouldBe "kotlin.Long"
+        }
+
+        test("resolves Oracle 26ai datetime bitmap and boolean aggregate types exactly") {
+            typeOf("SELECT DATEDIFF('DAY', hire_date, hire_date) AS c FROM emp") shouldBe "java.math.BigDecimal"
+            typeOf("SELECT DATEDIFF('DAY', hire_date, created_ts) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT TIMESTAMPDIFF('DAY', hire_date, hire_date) AS c FROM emp") shouldBe "java.math.BigDecimal"
+            typeOf("SELECT TIMESTAMPDIFF('DAY', created_ts, hire_date) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT BITMAP_BIT_POSITION(id) AS c FROM emp") shouldBe "java.math.BigDecimal"
+            typeOf("SELECT BITMAP_BIT_POSITION(dept_id) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT BITMAP_BUCKET_NUMBER(id) AS c FROM emp") shouldBe "java.math.BigDecimal"
+            typeOf("SELECT BITMAP_BUCKET_NUMBER(dept_id) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT BITMAP_CONSTRUCT_AGG(id) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+            typeOf("SELECT BITMAP_COUNT(raw_col) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT BITMAP_OR_AGG(raw_col) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+            typeOf("SELECT EVERY(id > 0) AS c FROM emp") shouldBe "kotlin.Boolean?"
+            typeOf("SELECT BOOLEAN_AND_AGG(id > 0) AS c FROM emp") shouldBe "kotlin.Boolean?"
+        }
+
+        test("resolves Oracle approximate detail and conversion types exactly") {
+            typeOf("SELECT APPROX_COUNT_DISTINCT_DETAIL(id) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+            typeOf("SELECT APPROX_COUNT_DISTINCT_DETAIL(dept_id) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+            typeOf("SELECT APPROX_PERCENTILE_DETAIL(id) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+            typeOf("SELECT APPROX_PERCENTILE_DETAIL(dept_id) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+            typeOf("SELECT TO_APPROX_COUNT_DISTINCT(APPROX_COUNT_DISTINCT_DETAIL(id)) AS c FROM emp") shouldBe
+                "java.math.BigDecimal?"
+            typeOf("SELECT TO_APPROX_PERCENTILE(APPROX_PERCENTILE_DETAIL(id), 0.5, 'NUMBER') AS c FROM emp") shouldBe
+                "java.math.BigDecimal?"
+
+            val inlineViewSql =
+                """
+                CREATE TABLE audit_approx (
+                  id NUMBER(10) NOT NULL
+                );
+
+                countAggregate:
+                SELECT APPROX_COUNT_DISTINCT_AGG(detail) AS value
+                FROM (
+                  SELECT APPROX_COUNT_DISTINCT_DETAIL(id) AS detail
+                  FROM audit_approx
+                );
+
+                percentileAggregate:
+                SELECT APPROX_PERCENTILE_AGG(detail) AS value
+                FROM (
+                  SELECT APPROX_PERCENTILE_DETAIL(id) AS detail
+                  FROM audit_approx
+                );
+                """.trimIndent()
+
+            oracleResultColumnTypes(inlineViewSql) shouldBe listOf("kotlin.ByteArray?", "kotlin.ByteArray?")
         }
 
         test("compiles predicates referencing columns with Kotlin adapters") {
@@ -124,6 +201,59 @@ class OracleResultColumnTypeTest :
             oracleResultColumnTypes(sql) shouldBe listOf("kotlin.String", "kotlin.String?")
         }
 
+        test("resolves Oracle generated column result types from expressions exactly") {
+            val sql =
+                """
+                CREATE TABLE generated_accounts (
+                  account_id NUMBER(10) NOT NULL,
+                  first_name VARCHAR2(64) NOT NULL,
+                  last_name VARCHAR2(64),
+                  display_name NUMBER(10) GENERATED ALWAYS AS (first_name || ' ' || last_name) VIRTUAL,
+                  search_name NUMBER(10) AS (UPPER(first_name)) VIRTUAL,
+                  next_account_id VARCHAR2(64) AS (account_id + 1) VIRTUAL,
+                  nullable_account_id VARCHAR2(64) AS (account_id + nullable_bonus) VIRTUAL,
+                  nullable_bonus NUMBER(10)
+                );
+
+                selectGenerated:
+                SELECT display_name, search_name, next_account_id, nullable_account_id
+                FROM generated_accounts;
+                """.trimIndent()
+
+            oracleResultColumnTypes(sql) shouldBe
+                listOf(
+                    "kotlin.String",
+                    "kotlin.String",
+                    "kotlin.Long",
+                    "kotlin.Long?",
+                )
+        }
+
+        test("preserves Oracle normal column result types alongside generated columns exactly") {
+            val sql =
+                """
+                CREATE TABLE generated_accounts (
+                  account_id NUMBER(10) NOT NULL,
+                  first_name VARCHAR2(64) NOT NULL,
+                  last_name VARCHAR2(64),
+                  display_name VARCHAR2(129) GENERATED ALWAYS AS (first_name || ' ' || last_name) VIRTUAL,
+                  next_account_id NUMBER(10) AS (account_id + 1) VIRTUAL NOT NULL
+                );
+
+                selectGenerated:
+                SELECT account_id, last_name, display_name, next_account_id
+                FROM generated_accounts;
+                """.trimIndent()
+
+            oracleResultColumnTypes(sql) shouldBe
+                listOf(
+                    "kotlin.Long",
+                    "kotlin.String?",
+                    "kotlin.String",
+                    "kotlin.Long",
+                )
+        }
+
         test("resolves Oracle scalar function result column types exactly") {
             typeOf("SELECT ABS(salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT float_col AS c FROM emp") shouldBe "java.math.BigDecimal?"
@@ -164,9 +294,18 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT CASE WHEN dept_id IS NULL THEN NULL ELSE name END AS c FROM emp") shouldBe "kotlin.String?"
         }
 
+        test("resolves Oracle row etag result types exactly") {
+            typeOf("SELECT SYS_ROW_ETAG(id, dept_id) AS c FROM emp") shouldBe "kotlin.ByteArray"
+            typeOf("SELECT SYS_ROW_ETAG(e.id, e.dept_id) AS c FROM emp e") shouldBe "kotlin.ByteArray"
+            typeOf("SELECT SYS_ROW_ETAG(dept_id, id) AS c FROM emp") shouldBe "kotlin.ByteArray"
+            typeOf("SELECT SYS_ROW_ETAG(nickname, dept_id) AS c FROM emp") shouldBe "kotlin.ByteArray"
+        }
+
         test("propagates Oracle function result column nullability exactly") {
             typeOf("SELECT ROUND(id, 2) AS c FROM emp") shouldBe "java.math.BigDecimal"
             typeOf("SELECT ROUND(salary, 2) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT ROUND_TIES_TO_EVEN(id, -2) AS c FROM emp") shouldBe "java.math.BigDecimal"
+            typeOf("SELECT ROUND_TIES_TO_EVEN(salary, 2) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT SIGN(salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
             typeOf("SELECT COSH(id) AS c FROM emp") shouldBe "kotlin.Long"
             typeOf("SELECT SINH(salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
@@ -223,6 +362,29 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT LEAST(id, dept_id) AS c FROM emp") shouldBe "kotlin.Long?"
         }
 
+        test("resolves Oracle time bucket result types from datetime input exactly") {
+            typeOf(
+                "SELECT TIME_BUCKET(DATE '2022-06-29', INTERVAL '5' YEAR, DATE '2000-01-01') AS c FROM emp",
+            ) shouldBe "java.time.LocalDateTime"
+            typeOf(
+                "SELECT TIME_BUCKET(created_ts, INTERVAL '1' DAY, TIMESTAMP '2000-01-01 00:00:00') AS c FROM emp",
+            ) shouldBe "java.time.LocalDateTime?"
+            typeOf(
+                "SELECT TIME_BUCKET(CAST(hire_date AS TIMESTAMP WITH TIME ZONE), INTERVAL '1' DAY, CAST(hire_date AS TIMESTAMP WITH TIME ZONE)) AS c FROM emp",
+            ) shouldBe "java.time.OffsetDateTime"
+            typeOf(
+                "SELECT TIME_BUCKET(id, INTERVAL '60' SECOND, 0) AS c FROM emp",
+            ) shouldBe "java.math.BigDecimal"
+        }
+
+        test("resolves Oracle container identity function result types exactly") {
+            typeOf("SELECT CON_ID_TO_CON_NAME(1) AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT CON_ID_TO_DBID(id) AS c FROM emp") shouldBe "java.math.BigDecimal"
+            typeOf("SELECT CON_ID_TO_GUID(dept_id) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+            typeOf("SELECT CON_ID_TO_UID(:container_id) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT CON_ID_TO_GUID(?) AS c FROM emp") shouldBe "kotlin.ByteArray?"
+        }
+
         test("resolves Oracle CAST result column types exactly") {
             typeOf("SELECT CAST(salary AS NUMBER(5)) AS c FROM emp") shouldBe "kotlin.Int?"
             typeOf("SELECT CAST(dept_id AS VARCHAR2(20)) AS c FROM emp") shouldBe "kotlin.String?"
@@ -241,6 +403,10 @@ class OracleResultColumnTypeTest :
 
         test("resolves Oracle JSON id operator result column types exactly") {
             typeOf("SELECT JSON_ID('OID') AS c FROM emp") shouldBe "kotlin.ByteArray"
+        }
+
+        test("resolves Oracle shard chunk id operator result column types exactly") {
+            typeOf("SELECT SHARD_CHUNK_ID(NULL, name, id) AS c FROM emp") shouldBe "java.math.BigDecimal"
         }
 
         test("resolves Oracle hierarchical operator result column types exactly") {
@@ -585,8 +751,64 @@ class OracleResultColumnTypeTest :
             ) shouldBe "kotlin.String?"
         }
 
+        test("resolves Oracle GRAPH_TABLE documented result column types exactly") {
+            val graphTable =
+                """
+                FROM GRAPH_TABLE (
+                  employees_graph
+                  MATCH path1 = (employee IS employee_node) -[works_at IS works_at_edge]-> (department IS department_node)
+                  ONE ROW PER STEP (employee, works_at, department)
+                  COLUMNS (
+                    MATCHNUM() AS match_number,
+                    PATH_NAME() AS path_name,
+                    ELEMENT_NUMBER(works_at) AS edge_number,
+                    VERTEX_ID(employee) AS employee_vertex_id,
+                    EDGE_ID(works_at) AS works_at_edge_id,
+                    COUNT(EDGE_ID(works_at)) AS edge_count,
+                    employee IS SOURCE OF works_at AS employee_is_source,
+                    department IS DESTINATION OF works_at AS department_is_destination,
+                    PROPERTY_EXISTS(employee, name) AS employee_has_name
+                  )
+                ) graph_steps
+                """.trimIndent()
+
+            typeOf("SELECT graph_steps.match_number AS c $graphTable") shouldBe "kotlin.Long"
+            typeOf("SELECT graph_steps.path_name AS c $graphTable") shouldBe "kotlin.String?"
+            typeOf("SELECT graph_steps.edge_number AS c $graphTable") shouldBe "kotlin.Long?"
+            typeOf("SELECT graph_steps.employee_vertex_id AS c $graphTable") shouldBe "kotlin.String?"
+            typeOf("SELECT graph_steps.works_at_edge_id AS c $graphTable") shouldBe "kotlin.String?"
+            typeOf("SELECT graph_steps.edge_count AS c $graphTable") shouldBe "kotlin.Long"
+            typeOf("SELECT graph_steps.employee_is_source AS c $graphTable") shouldBe "kotlin.Boolean?"
+            typeOf("SELECT graph_steps.department_is_destination AS c $graphTable") shouldBe "kotlin.Boolean?"
+            typeOf("SELECT graph_steps.employee_has_name AS c $graphTable") shouldBe "kotlin.Boolean?"
+        }
+
+        test("leaves Oracle GRAPH_TABLE metadata-dependent result columns untyped") {
+            val sql =
+                """
+                $schema
+
+                result:
+                SELECT graph_employees.employee_name AS c
+                FROM GRAPH_TABLE (
+                  employees_graph
+                  MATCH (employee IS employee_node)
+                  COLUMNS (employee.name AS employee_name)
+                ) graph_employees;
+                """.trimIndent()
+            shouldThrow<IllegalStateException> {
+                oracleResultColumnTypes(sql)
+            }
+        }
+
         test("resolves Oracle XML root result column types exactly") {
             typeOf("SELECT XMLROOT(XMLTYPE('<Warehouse/>'), VERSION NO VALUE) AS c FROM emp") shouldBe "kotlin.String"
+        }
+
+        test("resolves Oracle XMLELEMENT EVALNAME result column types exactly") {
+            typeOf("SELECT XMLELEMENT(EVALNAME 'dynamic_name', name) AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT XMLELEMENT(EVALNAME name, nickname) AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT XMLELEMENT(EVALNAME CAST(name AS VARCHAR2(30)), name) AS c FROM emp") shouldBe "kotlin.String"
         }
 
         test("propagates Oracle XML and file locator nullability exactly") {
@@ -648,6 +870,12 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT JSON_SERIALIZE(name RETURNING CLOB NULL ON ERROR) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT JSON_MERGEPATCH(name, restated RETURNING CLOB NULL ON ERROR) AS c FROM emp") shouldBe
                 "kotlin.String?"
+        }
+
+        test("resolves Oracle end user context JSON path result types exactly") {
+            typeOf("SELECT ORA_END_USER_CONTEXT.username AS c FROM dual") shouldBe "kotlin.String?"
+            typeOf("SELECT ORA_END_USER_CONTEXT.USER.TOKEN.iss AS c FROM dual") shouldBe "kotlin.String?"
+            typeOf("SELECT ORA_END_USER_CONTEXT AS c FROM dual") shouldBe "kotlin.String?"
         }
 
         test("resolves Oracle SQL JSON input nullability exactly") {
@@ -719,6 +947,15 @@ class OracleResultColumnTypeTest :
 
         test("resolves Oracle current environment result column types exactly") {
             typeOf("SELECT CURRENT_USER AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT CURRENT_SCHEMA AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT SESSION_USER AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') AS c FROM emp") shouldBe "kotlin.String"
+            typeOf("SELECT SYS_CONTEXT('USERENV', 'SESSION_USER') AS c FROM emp") shouldBe "kotlin.String"
+        }
+
+        test("resolves Oracle domain function result column types exactly") {
+            typeOf("SELECT DOMAIN_DISPLAY(name) AS c FROM emp") shouldBe "kotlin.String?"
+            typeOf("SELECT DOMAIN_ORDER(id) AS c FROM emp") shouldBe "java.math.BigDecimal?"
         }
 
         test("resolves Oracle collate expression result column types exactly") {
@@ -774,6 +1011,18 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT TZ_OFFSET(nickname) AS c FROM emp") shouldBe "kotlin.String?"
         }
 
+        test("resolves Oracle 26ai conversion result types and nullability exactly") {
+            typeOf("SELECT TO_BOOLEAN('TRUE') AS c FROM emp") shouldBe "kotlin.Boolean"
+            typeOf("SELECT TO_BOOLEAN(name) AS c FROM emp") shouldBe "kotlin.Boolean"
+            typeOf("SELECT TO_BOOLEAN(nickname) AS c FROM emp") shouldBe "kotlin.Boolean?"
+            typeOf("SELECT TO_BOOLEAN(CAST(NULL AS VARCHAR2(5))) AS c FROM emp") shouldBe "kotlin.Boolean?"
+            typeOf("SELECT TO_UTC_TIMESTAMP_TZ('2024-01-01') AS c FROM emp") shouldBe "java.time.OffsetDateTime"
+            typeOf("SELECT TO_UTC_TIMESTAMP_TZ(name) AS c FROM emp") shouldBe "java.time.OffsetDateTime"
+            typeOf("SELECT TO_UTC_TIMESTAMP_TZ(nickname) AS c FROM emp") shouldBe "java.time.OffsetDateTime?"
+            typeOf("SELECT TO_UTC_TIMESTAMP_TZ(CAST(NULL AS VARCHAR2(20))) AS c FROM emp") shouldBe
+                "java.time.OffsetDateTime?"
+        }
+
         test("propagates Oracle calendar function nullability exactly") {
             typeOf("SELECT CALENDAR_YEAR(created_ts) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT FISCAL_YEAR(created_ts, fiscal_start) AS c FROM emp") shouldBe "kotlin.String?"
@@ -800,6 +1049,15 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT VECTOR_DIMENSION_FORMAT(embedding) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT VECTOR_SERIALIZE(embedding RETURNING CLOB FORMAT DENSE) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT VECTOR_EMBEDDING(all_minilm_l12 USING nickname AS DATA) AS c FROM emp") shouldBe "kotlin.String?"
+        }
+
+        test("propagates Oracle vector distance shorthand nullability exactly") {
+            typeOf("SELECT target_embedding <-> target_embedding AS c FROM emp") shouldBe "kotlin.Double"
+            typeOf("SELECT target_embedding <=> target_embedding AS c FROM emp") shouldBe "kotlin.Double"
+            typeOf("SELECT target_embedding <#> target_embedding AS c FROM emp") shouldBe "kotlin.Double"
+            typeOf("SELECT embedding <-> target_embedding AS c FROM emp") shouldBe "kotlin.Double?"
+            typeOf("SELECT target_embedding <=> embedding AS c FROM emp") shouldBe "kotlin.Double?"
+            typeOf("SELECT embedding <#> embedding AS c FROM emp") shouldBe "kotlin.Double?"
         }
 
         test("resolves Oracle grouping function result column types exactly") {
@@ -837,9 +1095,32 @@ class OracleResultColumnTypeTest :
             typeOf("SELECT REGR_SXY(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
         }
 
+        test("resolves Oracle statistical test aggregate result types exactly") {
+            typeOf("SELECT STATS_BINOMIAL_TEST(id, 1, 0.5) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_BINOMIAL_TEST(id, 1, 0.5, 'TWO_SIDED_PROB') AS c FROM emp") shouldBe
+                "java.math.BigDecimal?"
+            typeOf("SELECT STATS_CROSSTAB(nickname, id) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_CROSSTAB(nickname, id, 'CHISQ_OBS') AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_F_TEST(id, salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_KS_TEST(id, salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_MW_TEST(id, salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_ONE_WAY_ANOVA(id, salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_T_TEST_ONE(salary, 0) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_T_TEST_PAIRED(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_T_TEST_INDEP(id, salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_T_TEST_INDEPU(id, salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_WSR_TEST(salary, bonus) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT STATS_MODE(nickname) AS c FROM emp") shouldBe "kotlin.String?"
+        }
+
         test("resolves Oracle value aggregate result column types exactly") {
             typeOf("SELECT ANY_VALUE(name) AS c FROM emp") shouldBe "kotlin.String?"
             typeOf("SELECT ANY_VALUE(salary) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT ANY_VALUE(CAST(1 AS NUMBER)) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT ANY_VALUE(CAST(? AS NUMBER)) AS c FROM emp") shouldBe "java.math.BigDecimal?"
+            typeOf("SELECT ANY_VALUE(CAST(:amount_bind AS NUMBER(10, 2))) AS c FROM emp") shouldBe
+                "java.math.BigDecimal?"
+            typeOf("SELECT ANY_VALUE(id + 1) AS c FROM emp") shouldBe "kotlin.Long?"
             typeOf("SELECT STATS_MODE(id) AS c FROM emp") shouldBe "kotlin.Long?"
             typeOf("SELECT STATS_MODE(nickname) AS c FROM emp") shouldBe "kotlin.String?"
         }

@@ -247,7 +247,7 @@ type_name ::= oracle_type_name | core_type_name {
   override = true
 }
 
-extension_expr ::= oracle_text_literal | oracle_floating_point_literal | oracle_boolean_literal_expr | oracle_boolean_not_expr | oracle_boolean_test_expr | oracle_extract_datetime_expr | oracle_character_function_expr | oracle_object_method_expr | oracle_object_attribute_expr | oracle_datetime_conversion_expr | oracle_number_conversion_expr | oracle_interval_conversion_expr | oracle_user_function_expr | oracle_collection_function_expr | oracle_object_reference_function_expr | oracle_oml_function_expr | oracle_ordered_aggregate_expr | oracle_approx_median_expr | oracle_analytic_function_expr | oracle_aggregate_function_expr | oracle_datetime_literal | oracle_interval_literal | oracle_at_time_zone_expr | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_condition_expr | oracle_multiset_expr | oracle_collate_expr | oracle_cursor_expr | oracle_validate_conversion_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_type_constructor_expr | oracle_qualified_column_expr {
+extension_expr ::= oracle_end_user_context_expr | oracle_text_literal | oracle_floating_point_literal | oracle_boolean_literal_expr | oracle_boolean_not_expr | oracle_boolean_test_expr | oracle_extract_datetime_expr | oracle_character_function_expr | oracle_object_method_expr | oracle_object_attribute_expr | oracle_datetime_conversion_expr | oracle_number_conversion_expr | oracle_interval_conversion_expr | oracle_time_bucket_expr | oracle_user_function_expr | oracle_collection_function_expr | oracle_object_reference_function_expr | oracle_oml_function_expr | oracle_approx_rank_expr | oracle_ordered_aggregate_expr | oracle_approx_median_expr | oracle_analytic_function_expr | oracle_aggregate_function_expr | oracle_datetime_literal | oracle_interval_literal | oracle_at_time_zone_expr | oracle_pseudocolumn_expr | oracle_operator_expr | oracle_condition_expr | oracle_multiset_expr | oracle_collate_expr | oracle_cursor_expr | oracle_validate_conversion_expr | oracle_type_conversion_expr | oracle_sql_json_expr | oracle_xml_expr | oracle_vector_expr | oracle_type_constructor_expr | oracle_qualified_column_expr {
   extends = "com.alecstrong.sql.psi.core.psi.impl.SqlExtensionExprImpl"
   implements = "com.alecstrong.sql.psi.core.psi.SqlExtensionExpr"
   override = true
@@ -263,6 +263,8 @@ bind_parameter ::= ( '?' | ':' ( {identifier} | DIGIT ) ) {
   implements = "com.alecstrong.sql.psi.core.psi.SqlBindParameter"
   override = true
 }
+
+private oracle_end_user_context_expr ::= 'ORA_END_USER_CONTEXT' [ DOT oracle_object_name_part ( DOT oracle_object_name_part ) * ]
 
 private oracle_text_literal ::= ( 'N' | 'n' ) {string_literal}
 
@@ -310,6 +312,10 @@ private oracle_number_conversion_expr ::= ( 'TO_NUMBER' | 'TO_BINARY_DOUBLE' | '
   [ COMMA <<expr '-1'>> [ COMMA <<expr '-1'>> ] ] RP
 
 private oracle_interval_conversion_expr ::= ( 'TO_DSINTERVAL' | 'TO_YMINTERVAL' ) LP <<expr '-1'>> 'DEFAULT' <<expr '-1'>> 'ON' 'CONVERSION' 'ERROR' RP
+
+private oracle_time_bucket_expr ::= 'TIME_BUCKET' LP <<expr '-1'>> COMMA <<expr '-1'>> COMMA <<expr '-1'>> [ COMMA ( 'START' | 'END' ) ] [ oracle_time_bucket_overflow_clause ] RP
+
+private oracle_time_bucket_overflow_clause ::= 'ON' 'OVERFLOW' ( 'ROUND' | 'ERROR' ) | 'LAST' 'DAY' 'OF' 'MONTH'
 
 private oracle_user_function_expr ::= (
   oracle_qualified_user_function_name [ oracle_dblink_clause ] LP [ oracle_user_function_argument ( COMMA oracle_user_function_argument ) * ] RP |
@@ -399,10 +405,14 @@ private oracle_from_first_last_clause ::= 'FROM' ( 'FIRST' | 'LAST' )
 
 private oracle_aggregate_function_expr ::= oracle_aggregate_function_name LP [ oracle_function_argument ( COMMA oracle_function_argument ) * ] RP [ oracle_filter_clause ] [ oracle_over_clause ]
 
+private oracle_approx_rank_expr ::= 'APPROX_RANK' LP [ oracle_query_partition_clause ] 'ORDER' 'BY' oracle_approx_rank_order_expr 'DESC' RP [ oracle_filter_clause ]
+
+private oracle_approx_rank_order_expr ::= 'APPROX_COUNT' LP '*' RP | 'APPROX_SUM' LP <<expr '-1'>> RP
+
 private oracle_aggregate_function_name ::= (
   'APPROX_COUNT' | 'APPROX_COUNT_DISTINCT' | 'APPROX_MEDIAN' | 'APPROX_SUM' |
   'AVG' | 'BIT_AND_AGG' | 'BIT_OR_AGG' | 'BIT_XOR_AGG' | 'BOOLEAN_AND_AGG' | 'BOOLEAN_OR_AGG' | 'CHECKSUM' |
-  'CORR' | 'COUNT' | 'COVAR_POP' | 'COVAR_SAMP' | 'KURTOSIS_POP' | 'KURTOSIS_SAMP' |
+  'CORR' | 'CORR_K' | 'CORR_S' | 'COUNT' | 'COVAR_POP' | 'COVAR_SAMP' | 'KURTOSIS_POP' | 'KURTOSIS_SAMP' |
   'MAX' | 'MEDIAN' | 'MIN' | 'SKEWNESS_POP' | 'SKEWNESS_SAMP' |
   'STDDEV' | 'STDDEV_POP' | 'STDDEV_SAMP' | 'SUM' | 'VARIANCE' | 'VAR_POP' | 'VAR_SAMP'
 )
@@ -465,7 +475,7 @@ private oracle_xmlelement_expr ::= 'XMLELEMENT' LP [ oracle_xml_escaping_clause 
 
 private oracle_xml_escaping_clause ::= 'ENTITYESCAPING' | 'NOENTITYESCAPING'
 
-private oracle_xmlelement_name ::= [ 'NAME' ] oracle_xml_name
+private oracle_xmlelement_name ::= 'EVALNAME' <<expr '-1'>> | [ 'NAME' ] oracle_xml_name
 
 private oracle_xml_element_content ::= oracle_xmlattributes_expr | <<expr '-1'>> [ oracle_xml_content_alias ]
 
@@ -537,7 +547,7 @@ private oracle_xml_passing_clause ::= 'PASSING' [ 'BY' 'VALUE' ] oracle_xml_pass
 
 private oracle_xml_passing_binding ::= <<expr '-1'>> [ 'AS' oracle_xml_name ]
 
-private oracle_xml_name ::= {string_literal} | string | oracle_object_name_part | 'EVALNAME' <<expr '-1'>>
+private oracle_xml_name ::= {string_literal} | string | oracle_object_name_part
 
 private oracle_vector_expr ::= oracle_to_vector_expr | oracle_vector_distance_expr | oracle_vector_embedding_expr | oracle_vector_serialize_expr
 
@@ -547,9 +557,9 @@ private oracle_vector_distance_expr ::= oracle_vector_distance_function_expr | o
 
 private oracle_vector_distance_function_expr ::= 'VECTOR_DISTANCE' LP <<expr '-1'>> COMMA <<expr '-1'>> [ COMMA oracle_vector_distance_metric ] RP
 
-private oracle_vector_distance_shorthand_expr ::= oracle_vector_distance_operand oracle_vector_distance_operator oracle_vector_distance_operand
+oracle_vector_distance_shorthand_expr ::= oracle_vector_distance_operand oracle_vector_distance_operator oracle_vector_distance_operand
 
-private oracle_vector_distance_operand ::= oracle_to_vector_expr | oracle_condition_operand
+oracle_vector_distance_operand ::= oracle_to_vector_expr | oracle_condition_operand
 
 private oracle_vector_distance_operator ::= '<->' | '<=>' | '<#>'
 
@@ -631,7 +641,11 @@ private oracle_json_transform_type_clause ::= 'TYPE' LP ( 'STRICT' | 'LAX' ) RP
 
 private oracle_json_passing_clause ::= 'PASSING' oracle_json_passing_binding ( COMMA oracle_json_passing_binding ) *
 
-private oracle_json_passing_binding ::= <<expr '-1'>> 'AS' oracle_json_passing_identifier
+private oracle_json_passing_binding ::= oracle_json_passing_expr 'AS' oracle_json_passing_identifier
+
+oracle_json_passing_expr ::= <<expr '-1'>> {
+  implements = "com.alecstrong.sql.psi.core.psi.SqlExpr"
+}
 
 private oracle_json_transform_operation ::= (
   oracle_json_transform_set_operation |
@@ -871,6 +885,7 @@ private oracle_simple_pseudocolumn ::= (
   'CONNECT_BY_ISCYCLE' |
   'CONNECT_BY_ISLEAF' |
   'CURRENT_DATE' |
+  'CURRENT_SCHEMA' |
   'CURRENT_TIMESTAMP' |
   'CURRENT_USER' |
   'DBTIMEZONE' |
@@ -884,6 +899,7 @@ private oracle_simple_pseudocolumn ::= (
   'ORA_SHARDSPACE_NAME' |
   'ROWID' |
   'ROWNUM' |
+  'SESSION_USER' |
   'SESSIONTIMEZONE' |
   'SYSDATE' |
   'SYSTIMESTAMP' |
@@ -1100,7 +1116,60 @@ private oracle_row_limiting_clause ::= (
   oracle_fetch_clause
 )
 
-private oracle_fetch_clause ::= 'FETCH' oracle_row_limiting_fetch_token +
+private oracle_fetch_clause ::= 'FETCH' (
+  oracle_default_fetch_clause |
+  oracle_structured_fetch_clause |
+  oracle_row_limiting_fetch_token +
+)
+
+private oracle_default_fetch_clause ::= ( 'FIRST' | 'NEXT' )
+  ( 'ROW' | 'ROWS' ) ( 'ONLY' | 'WITH' 'TIES' )
+
+private oracle_structured_fetch_clause ::= [ ( 'EXACT' | 'APPROX' | 'APPROXIMATE' ) ]
+  ( 'FIRST' [ 'NUMBER' ] [ 'TO' ] [ 'NUMBER' ] | 'NEXT' )
+  oracle_row_limiting_partition_clause * oracle_row_specification [ oracle_accuracy_clause ]
+
+private oracle_row_limiting_partition_clause ::= ! ( 'ROW' | 'ROWS' ) {limiting_term}
+  [ ( 'PARTITION' | 'PARTITIONS' ) 'BY' ] oracle_row_limiting_partition_expression COMMA
+
+private oracle_row_limiting_partition_expression ::= oracle_row_limiting_partition_expression_token +
+
+private oracle_row_limiting_partition_expression_token ::= (
+  oracle_row_limiting_partition_parenthesized_expression |
+  {bind_parameter} |
+  oracle_object_name_part |
+  {string_literal} |
+  string |
+  DIGIT |
+  {signed_number} |
+  DOT |
+  EQ |
+  '+' |
+  '-' |
+  '*' |
+  '/' |
+  '||'
+)
+
+private oracle_row_limiting_partition_parenthesized_expression ::= LP (
+  oracle_row_limiting_partition_expression_token |
+  COMMA
+) * RP
+
+private oracle_row_specification ::= (
+  ( 'ROW' | 'ROWS' ) ( 'ONLY' | 'WITH' 'TIES' ) |
+  {limiting_term} [ 'PERCENT' ] ( 'ROW' | 'ROWS' ) ( 'ONLY' | 'WITH' 'TIES' )
+)
+
+private oracle_accuracy_clause ::= [ 'WITH' ] [ 'TARGET' ] 'ACCURACY' (
+  'PARAMETERS' LP (
+    'EFSEARCH' {limiting_term}
+      [ COMMA 'NEIGHBOR' 'PARTITION' 'PROBES' {limiting_term} ] |
+    'NEIGHBOR' 'PARTITION' 'PROBES' {limiting_term}
+      [ COMMA 'EFSEARCH' {limiting_term} ]
+  ) RP |
+  {limiting_term} [ 'PERCENT' ]
+)
 
 private oracle_row_limiting_fetch_token ::= (
   oracle_object_name_part |
@@ -1134,7 +1203,8 @@ private oracle_row_limiting_fetch_token ::= (
   'TARGET' |
   'TIES' |
   'TO' |
-  'WITH'
+  'WITH' |
+  {limiting_term}
 )
 
 compound_operator ::= (
@@ -1496,14 +1566,18 @@ private oracle_flashback_query_clause ::= (
 private oracle_flashback_versions_clause ::= 'VERSIONS' 'BETWEEN' ( 'SCN' | 'TIMESTAMP' )
   oracle_flashback_boundary 'AND' oracle_flashback_boundary [ oracle_flashback_as_of_clause ]
 
-private oracle_flashback_as_of_clause ::= 'AS' 'OF' ( 'SCN' | 'TIMESTAMP' ) <<expr '-1'>>
+private oracle_flashback_as_of_clause ::= 'AS' 'OF' ( 'SCN' | 'TIMESTAMP' ) oracle_flashback_expr
 
 private oracle_flashback_versions_period_clause ::= 'VERSIONS' 'PERIOD' 'FOR' oracle_object_name_part
   'BETWEEN' oracle_flashback_boundary 'AND' oracle_flashback_boundary
 
-private oracle_flashback_as_of_period_clause ::= 'AS' 'OF' 'PERIOD' 'FOR' oracle_object_name_part <<expr '-1'>>
+private oracle_flashback_as_of_period_clause ::= 'AS' 'OF' 'PERIOD' 'FOR' oracle_object_name_part oracle_flashback_expr
 
-private oracle_flashback_boundary ::= 'MINVALUE' | 'MAXVALUE' | <<expr '-1'>>
+private oracle_flashback_boundary ::= 'MINVALUE' | 'MAXVALUE' | oracle_flashback_expr
+
+oracle_flashback_expr ::= <<expr '-1'>> {
+  implements = "com.alecstrong.sql.psi.core.psi.SqlExpr"
+}
 
 private oracle_table_transform_clause ::= oracle_pivot_clause | oracle_unpivot_clause | oracle_row_pattern_clause
 
@@ -1525,7 +1599,11 @@ private oracle_pivot_in_clause ::= 'IN' LP (
   oracle_pivot_in_entry ( COMMA oracle_pivot_in_entry ) *
 ) RP
 
-private oracle_pivot_in_entry ::= ( LP <<expr '-1'>> ( COMMA <<expr '-1'>> ) * RP | <<expr '-1'>> ) [ [ 'AS' ] oracle_object_name_part ]
+private oracle_pivot_in_entry ::= ( LP oracle_pivot_in_value ( COMMA oracle_pivot_in_value ) * RP | oracle_pivot_in_value ) [ [ 'AS' ] oracle_object_name_part ]
+
+oracle_pivot_in_value ::= <<expr '-1'>> {
+  implements = "com.alecstrong.sql.psi.core.psi.SqlExpr"
+}
 
 private oracle_unpivot_clause ::= 'UNPIVOT' [ ( 'INCLUDE' | 'EXCLUDE' ) 'NULLS' ] LP
   oracle_pivot_column_group
@@ -1752,7 +1830,7 @@ private oracle_insert_set_row ::= LP oracle_insert_set_assignment_list RP
 
 private oracle_insert_set_assignment_list ::= oracle_insert_set_assignment ( COMMA oracle_insert_set_assignment ) *
 
-private oracle_insert_set_assignment ::= {column_name} EQ ( 'DEFAULT' | <<expr '-1'>> )
+private oracle_insert_set_assignment ::= {column_name} EQ ( 'DEFAULT' | {setter_expression} )
 
 private oracle_by_name_position_clause ::= 'BY' ( 'NAME' | 'POSITION' )
 
@@ -1769,7 +1847,11 @@ private oracle_multi_table_insert_into_clause ::= 'INTO' oracle_insert_target_ta
   [ LP {column_name} ( COMMA {column_name} ) * RP ]
   [ 'VALUES' LP oracle_multi_table_insert_value ( COMMA oracle_multi_table_insert_value ) * RP ]
 
-private oracle_multi_table_insert_value ::= 'DEFAULT' | <<expr '-1'>>
+private oracle_multi_table_insert_value ::= 'DEFAULT' | oracle_multi_table_insert_value_expr
+
+oracle_multi_table_insert_value_expr ::= <<expr '-1'>> {
+  implements = "com.alecstrong.sql.psi.core.psi.SqlExpr"
+}
 
 update_stmt ::= oracle_update_stmt {
   mixin = "dev.s7a.sqldelight.oracle.dialects.oracle.grammar.mixins.OracleUpdateStmtMixin"
@@ -1833,7 +1915,9 @@ private oracle_returning_clause ::= ( 'RETURN' | 'RETURNING' ) oracle_returning_
 
 private oracle_returning_expr ::= [ 'OLD' | 'NEW' ] <<expr '-1'>>
 
-private oracle_returning_target ::= {bind_expr} | oracle_schema_object_name
+private oracle_returning_target ::= oracle_returning_bind_target | oracle_schema_object_name
+
+private oracle_returning_bind_target ::= '?' | ':' ( {identifier} | DIGIT )
 
 qualified_table_name ::= (
   'ONLY' LP [ <<databaseNameExt <<database_name_real>>>> DOT ] <<tableNameExt <<table_name_real>>>> [ oracle_dblink_clause ] RP |
@@ -1859,6 +1943,7 @@ table_alias ::= !oracle_table_alias_stop_keyword ( <<identifierExt <<identifier_
 private oracle_table_alias_stop_keyword ::= (
   'CONNECT' |
   'CROSS' |
+  'FETCH' |
   'FOR' |
   'FULL' |
   'GROUP' |
@@ -6142,12 +6227,20 @@ private oracle_merge_insert_clause ::= 'WHEN' 'NOT' 'MATCHED' 'THEN' 'INSERT' (
 
 private oracle_merge_assignment ::= oracle_schema_object_name EQ oracle_merge_value
 
-private oracle_merge_value ::= 'DEFAULT' | <<expr '-1'>>
+private oracle_merge_value ::= 'DEFAULT' | oracle_merge_value_expr
+
+oracle_merge_value_expr ::= <<expr '-1'>> {
+  implements = "com.alecstrong.sql.psi.core.psi.SqlExpr"
+}
 
 private oracle_where_clause ::= 'WHERE' <<expr '-1'>>
 
-private oracle_error_logging_clause ::= 'LOG' 'ERRORS' [ 'INTO' oracle_schema_object_name ] [ LP <<expr '-1'>> RP ]
+private oracle_error_logging_clause ::= 'LOG' 'ERRORS' [ 'INTO' oracle_schema_object_name ] [ LP oracle_error_logging_tag_expr RP ]
   [ 'REJECT' 'LIMIT' ( {signed_number} | 'UNLIMITED' ) ]
+
+oracle_error_logging_tag_expr ::= <<expr '-1'>> {
+  implements = "com.alecstrong.sql.psi.core.psi.SqlExpr"
+}
 
 call_stmt ::= 'CALL' ( oracle_call_object_access_expression | oracle_call_routine_clause )
   [ oracle_call_into_clause ] {
